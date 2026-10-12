@@ -54,6 +54,12 @@ def load_registry(root: Path) -> dict:
         for key in ("install", "test", "contract", "package"):
             if not entries.get(key):
                 raise ValueError(f"plugin {name}: missing {key} entry")
+        toolchains = row.get("toolchains", [])
+        if not isinstance(toolchains, list) or not toolchains:
+            raise ValueError(f"plugin {name}: missing toolchains")
+        for toolchain in toolchains:
+            if toolchain not in languages:
+                raise ValueError(f"plugin {name}: unknown toolchain {toolchain}")
         for protocol in row.get("protocols", []):
             if not isinstance(protocol, str) or not protocol:
                 raise ValueError(f"plugin {name}: invalid protocol")
@@ -124,6 +130,7 @@ def classify(paths: list[str], registry: dict) -> dict:
     matrix = {
         "include": [
             {"plugin": name, "language": plugins[name]["language"], "path": plugins[name]["path"],
+             "toolchains": plugins[name]["toolchains"],
              "entries": {key: plugins[name]["entries"][key]
                          for key in ("install", "test", "contract", "package")}}
             for name in sorted(affected)

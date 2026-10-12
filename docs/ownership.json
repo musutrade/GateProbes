@@ -7,7 +7,8 @@
     "schema/collector-protocol.schema.json": "protocol/collector-protocol.schema.json",
     "LICENSE": "LICENSE",
     "tools/quality/rust-measure/": "plugins/rust-measure/",
-    "tools/quality/http-json-contract/": "plugins/http-json-contract/"
+    "tools/quality/http-json-contract/": "plugins/http-json-contract/",
+    "tools/quality/rust-source-risk/": "plugins/rust-source-risk/"
   },
   "excluded_from_snapshot": [
     "Git history",
@@ -47,6 +48,13 @@
       ],
       "authority": "measurement-only",
       "contract_test": "plugins/http-json-contract/contract.py"
+    },
+    "rust-source-risk": {
+      "paths": [
+        "plugins/rust-source-risk"
+      ],
+      "authority": "measurement-only",
+      "contract_test": "plugins/rust-source-risk/contract.py"
     }
   },
   "inputs": [
@@ -57,6 +65,7 @@
     "plugins/typescript-risk/plugin.json",
     "plugins/registry.json",
     "plugins/rust-measure/Cargo.lock",
-    "plugins/http-json-contract/npm-shrinkwrap.json"
+    "plugins/http-json-contract/npm-shrinkwrap.json",
+    "plugins/rust-source-risk/ast/Cargo.lock"
   ]
 }

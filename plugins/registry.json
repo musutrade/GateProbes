@@ -21,6 +21,9 @@
       },
       "protocols": [
         "protocol/collector-protocol.schema.json"
+      ],
+      "toolchains": [
+        "typescript"
       ]
     },
     "rust-measure": {
@@ -36,7 +39,10 @@
         "contract": "python3 contract.py --binary target/release/harness-gate-rust-measure --core-root \"$RUNNER_TEMP/core/tools/quality\"",
         "package": "cargo build --locked --release"
       },
-      "protocols": []
+      "protocols": [],
+      "toolchains": [
+        "rust"
+      ]
     },
     "http-json-contract": {
       "path": "plugins/http-json-contract",
@@ -50,6 +56,28 @@
         "test": "npm test",
         "contract": "python3 contract.py --cli cli.cjs --core-root \"$RUNNER_TEMP/core/tools/quality\"",
         "package": "npm pack --ignore-scripts"
+      },
+      "protocols": [],
+      "toolchains": [
+        "typescript"
+      ]
+    },
+    "rust-source-risk": {
+      "path": "plugins/rust-source-risk",
+      "language": "python",
+      "toolchains": [
+        "python",
+        "rust"
+      ],
+      "platforms": [
+        "linux"
+      ],
+      "toolchain": "python 3.14 + rust stable",
+      "entries": {
+        "install": "cargo build --locked --release --manifest-path ast/Cargo.toml && cp ast/target/release/harness-gate-rust-source-inventory inventory",
+        "test": "cargo test --locked --manifest-path ast/Cargo.toml && RUST_SOURCE_INVENTORY=\"$PWD/inventory\" python3 -m unittest discover -s . -p \"test_*.py\" -v",
+        "contract": "RUST_SOURCE_INVENTORY=\"$PWD/inventory\" python3 -m unittest test_protocol -v && python3 contract.py --core-root \"$RUNNER_TEMP/core/tools/quality\"",
+        "package": "tar -czf \"harness-gate-rust-source-risk-$(python3 -c \"import json;print(json.load(open('plugin.json'))['version'])\")-linux-amd64.tar.gz\" plugin.py measure.py capture.py plugin.json LICENSE README.md inventory ast/Cargo.lock"
       },
       "protocols": []
     }

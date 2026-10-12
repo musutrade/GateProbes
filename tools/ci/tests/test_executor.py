@@ -13,12 +13,12 @@ ROOT = Path(__file__).resolve().parents[3]
 
 class ExecutorTests(unittest.TestCase):
     def test_implemented_executors_pass(self):
-        for language in ("typescript", "rust"):
+        for language in ("python", "rust", "typescript"):
             with self.subTest(language=language):
                 self.assertEqual(executor.check(language), language)
 
-    def test_planned_languages_fail_explicitly_until_their_executor_lands(self):
-        for language in ("python",):
+    def test_unregistered_languages_fail_explicitly(self):
+        for language in ("go", "kotlin"):
             with self.subTest(language=language):
                 with self.assertRaisesRegex(ValueError, "no executor implemented"):
                     executor.check(language)
