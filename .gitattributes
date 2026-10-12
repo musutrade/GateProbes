@@ -1,0 +1,3 @@
+# Frozen evidence and source manifests hash the committed bytes. Keep text
+# checkouts identical on Windows, macOS and Linux; leave binary artifacts intact.
+* text=auto eol=lf
