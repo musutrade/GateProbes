@@ -152,10 +152,44 @@ def registry_failures(root: Path) -> list[str]:
     return failures
 
 
+def ownership_registry_parity_failures(root: Path) -> list[str]:
+    """Registry plugins, ownership entries and declared inputs stay in step."""
+    failures = []
+    try:
+        ownership = json.loads((root / "docs" / "ownership.json").read_text())
+        registry = json.loads((root / "plugins" / "registry.json").read_text())
+    except (OSError, json.JSONDecodeError) as error:
+        return [f"ownership/registry parity: {error}"]
+    declared = ownership.get("plugins", {})
+    registered = registry.get("plugins", {})
+    if set(declared) != set(registered):
+        failures.append("docs/ownership.json plugins differ from plugins/registry.json: "
+                        f"ownership-only={sorted(set(declared) - set(registered))} "
+                        f"registry-only={sorted(set(registered) - set(declared))}")
+    for name in sorted(set(declared) & set(registered)):
+        row, own = registered[name], declared[name]
+        path = row.get("path") if isinstance(row, dict) else None
+        if not isinstance(path, str) or not path:
+            failures.append(f"plugins/registry.json: {name} has no path")
+            continue
+        if own.get("paths") != [path]:
+            failures.append(f"docs/ownership.json: {name} paths do not match the registry path")
+        contract = own.get("contract_test")
+        if not contract or not (root / contract).is_file():
+            failures.append(f"docs/ownership.json: {name} contract_test is missing: {contract}")
+    for entry in ownership.get("inputs", []):
+        if not (root / entry).exists():
+            failures.append(f"docs/ownership.json: declared input is missing: {entry}")
+    for source, destination in ownership.get("path_map", {}).items():
+        if not (root / destination.rstrip("/")).exists():
+            failures.append(f"docs/ownership.json: path_map destination is missing: {destination} (from {source})")
+    return failures
+
+
 def check(root: Path = ROOT) -> list[str]:
     return (link_failures(root) + ownership_failures(root)
             + artifact_failures(root) + plugin_declaration_failures(root)
-            + registry_failures(root))
+            + registry_failures(root) + ownership_registry_parity_failures(root))
 
 
 def main() -> int:

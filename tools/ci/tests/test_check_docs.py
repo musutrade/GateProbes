@@ -13,10 +13,12 @@ OWNERSHIP = {
     "schema": "gateprobes-ownership/v1",
     "source_repository": "https://github.com/musutrade/Harness-Gate",
     "source_commit": "a" * 40,
-    "path_map": {"tools/quality/typescript-risk/": "plugins/typescript-risk/"},
+    "path_map": {"tools/quality/demo/": "plugins/demo/"},
     "core_contract": {"release": "v0.4.8", "binary": "harness-gate-linux-amd64",
                       "sha256": "b" * 64, "version": "0.4.8"},
-    "plugins": {"demo": {"paths": ["plugins/demo"]}},
+    "plugins": {"demo": {"paths": ["plugins/demo"],
+                         "contract_test": "plugins/demo/plugin.json"}},
+    "inputs": ["plugins/registry.json", "plugins/demo/plugin.json"],
 }
 
 REGISTRY = {
@@ -82,6 +84,22 @@ class CheckDocsTests(unittest.TestCase):
             json.dumps({"name": "other", "version": "1", "executable": "other"}))
         failures = check_docs.check(self.root)
         self.assertTrue(any("plugins/other" in failure for failure in failures), failures)
+
+    def test_registry_ownership_parity_fails(self):
+        value = json.loads(json.dumps(OWNERSHIP))
+        value["plugins"] = {}
+        (self.root / "docs" / "ownership.json").write_text(json.dumps(value))
+        failures = check_docs.check(self.root)
+        self.assertTrue(any("differ from plugins/registry.json" in failure for failure in failures), failures)
+
+    def test_missing_contract_test_and_input_fail(self):
+        value = json.loads(json.dumps(OWNERSHIP))
+        value["plugins"]["demo"]["contract_test"] = "plugins/demo/missing.py"
+        value["inputs"] = ["plugins/registry.json", "plugins/demo/missing.json"]
+        (self.root / "docs" / "ownership.json").write_text(json.dumps(value))
+        failures = check_docs.check(self.root)
+        self.assertTrue(any("contract_test is missing" in failure for failure in failures), failures)
+        self.assertTrue(any("declared input is missing" in failure for failure in failures), failures)
 
     def test_registry_with_empty_plugin_object_fails(self):
         (self.root / "plugins" / "registry.json").write_text(json.dumps({
