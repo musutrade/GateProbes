@@ -1,0 +1,28 @@
+{
+  "name": "@harness-gate/http-json-contract-collector",
+  "version": "0.1.0-rc.5",
+  "private": true,
+  "license": "MIT",
+  "bin": {
+    "harness-gate-http-contract-collector": "cli.cjs"
+  },
+  "scripts": {
+    "test": "node --test test.cjs business.test.cjs"
+  },
+  "dependencies": {
+    "typescript": "6.0.2"
+  },
+  "files": [
+    "cli.cjs",
+    "protocol.cjs",
+    "measure.cjs",
+    "strict-json.cjs",
+    "project.cjs",
+    "README.md",
+    "LICENSE",
+    "npm-shrinkwrap.json",
+    "schema.cjs",
+    "clients.cjs",
+    "legacy-measure.cjs"
+  ]
+}

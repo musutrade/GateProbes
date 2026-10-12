@@ -11,6 +11,7 @@ protocol validation, budgets, thresholds, baselines and the final decision.
 | --- | --- |
 | `plugins/typescript-risk/` | TypeScript plugin: original-TypeScript AST complexity, coverage and exact rational CRAP |
 | `plugins/rust-measure/` | Rust plugin: AST inventory consumed by the pinned Core function-risk gate |
+| `plugins/http-json-contract/` | TypeScript plugin: HTTP/JSON contract and Angular client-drift measurement |
 | `plugins/registry.json` | Plugin registry: directory, language, platforms, entries and shared protocols |
 | `protocol/collector-protocol.schema.json` | Generated copy of the Core host contract; Core is the editable source |
 | `docs/ownership.json` | Migration provenance, path mapping and the pinned Core contract identity |
@@ -40,8 +41,9 @@ never passes. Unknown scope runs the conservative full set.
 
 `plugins/registry.json` registers each plugin's directory, language, supported
 platforms, install/test/contract/package entries and the shared protocols it
-depends on. The classifier turns changed paths into an affected-plugin matrix;
-toolchains are selected per language from that matrix. The plugin job
+depends on. The classifier turns changed paths into an affected-plugin matrix carrying
+each plugin's registered install/test/contract/package entries; toolchains are
+selected per language and the commands come from the registry. The plugin job
 unconditionally verifies that an executor exists for the selected language and
 fails explicitly for anything other than Rust and TypeScript today; a planned
 language is opened only in the change that adds its executor and registry entry
