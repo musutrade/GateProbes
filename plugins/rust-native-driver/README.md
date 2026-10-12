@@ -6,8 +6,8 @@ driver; running its binary needs the matching compiler libraries/sysroot and
 LLVM tools, without requiring the build-only development crates.
 
 This page documents source development commands. Users of the published optional
-Rust plugin should start with the [installation guide](../../../docs/quality/rust-collector-installation.md)
-and [current compatibility record](../../../docs/release-status.md#compatibility).
+Rust plugin should start with the [installation guide](https://github.com/musutrade/Harness-Gate/blob/main/docs/quality/rust-collector-installation.md)
+and [current compatibility record](https://github.com/musutrade/Harness-Gate/blob/main/docs/release-status.md#compatibility).
 
 This opt-in development collector uses rustc **1.97.1**, commit
 `8bab26f4f68e0e26f0bb7960be334d5b520ea452`, LLVM **22.1.6** and
@@ -101,7 +101,7 @@ hashes, Cargo manifests/lockfile, collector and projection rules partition histo
 reviewed base/head contexts, explicit hotspot selections, `--repository-root`,
 `--policy-binding` and a released
 `harness-gate` binary. It emits generic typed evidence and calls `quality evaluate`.
-The [project policy](../../../docs/quality/native-crap-policy.md) supplies the exact
+The [project policy](https://github.com/musutrade/Harness-Gate/blob/main/docs/quality/native-crap-policy.md) supplies the exact
 CRAP ceiling; line/region thresholds remain 80%. Aggregate coverage is required;
 changed CC>10 functions and selected hotspots require all thresholds, other
 changed functions require CRAP, and all historical rows require non-regression.
@@ -121,7 +121,7 @@ The real tests require the two `NATIVE_DRIVER*` variables above; without them th
 report an explicit skip. They retain each real compile/sample/export and the
 Rust policy outputs under `target/gh-220/driver-tests`. Small fixtures establish
 their own scope only. The pinned Arc-Admin report and scope limitations are indexed
-in [GH-220 evidence](../../../docs/quality/gh-220/README.md).
+in [GH-220 evidence](https://github.com/musutrade/Harness-Gate/blob/main/docs/quality/gh-220/README.md).
 
 ## File classification
 
@@ -147,6 +147,6 @@ and the full compiler-to-LLVM join against the accepted report, and records abse
 original binaries. It does not re-export LLVM or access recorded external paths.
 Classification success is exit 0 even if the preserved measurement fails coverage
 thresholds; this report never accepts a baseline or changes a gate.
-The [GH-221 evidence](../../../docs/quality/gh-221/README.md) includes all 47 backend
+The [GH-221 evidence](https://github.com/musutrade/Harness-Gate/blob/main/docs/quality/gh-221/README.md) includes all 47 backend
 files, the five historical omissions and reproducible retained-archive inspection.
 The old LLVM file-summary series remains separate and unresolved.

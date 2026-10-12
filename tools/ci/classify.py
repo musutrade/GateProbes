@@ -60,6 +60,12 @@ def load_registry(root: Path) -> dict:
         for toolchain in toolchains:
             if toolchain not in languages:
                 raise ValueError(f"plugin {name}: unknown toolchain {toolchain}")
+        if row.get("language") == "rust":
+            for key in ("rust_toolchain", "rust_components"):
+                if not row.get(key):
+                    raise ValueError(f"plugin {name}: missing {key}")
+            if not isinstance(row.get("cargo_checks"), bool):
+                raise ValueError(f"plugin {name}: cargo_checks must be a boolean")
         for protocol in row.get("protocols", []):
             if not isinstance(protocol, str) or not protocol:
                 raise ValueError(f"plugin {name}: invalid protocol")
@@ -132,7 +138,10 @@ def classify(paths: list[str], registry: dict) -> dict:
             {"plugin": name, "language": plugins[name]["language"], "path": plugins[name]["path"],
              "toolchains": plugins[name]["toolchains"],
              "entries": {key: plugins[name]["entries"][key]
-                         for key in ("install", "test", "contract", "package")}}
+                         for key in ("install", "test", "contract", "package")},
+             **{key: plugins[name][key] for key in
+                ("rust_toolchain", "rust_components", "cargo_checks", "merges_schemas")
+                if key in plugins[name]}}
             for name in sorted(affected)
         ]
     }

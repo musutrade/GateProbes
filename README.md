@@ -13,6 +13,7 @@ protocol validation, budgets, thresholds, baselines and the final decision.
 | `plugins/rust-measure/` | Rust plugin: AST inventory consumed by the pinned Core function-risk gate |
 | `plugins/http-json-contract/` | TypeScript plugin: HTTP/JSON contract and Angular client-drift measurement |
 | `plugins/rust-source-risk/` | Python-entry plugin with a Rust AST inventory: Rust source complexity, coverage and CRAP |
+| `plugins/rust-native-plugin/`, `plugins/rust-native-driver/` | External-toolchain native plugin: compiler-private MIR driver plus the unpackaged plugin builder (Linux acceptance) |
 | `plugins/registry.json` | Plugin registry: directory, language, platforms, entries and shared protocols |
 | `protocol/collector-protocol.schema.json` | Generated copy of the Core host contract; Core is the editable source |
 | `docs/ownership.json` | Migration provenance, path mapping and the pinned Core contract identity |
@@ -52,7 +53,11 @@ in the same round. All plugins share the same
 protocol acceptance: startup, I/O format, error handling and compatibility with
 the pinned Core release identity in `docs/ownership.json`. Rust plugins also carry the checked-in
 `clippy.toml` threshold (cognitive complexity 10) and enable the lint as a
-warning, so `clippy -D warnings` gates on it.
+warning. Plugins with `cargo_checks: true` additionally run `cargo fmt` and
+`cargo clippy -D warnings`; the native plugin uses its dedicated `build.py`/
+rustc path instead, so its declared lint settings are not a claim that the
+directly compiled launcher ran Clippy. This round registers Linux acceptance
+only; other platforms and release/signing migration are not done yet.
 
 ## License
 

@@ -84,11 +84,19 @@ def artifact_failures(root: Path) -> list[str]:
 def plugin_declaration_failures(root: Path) -> list[str]:
     failures = []
     try:
-        declared = set(json.loads((root / "docs" / "ownership.json").read_text()).get("plugins", {}))
+        ownership = json.loads((root / "docs" / "ownership.json").read_text())
+        registry = json.loads((root / "plugins" / "registry.json").read_text())
     except (OSError, json.JSONDecodeError):
         return ["docs/ownership.json: unreadable plugin declarations"]
+    declared = set(ownership.get("plugins", {}))
+    companions = set(ownership.get("companions", []))
+    for row in registry.get("plugins", {}).values():
+        companions.update(row.get("companions", []))
     for directory in sorted((root / "plugins").iterdir()):
         if not directory.is_dir():
+            continue
+        relative = directory.relative_to(root).as_posix()
+        if relative in companions:
             continue
         if directory.name not in declared:
             failures.append(f"plugins/{directory.name}: not declared in docs/ownership.json")
@@ -146,8 +154,11 @@ def registry_failures(root: Path) -> list[str]:
         for protocol in row.get("protocols", []):
             if not (root / protocol).is_file():
                 failures.append(f"plugins/registry.json: {name} protocol is missing: {protocol}")
+    companions = {name for row in plugins.values()
+                  for name in row.get("companions", []) if isinstance(row, dict)}
     for directory in sorted((root / "plugins").iterdir()):
-        if directory.is_dir() and directory.name not in plugins:
+        relative = directory.relative_to(root).as_posix()
+        if directory.is_dir() and directory.name not in plugins and relative not in companions:
             failures.append(f"plugins/{directory.name}: not registered in plugins/registry.json")
     return failures
 
