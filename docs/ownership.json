@@ -1,0 +1,43 @@
+{
+  "schema": "gateprobes-ownership/v1",
+  "source_repository": "https://github.com/musutrade/Harness-Gate",
+  "source_commit": "dcc9194d4c01c4994983af505cf1191774fea70e",
+  "path_map": {
+    "tools/quality/typescript-risk/": "plugins/typescript-risk/",
+    "schema/collector-protocol.schema.json": "protocol/collector-protocol.schema.json",
+    "LICENSE": "LICENSE"
+  },
+  "excluded_from_snapshot": [
+    "Git history",
+    "historical CI logs",
+    "screenshots",
+    "manual acceptance reports",
+    "build caches",
+    "old binaries",
+    "node_modules"
+  ],
+  "core_contract": {
+    "release": "v0.4.8",
+    "repository": "musutrade/Harness-Gate",
+    "binary": "harness-gate-linux-amd64",
+    "sha256": "888fa1527eae37e3163aac2e1479e91ec03a0c8380b3c49da6e9266575597418",
+    "version": "0.4.8",
+    "source_commit": "dcc9194d4c01c4994983af505cf1191774fea70e"
+  },
+  "plugins": {
+    "typescript-risk": {
+      "paths": [
+        "plugins/typescript-risk"
+      ],
+      "authority": "measurement-only",
+      "contract_test": "plugins/typescript-risk/test-core.cjs"
+    }
+  },
+  "inputs": [
+    "docs/ownership.json",
+    "protocol/collector-protocol.schema.json",
+    "plugins/typescript-risk/package.json",
+    "plugins/typescript-risk/npm-shrinkwrap.json",
+    "plugins/typescript-risk/plugin.json"
+  ]
+}
