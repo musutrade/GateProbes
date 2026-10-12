@@ -8,6 +8,7 @@ validated here and never treated as ordinary documentation.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import re
@@ -84,6 +85,39 @@ def ownership_failures(root: Path) -> list[str]:
     return failures
 
 
+def generated_copy_failures(root: Path) -> list[str]:
+    """Shared release tools are generated copies of a pinned GateHouse revision."""
+    try:
+        value = json.loads((root / "docs" / "ownership.json").read_text())
+    except (OSError, json.JSONDecodeError) as error:
+        return [f"docs/ownership.json: {error}"]
+    copies = value.get("generated_copies")
+    if copies is None:
+        return []
+    if not isinstance(copies, dict):
+        return ["docs/ownership.json: generated_copies must be an object"]
+    failures = []
+    for destination, row in sorted(copies.items()):
+        if not isinstance(row, dict):
+            failures.append(f"docs/ownership.json: generated copy {destination} is invalid")
+            continue
+        for field in ("source_repository", "source_path"):
+            if not isinstance(row.get(field), str) or not row[field]:
+                failures.append(f"docs/ownership.json: generated copy {destination} is missing {field}")
+        if not FULL_SHA.fullmatch(str(row.get("source_revision", ""))):
+            failures.append(f"docs/ownership.json: generated copy {destination} needs a full revision")
+        if not FULL_DIGEST.fullmatch(str(row.get("sha256", ""))):
+            failures.append(f"docs/ownership.json: generated copy {destination} needs a full sha256")
+        path = root / destination
+        if not path.is_file():
+            failures.append(f"docs/ownership.json: generated copy is missing: {destination}")
+            continue
+        actual = hashlib.sha256(path.read_bytes()).hexdigest()
+        if actual != str(row.get("sha256", "")).lower():
+            failures.append(f"docs/ownership.json: generated copy digest mismatch: {destination}")
+    return failures
+
+
 def artifact_failures(root: Path) -> list[str]:
     failures = []
     for current, directories, _ in os.walk(root):
@@ -155,7 +189,7 @@ def registry_failures(root: Path) -> list[str]:
         if not isinstance(runner, dict):
             failures.append(f"plugins/registry.json: runner {platform} is invalid")
             continue
-        for key in ("runner", "suffix", "asset"):
+        for key in ("runner", "suffix", "asset", "target"):
             if not isinstance(runner.get(key), str):
                 failures.append(f"plugins/registry.json: runner {platform} is missing {key}")
     plugins = value.get("plugins")
@@ -227,8 +261,9 @@ def ownership_registry_parity_failures(root: Path) -> list[str]:
 
 def check(root: Path = ROOT) -> list[str]:
     return (link_failures(root) + ownership_failures(root)
-            + artifact_failures(root) + plugin_declaration_failures(root)
-            + registry_failures(root) + ownership_registry_parity_failures(root))
+            + generated_copy_failures(root) + artifact_failures(root)
+            + plugin_declaration_failures(root) + registry_failures(root)
+            + ownership_registry_parity_failures(root))
 
 
 def main() -> int:
