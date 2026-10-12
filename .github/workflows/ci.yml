@@ -20,17 +20,16 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
-      run_docs: ${{ steps.classify.outputs.run_docs }}
-      run_typescript_risk: ${{ steps.classify.outputs.run_typescript_risk }}
+      run_light: ${{ steps.classify.outputs.run_light }}
+      run_plugins: ${{ steps.classify.outputs.run_plugins }}
+      matrix: ${{ steps.classify.outputs.matrix }}
       summary: ${{ steps.classify.outputs.summary }}
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           fetch-depth: 0
-
       - name: Classifier self-tests
         run: python3 -m unittest discover -s tools/ci/tests -v
-
       - name: Classify changed paths
         id: classify
         env:
@@ -47,13 +46,13 @@ jobs:
           else
             BASE=""; HEAD=""
           fi
-          python3 tools/ci/classify.py --base "$BASE" --head "$HEAD" \
+          python3 tools/ci/classify.py --root . --base "$BASE" --head "$HEAD" \
             --github-output "$GITHUB_OUTPUT"
 
-  docs:
-    name: Documentation checks
+  lightweight:
+    name: Lightweight checks
     needs: classify
-    if: needs.classify.outputs.run_docs == 'true'
+    if: needs.classify.outputs.run_light == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -61,21 +60,30 @@ jobs:
       - name: Check links, declarations and forbidden artifacts
         run: python3 tools/ci/check_docs.py
 
-  typescript_risk:
-    name: TypeScript-risk plugin
+  plugins:
+    name: Plugin checks (${{ matrix.plugin }})
     needs: classify
-    if: needs.classify.outputs.run_typescript_risk == 'true'
+    if: needs.classify.outputs.run_plugins == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.classify.outputs.matrix) }}
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
 
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+      # Toolchains are selected by language from plugins/registry.json. When a
+      # Rust or Python plugin is migrated, add its steps here conditioned on
+      # matrix.language and keep the protocol acceptance below shared.
+      - name: TypeScript toolchain
+        if: matrix.language == 'typescript'
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '24'
 
       - name: Read the pinned Core contract
         id: core
+        if: matrix.language == 'typescript'
         run: |
           set -euo pipefail
           python3 - <<'PY' >> "$GITHUB_OUTPUT"
@@ -89,14 +97,16 @@ jobs:
           print("source_commit=" + value["source_commit"])
           PY
 
-      - name: Install and unit-test the plugin
-        working-directory: plugins/typescript-risk
+      - name: Install and unit-test (typescript)
+        if: matrix.language == 'typescript'
+        working-directory: ${{ matrix.path }}
         run: |
           set -euo pipefail
           npm ci --ignore-scripts
           npm test
 
       - name: Fetch pinned Core binary and reference transport
+        if: matrix.language == 'typescript'
         env:
           CORE_RELEASE: ${{ steps.core.outputs.release }}
           CORE_BINARY: ${{ steps.core.outputs.binary }}
@@ -124,15 +134,17 @@ jobs:
             -o "$root/tools/quality/schema/collector-protocol.schema.json"
 
       - name: Contract acceptance against the pinned Core
-        working-directory: plugins/typescript-risk
+        if: matrix.language == 'typescript'
+        working-directory: ${{ matrix.path }}
         env:
           HARNESS_GATE_BINARY: ${{ runner.temp }}/core/bin/${{ steps.core.outputs.binary }}
           HARNESS_GATE_EXPECTED_VERSION: ${{ steps.core.outputs.version }}
           PYTHONPATH: ${{ runner.temp }}/core/tools/quality
         run: npm run test:core
 
-      - name: Pack and clean-install
-        working-directory: plugins/typescript-risk
+      - name: Pack and clean-install (typescript)
+        if: matrix.language == 'typescript'
+        working-directory: ${{ matrix.path }}
         run: |
           set -euo pipefail
           mkdir -p "$RUNNER_TEMP/pack" "$RUNNER_TEMP/consumer"
@@ -149,40 +161,20 @@ jobs:
             *) echo "unexpected installed version: $installed" >&2; exit 1 ;;
           esac
 
-  quality_required:
+  required_aggregate:
     name: Required Quality Aggregate
     if: ${{ always() }}
-    needs: [ classify, docs, typescript_risk ]
+    needs: [ classify, lightweight, plugins ]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
       - name: Require every selected task to succeed
-        env:
-          CLASSIFY_RESULT: ${{ needs.classify.result }}
-          RUN_DOCS: ${{ needs.classify.outputs.run_docs }}
-          RUN_TYPESCRIPT_RISK: ${{ needs.classify.outputs.run_typescript_risk }}
-          DOCS_RESULT: ${{ needs.docs.result }}
-          TYPESCRIPT_RISK_RESULT: ${{ needs.typescript_risk.result }}
         run: |
           set -euo pipefail
-          if [ "$CLASSIFY_RESULT" != "success" ]; then
-            echo "classification did not succeed: $CLASSIFY_RESULT"
-            exit 1
-          fi
-          fail=0
-          require() {
-            local selected="$1" result="$2" name="$3"
-            if [ "$selected" = "true" ]; then
-              if [ "$result" != "success" ]; then
-                echo "${name} selected but ${result}"
-                fail=1
-              else
-                echo "${name} passed"
-              fi
-            else
-              echo "${name} not selected; skip allowed"
-            fi
-          }
-          require "$RUN_DOCS" "$DOCS_RESULT" docs
-          require "$RUN_TYPESCRIPT_RISK" "$TYPESCRIPT_RISK_RESULT" typescript-risk
-          [ "$fail" -eq 0 ]
+          python3 tools/ci/aggregate.py \
+            --classify-result "${{ needs.classify.result }}" \
+            --run-light "${{ needs.classify.outputs.run_light }}" \
+            --run-plugins "${{ needs.classify.outputs.run_plugins }}" \
+            --light-result "${{ needs.lightweight.result }}" \
+            --plugins-result "${{ needs.plugins.result }}"

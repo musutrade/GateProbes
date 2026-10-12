@@ -19,6 +19,20 @@ OWNERSHIP = {
     "plugins": {"demo": {"paths": ["plugins/demo"]}},
 }
 
+REGISTRY = {
+    "schema": "gateprobes-plugin-registry/v1",
+    "languages": ["rust", "python", "typescript"],
+    "plugins": {
+        "demo": {
+            "path": "plugins/demo",
+            "language": "typescript",
+            "entries": {"install": "npm ci", "test": "npm test",
+                        "contract": "npm run test:core", "package": "npm pack"},
+            "protocols": ["protocol/demo.schema.json"],
+        },
+    },
+}
+
 
 class CheckDocsTests(unittest.TestCase):
     def setUp(self):
@@ -27,7 +41,10 @@ class CheckDocsTests(unittest.TestCase):
         self.root = Path(self.temporary.name)
         (self.root / "docs").mkdir()
         (self.root / "plugins" / "demo").mkdir(parents=True)
+        (self.root / "protocol").mkdir()
         (self.root / "docs" / "ownership.json").write_text(json.dumps(OWNERSHIP))
+        (self.root / "plugins" / "registry.json").write_text(json.dumps(REGISTRY))
+        (self.root / "protocol" / "demo.schema.json").write_text("{}\n")
         (self.root / "plugins" / "demo" / "plugin.json").write_text(
             json.dumps({"name": "demo", "version": "1", "executable": "demo"}))
         (self.root / "README.md").write_text("# Demo\n\n[ownership](docs/ownership.json)\n")
@@ -59,6 +76,25 @@ class CheckDocsTests(unittest.TestCase):
             json.dumps({"name": "other", "version": "1", "executable": "other"}))
         failures = check_docs.check(self.root)
         self.assertTrue(any("plugins/other" in failure for failure in failures), failures)
+
+    def test_registry_with_empty_plugin_object_fails(self):
+        (self.root / "plugins" / "registry.json").write_text(json.dumps({
+            "schema": "gateprobes-plugin-registry/v1",
+            "languages": ["typescript"],
+            "plugins": {"demo": {}},
+        }))
+        failures = check_docs.check(self.root)
+        self.assertTrue(any("unknown language" in failure for failure in failures), failures)
+
+    def test_registry_missing_entries_and_protocol_fails(self):
+        value = json.loads(json.dumps(REGISTRY))
+        value["plugins"]["demo"]["entries"] = {"test": "npm test", "package": "npm pack"}
+        value["plugins"]["demo"]["protocols"] = ["protocol/missing.schema.json"]
+        (self.root / "plugins" / "registry.json").write_text(json.dumps(value))
+        failures = check_docs.check(self.root)
+        self.assertTrue(any("install entry" in failure for failure in failures), failures)
+        self.assertTrue(any("contract entry" in failure for failure in failures), failures)
+        self.assertTrue(any("protocol is missing" in failure for failure in failures), failures)
 
 
 if __name__ == "__main__":
