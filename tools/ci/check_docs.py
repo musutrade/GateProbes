@@ -107,9 +107,46 @@ def plugin_declaration_failures(root: Path) -> list[str]:
     return failures
 
 
+def registry_failures(root: Path) -> list[str]:
+    path = root / "plugins" / "registry.json"
+    try:
+        value = json.loads(path.read_text())
+    except (OSError, json.JSONDecodeError) as error:
+        return [f"plugins/registry.json: {error}"]
+    failures = []
+    if value.get("schema") != "gateprobes-plugin-registry/v1":
+        failures.append("plugins/registry.json: unknown schema")
+    languages = value.get("languages")
+    if not isinstance(languages, list) or not languages:
+        failures.append("plugins/registry.json: no languages")
+        languages = []
+    plugins = value.get("plugins")
+    if not isinstance(plugins, dict) or not plugins:
+        failures.append("plugins/registry.json: no plugins")
+        plugins = {}
+    for name, row in sorted(plugins.items()):
+        if not isinstance(row, dict) or row.get("language") not in languages:
+            failures.append(f"plugins/registry.json: {name} has an unknown language")
+            continue
+        if not (root / str(row.get("path", ""))).is_dir():
+            failures.append(f"plugins/registry.json: {name} path is missing")
+        entries = row.get("entries", {})
+        for key in ("install", "test", "contract", "package"):
+            if not entries.get(key):
+                failures.append(f"plugins/registry.json: {name} is missing the {key} entry")
+        for protocol in row.get("protocols", []):
+            if not (root / protocol).is_file():
+                failures.append(f"plugins/registry.json: {name} protocol is missing: {protocol}")
+    for directory in sorted((root / "plugins").iterdir()):
+        if directory.is_dir() and directory.name not in plugins:
+            failures.append(f"plugins/{directory.name}: not registered in plugins/registry.json")
+    return failures
+
+
 def check(root: Path = ROOT) -> list[str]:
     return (link_failures(root) + ownership_failures(root)
-            + artifact_failures(root) + plugin_declaration_failures(root))
+            + artifact_failures(root) + plugin_declaration_failures(root)
+            + registry_failures(root))
 
 
 def main() -> int:

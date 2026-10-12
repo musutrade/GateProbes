@@ -10,9 +10,10 @@ protocol validation, budgets, thresholds, baselines and the final decision.
 | Path | Contents |
 | --- | --- |
 | `plugins/typescript-risk/` | First migrated plugin: original-TypeScript AST complexity, coverage and exact rational CRAP |
+| `plugins/registry.json` | Plugin registry: directory, language, platforms, entries and shared protocols |
 | `protocol/collector-protocol.schema.json` | Generated copy of the Core host contract; Core is the editable source |
 | `docs/ownership.json` | Migration provenance, path mapping and the pinned Core contract identity |
-| `tools/ci/` | Change classifier, pure-documentation checks and their tests |
+| `tools/ci/` | Change classifier, lightweight checks, aggregate and their tests |
 
 ## Migration provenance
 
@@ -24,19 +25,26 @@ history are intentionally not copied.
 ## CI tiers
 
 `.github/workflows/ci.yml` always starts, classifies the change and ends in one
-fixed `Required Quality Aggregate` check. Unknown paths or a classification
-failure never pass: unknown scope runs the conservative full set, and a
-classification failure fails the aggregate.
+fixed `Required Quality Aggregate` check. Selection values must be present and
+valid; a missing or invalid selection, unknown scope or a classification failure
+never passes. Unknown scope runs the conservative full set.
 
 | Change | Routed checks |
 | --- | --- |
-| Pure documentation | Formatting, links and declarations only; no Rust or Node toolchain |
-| `plugins/typescript-risk/**` | That plugin's install, unit tests and pinned-Core contract acceptance |
-| `protocol/**`, `tools/**`, `.github/**`, root manifests | Expanded set: documentation checks and all plugin checks |
-| Unknown | Conservative full set |
+| Any | Lightweight declaration, link and forbidden-artifact checks (stdlib, no language toolchain) |
+| `plugins/<name>/**` | That plugin's language checks and the pinned-Core protocol acceptance |
+| A registered shared protocol | Only the plugins that declare that protocol in `plugins/registry.json` |
+| Other shared paths (`tools/**`, `.github/**`, root manifests, `docs/ownership.json`, `LICENSE`) | All registered plugins (conservative) |
+| Unknown, empty diff or classification failure | Conservative full set, and the aggregate fails closed |
 
-`docs/ownership.json`, protocol schemas and test inputs are inputs, not ordinary
-documentation. The pure-documentation tier never treats them as docs.
+`plugins/registry.json` registers each plugin's directory, language, supported
+platforms, install/test/contract/package entries and the shared protocols it
+depends on. The classifier turns changed paths into an affected-plugin matrix;
+toolchains are selected per language from that matrix. TypeScript is the only
+language today; Rust and Python steps are added to the plugin job when those
+plugins migrate. All plugins share the same protocol acceptance: startup, I/O
+format, error handling and compatibility with the pinned Core release identity
+in `docs/ownership.json`.
 
 ## License
 

@@ -1,0 +1,27 @@
+{
+  "schema": "gateprobes-plugin-registry/v1",
+  "languages": [
+    "rust",
+    "python",
+    "typescript"
+  ],
+  "plugins": {
+    "typescript-risk": {
+      "path": "plugins/typescript-risk",
+      "language": "typescript",
+      "platforms": [
+        "linux"
+      ],
+      "toolchain": "node 24",
+      "entries": {
+        "install": "npm ci --ignore-scripts",
+        "test": "npm test",
+        "contract": "npm run test:core",
+        "package": "npm pack --ignore-scripts"
+      },
+      "protocols": [
+        "protocol/collector-protocol.schema.json"
+      ]
+    }
+  }
+}
