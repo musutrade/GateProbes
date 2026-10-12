@@ -72,9 +72,13 @@ jobs:
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
 
+      - name: Require an implemented executor
+        run: python3 tools/ci/executor.py --language "${{ matrix.language }}"
+
       # Toolchains are selected by language from plugins/registry.json. When a
-      # Rust or Python plugin is migrated, add its steps here conditioned on
-      # matrix.language and keep the protocol acceptance below shared.
+      # Rust or Python plugin is migrated, remove its planned-only status here
+      # and add its steps conditioned on matrix.language; the shared protocol
+      # acceptance below stays unchanged.
       - name: TypeScript toolchain
         if: matrix.language == 'typescript'
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
