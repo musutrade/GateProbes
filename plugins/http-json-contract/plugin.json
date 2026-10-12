@@ -1,0 +1,16 @@
+{
+  "schema": "http-json-contract-plugin/v1",
+  "name": "http-json-contract",
+  "version": "0.1.0-rc.5",
+  "executable": "harness-gate-http-contract-collector",
+  "request": "harness-collector-request/v1",
+  "response": "harness-collector-response/v1",
+  "evidence": "harness-evidence/v1",
+  "authority": "measurement-only",
+  "capabilities": [
+    "contract.breaking_changes",
+    "contract.client_drift",
+    "contract.compatible"
+  ],
+  "consumer": "core quality contract gates via tools/quality contract fixtures"
+}

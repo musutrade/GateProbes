@@ -51,7 +51,7 @@ def load_registry(root: Path) -> dict:
         if not isinstance(path, str) or not path.startswith("plugins/"):
             raise ValueError(f"plugin {name}: invalid path")
         entries = row.get("entries", {})
-        for key in ("test", "package"):
+        for key in ("install", "test", "contract", "package"):
             if not entries.get(key):
                 raise ValueError(f"plugin {name}: missing {key} entry")
         for protocol in row.get("protocols", []):
@@ -123,7 +123,9 @@ def classify(paths: list[str], registry: dict) -> dict:
 
     matrix = {
         "include": [
-            {"plugin": name, "language": plugins[name]["language"], "path": plugins[name]["path"]}
+            {"plugin": name, "language": plugins[name]["language"], "path": plugins[name]["path"],
+             "entries": {key: plugins[name]["entries"][key]
+                         for key in ("install", "test", "contract", "package")}}
             for name in sorted(affected)
         ]
     }

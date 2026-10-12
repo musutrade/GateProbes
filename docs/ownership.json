@@ -6,7 +6,8 @@
     "tools/quality/typescript-risk/": "plugins/typescript-risk/",
     "schema/collector-protocol.schema.json": "protocol/collector-protocol.schema.json",
     "LICENSE": "LICENSE",
-    "tools/quality/rust-measure/": "plugins/rust-measure/"
+    "tools/quality/rust-measure/": "plugins/rust-measure/",
+    "tools/quality/http-json-contract/": "plugins/http-json-contract/"
   },
   "excluded_from_snapshot": [
     "Git history",
@@ -39,6 +40,13 @@
       ],
       "authority": "measurement-only",
       "contract_test": "plugins/rust-measure/contract.py"
+    },
+    "http-json-contract": {
+      "paths": [
+        "plugins/http-json-contract"
+      ],
+      "authority": "measurement-only",
+      "contract_test": "plugins/http-json-contract/contract.py"
     }
   },
   "inputs": [
@@ -48,6 +56,7 @@
     "plugins/typescript-risk/npm-shrinkwrap.json",
     "plugins/typescript-risk/plugin.json",
     "plugins/registry.json",
-    "plugins/rust-measure/Cargo.lock"
+    "plugins/rust-measure/Cargo.lock",
+    "plugins/http-json-contract/npm-shrinkwrap.json"
   ]
 }

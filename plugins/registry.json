@@ -33,8 +33,23 @@
       "entries": {
         "install": "cargo build --locked --release",
         "test": "cargo test --locked",
-        "contract": "python3 contract.py",
+        "contract": "python3 contract.py --binary target/release/harness-gate-rust-measure --core-root \"$RUNNER_TEMP/core/tools/quality\"",
         "package": "cargo build --locked --release"
+      },
+      "protocols": []
+    },
+    "http-json-contract": {
+      "path": "plugins/http-json-contract",
+      "language": "typescript",
+      "platforms": [
+        "linux"
+      ],
+      "toolchain": "node 24",
+      "entries": {
+        "install": "npm ci --ignore-scripts",
+        "test": "npm test",
+        "contract": "python3 contract.py --cli cli.cjs --core-root \"$RUNNER_TEMP/core/tools/quality\"",
+        "package": "npm pack --ignore-scripts"
       },
       "protocols": []
     }

@@ -106,8 +106,8 @@ jobs:
           set -euo pipefail
           cargo fmt --check
           cargo clippy --locked --all-targets -- -D warnings
-          cargo test --locked
-          cargo build --locked --release
+          ${{ matrix.entries.test }}
+          ${{ matrix.entries.install }}
 
       - name: Package artifact (rust)
         if: matrix.language == 'rust'
@@ -134,7 +134,7 @@ jobs:
       - name: Contract acceptance against the pinned Core consumer (rust)
         if: matrix.language == 'rust'
         working-directory: ${{ matrix.path }}
-        run: python3 contract.py --binary target/release/harness-gate-rust-measure --core-root "$RUNNER_TEMP/core/tools/quality"
+        run: ${{ matrix.entries.contract }}
 
       - name: TypeScript toolchain
         if: matrix.language == 'typescript'
@@ -142,13 +142,15 @@ jobs:
         with:
           node-version: '24'
 
-      - name: Install and unit-test (typescript)
+      - name: Install dependencies (typescript)
         if: matrix.language == 'typescript'
         working-directory: ${{ matrix.path }}
-        run: |
-          set -euo pipefail
-          npm ci --ignore-scripts
-          npm test
+        run: ${{ matrix.entries.install }}
+
+      - name: Unit and protocol tests (typescript)
+        if: matrix.language == 'typescript'
+        working-directory: ${{ matrix.path }}
+        run: ${{ matrix.entries.test }}
 
       - name: Fetch pinned Core binary and reference transport
         if: matrix.language == 'typescript'
@@ -185,24 +187,27 @@ jobs:
           HARNESS_GATE_BINARY: ${{ runner.temp }}/core/bin/${{ steps.core.outputs.binary }}
           HARNESS_GATE_EXPECTED_VERSION: ${{ steps.core.outputs.version }}
           PYTHONPATH: ${{ runner.temp }}/core/tools/quality
-        run: npm run test:core
+        run: ${{ matrix.entries.contract }}
 
       - name: Pack and clean-install (typescript)
         if: matrix.language == 'typescript'
         working-directory: ${{ matrix.path }}
         run: |
           set -euo pipefail
-          mkdir -p "$RUNNER_TEMP/pack" "$RUNNER_TEMP/consumer"
-          npm pack --ignore-scripts --json --pack-destination "$RUNNER_TEMP/pack" > "$RUNNER_TEMP/pack.json"
-          archive=$(python3 -c "import json; print(json.load(open('$RUNNER_TEMP/pack.json'))[0]['filename'])")
+          prefix="$RUNNER_TEMP/consumer-${{ matrix.plugin }}"
+          pack="$RUNNER_TEMP/pack-${{ matrix.plugin }}"
+          mkdir -p "$pack" "$prefix"
+          ${{ matrix.entries.package }} --json --pack-destination "$pack" > "$pack.json"
+          archive=$(python3 -c "import json; print(json.load(open('$pack.json'))[0]['filename'])")
+          name=$(node -p "Object.keys(require('./package.json').bin)[0]")
+          version=$(node -p "require('./package.json').version")
           printf '{"name":"gateprobes-consumer","version":"0.0.0","private":true}\n' \
-            > "$RUNNER_TEMP/consumer/package.json"
-          npm install --ignore-scripts --omit=dev --prefix "$RUNNER_TEMP/consumer" \
-            "$RUNNER_TEMP/pack/$archive"
-          installed=$("$RUNNER_TEMP/consumer/node_modules/.bin/harness-gate-typescript-collector" --version)
+            > "$prefix/package.json"
+          npm install --ignore-scripts --omit=dev --prefix "$prefix" "$pack/$archive"
+          installed=$("$prefix/node_modules/.bin/$name" --version)
           echo "installed: $installed"
           case "$installed" in
-            *0.1.0-rc.4*) ;;
+            *"$version"*) ;;
             *) echo "unexpected installed version: $installed" >&2; exit 1 ;;
           esac
 
