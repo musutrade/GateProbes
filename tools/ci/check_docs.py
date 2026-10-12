@@ -101,9 +101,11 @@ def plugin_declaration_failures(root: Path) -> list[str]:
         except json.JSONDecodeError as error:
             failures.append(f"plugins/{directory.name}/plugin.json: {error}")
             continue
-        for field in ("name", "version", "executable"):
+        for field in ("name", "version"):
             if not value.get(field):
                 failures.append(f"plugins/{directory.name}/plugin.json: missing {field}")
+        if not (value.get("executable") or value.get("entrypoint")):
+            failures.append(f"plugins/{directory.name}/plugin.json: missing executable or entrypoint")
     return failures
 
 
@@ -134,6 +136,13 @@ def registry_failures(root: Path) -> list[str]:
         for key in ("install", "test", "contract", "package"):
             if not entries.get(key):
                 failures.append(f"plugins/registry.json: {name} is missing the {key} entry")
+        toolchains = row.get("toolchains", [])
+        if not isinstance(toolchains, list) or not toolchains:
+            failures.append(f"plugins/registry.json: {name} has no toolchains")
+        else:
+            for toolchain in toolchains:
+                if toolchain not in languages:
+                    failures.append(f"plugins/registry.json: {name} has an unknown toolchain {toolchain}")
         for protocol in row.get("protocols", []):
             if not (root / protocol).is_file():
                 failures.append(f"plugins/registry.json: {name} protocol is missing: {protocol}")

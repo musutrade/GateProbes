@@ -1,0 +1,17 @@
+{
+  "name": "rust-source-risk",
+  "version": "0.1.0-rc.7",
+  "kind": "harness-gate-collector",
+  "request_schema": "harness-collector-request/v1",
+  "adapter_protocol": 2,
+  "entrypoint": "plugin.py",
+  "series_name": "rust-source-function-risk",
+  "metrics": [
+    "complexity.cyclomatic",
+    "coverage.function",
+    "coverage.line",
+    "coverage.region",
+    "risk.crap"
+  ],
+  "status": "local-candidate"
+}

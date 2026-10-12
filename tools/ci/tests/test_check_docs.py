@@ -26,6 +26,7 @@ REGISTRY = {
         "demo": {
             "path": "plugins/demo",
             "language": "typescript",
+            "toolchains": ["typescript"],
             "entries": {"install": "npm ci", "test": "npm test",
                         "contract": "npm run test:core", "package": "npm pack"},
             "protocols": ["protocol/demo.schema.json"],
@@ -69,6 +70,11 @@ class CheckDocsTests(unittest.TestCase):
         failures = check_docs.check(self.root)
         self.assertTrue(any("node_modules" in failure for failure in failures), failures)
         self.assertTrue(any("bundle.tgz" in failure for failure in failures), failures)
+
+    def test_entrypoint_instead_of_executable_is_accepted(self):
+        (self.root / "plugins" / "demo" / "plugin.json").write_text(
+            json.dumps({"name": "demo", "version": "1", "entrypoint": "plugin.py"}))
+        self.assertEqual(check_docs.check(self.root), [])
 
     def test_undeclared_plugin_fails(self):
         (self.root / "plugins" / "other").mkdir()

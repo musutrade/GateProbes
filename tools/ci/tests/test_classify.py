@@ -16,6 +16,7 @@ REGISTRY = {
         "typescript-risk": {
             "path": "plugins/typescript-risk",
             "language": "typescript",
+            "toolchains": ["typescript"],
             "entries": {"install": "npm ci", "test": "npm test",
                         "contract": "npm run test:core", "package": "npm pack"},
             "protocols": ["protocol/collector-protocol.schema.json"],
@@ -23,6 +24,7 @@ REGISTRY = {
         "sample-rust": {
             "path": "plugins/sample-rust",
             "language": "rust",
+            "toolchains": ["rust"],
             "entries": {"install": "cargo build", "test": "cargo test",
                         "contract": "python3 contract.py", "package": "cargo build"},
             "protocols": ["protocol/collector-protocol.schema.json"],
@@ -45,7 +47,7 @@ class ClassifyTests(unittest.TestCase):
         self.assertEqual(result["plugins"], ["typescript-risk"])
         self.assertEqual(result["matrix"]["include"],
                          [{"plugin": "typescript-risk", "language": "typescript",
-                           "path": "plugins/typescript-risk",
+                           "path": "plugins/typescript-risk", "toolchains": ["typescript"],
                            "entries": {"install": "npm ci", "test": "npm test",
                                        "contract": "npm run test:core",
                                        "package": "npm pack"}}])
