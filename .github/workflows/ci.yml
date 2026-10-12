@@ -149,7 +149,11 @@ jobs:
           curl --fail --show-error --location --proto '=https' --tlsv1.2 \
             -o "$root/bin/$CORE_BINARY" \
             "https://github.com/musutrade/Harness-Gate/releases/download/${CORE_RELEASE}/${CORE_BINARY}"
-          echo "${CORE_BINARY_SHA256}  $root/bin/$CORE_BINARY" | sha256sum --check
+          actual=$(python3 -c "import hashlib,sys;print(hashlib.sha256(open(sys.argv[1],'rb').read()).hexdigest())" "$root/bin/$CORE_BINARY")
+          if [ "$actual" != "$CORE_BINARY_SHA256" ]; then
+            echo "pinned Core digest mismatch for $CORE_BINARY" >&2
+            exit 1
+          fi
           chmod +x "$root/bin/$CORE_BINARY"
           base="https://raw.githubusercontent.com/musutrade/Harness-Gate/${SOURCE_COMMIT}"
           for name in collector_runner harness_evidence project_model quality_evidence; do
