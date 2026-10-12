@@ -42,7 +42,10 @@
       "protocols": [],
       "toolchains": [
         "rust"
-      ]
+      ],
+      "rust_toolchain": "stable",
+      "rust_components": "rustfmt, clippy, llvm-tools-preview",
+      "cargo_checks": true
     },
     "http-json-contract": {
       "path": "plugins/http-json-contract",
@@ -79,7 +82,35 @@
         "contract": "RUST_SOURCE_INVENTORY=\"$PWD/inventory\" python3 -m unittest test_protocol -v && python3 contract.py --core-root \"$RUNNER_TEMP/core/tools/quality\"",
         "package": "tar -czf \"harness-gate-rust-source-risk-$(python3 -c \"import json;print(json.load(open('plugin.json'))['version'])\")-linux-amd64.tar.gz\" plugin.py measure.py capture.py plugin.json LICENSE README.md inventory ast/Cargo.lock"
       },
-      "protocols": []
+      "protocols": [],
+      "rust_toolchain": "stable",
+      "rust_components": "rustfmt, clippy, llvm-tools-preview"
+    },
+    "rust-native-plugin": {
+      "path": "plugins/rust-native-plugin",
+      "language": "rust",
+      "toolchains": [
+        "python",
+        "rust"
+      ],
+      "rust_toolchain": "1.97.1",
+      "rust_components": "rustc-dev, llvm-tools-preview, rust-docs, rustfmt, clippy",
+      "cargo_checks": false,
+      "merges_schemas": true,
+      "platforms": [
+        "linux"
+      ],
+      "toolchain": "rust 1.97.1 + python 3.14 + openssl + rustc-dev/llvm-tools/rust-docs + linker + strip",
+      "entries": {
+        "install": "RUSTC_BOOTSTRAP=1 cargo build --locked --manifest-path ../rust-native-driver/Cargo.toml && HARNESS_GATE_SBOM_TOOL=\"$RUNNER_TEMP/core/generate-sbom.py\" HARNESS_GATE_FROZEN_MODULES_DIR=\"$RUNNER_TEMP/core/tools/quality\" HARNESS_GATE_NATIVE_DRIVER_MANIFEST=\"$PWD/../rust-native-driver/Cargo.toml\" python3 build.py --driver ../rust-native-driver/target/debug/harness-gate-rust-native-driver --output ../rust-native-output --rustc \"$(rustc --print sysroot)/bin/rustc\"",
+        "test": "PYTHONPATH=\"$PWD:$PWD/tests:$RUNNER_TEMP/core/tools/quality\" python3 tests/zero_skip.py test_rust_collector_project",
+        "contract": "HARNESS_GATE_NATIVE_ACCEPTANCE_ROOT=\"$RUNNER_TEMP/native-acceptance\" NATIVE_PLUGIN_BINARY=\"$PWD/../rust-native-output/harness-gate-rust-collector-linux-amd64\" NATIVE_DRIVER=\"$PWD/../rust-native-driver/target/debug/harness-gate-rust-native-driver\" NATIVE_DRIVER_SYSROOT=\"$(rustc --print sysroot)\" HARNESS_GATE_NATIVE_POLICY_BINARY=\"$RUNNER_TEMP/core/bin/harness-gate-linux-amd64\" HARNESS_GATE_PRESETS_DIR=\"$RUNNER_TEMP/core/presets\" PYTHONPATH=\"$PWD:$PWD/tests:$RUNNER_TEMP/core/tools/quality\" python3 accept.py",
+        "package": "test -s ../rust-native-output/harness-gate-rust-collector-linux-amd64 && test -s ../rust-native-output/harness-gate-rust-collector-linux-amd64.sbom.cdx.json && sha256sum ../rust-native-output/harness-gate-rust-collector-linux-amd64"
+      },
+      "protocols": [],
+      "companions": [
+        "plugins/rust-native-driver"
+      ]
     }
   }
 }

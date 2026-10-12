@@ -1,0 +1,12 @@
+[package]
+name = "harness-gate-rust-collector"
+version = "0.1.0-rc.7"
+edition = "2021"
+publish = false
+license = "MIT"
+
+# Release metadata only: build.py compiles the std-only launcher with rustc.
+# The existing compiler-private driver retains its own Cargo.lock and toolchain.
+
+[lints.clippy]
+cognitive_complexity = "warn"

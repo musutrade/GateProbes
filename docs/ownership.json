@@ -8,7 +8,9 @@
     "LICENSE": "LICENSE",
     "tools/quality/rust-measure/": "plugins/rust-measure/",
     "tools/quality/http-json-contract/": "plugins/http-json-contract/",
-    "tools/quality/rust-source-risk/": "plugins/rust-source-risk/"
+    "tools/quality/rust-source-risk/": "plugins/rust-source-risk/",
+    "tools/quality/rust-native-plugin/": "plugins/rust-native-plugin/",
+    "tools/quality/rust-native-driver/": "plugins/rust-native-driver/"
   },
   "excluded_from_snapshot": [
     "Git history",
@@ -55,6 +57,13 @@
       ],
       "authority": "measurement-only",
       "contract_test": "plugins/rust-source-risk/contract.py"
+    },
+    "rust-native-plugin": {
+      "paths": [
+        "plugins/rust-native-plugin"
+      ],
+      "authority": "measurement-only",
+      "contract_test": "plugins/rust-native-plugin/accept.py"
     }
   },
   "inputs": [
@@ -66,6 +75,10 @@
     "plugins/registry.json",
     "plugins/rust-measure/Cargo.lock",
     "plugins/http-json-contract/npm-shrinkwrap.json",
-    "plugins/rust-source-risk/ast/Cargo.lock"
+    "plugins/rust-source-risk/ast/Cargo.lock",
+    "plugins/rust-native-driver/Cargo.lock"
+  ],
+  "companions": [
+    "plugins/rust-native-driver"
   ]
 }
