@@ -93,6 +93,33 @@ jobs:
           print("source_commit=" + value["source_commit"])
           PY
 
+      - name: Fetch pinned Core binary and modules
+        env:
+          CORE_RELEASE: ${{ steps.core.outputs.release }}
+          CORE_BINARY: ${{ steps.core.outputs.binary }}
+          CORE_BINARY_SHA256: ${{ steps.core.outputs.sha256 }}
+          SOURCE_COMMIT: ${{ steps.core.outputs.source_commit }}
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/core"
+          mkdir -p "$root/bin" "$root/tools/quality/schema"
+          curl --fail --show-error --location --proto '=https' --tlsv1.2 \
+            -o "$root/bin/$CORE_BINARY" \
+            "https://github.com/musutrade/Harness-Gate/releases/download/${CORE_RELEASE}/${CORE_BINARY}"
+          echo "${CORE_BINARY_SHA256}  $root/bin/$CORE_BINARY" | sha256sum --check
+          chmod +x "$root/bin/$CORE_BINARY"
+          base="https://raw.githubusercontent.com/musutrade/Harness-Gate/${SOURCE_COMMIT}"
+          for name in collector_runner harness_evidence project_model quality_evidence; do
+            curl --fail --show-error --location "$base/tools/quality/${name}.py" \
+              -o "$root/tools/quality/${name}.py"
+          done
+          for name in capability-requirements harness-evidence policy-exceptions policy project-model subject-mappings; do
+            curl --fail --show-error --location "$base/tools/quality/schema/${name}.schema.json" \
+              -o "$root/tools/quality/schema/${name}.schema.json"
+          done
+          curl --fail --show-error --location "$base/schema/collector-protocol.schema.json" \
+            -o "$root/tools/quality/schema/collector-protocol.schema.json"
+
       - name: Python toolchain
         if: contains(matrix.toolchains, 'python')
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
@@ -177,33 +204,6 @@ jobs:
         if: matrix.language == 'typescript'
         working-directory: ${{ matrix.path }}
         run: ${{ matrix.entries.test }}
-
-      - name: Fetch pinned Core binary and modules
-        env:
-          CORE_RELEASE: ${{ steps.core.outputs.release }}
-          CORE_BINARY: ${{ steps.core.outputs.binary }}
-          CORE_BINARY_SHA256: ${{ steps.core.outputs.sha256 }}
-          SOURCE_COMMIT: ${{ steps.core.outputs.source_commit }}
-        run: |
-          set -euo pipefail
-          root="$RUNNER_TEMP/core"
-          mkdir -p "$root/bin" "$root/tools/quality/schema"
-          curl --fail --show-error --location --proto '=https' --tlsv1.2 \
-            -o "$root/bin/$CORE_BINARY" \
-            "https://github.com/musutrade/Harness-Gate/releases/download/${CORE_RELEASE}/${CORE_BINARY}"
-          echo "${CORE_BINARY_SHA256}  $root/bin/$CORE_BINARY" | sha256sum --check
-          chmod +x "$root/bin/$CORE_BINARY"
-          base="https://raw.githubusercontent.com/musutrade/Harness-Gate/${SOURCE_COMMIT}"
-          for name in collector_runner harness_evidence project_model quality_evidence; do
-            curl --fail --show-error --location "$base/tools/quality/${name}.py" \
-              -o "$root/tools/quality/${name}.py"
-          done
-          for name in capability-requirements harness-evidence policy-exceptions policy project-model subject-mappings; do
-            curl --fail --show-error --location "$base/tools/quality/schema/${name}.schema.json" \
-              -o "$root/tools/quality/schema/${name}.schema.json"
-          done
-          curl --fail --show-error --location "$base/schema/collector-protocol.schema.json" \
-            -o "$root/tools/quality/schema/collector-protocol.schema.json"
 
       - name: Contract acceptance against the pinned Core
         if: matrix.language == 'typescript'
