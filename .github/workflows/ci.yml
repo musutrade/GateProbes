@@ -150,13 +150,30 @@ jobs:
           cargo fmt --check
           cargo clippy --locked --all-targets -- -D warnings
 
-      - name: Build and test (rust)
+      - name: Build (rust)
         if: matrix.language == 'rust'
         working-directory: ${{ matrix.path }}
+        run: ${{ matrix.entries.install }}
+
+      - name: Merge plugin schemas into the temporary pinned schema dir
+        if: matrix.language == 'rust' && matrix.merges_schemas
         run: |
           set -euo pipefail
-          ${{ matrix.entries.test }}
-          ${{ matrix.entries.install }}
+          target="$RUNNER_TEMP/core/tools/quality/schema"
+          for source in "$GITHUB_WORKSPACE/${{ matrix.path }}"/schema/*.schema.json; do
+            name=$(basename "$source")
+            if [ -e "$target/$name" ]; then
+              echo "schema name conflict: $name" >&2
+              exit 1
+            fi
+            cp "$source" "$target/$name"
+          done
+
+
+      - name: Helper tests (rust)
+        if: matrix.language == 'rust'
+        working-directory: ${{ matrix.path }}
+        run: ${{ matrix.entries.test }}
 
       - name: Package artifact (rust)
         if: matrix.language == 'rust'
@@ -175,20 +192,6 @@ jobs:
           for name in source_measure function_risk production_coverage complexity_analyzer quality_evidence quality_common; do
             curl --fail --show-error --location "$base/tools/quality/${name}.py" \
               -o "$root/tools/quality/${name}.py"
-          done
-
-      - name: Merge plugin schemas into the temporary pinned schema dir
-        if: matrix.language == 'rust' && matrix.merges_schemas
-        run: |
-          set -euo pipefail
-          target="$RUNNER_TEMP/core/tools/quality/schema"
-          for source in "$GITHUB_WORKSPACE/${{ matrix.path }}"/schema/*.schema.json; do
-            name=$(basename "$source")
-            if [ -e "$target/$name" ]; then
-              echo "schema name conflict: $name" >&2
-              exit 1
-            fi
-            cp "$source" "$target/$name"
           done
 
       - name: Contract acceptance against the pinned Core consumer (rust)
