@@ -134,8 +134,7 @@ jobs:
       - name: Contract acceptance against the pinned Core consumer (rust)
         if: matrix.language == 'rust'
         working-directory: ${{ matrix.path }}
-        run: python3 contract.py --binary target/release/harness-gate-rust-measure \
-          --core-root "$RUNNER_TEMP/core/tools/quality"
+        run: python3 contract.py --binary target/release/harness-gate-rust-measure --core-root "$RUNNER_TEMP/core/tools/quality"
 
       - name: TypeScript toolchain
         if: matrix.language == 'typescript'
