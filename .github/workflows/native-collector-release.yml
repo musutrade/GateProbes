@@ -85,7 +85,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
-      include: ${{ steps.matrix.outputs.include }}
+      matrix: ${{ steps.matrix.outputs.matrix }}
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
 
@@ -110,7 +110,7 @@ jobs:
                   "asset": runner["asset"],
                   "suffix": runner["suffix"],
               })
-          print("include=" + json.dumps(rows, separators=(",", ":")))
+          print("matrix=" + json.dumps({"include": rows}, separators=(",", ":")))
           PY
 
   build:
@@ -121,7 +121,7 @@ jobs:
     timeout-minutes: 45
     strategy:
       fail-fast: false
-      matrix: ${{ fromJSON(needs.platforms.outputs.include) }}
+      matrix: ${{ fromJSON(needs.platforms.outputs.matrix) }}
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
 

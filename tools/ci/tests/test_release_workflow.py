@@ -51,8 +51,9 @@ class ReleaseWorkflowTests(unittest.TestCase):
 
     def test_matrix_is_derived_from_the_registry(self):
         self.assertIn("plugins/registry.json", self.text)
-        self.assertIn("fromJSON(needs.platforms.outputs.include)", self.text)
+        self.assertIn("fromJSON(needs.platforms.outputs.matrix)", self.text)
         self.assertIn('"target": runner["target"]', self.text)
+        self.assertIn('print("matrix=" + json.dumps({"include": rows}', self.text)
 
     def test_publish_uses_the_inventory_and_refuses_overwrite(self):
         self.assertIn("tools/release/release_inventory.py generate", self.text)
