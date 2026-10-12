@@ -40,11 +40,12 @@ never passes. Unknown scope runs the conservative full set.
 `plugins/registry.json` registers each plugin's directory, language, supported
 platforms, install/test/contract/package entries and the shared protocols it
 depends on. The classifier turns changed paths into an affected-plugin matrix;
-toolchains are selected per language from that matrix. TypeScript is the only
-language today; Rust and Python steps are added to the plugin job when those
-plugins migrate. All plugins share the same protocol acceptance: startup, I/O
-format, error handling and compatibility with the pinned Core release identity
-in `docs/ownership.json`.
+toolchains are selected per language from that matrix. The plugin job
+unconditionally verifies that an executor exists for the selected language and
+fails explicitly for anything other than TypeScript today; a planned language is
+opened only in the change that adds its executor. All plugins share the same
+protocol acceptance: startup, I/O format, error handling and compatibility with
+the pinned Core release identity in `docs/ownership.json`.
 
 ## License
 
