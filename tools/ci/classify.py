@@ -60,12 +60,12 @@ def load_registry(root: Path) -> dict:
         for toolchain in toolchains:
             if toolchain not in languages:
                 raise ValueError(f"plugin {name}: unknown toolchain {toolchain}")
-        if row.get("language") == "rust":
+        if "rust" in toolchains:
             for key in ("rust_toolchain", "rust_components"):
                 if not row.get(key):
                     raise ValueError(f"plugin {name}: missing {key}")
-            if not isinstance(row.get("cargo_checks"), bool):
-                raise ValueError(f"plugin {name}: cargo_checks must be a boolean")
+        if row.get("language") == "rust" and not isinstance(row.get("cargo_checks"), bool):
+            raise ValueError(f"plugin {name}: cargo_checks must be a boolean")
         for protocol in row.get("protocols", []):
             if not isinstance(protocol, str) or not protocol:
                 raise ValueError(f"plugin {name}: invalid protocol")

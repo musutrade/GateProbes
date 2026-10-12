@@ -82,7 +82,9 @@
         "contract": "RUST_SOURCE_INVENTORY=\"$PWD/inventory\" python3 -m unittest test_protocol -v && python3 contract.py --core-root \"$RUNNER_TEMP/core/tools/quality\"",
         "package": "tar -czf \"harness-gate-rust-source-risk-$(python3 -c \"import json;print(json.load(open('plugin.json'))['version'])\")-linux-amd64.tar.gz\" plugin.py measure.py capture.py plugin.json LICENSE README.md inventory ast/Cargo.lock"
       },
-      "protocols": []
+      "protocols": [],
+      "rust_toolchain": "stable",
+      "rust_components": "rustfmt, clippy, llvm-tools-preview"
     },
     "rust-native-plugin": {
       "path": "plugins/rust-native-plugin",
