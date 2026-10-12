@@ -30,7 +30,8 @@ class ExternalPluginTests(unittest.TestCase):
         cls.sysroot = Path(os.environ['NATIVE_DRIVER_SYSROOT']).resolve(strict=True)
         cls.core = Path(os.environ['HARNESS_GATE_NATIVE_POLICY_BINARY']).resolve(strict=True)
         cls.version = subprocess.check_output([str(cls.binary), '--version'], text=True).split()[1]
-        parent = QUALITY.parents[1] / 'target/native-acceptance'
+        parent = Path(os.environ.get('HARNESS_GATE_NATIVE_ACCEPTANCE_ROOT',
+                                     QUALITY.parents[1] / 'target/native-acceptance'))
         parent.mkdir(parents=True, exist_ok=True)
         cls.work = Path(tempfile.mkdtemp(dir=parent))
         # The copied executable runs outside the source tree with isolated Python.
