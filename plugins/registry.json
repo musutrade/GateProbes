@@ -22,6 +22,21 @@
       "protocols": [
         "protocol/collector-protocol.schema.json"
       ]
+    },
+    "rust-measure": {
+      "path": "plugins/rust-measure",
+      "language": "rust",
+      "platforms": [
+        "linux"
+      ],
+      "toolchain": "rust stable",
+      "entries": {
+        "install": "cargo build --locked --release",
+        "test": "cargo test --locked",
+        "contract": "python3 contract.py",
+        "package": "cargo build --locked --release"
+      },
+      "protocols": []
     }
   }
 }
