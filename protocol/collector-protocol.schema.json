@@ -1,0 +1,108 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Harness collector protocol v1",
+  "$ref": "#/definitions/Request",
+  "definitions": {
+    "Request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "project",
+        "component",
+        "collector",
+        "context",
+        "requested_capabilities",
+        "workspace_root",
+        "output_root",
+        "parameters"
+      ],
+      "properties": {
+        "schema": {
+          "const": "harness-collector-request/v1"
+        },
+        "project": {
+          "type": "string",
+          "minLength": 1
+        },
+        "component": {
+          "type": "string",
+          "minLength": 1
+        },
+        "collector": {
+          "type": "object"
+        },
+        "context": {
+          "type": "object"
+        },
+        "requested_capabilities": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "workspace_root": {
+          "type": "string",
+          "minLength": 1
+        },
+        "output_root": {
+          "type": "string",
+          "minLength": 1
+        },
+        "parameters": {
+          "type": "object"
+        }
+      }
+    },
+    "Response": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "evidence",
+        "artifacts",
+        "error"
+      ],
+      "properties": {
+        "schema": {
+          "const": "harness-collector-response/v1"
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "artifacts": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "error": {}
+      }
+    },
+    "Error": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "enum": [
+            "measurement_error",
+            "adapter_error"
+          ]
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

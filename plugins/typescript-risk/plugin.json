@@ -1,0 +1,29 @@
+{
+  "schema": "typescript-collector-plugin/v1",
+  "name": "typescript-risk",
+  "version": "0.1.0-rc.4",
+  "executable": "harness-gate-typescript-collector",
+  "request": "harness-collector-request/v1",
+  "response": "harness-collector-response/v1",
+  "evidence": "harness-evidence/v1",
+  "engine": "node 24 / typescript 6.0.2",
+  "scope": "original-source-instrumented TypeScript functions and file lines",
+  "capabilities": [
+    "coverage.line",
+    "coverage.function",
+    "complexity.cyclomatic",
+    "risk.crap"
+  ],
+  "unsupported": [
+    "mapped Angular/V8 reports",
+    "TSX",
+    "templates",
+    "generated runtime functions",
+    "coverage.branch",
+    "coverage.region",
+    "complexity.cognitive"
+  ],
+  "authority": "measurement-only",
+  "acceptance": "local original TypeScript and CodexSymphony Angular/Core acceptance; production deployment pending",
+  "project_request": "harness-project-collector-request/v1 via signed adapter v2"
+}

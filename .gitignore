@@ -1,0 +1,6 @@
+node_modules/
+target/
+dist/
+*.tgz
+__pycache__/
+*.py[cod]

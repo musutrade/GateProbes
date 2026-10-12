@@ -1,0 +1,34 @@
+{
+  "name": "@harness-gate/typescript-collector",
+  "version": "0.1.0-rc.4",
+  "private": true,
+  "scripts": {
+    "test": "node --test test.cjs",
+    "test:core": "node --test test-core.cjs"
+  },
+  "dependencies": {
+    "typescript": "6.0.2"
+  },
+  "devDependencies": {
+    "istanbul-lib-instrument": "6.0.3"
+  },
+  "description": "Independent TypeScript function risk measurement plugin for Harness-Gate",
+  "license": "MIT",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "bin": {
+    "harness-gate-typescript-collector": "cli.cjs"
+  },
+  "files": [
+    "cli.cjs",
+    "measure.cjs",
+    "protocol.cjs",
+    "strict-json.cjs",
+    "npm-shrinkwrap.json",
+    "README.md",
+    "LICENSE",
+    "plugin.json",
+    "project.cjs"
+  ]
+}
