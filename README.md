@@ -9,7 +9,8 @@ protocol validation, budgets, thresholds, baselines and the final decision.
 
 | Path | Contents |
 | --- | --- |
-| `plugins/typescript-risk/` | First migrated plugin: original-TypeScript AST complexity, coverage and exact rational CRAP |
+| `plugins/typescript-risk/` | TypeScript plugin: original-TypeScript AST complexity, coverage and exact rational CRAP |
+| `plugins/rust-measure/` | Rust plugin: AST inventory consumed by the pinned Core function-risk gate |
 | `plugins/registry.json` | Plugin registry: directory, language, platforms, entries and shared protocols |
 | `protocol/collector-protocol.schema.json` | Generated copy of the Core host contract; Core is the editable source |
 | `docs/ownership.json` | Migration provenance, path mapping and the pinned Core contract identity |
@@ -42,8 +43,9 @@ platforms, install/test/contract/package entries and the shared protocols it
 depends on. The classifier turns changed paths into an affected-plugin matrix;
 toolchains are selected per language from that matrix. The plugin job
 unconditionally verifies that an executor exists for the selected language and
-fails explicitly for anything other than TypeScript today; a planned language is
-opened only in the change that adds its executor. All plugins share the same
+fails explicitly for anything other than Rust and TypeScript today; a planned
+language is opened only in the change that adds its executor and registry entry
+in the same round. All plugins share the same
 protocol acceptance: startup, I/O format, error handling and compatibility with
 the pinned Core release identity in `docs/ownership.json`.
 

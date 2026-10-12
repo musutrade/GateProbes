@@ -11,7 +11,7 @@ from __future__ import annotations
 import argparse
 import sys
 
-IMPLEMENTED = ("typescript",)
+IMPLEMENTED = ("rust", "typescript")
 
 
 def check(language: str, implemented=IMPLEMENTED) -> str:

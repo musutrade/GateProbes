@@ -1,11 +1,12 @@
 {
   "schema": "gateprobes-ownership/v1",
   "source_repository": "https://github.com/musutrade/Harness-Gate",
-  "source_commit": "dcc9194d4c01c4994983af505cf1191774fea70e",
+  "source_commit": "8d93ea53c7cf8b314bda816eafe13209da25c742",
   "path_map": {
     "tools/quality/typescript-risk/": "plugins/typescript-risk/",
     "schema/collector-protocol.schema.json": "protocol/collector-protocol.schema.json",
-    "LICENSE": "LICENSE"
+    "LICENSE": "LICENSE",
+    "tools/quality/rust-measure/": "plugins/rust-measure/"
   },
   "excluded_from_snapshot": [
     "Git history",
@@ -31,6 +32,13 @@
       ],
       "authority": "measurement-only",
       "contract_test": "plugins/typescript-risk/test-core.cjs"
+    },
+    "rust-measure": {
+      "paths": [
+        "plugins/rust-measure"
+      ],
+      "authority": "measurement-only",
+      "contract_test": "plugins/rust-measure/contract.py"
     }
   },
   "inputs": [
@@ -38,6 +46,8 @@
     "protocol/collector-protocol.schema.json",
     "plugins/typescript-risk/package.json",
     "plugins/typescript-risk/npm-shrinkwrap.json",
-    "plugins/typescript-risk/plugin.json"
+    "plugins/typescript-risk/plugin.json",
+    "plugins/registry.json",
+    "plugins/rust-measure/Cargo.lock"
   ]
 }
