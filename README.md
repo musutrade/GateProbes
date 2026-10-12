@@ -49,7 +49,9 @@ fails explicitly for anything other than Rust and TypeScript today; a planned
 language is opened only in the change that adds its executor and registry entry
 in the same round. All plugins share the same
 protocol acceptance: startup, I/O format, error handling and compatibility with
-the pinned Core release identity in `docs/ownership.json`.
+the pinned Core release identity in `docs/ownership.json`. Rust plugins also carry the checked-in
+`clippy.toml` threshold (cognitive complexity 10) and enable the lint as a
+warning, so `clippy -D warnings` gates on it.
 
 ## License
 
