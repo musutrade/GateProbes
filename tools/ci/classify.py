@@ -41,6 +41,15 @@ def load_registry(root: Path) -> dict:
     languages = value.get("languages")
     if not isinstance(languages, list) or not languages:
         raise ValueError("plugin registry must declare languages")
+    runners = value.get("runners")
+    if not isinstance(runners, dict) or not runners:
+        raise ValueError("plugin registry must declare runners")
+    for platform, row in runners.items():
+        if not isinstance(row, dict):
+            raise ValueError(f"runner {platform}: invalid entry")
+        for key in ("runner", "suffix", "asset"):
+            if key not in row or not isinstance(row[key], str):
+                raise ValueError(f"runner {platform}: missing {key}")
     plugins = value.get("plugins")
     if not isinstance(plugins, dict) or not plugins:
         raise ValueError("plugin registry must declare plugins")
@@ -66,6 +75,12 @@ def load_registry(root: Path) -> dict:
                     raise ValueError(f"plugin {name}: missing {key}")
         if row.get("language") == "rust" and not isinstance(row.get("cargo_checks"), bool):
             raise ValueError(f"plugin {name}: cargo_checks must be a boolean")
+        platforms = row.get("platforms")
+        if not isinstance(platforms, list) or not platforms:
+            raise ValueError(f"plugin {name}: missing platforms")
+        for platform in platforms:
+            if platform not in runners:
+                raise ValueError(f"plugin {name}: unknown platform {platform}")
         for protocol in row.get("protocols", []):
             if not isinstance(protocol, str) or not protocol:
                 raise ValueError(f"plugin {name}: invalid protocol")
@@ -103,6 +118,7 @@ def is_shared(path: str) -> bool:
 
 def classify(paths: list[str], registry: dict) -> dict:
     plugins = registry["plugins"]
+    runners = registry["runners"]
     by_prefix = {row["path"].rstrip("/") + "/": name for name, row in plugins.items()}
     protocols: dict[str, set[str]] = {}
     for name, row in plugins.items():
@@ -133,18 +149,22 @@ def classify(paths: list[str], registry: dict) -> dict:
         classes["unknown"] = True
         affected.update(plugins)
 
-    matrix = {
-        "include": [
-            {"plugin": name, "language": plugins[name]["language"], "path": plugins[name]["path"],
-             "toolchains": plugins[name]["toolchains"],
-             "entries": {key: plugins[name]["entries"][key]
-                         for key in ("install", "test", "contract", "package")},
-             **{key: plugins[name][key] for key in
-                ("rust_toolchain", "rust_components", "cargo_checks", "merges_schemas")
-                if key in plugins[name]}}
-            for name in sorted(affected)
-        ]
-    }
+    matrix = {"include": []}
+    for name in sorted(affected):
+        row = plugins[name]
+        for platform in row["platforms"]:
+            runner = runners[platform]
+            matrix["include"].append({
+                "plugin": name, "language": row["language"], "path": row["path"],
+                "toolchains": row["toolchains"],
+                "platform": platform, "runs_on": runner["runner"],
+                "asset": runner["asset"], "suffix": runner["suffix"],
+                "entries": {key: row["entries"][key]
+                            for key in ("install", "test", "contract", "package")},
+                **{key: row[key] for key in
+                   ("rust_toolchain", "rust_components", "cargo_checks", "merges_schemas")
+                   if key in row},
+            })
     selection = {"run_light": True, "run_plugins": bool(affected)}
     return {"classes": classes, "plugins": sorted(affected), "matrix": matrix, "selection": selection}
 

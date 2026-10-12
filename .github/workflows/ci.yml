@@ -10,6 +10,9 @@ on:
 permissions:
   contents: read
 
+env:
+  PYTHONUTF8: '1'
+
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
@@ -64,13 +67,48 @@ jobs:
     name: Plugin checks (${{ matrix.plugin }})
     needs: classify
     if: needs.classify.outputs.run_plugins == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
+    runs-on: ${{ matrix.runs_on }}
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: bash
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.classify.outputs.matrix) }}
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+
+      - name: Python toolchain
+        if: contains(matrix.toolchains, 'python')
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: '3.14'
+
+      - name: Rust toolchain
+        if: contains(matrix.toolchains, 'rust')
+        uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # stable
+        with:
+          toolchain: ${{ matrix.rust_toolchain }}
+          components: ${{ matrix.rust_components }}
+
+      - name: Record platform toolchain versions
+        run: |
+          set -euo pipefail
+          {
+            echo "platform=${{ matrix.platform }}"
+            echo "runner=${{ matrix.runs_on }}"
+            echo "runner_os=${{ runner.os }}"
+            rustc --version || echo "rustc=absent"
+            python3 --version || echo "python=absent"
+            openssl version || echo "openssl=absent"
+            node --version || echo "node=absent"
+          } | tee "$RUNNER_TEMP/toolchain-versions.txt"
+
+      - name: TypeScript toolchain
+        if: contains(matrix.toolchains, 'typescript')
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
 
       - name: Require an implemented executor
         run: python3 tools/ci/executor.py --language "${{ matrix.language }}"
@@ -80,15 +118,23 @@ jobs:
       # guard and the pinned-Core acceptance stay shared.
       - name: Read the pinned Core contract
         id: core
+        env:
+          PLATFORM: ${{ matrix.platform }}
         run: |
           set -euo pipefail
           python3 - <<'PY' >> "$GITHUB_OUTPUT"
           import json
+          import os
           value = json.load(open("docs/ownership.json"))
           contract = value["core_contract"]
+          platforms = contract.get("platforms") or {}
+          platform = os.environ["PLATFORM"]
+          if platform not in platforms:
+              raise SystemExit("no pinned Core mapping for platform " + platform)
+          pinned = platforms[platform]
           print("release=" + contract["release"])
-          print("binary=" + contract["binary"])
-          print("sha256=" + contract["sha256"])
+          print("binary=" + pinned["binary"])
+          print("sha256=" + pinned["sha256"])
           print("version=" + contract["version"])
           print("source_commit=" + value["source_commit"])
           PY
@@ -106,7 +152,11 @@ jobs:
           curl --fail --show-error --location --proto '=https' --tlsv1.2 \
             -o "$root/bin/$CORE_BINARY" \
             "https://github.com/musutrade/Harness-Gate/releases/download/${CORE_RELEASE}/${CORE_BINARY}"
-          echo "${CORE_BINARY_SHA256}  $root/bin/$CORE_BINARY" | sha256sum --check
+          actual=$(python3 -c "import hashlib,sys;print(hashlib.sha256(open(sys.argv[1],'rb').read()).hexdigest())" "$root/bin/$CORE_BINARY")
+          if [ "$actual" != "$CORE_BINARY_SHA256" ]; then
+            echo "pinned Core digest mismatch for $CORE_BINARY" >&2
+            exit 1
+          fi
           chmod +x "$root/bin/$CORE_BINARY"
           base="https://raw.githubusercontent.com/musutrade/Harness-Gate/${SOURCE_COMMIT}"
           for name in collector_runner harness_evidence project_model quality_evidence; do
@@ -129,18 +179,14 @@ jobs:
             -o "$root/generate-sbom.py"
           test -s "$root/generate-sbom.py"
 
-      - name: Python toolchain
-        if: contains(matrix.toolchains, 'python')
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
-        with:
-          python-version: '3.14'
-
-      - name: Rust toolchain
-        if: contains(matrix.toolchains, 'rust')
-        uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # stable
-        with:
-          toolchain: ${{ matrix.rust_toolchain }}
-          components: ${{ matrix.rust_components }}
+      - name: Select OpenSSL 3 (macOS, native plugin)
+        if: runner.os == 'macOS' && matrix.plugin == 'rust-native-plugin'
+        run: |
+          set -euo pipefail
+          prefix="$(brew --prefix openssl@3)"
+          test -x "$prefix/bin/openssl"
+          "$prefix/bin/openssl" version
+          echo "$prefix/bin" >> "$GITHUB_PATH"
 
       - name: Format and lint (rust cargo)
         if: matrix.language == 'rust' && matrix.cargo_checks
@@ -153,6 +199,8 @@ jobs:
       - name: Build (rust)
         if: matrix.language == 'rust'
         working-directory: ${{ matrix.path }}
+        env:
+          NATIVE_SUFFIX: ${{ matrix.suffix }}
         run: ${{ matrix.entries.install }}
 
       - name: Merge plugin schemas into the temporary pinned schema dir
@@ -169,7 +217,6 @@ jobs:
             cp "$source" "$target/$name"
           done
 
-
       - name: Helper tests (rust)
         if: matrix.language == 'rust'
         working-directory: ${{ matrix.path }}
@@ -178,6 +225,8 @@ jobs:
       - name: Package artifact (rust)
         if: matrix.language == 'rust'
         working-directory: ${{ matrix.path }}
+        env:
+          NATIVE_ASSET: ${{ matrix.asset }}
         run: ${{ matrix.entries.package }}
 
       - name: Fetch pinned Core consumer (rust)
@@ -197,6 +246,10 @@ jobs:
       - name: Contract acceptance against the pinned Core consumer (rust)
         if: matrix.language == 'rust'
         working-directory: ${{ matrix.path }}
+        env:
+          NATIVE_ASSET: ${{ matrix.asset }}
+          NATIVE_SUFFIX: ${{ matrix.suffix }}
+          CORE_ASSET: ${{ steps.core.outputs.binary }}
         run: ${{ matrix.entries.contract }}
 
       - name: Build and install (python)
@@ -218,12 +271,6 @@ jobs:
         if: matrix.language == 'python'
         working-directory: ${{ matrix.path }}
         run: ${{ matrix.entries.package }}
-
-      - name: TypeScript toolchain
-        if: contains(matrix.toolchains, 'typescript')
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
-        with:
-          node-version: '24'
 
       - name: Install dependencies (typescript)
         if: matrix.language == 'typescript'

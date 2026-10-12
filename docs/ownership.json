@@ -27,7 +27,25 @@
     "binary": "harness-gate-linux-amd64",
     "sha256": "888fa1527eae37e3163aac2e1479e91ec03a0c8380b3c49da6e9266575597418",
     "version": "0.4.8",
-    "source_commit": "dcc9194d4c01c4994983af505cf1191774fea70e"
+    "source_commit": "dcc9194d4c01c4994983af505cf1191774fea70e",
+    "platforms": {
+      "linux": {
+        "binary": "harness-gate-linux-amd64",
+        "sha256": "888fa1527eae37e3163aac2e1479e91ec03a0c8380b3c49da6e9266575597418"
+      },
+      "macos-amd64": {
+        "binary": "harness-gate-macos-amd64",
+        "sha256": "46b6af24d20fadea0527a0f101daea4ecd765f7f3e6223ef027ff494310bab61"
+      },
+      "macos-arm64": {
+        "binary": "harness-gate-macos-arm64",
+        "sha256": "9236792048eac3c497b5cfa9c457ac4ba6c6d339323e5861f8638dbd46a32e95"
+      },
+      "windows-amd64": {
+        "binary": "harness-gate-windows-amd64.exe",
+        "sha256": "b7a481ff27f479b292a9fd0bca19e2120af41d85624bb857b17031a9278cb077"
+      }
+    }
   },
   "plugins": {
     "typescript-risk": {
