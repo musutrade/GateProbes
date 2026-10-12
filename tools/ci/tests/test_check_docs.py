@@ -15,7 +15,9 @@ OWNERSHIP = {
     "source_commit": "a" * 40,
     "path_map": {"tools/quality/demo/": "plugins/demo/"},
     "core_contract": {"release": "v0.4.8", "binary": "harness-gate-linux-amd64",
-                      "sha256": "b" * 64, "version": "0.4.8"},
+                      "sha256": "b" * 64, "version": "0.4.8",
+                      "platforms": {"linux": {"binary": "harness-gate-linux-amd64",
+                                              "sha256": "c" * 64}}},
     "plugins": {"demo": {"paths": ["plugins/demo"],
                          "contract_test": "plugins/demo/plugin.json"}},
     "inputs": ["plugins/registry.json", "plugins/demo/plugin.json"],
@@ -24,6 +26,9 @@ OWNERSHIP = {
 REGISTRY = {
     "schema": "gateprobes-plugin-registry/v1",
     "languages": ["rust", "python", "typescript"],
+    "runners": {
+        "linux": {"runner": "ubuntu-24.04", "suffix": "", "asset": "collector-linux"},
+    },
     "plugins": {
         "demo": {
             "path": "plugins/demo",
@@ -84,6 +89,14 @@ class CheckDocsTests(unittest.TestCase):
             json.dumps({"name": "other", "version": "1", "executable": "other"}))
         failures = check_docs.check(self.root)
         self.assertTrue(any("plugins/other" in failure for failure in failures), failures)
+
+    def test_missing_platform_core_mapping_fails(self):
+        value = json.loads(json.dumps(OWNERSHIP))
+        value["core_contract"]["platforms"] = {}
+        (self.root / "docs" / "ownership.json").write_text(json.dumps(value))
+        failures = check_docs.check(self.root)
+        self.assertTrue(any("core_contract.platforms is required" in failure
+                            for failure in failures), failures)
 
     def test_registry_ownership_parity_fails(self):
         value = json.loads(json.dumps(OWNERSHIP))

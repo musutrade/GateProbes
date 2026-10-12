@@ -12,11 +12,15 @@ import classify
 REGISTRY = {
     "schema": "gateprobes-plugin-registry/v1",
     "languages": ["rust", "python", "typescript"],
+    "runners": {
+        "linux": {"runner": "ubuntu-24.04", "suffix": "", "asset": "collector-linux"},
+    },
     "plugins": {
         "typescript-risk": {
             "path": "plugins/typescript-risk",
             "language": "typescript",
             "toolchains": ["typescript"],
+            "platforms": ["linux"],
             "entries": {"install": "npm ci", "test": "npm test",
                         "contract": "npm run test:core", "package": "npm pack"},
             "protocols": ["protocol/collector-protocol.schema.json"],
@@ -25,6 +29,7 @@ REGISTRY = {
             "path": "plugins/sample-rust",
             "language": "rust",
             "toolchains": ["rust"],
+            "platforms": ["linux"],
             "entries": {"install": "cargo build", "test": "cargo test",
                         "contract": "python3 contract.py", "package": "cargo build"},
             "protocols": ["protocol/collector-protocol.schema.json"],
@@ -48,6 +53,8 @@ class ClassifyTests(unittest.TestCase):
         self.assertEqual(result["matrix"]["include"],
                          [{"plugin": "typescript-risk", "language": "typescript",
                            "path": "plugins/typescript-risk", "toolchains": ["typescript"],
+                           "platform": "linux", "runs_on": "ubuntu-24.04",
+                           "asset": "collector-linux", "suffix": "",
                            "entries": {"install": "npm ci", "test": "npm test",
                                        "contract": "npm run test:core",
                                        "package": "npm pack"}}])
@@ -90,6 +97,31 @@ class ClassifyTests(unittest.TestCase):
                 self.assertTrue(result["classes"]["unknown"], paths)
                 self.assertEqual(result["plugins"], ["sample-rust", "typescript-risk"])
 
+    def test_load_registry_rejects_unknown_platforms_and_runner_fields(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "plugins").mkdir()
+            path = root / "plugins" / "registry.json"
+            base = {
+                "schema": "gateprobes-plugin-registry/v1",
+                "languages": ["rust"],
+                "runners": {"linux": {"runner": "ubuntu-24.04", "suffix": "", "asset": "a"}},
+                "plugins": {"x": {"path": "plugins/x", "language": "rust",
+                                  "toolchains": ["rust"], "platforms": ["beos"],
+                                  "rust_toolchain": "stable", "rust_components": "rustfmt",
+                                  "cargo_checks": True,
+                                  "entries": {"install": "i", "test": "t",
+                                              "contract": "c", "package": "p"}}},
+            }
+            path.write_text(json.dumps(base))
+            with self.assertRaisesRegex(ValueError, "unknown platform"):
+                classify.load_registry(root)
+            base["plugins"]["x"]["platforms"] = ["linux"]
+            base["runners"]["linux"] = {"runner": "ubuntu-24.04", "asset": "a"}
+            path.write_text(json.dumps(base))
+            with self.assertRaisesRegex(ValueError, "missing suffix"):
+                classify.load_registry(root)
+
     def test_load_registry_rejects_incomplete_or_unknown_languages(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -101,6 +133,7 @@ class ClassifyTests(unittest.TestCase):
             path.write_text(json.dumps({
                 "schema": "gateprobes-plugin-registry/v1",
                 "languages": ["typescript"],
+                "runners": {"linux": {"runner": "ubuntu-24.04", "suffix": "", "asset": "a"}},
                 "plugins": {"x": {"path": "plugins/x", "language": "rust",
                                   "entries": {"test": "t", "package": "p"}}},
             }))

@@ -98,19 +98,44 @@
       "cargo_checks": false,
       "merges_schemas": true,
       "platforms": [
-        "linux"
+        "linux",
+        "macos-amd64",
+        "macos-arm64",
+        "windows-amd64"
       ],
       "toolchain": "rust 1.97.1 + python 3.14 + openssl + rustc-dev/llvm-tools/rust-docs + linker + strip",
       "entries": {
-        "install": "RUSTC_BOOTSTRAP=1 cargo build --locked --manifest-path ../rust-native-driver/Cargo.toml && HARNESS_GATE_SBOM_TOOL=\"$RUNNER_TEMP/core/generate-sbom.py\" HARNESS_GATE_FROZEN_MODULES_DIR=\"$RUNNER_TEMP/core/tools/quality\" HARNESS_GATE_NATIVE_DRIVER_MANIFEST=\"$PWD/../rust-native-driver/Cargo.toml\" python3 build.py --driver ../rust-native-driver/target/debug/harness-gate-rust-native-driver --output ../rust-native-output --rustc \"$(rustc --print sysroot)/bin/rustc\"",
-        "test": "PYTHONPATH=\"$PWD:$PWD/tests:$RUNNER_TEMP/core/tools/quality\" python3 tests/zero_skip.py test_rust_collector_project",
-        "contract": "HARNESS_GATE_NATIVE_ACCEPTANCE_ROOT=\"$RUNNER_TEMP/native-acceptance\" NATIVE_PLUGIN_BINARY=\"$PWD/../rust-native-output/harness-gate-rust-collector-linux-amd64\" NATIVE_DRIVER=\"$PWD/../rust-native-driver/target/debug/harness-gate-rust-native-driver\" NATIVE_DRIVER_SYSROOT=\"$(rustc --print sysroot)\" HARNESS_GATE_NATIVE_POLICY_BINARY=\"$RUNNER_TEMP/core/bin/harness-gate-linux-amd64\" HARNESS_GATE_PRESETS_DIR=\"$RUNNER_TEMP/core/presets\" PYTHONPATH=\"$PWD:$PWD/tests:$RUNNER_TEMP/core/tools/quality\" python3 accept.py",
-        "package": "test -s ../rust-native-output/harness-gate-rust-collector-linux-amd64 && test -s ../rust-native-output/harness-gate-rust-collector-linux-amd64.sbom.cdx.json && sha256sum ../rust-native-output/harness-gate-rust-collector-linux-amd64"
+        "install": "RUSTC_BOOTSTRAP=1 CARGO_TARGET_DIR=\"$GITHUB_WORKSPACE/plugins/target/native-driver\" cargo build --locked --manifest-path \"$GITHUB_WORKSPACE/plugins/rust-native-driver/Cargo.toml\" && HARNESS_GATE_SBOM_TOOL=\"$RUNNER_TEMP/core/generate-sbom.py\" HARNESS_GATE_FROZEN_MODULES_DIR=\"$RUNNER_TEMP/core/tools/quality\" HARNESS_GATE_NATIVE_DRIVER_MANIFEST=\"$GITHUB_WORKSPACE/plugins/rust-native-driver/Cargo.toml\" python3 build.py --driver \"$GITHUB_WORKSPACE/plugins/target/native-driver/debug/harness-gate-rust-native-driver$NATIVE_SUFFIX\" --output \"$GITHUB_WORKSPACE/plugins/rust-native-output\" --rustc \"$(rustc --print sysroot)/bin/rustc$NATIVE_SUFFIX\"",
+        "test": "PYTHONPATH=\"$GITHUB_WORKSPACE/plugins/rust-native-plugin:$GITHUB_WORKSPACE/plugins/rust-native-plugin/tests:$RUNNER_TEMP/core/tools/quality\" python3 tests/zero_skip.py test_rust_collector_project",
+        "contract": "HARNESS_GATE_NATIVE_ACCEPTANCE_ROOT=\"$RUNNER_TEMP/native-acceptance\" NATIVE_PLUGIN_BINARY=\"$GITHUB_WORKSPACE/plugins/rust-native-output/$NATIVE_ASSET\" NATIVE_DRIVER=\"$GITHUB_WORKSPACE/plugins/target/native-driver/debug/harness-gate-rust-native-driver$NATIVE_SUFFIX\" NATIVE_DRIVER_SYSROOT=\"$(rustc --print sysroot)\" HARNESS_GATE_NATIVE_POLICY_BINARY=\"$RUNNER_TEMP/core/bin/$CORE_ASSET\" HARNESS_GATE_PRESETS_DIR=\"$RUNNER_TEMP/core/presets\" PYTHONPATH=\"$GITHUB_WORKSPACE/plugins/rust-native-plugin:$GITHUB_WORKSPACE/plugins/rust-native-plugin/tests:$RUNNER_TEMP/core/tools/quality\" python3 accept.py",
+        "package": "asset=\"$GITHUB_WORKSPACE/plugins/rust-native-output/$NATIVE_ASSET\"; test -s \"$asset\" && test -s \"${asset%.exe}.sbom.cdx.json\" && sha256sum \"$asset\""
       },
       "protocols": [],
       "companions": [
         "plugins/rust-native-driver"
       ]
+    }
+  },
+  "runners": {
+    "linux": {
+      "runner": "ubuntu-24.04",
+      "suffix": "",
+      "asset": "harness-gate-rust-collector-linux-amd64"
+    },
+    "macos-amd64": {
+      "runner": "macos-15-intel",
+      "suffix": "",
+      "asset": "harness-gate-rust-collector-macos-amd64"
+    },
+    "macos-arm64": {
+      "runner": "macos-15",
+      "suffix": "",
+      "asset": "harness-gate-rust-collector-macos-arm64"
+    },
+    "windows-amd64": {
+      "runner": "windows-2025",
+      "suffix": ".exe",
+      "asset": "harness-gate-rust-collector-windows-amd64.exe"
     }
   }
 }

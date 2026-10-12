@@ -64,8 +64,11 @@ jobs:
     name: Plugin checks (${{ matrix.plugin }})
     needs: classify
     if: needs.classify.outputs.run_plugins == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
+    runs-on: ${{ matrix.runs_on }}
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: bash
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.classify.outputs.matrix) }}
@@ -80,15 +83,23 @@ jobs:
       # guard and the pinned-Core acceptance stay shared.
       - name: Read the pinned Core contract
         id: core
+        env:
+          PLATFORM: ${{ matrix.platform }}
         run: |
           set -euo pipefail
           python3 - <<'PY' >> "$GITHUB_OUTPUT"
           import json
+          import os
           value = json.load(open("docs/ownership.json"))
           contract = value["core_contract"]
+          platforms = contract.get("platforms") or {}
+          platform = os.environ["PLATFORM"]
+          if platform not in platforms:
+              raise SystemExit("no pinned Core mapping for platform " + platform)
+          pinned = platforms[platform]
           print("release=" + contract["release"])
-          print("binary=" + contract["binary"])
-          print("sha256=" + contract["sha256"])
+          print("binary=" + pinned["binary"])
+          print("sha256=" + pinned["sha256"])
           print("version=" + contract["version"])
           print("source_commit=" + value["source_commit"])
           PY
@@ -142,6 +153,28 @@ jobs:
           toolchain: ${{ matrix.rust_toolchain }}
           components: ${{ matrix.rust_components }}
 
+      - name: Select OpenSSL 3 (macOS, native plugin)
+        if: runner.os == 'macOS' && matrix.plugin == 'rust-native-plugin'
+        run: |
+          set -euo pipefail
+          prefix="$(brew --prefix openssl@3)"
+          test -x "$prefix/bin/openssl"
+          "$prefix/bin/openssl" version
+          echo "$prefix/bin" >> "$GITHUB_PATH"
+
+      - name: Record platform toolchain versions
+        run: |
+          set -euo pipefail
+          {
+            echo "platform=${{ matrix.platform }}"
+            echo "runner=${{ matrix.runs_on }}"
+            echo "runner_os=${{ runner.os }}"
+            rustc --version || echo "rustc=absent"
+            python3 --version || echo "python=absent"
+            openssl version || echo "openssl=absent"
+            node --version || echo "node=absent"
+          } | tee "$RUNNER_TEMP/toolchain-versions.txt"
+
       - name: Format and lint (rust cargo)
         if: matrix.language == 'rust' && matrix.cargo_checks
         working-directory: ${{ matrix.path }}
@@ -153,6 +186,8 @@ jobs:
       - name: Build (rust)
         if: matrix.language == 'rust'
         working-directory: ${{ matrix.path }}
+        env:
+          NATIVE_SUFFIX: ${{ matrix.suffix }}
         run: ${{ matrix.entries.install }}
 
       - name: Merge plugin schemas into the temporary pinned schema dir
@@ -178,6 +213,8 @@ jobs:
       - name: Package artifact (rust)
         if: matrix.language == 'rust'
         working-directory: ${{ matrix.path }}
+        env:
+          NATIVE_ASSET: ${{ matrix.asset }}
         run: ${{ matrix.entries.package }}
 
       - name: Fetch pinned Core consumer (rust)
@@ -197,6 +234,10 @@ jobs:
       - name: Contract acceptance against the pinned Core consumer (rust)
         if: matrix.language == 'rust'
         working-directory: ${{ matrix.path }}
+        env:
+          NATIVE_ASSET: ${{ matrix.asset }}
+          NATIVE_SUFFIX: ${{ matrix.suffix }}
+          CORE_ASSET: ${{ steps.core.outputs.binary }}
         run: ${{ matrix.entries.contract }}
 
       - name: Build and install (python)

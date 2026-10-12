@@ -64,6 +64,23 @@ def ownership_failures(root: Path) -> list[str]:
     for field in ("release", "binary", "version"):
         if not contract.get(field):
             failures.append(f"docs/ownership.json: core_contract.{field} is required")
+    try:
+        runners = set(json.loads((root / "plugins" / "registry.json").read_text()).get("runners", {}))
+    except (OSError, json.JSONDecodeError):
+        runners = set()
+    platforms = contract.get("platforms")
+    if not isinstance(platforms, dict) or not platforms:
+        failures.append("docs/ownership.json: core_contract.platforms is required")
+    else:
+        missing = runners - set(platforms)
+        if missing:
+            failures.append("docs/ownership.json: core_contract.platforms is missing: "
+                            + ", ".join(sorted(missing)))
+        for platform in sorted(runners & set(platforms)):
+            row = platforms[platform]
+            if not isinstance(row, dict) or not row.get("binary") \
+                    or not FULL_DIGEST.fullmatch(str(row.get("sha256", ""))):
+                failures.append(f"docs/ownership.json: core_contract.platforms.{platform} is invalid")
     return failures
 
 
@@ -130,6 +147,17 @@ def registry_failures(root: Path) -> list[str]:
     if not isinstance(languages, list) or not languages:
         failures.append("plugins/registry.json: no languages")
         languages = []
+    runners = value.get("runners")
+    if not isinstance(runners, dict) or not runners:
+        failures.append("plugins/registry.json: no runners")
+        runners = {}
+    for platform, runner in sorted(runners.items()):
+        if not isinstance(runner, dict):
+            failures.append(f"plugins/registry.json: runner {platform} is invalid")
+            continue
+        for key in ("runner", "suffix", "asset"):
+            if not isinstance(runner.get(key), str):
+                failures.append(f"plugins/registry.json: runner {platform} is missing {key}")
     plugins = value.get("plugins")
     if not isinstance(plugins, dict) or not plugins:
         failures.append("plugins/registry.json: no plugins")
