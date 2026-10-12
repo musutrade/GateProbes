@@ -1,0 +1,525 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Rust collector plugin delivery contract v2 (host-owned project configuration)",
+  "$ref": "#/definitions/Manifest",
+  "definitions": {
+    "Protocol": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "request",
+        "response",
+        "evidence",
+        "project_request",
+        "project_response",
+        "adapter_result_schema_version"
+      ],
+      "properties": {
+        "request": {
+          "const": "harness-collector-request/v1"
+        },
+        "response": {
+          "const": "harness-collector-response/v1"
+        },
+        "evidence": {
+          "const": "harness-evidence/v1"
+        },
+        "project_request": {
+          "const": "harness-project-collector-request/v1"
+        },
+        "project_response": {
+          "const": "harness-project-collector-response/v1"
+        },
+        "adapter_result_schema_version": {
+          "const": "1"
+        }
+      }
+    },
+    "HostAbi": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "target",
+        "glibc",
+        "kernel",
+        "runtime_dependencies_sha256"
+      ],
+      "properties": {
+        "target": {
+          "const": "x86_64-unknown-linux-gnu"
+        },
+        "glibc": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kernel": {
+          "type": "string",
+          "minLength": 1
+        },
+        "runtime_dependencies_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "Payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "role"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "role": {
+          "enum": [
+            "launcher",
+            "runtime",
+            "tool",
+            "module",
+            "license",
+            "metadata"
+          ]
+        }
+      }
+    },
+    "Tool": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "path",
+        "sha256",
+        "version"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "ObservedTool": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "sha256",
+        "version"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "Core": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "version",
+        "commit",
+        "sha256"
+      ],
+      "properties": {
+        "version": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(-[0-9A-Za-z-]+(\\.[0-9A-Za-z-]+)*)?(\\+[0-9A-Za-z-]+(\\.[0-9A-Za-z-]+)*)?$"
+        },
+        "commit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "Capability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "metric",
+        "state",
+        "scope",
+        "reason"
+      ],
+      "properties": {
+        "metric": {
+          "type": "string",
+          "minLength": 1
+        },
+        "state": {
+          "enum": [
+            "supported",
+            "unsupported"
+          ]
+        },
+        "scope": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "MeasurementIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "native_series",
+        "compiler_commit",
+        "llvm_version",
+        "compiler_inventory_schema",
+        "adapter_sha256",
+        "projection_sha256",
+        "normalization",
+        "source_boundary",
+        "classifier_sha256",
+        "configuration_authority"
+      ],
+      "properties": {
+        "native_series": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "ownership",
+            "regions",
+            "lines",
+            "complexity",
+            "instances",
+            "selection"
+          ],
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "ownership": {
+              "type": "string",
+              "minLength": 1
+            },
+            "regions": {
+              "type": "string",
+              "minLength": 1
+            },
+            "lines": {
+              "type": "string",
+              "minLength": 1
+            },
+            "complexity": {
+              "type": "string",
+              "minLength": 1
+            },
+            "instances": {
+              "type": "string",
+              "minLength": 1
+            },
+            "selection": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "compiler_commit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "llvm_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "compiler_inventory_schema": {
+          "type": "string",
+          "minLength": 1
+        },
+        "adapter_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "projection_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "normalization": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_boundary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "classifier_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "configuration_authority": {
+          "const": "quality-trusted-state/v1"
+        }
+      }
+    },
+    "Environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "core",
+        "protocol",
+        "host_abi",
+        "tools"
+      ],
+      "properties": {
+        "core": {
+          "$ref": "#/definitions/Core"
+        },
+        "protocol": {
+          "$ref": "#/definitions/Protocol"
+        },
+        "host_abi": {
+          "$ref": "#/definitions/HostAbi"
+        },
+        "tools": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/ObservedTool"
+          }
+        }
+      }
+    },
+    "Receipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "kind"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "kind": {
+          "const": "reviewed-native-capture-and-core-evaluation"
+        }
+      }
+    },
+    "Manifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "collector",
+        "source_commit",
+        "protocol",
+        "host_abi",
+        "payloads",
+        "tools",
+        "capabilities",
+        "measurement",
+        "dependency_inventory_sha256",
+        "license_inventory_sha256",
+        "core_compatibility"
+      ],
+      "properties": {
+        "schema": {
+          "const": "rust-collector-delivery/v2"
+        },
+        "collector": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "name",
+            "version"
+          ],
+          "properties": {
+            "name": {
+              "const": "harness-gate-rust-collector"
+            },
+            "version": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(-[0-9A-Za-z-]+(\\.[0-9A-Za-z-]+)*)?(\\+[0-9A-Za-z-]+(\\.[0-9A-Za-z-]+)*)?$"
+            }
+          }
+        },
+        "source_commit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "protocol": {
+          "$ref": "#/definitions/Protocol"
+        },
+        "host_abi": {
+          "$ref": "#/definitions/HostAbi"
+        },
+        "payloads": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/Payload"
+          }
+        },
+        "tools": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/Tool"
+          }
+        },
+        "capabilities": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/Capability"
+          }
+        },
+        "measurement": {
+          "$ref": "#/definitions/MeasurementIdentity"
+        },
+        "dependency_inventory_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "license_inventory_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "core_compatibility": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/Core"
+          }
+        }
+      }
+    },
+    "Matrix": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "tested"
+      ],
+      "properties": {
+        "schema": {
+          "const": "rust-collector-compatibility/v1"
+        },
+        "tested": {
+          "type": "array",
+          "minItems": 0,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "manifest_sha256",
+              "environment",
+              "receipt"
+            ],
+            "properties": {
+              "manifest_sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "environment": {
+                "$ref": "#/definitions/Environment"
+              },
+              "receipt": {
+                "$ref": "#/definitions/Receipt"
+              }
+            }
+          }
+        }
+      }
+    },
+    "CaptureIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "measurement",
+        "tools",
+        "host_abi",
+        "flags",
+        "cfg_sha256",
+        "build_inputs_sha256",
+        "scope",
+        "hotspots_sha256"
+      ],
+      "properties": {
+        "measurement": {
+          "$ref": "#/definitions/MeasurementIdentity"
+        },
+        "tools": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/Tool"
+          }
+        },
+        "host_abi": {
+          "$ref": "#/definitions/HostAbi"
+        },
+        "flags": {
+          "type": "array",
+          "minItems": 0,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "cfg_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "build_inputs_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "scope": {
+          "type": "string",
+          "minLength": 1
+        },
+        "hotspots_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    }
+  }
+}
