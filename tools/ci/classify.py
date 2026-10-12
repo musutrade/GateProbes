@@ -47,7 +47,7 @@ def load_registry(root: Path) -> dict:
     for platform, row in runners.items():
         if not isinstance(row, dict):
             raise ValueError(f"runner {platform}: invalid entry")
-        for key in ("runner", "suffix", "asset"):
+        for key in ("runner", "suffix", "asset", "target"):
             if key not in row or not isinstance(row[key], str):
                 raise ValueError(f"runner {platform}: missing {key}")
     plugins = value.get("plugins")

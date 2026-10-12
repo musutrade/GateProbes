@@ -1,12 +1,15 @@
 {
   "schema": "rust-native-plugin/v1",
   "name": "rust-native-external",
-  "version": "0.1.0-rc.7",
+  "version": "0.1.0-rc.8",
   "executable": "harness-gate-rust-collector-linux-amd64",
   "request": "harness-project-collector-request/v1",
   "authority": "measurement-only",
   "platforms": [
-    "linux"
+    "linux",
+    "macos-amd64",
+    "macos-arm64",
+    "windows-amd64"
   ],
   "builder": "build.py (rustc-std-only launcher)"
 }

@@ -105,7 +105,7 @@ class ClassifyTests(unittest.TestCase):
             base = {
                 "schema": "gateprobes-plugin-registry/v1",
                 "languages": ["rust"],
-                "runners": {"linux": {"runner": "ubuntu-24.04", "suffix": "", "asset": "a"}},
+                "runners": {"linux": {"runner": "ubuntu-24.04", "suffix": "", "asset": "a", "target": "x86_64-unknown-linux-gnu"}},
                 "plugins": {"x": {"path": "plugins/x", "language": "rust",
                                   "toolchains": ["rust"], "platforms": ["beos"],
                                   "rust_toolchain": "stable", "rust_components": "rustfmt",
@@ -133,7 +133,7 @@ class ClassifyTests(unittest.TestCase):
             path.write_text(json.dumps({
                 "schema": "gateprobes-plugin-registry/v1",
                 "languages": ["typescript"],
-                "runners": {"linux": {"runner": "ubuntu-24.04", "suffix": "", "asset": "a"}},
+                "runners": {"linux": {"runner": "ubuntu-24.04", "suffix": "", "asset": "a", "target": "x86_64-unknown-linux-gnu"}},
                 "plugins": {"x": {"path": "plugins/x", "language": "rust",
                                   "entries": {"test": "t", "package": "p"}}},
             }))

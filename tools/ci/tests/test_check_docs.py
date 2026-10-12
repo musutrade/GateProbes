@@ -1,4 +1,5 @@
 """Documentation checks accept declarations and reject broken links/artifacts."""
+import hashlib
 import json
 import sys
 import tempfile
@@ -27,7 +28,8 @@ REGISTRY = {
     "schema": "gateprobes-plugin-registry/v1",
     "languages": ["rust", "python", "typescript"],
     "runners": {
-        "linux": {"runner": "ubuntu-24.04", "suffix": "", "asset": "collector-linux"},
+        "linux": {"runner": "ubuntu-24.04", "suffix": "", "asset": "collector-linux",
+                  "target": "x86_64-unknown-linux-gnu"},
     },
     "plugins": {
         "demo": {
@@ -50,7 +52,19 @@ class CheckDocsTests(unittest.TestCase):
         (self.root / "docs").mkdir()
         (self.root / "plugins" / "demo").mkdir(parents=True)
         (self.root / "protocol").mkdir()
-        (self.root / "docs" / "ownership.json").write_text(json.dumps(OWNERSHIP))
+        (self.root / "tools" / "release").mkdir(parents=True)
+        self.generated = (self.root / "tools" / "release" / "demo.py")
+        self.generated.write_bytes(b"#!/usr/bin/env python3\n")
+        ownership = json.loads(json.dumps(OWNERSHIP))
+        ownership["generated_copies"] = {
+            "tools/release/demo.py": {
+                "source_repository": "https://example.invalid/Harness-Gate",
+                "source_path": "tools/release/demo.py",
+                "source_revision": "d" * 40,
+                "sha256": hashlib.sha256(self.generated.read_bytes()).hexdigest(),
+            },
+        }
+        (self.root / "docs" / "ownership.json").write_text(json.dumps(ownership))
         (self.root / "plugins" / "registry.json").write_text(json.dumps(REGISTRY))
         (self.root / "protocol" / "demo.schema.json").write_text("{}\n")
         (self.root / "plugins" / "demo" / "plugin.json").write_text(
@@ -122,6 +136,18 @@ class CheckDocsTests(unittest.TestCase):
         }))
         failures = check_docs.check(self.root)
         self.assertTrue(any("unknown language" in failure for failure in failures), failures)
+
+    def test_generated_copy_digest_mismatch_fails(self):
+        self.generated.write_bytes(b"#!/usr/bin/env python3\n# tampered\n")
+        failures = check_docs.check(self.root)
+        self.assertTrue(any("generated copy digest mismatch" in failure
+                            for failure in failures), failures)
+
+    def test_missing_generated_copy_fails(self):
+        self.generated.unlink()
+        failures = check_docs.check(self.root)
+        self.assertTrue(any("generated copy is missing" in failure
+                            for failure in failures), failures)
 
     def test_registry_missing_entries_and_protocol_fails(self):
         value = json.loads(json.dumps(REGISTRY))

@@ -12,6 +12,20 @@
     "tools/quality/rust-native-plugin/": "plugins/rust-native-plugin/",
     "tools/quality/rust-native-driver/": "plugins/rust-native-driver/"
   },
+  "generated_copies": {
+    "tools/release/release_policy.py": {
+      "source_repository": "https://github.com/musutrade/Harness-Gate",
+      "source_path": "tools/release/release_policy.py",
+      "source_revision": "dcc9194d4c01c4994983af505cf1191774fea70e",
+      "sha256": "19640e4d97e5e02a759ce267a1bb6a5663fcbda6ae7a9e4a2a2829c4dcebf21e"
+    },
+    "tools/release/release_inventory.py": {
+      "source_repository": "https://github.com/musutrade/Harness-Gate",
+      "source_path": "tools/release/release_inventory.py",
+      "source_revision": "dcc9194d4c01c4994983af505cf1191774fea70e",
+      "sha256": "0993aee8cd44a2d1106394719d7c8bfacf7f034e669cf49b6a887b70a2c8d45d"
+    }
+  },
   "excluded_from_snapshot": [
     "Git history",
     "historical CI logs",
