@@ -15,6 +15,7 @@ protocol validation, budgets, thresholds, baselines and the final decision.
 | `plugins/rust-source-risk/` | Python-entry plugin with a Rust AST inventory: Rust source complexity, coverage and CRAP |
 | `plugins/rust-native-plugin/`, `plugins/rust-native-driver/` | External-toolchain native plugin: compiler-private MIR driver plus the unpackaged plugin builder (Linux acceptance) |
 | `plugins/registry.json` | Plugin registry: directory, language, platforms, entries and shared protocols |
+| `plugins/releases.json` | Independent plugin tag prefixes and package identities |
 | `protocol/collector-protocol.schema.json` | Generated copy of the Core host contract; Core is the editable source |
 | `docs/ownership.json` | Migration provenance, path mapping and the pinned Core contract identity |
 | `tools/ci/` | Change classifier, lightweight checks, aggregate and their tests |
@@ -57,7 +58,11 @@ warning. Plugins with `cargo_checks: true` additionally run `cargo fmt` and
 `cargo clippy -D warnings`; the native plugin uses its dedicated `build.py`/
 rustc path instead, so its declared lint settings are not a claim that the
 directly compiled launcher ran Clippy. This round registers Linux acceptance
-only; other platforms and release/signing migration are not done yet.
+for the four non-native plugins. Native Rust has its own platform release
+workflow; the other four plugins now have a tag-only independent publication
+workflow. See [independent releases](docs/independent-releases.md) for versions,
+the fixed Core acceptance contract, installation and publication gates. A
+workflow declaration alone does not establish release or platform acceptance.
 
 ## License
 
