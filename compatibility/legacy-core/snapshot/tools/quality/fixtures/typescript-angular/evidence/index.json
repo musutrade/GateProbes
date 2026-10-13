@@ -1,0 +1,14 @@
+{
+  "failed-build.tar.gz": {
+    "sha256": "4164e6538d26b4dba0ebbe695605253e37eb332dac4620aa486f824d0d036318",
+    "bytes": 2479
+  },
+  "native.tar.gz": {
+    "sha256": "b4d83c5f3f2465976781a8bbbe6c1fb30613cae6dbaad8309cb1952ff01050b3",
+    "bytes": 719760
+  },
+  "validation.tar.gz": {
+    "sha256": "10afa01c1fb21c952ab84d57c3fd9aee4f73b12b5dc72173c610b4e583cc5efb",
+    "bytes": 25245
+  }
+}

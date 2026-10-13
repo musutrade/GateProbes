@@ -1,0 +1,486 @@
+{
+  "policy_result": {
+    "aggregate": {
+      "blockers": [
+        {
+          "policy": "pricing-lines",
+          "state": "measurement_error",
+          "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+        }
+      ],
+      "state": "measurement_error"
+    },
+    "debt_ledger": [],
+    "exception_review": {
+      "errors": [],
+      "exceptions": [],
+      "state": "none"
+    },
+    "mode": "shadow",
+    "quality_aggregate": {
+      "blockers": [
+        {
+          "policy": "pricing-lines",
+          "state": "measurement_error",
+          "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+        }
+      ],
+      "state": "measurement_error"
+    },
+    "results": [
+      {
+        "policy": "pricing-lines",
+        "reason": "covered exceeds total",
+        "record": {
+          "base": null,
+          "component": "typescript",
+          "context": {
+            "base_commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+            "commit": "e8c569b30461a1502eb7d35336672799157465d3",
+            "run": "compatible-head",
+            "target": "node-jsdom"
+          },
+          "evidence_links": {
+            "base": null,
+            "head": null
+          },
+          "exception_review": {
+            "exceptions": [],
+            "state": "none"
+          },
+          "head": null,
+          "measurement_series": {
+            "base": null,
+            "head": null
+          },
+          "metric": "coverage.line",
+          "policy": {
+            "id": "pricing-lines",
+            "limit": {
+              "covered": 4,
+              "total": 5,
+              "type": "ratio"
+            },
+            "metric": "coverage.line",
+            "on_violation": "fail",
+            "operator": "ge",
+            "ratchet": {
+              "allow_legacy_debt": true,
+              "deny_regression": true
+            },
+            "remediation_classes": [
+              "increase_meaningful_coverage"
+            ],
+            "required": true,
+            "scope": {
+              "kind": "subject",
+              "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+            }
+          },
+          "remediation_classes": [
+            "repair_measurement"
+          ],
+          "subject": {
+            "boundary": "production-ts",
+            "component": "typescript",
+            "discriminator": "typescript-original-source/v1:file",
+            "id": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685",
+            "identity_version": "subject-identity/v1",
+            "kind": "file/v1",
+            "metadata": {},
+            "path": "app/src/app/pricing.ts",
+            "source_sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b",
+            "target": "node-jsdom"
+          }
+        },
+        "state": "measurement_error",
+        "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+      }
+    ],
+    "schema": "harness-policy-results/v1",
+    "violations": [
+      {
+        "policy": "pricing-lines",
+        "reason": "covered exceeds total",
+        "record": {
+          "base": null,
+          "component": "typescript",
+          "context": {
+            "base_commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+            "commit": "e8c569b30461a1502eb7d35336672799157465d3",
+            "run": "compatible-head",
+            "target": "node-jsdom"
+          },
+          "evidence_links": {
+            "base": null,
+            "head": null
+          },
+          "exception_review": {
+            "exceptions": [],
+            "state": "none"
+          },
+          "head": null,
+          "measurement_series": {
+            "base": null,
+            "head": null
+          },
+          "metric": "coverage.line",
+          "policy": {
+            "id": "pricing-lines",
+            "limit": {
+              "covered": 4,
+              "total": 5,
+              "type": "ratio"
+            },
+            "metric": "coverage.line",
+            "on_violation": "fail",
+            "operator": "ge",
+            "ratchet": {
+              "allow_legacy_debt": true,
+              "deny_regression": true
+            },
+            "remediation_classes": [
+              "increase_meaningful_coverage"
+            ],
+            "required": true,
+            "scope": {
+              "kind": "subject",
+              "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+            }
+          },
+          "remediation_classes": [
+            "repair_measurement"
+          ],
+          "subject": {
+            "boundary": "production-ts",
+            "component": "typescript",
+            "discriminator": "typescript-original-source/v1:file",
+            "id": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685",
+            "identity_version": "subject-identity/v1",
+            "kind": "file/v1",
+            "metadata": {},
+            "path": "app/src/app/pricing.ts",
+            "source_sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b",
+            "target": "node-jsdom"
+          }
+        },
+        "state": "measurement_error",
+        "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+      }
+    ]
+  },
+  "project_report": {
+    "aggregate": {
+      "blockers": [
+        {
+          "policy": "pricing-lines",
+          "state": "measurement_error",
+          "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+        }
+      ],
+      "state": "measurement_error"
+    },
+    "components": {
+      "typescript": {
+        "aggregate": {
+          "blockers": [
+            {
+              "policy": "pricing-lines",
+              "state": "measurement_error",
+              "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+            }
+          ],
+          "state": "measurement_error"
+        },
+        "cross_component": {
+          "blockers": [],
+          "state": "not_applicable"
+        },
+        "gates": [
+          "gate-000000"
+        ],
+        "local": {
+          "blockers": [
+            {
+              "policy": "pricing-lines",
+              "state": "measurement_error",
+              "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+            }
+          ],
+          "state": "measurement_error"
+        }
+      }
+    },
+    "gates": {
+      "gate-000000": {
+        "policy": "pricing-lines",
+        "reason": "covered exceeds total",
+        "record": {
+          "base": null,
+          "component": "typescript",
+          "context": {
+            "base_commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+            "commit": "e8c569b30461a1502eb7d35336672799157465d3",
+            "run": "compatible-head",
+            "target": "node-jsdom"
+          },
+          "evidence_links": {
+            "base": null,
+            "head": null
+          },
+          "exception_review": {
+            "exceptions": [],
+            "state": "none"
+          },
+          "head": null,
+          "measurement_series": {
+            "base": null,
+            "head": null
+          },
+          "metric": "coverage.line",
+          "policy": {
+            "id": "pricing-lines",
+            "limit": {
+              "covered": 4,
+              "total": 5,
+              "type": "ratio"
+            },
+            "metric": "coverage.line",
+            "on_violation": "fail",
+            "operator": "ge",
+            "ratchet": {
+              "allow_legacy_debt": true,
+              "deny_regression": true
+            },
+            "remediation_classes": [
+              "increase_meaningful_coverage"
+            ],
+            "required": true,
+            "scope": {
+              "kind": "subject",
+              "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+            }
+          },
+          "remediation_classes": [
+            "repair_measurement"
+          ],
+          "subject": {
+            "boundary": "production-ts",
+            "component": "typescript",
+            "discriminator": "typescript-original-source/v1:file",
+            "id": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685",
+            "identity_version": "subject-identity/v1",
+            "kind": "file/v1",
+            "metadata": {},
+            "path": "app/src/app/pricing.ts",
+            "source_sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b",
+            "target": "node-jsdom"
+          }
+        },
+        "state": "measurement_error",
+        "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+      }
+    },
+    "indexes": {
+      "component": {
+        "typescript": [
+          "gate-000000"
+        ]
+      },
+      "policy": {
+        "pricing-lines": [
+          "gate-000000"
+        ]
+      },
+      "relationship": {},
+      "status": {
+        "measurement_error": [
+          "gate-000000"
+        ]
+      },
+      "subject": {
+        "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685": [
+          "gate-000000"
+        ]
+      }
+    },
+    "mode": "shadow",
+    "policy_result": {
+      "aggregate": {
+        "blockers": [
+          {
+            "policy": "pricing-lines",
+            "state": "measurement_error",
+            "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+          }
+        ],
+        "state": "measurement_error"
+      },
+      "debt_ledger": [],
+      "exception_review": {
+        "errors": [],
+        "exceptions": [],
+        "state": "none"
+      },
+      "mode": "shadow",
+      "quality_aggregate": {
+        "blockers": [
+          {
+            "policy": "pricing-lines",
+            "state": "measurement_error",
+            "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+          }
+        ],
+        "state": "measurement_error"
+      },
+      "results": [
+        {
+          "policy": "pricing-lines",
+          "reason": "covered exceeds total",
+          "record": {
+            "base": null,
+            "component": "typescript",
+            "context": {
+              "base_commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+              "commit": "e8c569b30461a1502eb7d35336672799157465d3",
+              "run": "compatible-head",
+              "target": "node-jsdom"
+            },
+            "evidence_links": {
+              "base": null,
+              "head": null
+            },
+            "exception_review": {
+              "exceptions": [],
+              "state": "none"
+            },
+            "head": null,
+            "measurement_series": {
+              "base": null,
+              "head": null
+            },
+            "metric": "coverage.line",
+            "policy": {
+              "id": "pricing-lines",
+              "limit": {
+                "covered": 4,
+                "total": 5,
+                "type": "ratio"
+              },
+              "metric": "coverage.line",
+              "on_violation": "fail",
+              "operator": "ge",
+              "ratchet": {
+                "allow_legacy_debt": true,
+                "deny_regression": true
+              },
+              "remediation_classes": [
+                "increase_meaningful_coverage"
+              ],
+              "required": true,
+              "scope": {
+                "kind": "subject",
+                "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+              }
+            },
+            "remediation_classes": [
+              "repair_measurement"
+            ],
+            "subject": {
+              "boundary": "production-ts",
+              "component": "typescript",
+              "discriminator": "typescript-original-source/v1:file",
+              "id": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685",
+              "identity_version": "subject-identity/v1",
+              "kind": "file/v1",
+              "metadata": {},
+              "path": "app/src/app/pricing.ts",
+              "source_sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b",
+              "target": "node-jsdom"
+            }
+          },
+          "state": "measurement_error",
+          "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+        }
+      ],
+      "schema": "harness-policy-results/v1",
+      "violations": [
+        {
+          "policy": "pricing-lines",
+          "reason": "covered exceeds total",
+          "record": {
+            "base": null,
+            "component": "typescript",
+            "context": {
+              "base_commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+              "commit": "e8c569b30461a1502eb7d35336672799157465d3",
+              "run": "compatible-head",
+              "target": "node-jsdom"
+            },
+            "evidence_links": {
+              "base": null,
+              "head": null
+            },
+            "exception_review": {
+              "exceptions": [],
+              "state": "none"
+            },
+            "head": null,
+            "measurement_series": {
+              "base": null,
+              "head": null
+            },
+            "metric": "coverage.line",
+            "policy": {
+              "id": "pricing-lines",
+              "limit": {
+                "covered": 4,
+                "total": 5,
+                "type": "ratio"
+              },
+              "metric": "coverage.line",
+              "on_violation": "fail",
+              "operator": "ge",
+              "ratchet": {
+                "allow_legacy_debt": true,
+                "deny_regression": true
+              },
+              "remediation_classes": [
+                "increase_meaningful_coverage"
+              ],
+              "required": true,
+              "scope": {
+                "kind": "subject",
+                "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+              }
+            },
+            "remediation_classes": [
+              "repair_measurement"
+            ],
+            "subject": {
+              "boundary": "production-ts",
+              "component": "typescript",
+              "discriminator": "typescript-original-source/v1:file",
+              "id": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685",
+              "identity_version": "subject-identity/v1",
+              "kind": "file/v1",
+              "metadata": {},
+              "path": "app/src/app/pricing.ts",
+              "source_sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b",
+              "target": "node-jsdom"
+            }
+          },
+          "state": "measurement_error",
+          "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+        }
+      ]
+    },
+    "project": "typescript-reference",
+    "schema": "harness-project-report/v1"
+  },
+  "validation": {
+    "accepted": false,
+    "reason": "covered exceeds total",
+    "reason_class": "MeasurementError"
+  }
+}

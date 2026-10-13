@@ -1,0 +1,1064 @@
+{
+  "schema": "legacy-core-compatibility/v1",
+  "source_repository": "musutrade/GateHouse",
+  "source_commit": "226b5b541a5705b2fcddc960c48ea704f621905d",
+  "modules": [
+    "test_rust_collector_contract",
+    "test_rust_collector_delivery",
+    "test_rust_collector_runtime",
+    "test_rust_native",
+    "test_typescript_acceptance",
+    "test_typescript_advisory",
+    "test_typescript_contracts",
+    "test_typescript_reference",
+    "test_typescript_semantics",
+    "test_typescript_policy",
+    "test_preset_packs"
+  ],
+  "files": {
+    "schema/adapter-request.schema.json": {
+      "sha256": "43fe0f25c98f986acaa4b1935960ac747760a21f9ae79724f4925dc2db287546",
+      "owner": "frozen Core reference input"
+    },
+    "schema/artifact-manifest.schema.json": {
+      "sha256": "60a55b278c6382b6bd40dab2ff58a6b0f77e75b91c4378cb3950c30db897a1ba",
+      "owner": "frozen Core reference input"
+    },
+    "schema/artifact-registry.schema.json": {
+      "sha256": "566065eee2e525637bdc8544a61e48e07ff848bd21847880a3cd1896e5839516",
+      "owner": "frozen Core reference input"
+    },
+    "schema/collector-protocol.schema.json": {
+      "sha256": "a3c23c578783dd4cbb1f4be3bb41a5c3552aee563e89116a5ff53fd4c159e545",
+      "owner": "frozen Core reference input"
+    },
+    "schema/flow.schema.json": {
+      "sha256": "3228aac5673d1820d1ac897259c5731a5f1fe6192ac27725eb93f915684f21f6",
+      "owner": "frozen Core reference input"
+    },
+    "schema/machine-result.schema.json": {
+      "sha256": "7b675a30d8196f5144639998f1c2ad577d41518c77185d42d9aa2fda04f5765e",
+      "owner": "frozen Core reference input"
+    },
+    "schema/quality.schema.json": {
+      "sha256": "64a24fa47c0a2525e847f13ea9953ff4b6c12ea0183678060b64154c41d09cef",
+      "owner": "frozen Core reference input"
+    },
+    "test-data/manifest.json": {
+      "sha256": "5672aa4651823f99b8bf55d282bb50669c78fedbebd0c0c5033d63b1fc7247b9",
+      "owner": "frozen Core reference input"
+    },
+    "tools/harness-gate/fixtures/preset-compat/angular-only.flow.toml": {
+      "sha256": "ca35338435b6b590aacd3873f72397b51890c6d058a7634ec4722d3c97a1ac07",
+      "owner": "frozen Core reference input"
+    },
+    "tools/harness-gate/fixtures/preset-compat/angular-only.packs.json": {
+      "sha256": "5996bd3ea92fd6f7bdaba756c8d889e18e6e40433e2ca86f4a34625d3f0d02ee",
+      "owner": "frozen Core reference input"
+    },
+    "tools/harness-gate/fixtures/preset-compat/angular-rust-postgres.flow.toml": {
+      "sha256": "0c1aec5f2e81ffeb25afd46deae9cb54d5e055ab0b6607c65fa6409242fa0b9a",
+      "owner": "frozen Core reference input"
+    },
+    "tools/harness-gate/fixtures/preset-compat/angular-rust-postgres.packs.json": {
+      "sha256": "2a9e675df9031ece1d4c6a5e2123dec3db925ce60f0ff07d461f822cac76dbe0",
+      "owner": "frozen Core reference input"
+    },
+    "tools/harness-gate/fixtures/preset-compat/catalog.json": {
+      "sha256": "f115dc9ac3b56acb4493e2b8047b1d1068a046a51fe2c0b1013944503078e640",
+      "owner": "frozen Core reference input"
+    },
+    "tools/harness-gate/fixtures/preset-compat/packs/api-contract.json": {
+      "sha256": "ba9548003dbaabd9c58f31564be5dcad996b2f206c10deec08016cde6e50bdec",
+      "owner": "frozen Core reference input"
+    },
+    "tools/harness-gate/fixtures/preset-compat/packs/rust.json": {
+      "sha256": "4c2f807ef4bc344bb7f19ceeca9356f1a0af863cb69913cb6885ecd9ee3b2bb5",
+      "owner": "frozen Core reference input"
+    },
+    "tools/harness-gate/fixtures/preset-compat/packs/typescript.json": {
+      "sha256": "eedfc095557d0f06abde58b29ea5f034b4a347cf43e591fdb21983fffc12ae3d",
+      "owner": "frozen Core reference input"
+    },
+    "tools/harness-gate/fixtures/preset-compat/provenance.json": {
+      "sha256": "0506dfe17e42a6bedb89770b1a46857afb2ec794ab883c5d93553ec4bacd66bf",
+      "owner": "frozen Core reference input"
+    },
+    "tools/harness-gate/fixtures/preset-compat/rust-api.flow.toml": {
+      "sha256": "450683bc424d105454f5afa00e1cf8e05ccd1e51aac0b3096afdd70ca60d081c",
+      "owner": "frozen Core reference input"
+    },
+    "tools/harness-gate/fixtures/preset-compat/rust-api.packs.json": {
+      "sha256": "e4dd59d162b0a02a45dbc6321ee44be6872139a8cee1645f7267c7837917bdaf",
+      "owner": "frozen Core reference input"
+    },
+    "tools/harness-gate/fixtures/workflow/collectors/certified-rust-profiles.json": {
+      "sha256": "9ab3b3064cd55cbea11211030ed5ad5b8365d2dfd509ba4a0bddd45563f61af8",
+      "owner": "frozen Core reference input"
+    },
+    "tools/harness-gate/presets/default.secrets.toml": {
+      "sha256": "f50ee579024104cc20818cd628d1cad42404a6d3c53e11cdb85d464afefe3345",
+      "owner": "frozen Core reference input"
+    },
+    "tools/harness-gate/presets/empty.audit.toml": {
+      "sha256": "5f8421315aac8c39fb6ad09dba572297b5ca264f111b231ad46f04e836f30adf",
+      "owner": "frozen Core reference input"
+    },
+    "tools/harness-gate/presets/generic.flow.toml": {
+      "sha256": "c06eeb7319e3da4f78b04e75b94c6552aa3306b0cdc5cc9abdefb0b30278004c",
+      "owner": "frozen Core reference input"
+    },
+    "tools/harness-gate/presets/quality-base.json": {
+      "sha256": "7bdbf69051bbd02f72ade2df2e7d23e686e52abebc716bb6f13b7bd84c219fbf",
+      "owner": "frozen Core reference input"
+    },
+    "tools/maintenance/restore_evidence.py": {
+      "sha256": "57a52f698d7ca180dcdead72c8aceb51c0b89a256086accd8983234547a999a3",
+      "owner": "frozen Core reference input"
+    },
+    "tools/maintenance/test_data.py": {
+      "sha256": "ab097d97d5534a3cfd19692f2813db34b65c537afc33fea7dbe514333991b61f",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/build_rust_collector.py": {
+      "sha256": "cb5b2abf75c0ecd61f8c4a82ef9a026c763c14d448202fc164f9011fa82a7870",
+      "owner": "GateProbes legacy compatibility"
+    },
+    "tools/quality/ci_quality.py": {
+      "sha256": "391ded3e2680874d5787761490fab9193bd959689e691fce6a51354bfa42fe5b",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/collector_runner.py": {
+      "sha256": "9dc0321243e388295572c49c0848310da0ff8bf7ba29f006446ed102b8646dcb",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/complexity_analyzer.py": {
+      "sha256": "b39907e62acfc4b4bec4d6db2b054053b2d7ffe702528bf60e8f1e30874b88ab",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/critical_paths.py": {
+      "sha256": "16bbdf441308c2a3ef56bfa748b6c8a447d059c19798a5b84ff5218655a8f3b1",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/critical_paths_collect.py": {
+      "sha256": "28de3377e37ef9e7804ebb8248dfd2675beb0c30923fcfd67c9dbdfd9d99aed7",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/cross_component.py": {
+      "sha256": "a861c3e3f3ab9a79a036c6ac41a1a0883fef553a3723878d721d2032f3833111",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/adapter/adapter_fixture.py": {
+      "sha256": "25d7d8459fee19dc5b64ddb2d5dfdc439ca0b3e6d84bc55d06bd5529fd7f5ed7",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/benchmark/.gitignore": {
+      "sha256": "81fc236ede249ccf49406064d7709e5ba4a07045c2b6f7593488528d236ac7d0",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/benchmark/.harness-gate/audit.toml": {
+      "sha256": "a48facf27491f7eb5a5738e6d6e02119eaf3a3d75ee4eaaeed512476191164bb",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/benchmark/.harness-gate/flow.toml": {
+      "sha256": "aab3e118e9f4588e75a5957c599ff4eb373332cb8e554024356af5f2458ad376",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/benchmark/.harness-gate/secrets.toml": {
+      "sha256": "09371b20c19976cd51d7982e55cc07bb768288fd3b042e177f36484adb17261a",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/benchmark/benchmark_worker.py": {
+      "sha256": "dfbf93562b9909e7fb240997d948aa69b97ab88675f2d5526bc46804134d5fd5",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/capability/compat-request.json": {
+      "sha256": "c7871a0819aae639f2ab5f152691af90dc5249fceb26bd97abcae5a7e09e632b",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/capability/serial-invocation.json": {
+      "sha256": "0a4bb08647a0e5965e91b96b8f59bd6e75438298d6b4369006ee3a2c8ed44e05",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/ci-topology.json": {
+      "sha256": "519760a86c3fc701ad7b3dfbbd526df8b3ff2d8f6ff6b78fa4681d3421b124e6",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/collectors/cases.json": {
+      "sha256": "82effdc80eb21edf8467b73a741635519098568ff0d069aa4ccf4866dc28cd4d",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/collectors/synthetic.py": {
+      "sha256": "fcce97ee01293d3a507d3c41251abb33404ab6cf9f703ce309eecffe4b2ac5c9",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/complexity/controls.expected.json": {
+      "sha256": "205336cdd2bd6e3e47201a3a3ec290c154acbb9bd6cbfcf19b1e59c76ae76af6",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/complexity/controls.rs": {
+      "sha256": "e049647d1177f5bbbb2bd2f73cf11169722544a571b16fbc3aef823a393e3bb8",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/contracts/artifacts/base-contract.json": {
+      "sha256": "6c3bea1781ae54c3f04f6b098cc2bd2274a87bec405de0ff93d245f669ab3588",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/contracts/artifacts/client.json": {
+      "sha256": "ae2c05fbdd9c300908f3cd1514be7f20fcff020f57b86a1d421444ef1e6740ab",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/contracts/artifacts/consumer.json": {
+      "sha256": "7fad0ad94def6f72f1884e70f783e944a510ecba858a3367276daf90f42708eb",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/contracts/artifacts/facts.json": {
+      "sha256": "4271991322a294ea7df9cb50b7cb702f7c5438f7aa00e9fe46901a806f2e9775",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/contracts/artifacts/head-contract.json": {
+      "sha256": "959c1f6a71c951d98b683bc899e48a37e64799ef995fd26482e42b25c8f7af92",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/contracts/evidence.json": {
+      "sha256": "e8fea4e93f359349fbc052c48a406b076a095e253d3751e82b0f24dc852210d2",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/contracts/expected.json": {
+      "sha256": "4a5a0b56572b8c71d60e361f204ec207c8982a8519a18648740bc694a9bc2fff",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/contracts/policy.json": {
+      "sha256": "b3334fa475ec2d0def69a12fee1fa0d440245f25ba0d7fcb0495be52f5883fc3",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/contracts/project-config.json": {
+      "sha256": "48b8d86540896479cc27683cce35cff6d2b5d052dae05c3bcc0cbd216b03f9ae",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/contracts/project.json": {
+      "sha256": "caf7c910ee2f65f956a07c6f4102efee58ba2403f4f1fd669f3c1cb7a5d94745",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/contracts/single-rust-config.json": {
+      "sha256": "c842d12c2e8b25191ca6fe4bbfadb1260098314fd1760752acdab84595ff9fb0",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/contracts/single-rust-evidence.json": {
+      "sha256": "dda476772edde77d71b2438b5b03308a38bfd3f5c5f353596c0fbb4030bfe358",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/contracts/single-rust-policy.json": {
+      "sha256": "5ccefbf5914a2660e36098df940dd287d0c9cf1abe650caf2a1e762002ba300f",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/contracts/single-rust-project.json": {
+      "sha256": "f0c43b814c930fe6b7ffec07905b964850c8fcc62a0ea3d8f477ebb2ede97266",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/contracts/sources/api/src/openapi.json": {
+      "sha256": "959c1f6a71c951d98b683bc899e48a37e64799ef995fd26482e42b25c8f7af92",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/contracts/sources/api/src/run.rs": {
+      "sha256": "da634fb05ddb3730b63b5402f5bb4c2c06a797c5d1d921e1bd179f37d264dfa9",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/contracts/sources/billing/src/Run.java": {
+      "sha256": "d89419590e04fdcf2af14db32cd12d2bbc57f33ab9fea81decaa1ed3eb14d2af",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/contracts/sources/frontend/src/run.ts": {
+      "sha256": "bc1433346d93df45e19f5a2e87c4474e44089706c5f5ad3152df86a1979d1cdf",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/contracts/sources/worker/src/run.py": {
+      "sha256": "a40c04aa22c369fa354406d31613f110878d800e33ddd428e124b513762b3635",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/generic-core/angular-compatible-debt.expected.json": {
+      "sha256": "f697859485c5abc741ef894a8a897dca9dd81f0d5e2e5903bf68bcfc8d8fd77c",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/generic-core/angular-compatible-threshold.expected.json": {
+      "sha256": "f9d65f114bc84b10148308987eb09c08c72478bde27740de2ee5bcfe95703fe0",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/generic-core/angular-duplicate-subject.expected.json": {
+      "sha256": "1e6812c24d37741712df8ec7b37577737a4b969037aed9b6288c155d83b9d449",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/generic-core/angular-empty-selection.expected.json": {
+      "sha256": "47961a19116ebb6473a84077ac22e203122e8e794a139d5afd16b8ec21154131",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/generic-core/angular-incompatible-series.expected.json": {
+      "sha256": "5f7de22d3e74a17a479cf968d34b51784219016fbd63475d3ea496d39e270856",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/generic-core/angular-invalid-exception.expected.json": {
+      "sha256": "359e94ccd995864ba65859f874ffe7a3a923ed88056c198a2fb3b8d514f9ecf1",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/generic-core/angular-malformed-value.expected.json": {
+      "sha256": "394d2aeb1245ced69b37a5cc8d7fc25e716781b78f0ed8b902a133f2ad4e2373",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/generic-core/angular-missing-base.expected.json": {
+      "sha256": "f592baf6f736a12c35b82625b7a476f784b42c7b38cd8bf8194b03c3bef715bc",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/generic-core/angular-missing-evidence.expected.json": {
+      "sha256": "9bf333546b6227496e897aedf5198824d0bb03a54315df32898de05124990e02",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/generic-core/angular-missing-source.expected.json": {
+      "sha256": "8404c1b73659aedefe28624b4fe3cc1ecd546983cbd25092ca39073bee8dd97c",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/generic-core/angular-regression-debt.expected.json": {
+      "sha256": "130576a02170f6d215304847292e57a16b2360a91b3100390691eefb0de80c24",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/generic-core/angular-regression-threshold.expected.json": {
+      "sha256": "9040467da5098ba7639782d014140dd713e677b27508be1e59404f65c457ac53",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/generic-core/angular-required-unsupported.expected.json": {
+      "sha256": "49b93ab3c164b23e8dd41ece422271ad7adafecc6cf05720e9cd137e26bd86b2",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/generic-core/angular-stale-context.expected.json": {
+      "sha256": "8b72567f9fbead4669b79810b882643d0a880b98d3a3a9023e924fecf6884041",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/generic-core/angular-tampered-artifact.expected.json": {
+      "sha256": "401b5daf519f9079e4f7cd23a200fc2005fd6c9959441fb0da0a1425a46e75ad",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/generic-core/angular-unknown-capability.expected.json": {
+      "sha256": "0508ba85bef75ac770fdf6162d52e6cf0d8a31eafc1c1c94df11201f2e58c0a6",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/generic-core/authority.py": {
+      "sha256": "d0b4a2cc1ae0edc2ce4271d116f9d20586c0ff2d5f1612233a7ceb812274e671",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/generic-core/contract-unknown-producer.expected.json": {
+      "sha256": "74d6b69fc774331b57f06f1ad3d8199b2e6627f8dd284f94bc3767000ebfbede",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/generic-core/differential.py": {
+      "sha256": "2449feadd88a7cd3267a74abda8c967e5bd539ca352e3952897e48e324d897c9",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/generic-core/manifest.json": {
+      "sha256": "9f5556f20160cac696d361e7d51c8a5ebf28d44edb7ce36ffd64ae0724c142a2",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/generic-core/profile_oracles.py": {
+      "sha256": "af416eb7d9eb6aaa1c731b6b6aca487d9a3b55b77034f8a00426e54147e0777b",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/generic-core/replay.py": {
+      "sha256": "2368be42324e77233c7ea34d52685025ccc6e8cb19e153aeefabc668efe2deed",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/generic-core/rust-duplicate-subject.expected.json": {
+      "sha256": "22d712260486c71fbf85af181c93af0c351918eb60fb4610e7d1a4540aa9b584",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/harness-evidence/artifacts/java.json": {
+      "sha256": "4c5da498546bd7d91cd8b067ae6a0c9f04d440a06fe3a924afb0faba32d68601",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/harness-evidence/artifacts/python.json": {
+      "sha256": "301596cbf3f66b5bb50932299ba52068687baf634d0d6a3b371d5f9b8dbb6f44",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/harness-evidence/artifacts/rust.json": {
+      "sha256": "0c7b33365a961019ed3fdc4b33347902b0dc08cf3323cf5741113d1a291ddde1",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/harness-evidence/artifacts/typescript.json": {
+      "sha256": "43ff838f69d9691973761d973f700e8971830b0344f280013bd05122fd0103db",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/harness-evidence/expected.json": {
+      "sha256": "4a5a0b56572b8c71d60e361f204ec207c8982a8519a18648740bc694a9bc2fff",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/harness-evidence/negative.json": {
+      "sha256": "e65365f1c68b926115eaacfb3402597ce42eb62345571eb322ed17784c706283",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/harness-evidence/polyglot.json": {
+      "sha256": "b757a394235bd65e30b819a5ffae8ad8983c1f73f145d20820fbd8aa26fbb3dd",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/harness-evidence/requirements.json": {
+      "sha256": "bca876bcd5ab11d24d51cdaf30642c06a8d99dd4445ad97e404e63f2abc01671",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/json-results/error_object.py": {
+      "sha256": "ef2a93b13ea16a757d958985d56d17deed871efa87c609648a9c9591570a2362",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/policy/policy.json": {
+      "sha256": "8b01b11714786f8747c47c987d8caf40acfc3a31969d426342e6e96751e21b31",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/project-model/base.json": {
+      "sha256": "0a42f8b3c7a8af95afa7078b53c308a5d2d1dcd9164a5f80944d89562dcde040",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/project-model/head-sources/api/src/moved.rs": {
+      "sha256": "da634fb05ddb3730b63b5402f5bb4c2c06a797c5d1d921e1bd179f37d264dfa9",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/project-model/head-sources/api/src/openapi.json": {
+      "sha256": "aa17e322ab2e77709904324daec249619531fe06174466a7b1bac4253455daa6",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/project-model/head-sources/billing/src/Run.java": {
+      "sha256": "d89419590e04fdcf2af14db32cd12d2bbc57f33ab9fea81decaa1ed3eb14d2af",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/project-model/head-sources/frontend/src/run.ts": {
+      "sha256": "43d323082cdc9b8169480f49ca9fa6c71e04fa5c4ecbd3f5782b1d7cfba00a9a",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/project-model/head-sources/worker/src/run.py": {
+      "sha256": "d9a807f2791a173ceeab98bdef93dd6ca735c10ac0b07cf0ed070b2fcb27ba48",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/project-model/head.json": {
+      "sha256": "ead0c4ec02a7ae5b1d0820bf1c946ec5b50e3d7d01562c797bddef5a17bf91c9",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/project-model/mappings.json": {
+      "sha256": "dad6f43b41f4067ea660c76fb15960b11c198a6190ad9fc69dcfef9fb64b8fad",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/project-model/sources/api/src/openapi.json": {
+      "sha256": "aa17e322ab2e77709904324daec249619531fe06174466a7b1bac4253455daa6",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/project-model/sources/api/src/run.rs": {
+      "sha256": "da634fb05ddb3730b63b5402f5bb4c2c06a797c5d1d921e1bd179f37d264dfa9",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/project-model/sources/billing/src/Run.java": {
+      "sha256": "d89419590e04fdcf2af14db32cd12d2bbc57f33ab9fea81decaa1ed3eb14d2af",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/project-model/sources/frontend/src/run.ts": {
+      "sha256": "bc1433346d93df45e19f5a2e87c4474e44089706c5f5ad3152df86a1979d1cdf",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/project-model/sources/worker/src/run.py": {
+      "sha256": "a40c04aa22c369fa354406d31613f110878d800e33ddd428e124b513762b3635",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/risk/input.rs": {
+      "sha256": "04586d56b0867d549413d9850a14caacac10228773be3a01c33c39c3decf199f",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/risk/llvm.json": {
+      "sha256": "1005399b3780cd22d419f110afc3ed3d3362eb8841125f4ba6237a8408292c74",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/rust-macro-observation/Cargo.lock": {
+      "sha256": "7e749927e1048ef9dd72dbdeff7e559d7415e1cd4eb387430059a3a7399a42d3",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/rust-macro-observation/Cargo.toml": {
+      "sha256": "f7e71f9c95397029349e3f44c39be846b6d016c097a54c068401dcdb09d7c1ad",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/rust-macro-observation/consumer/Cargo.toml": {
+      "sha256": "116086e10273b649e4563f3ab01664372bb4711ff554c7ab3620621f178b4186",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/rust-macro-observation/consumer/src/lib.rs": {
+      "sha256": "027aef5fc5707b7b1fbcbca814b8342de912599f7acd3b55dd73a5227e339e0a",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/rust-macro-observation/generator/Cargo.toml": {
+      "sha256": "0a0c0d62f668b1bc32e46b430ae3075ff3dcff7996933c652a594727f78a2917",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/rust-macro-observation/generator/src/lib.rs": {
+      "sha256": "a6842da1f1ec9ccfffe3fde02fade149a3d732381b980cf859a040c2f98a9dc5",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/rust-macro-observation/macros/Cargo.toml": {
+      "sha256": "3e7a9eeaf09af33c6d9ff22dec0f8890510bb9ac689bd61207f2899cac409760",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/rust-macro-observation/macros/src/lib.rs": {
+      "sha256": "01d0f7532fd051a1c95fa9fe4520a8930c8034847ce8017029ede96f56f6de59",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/rust-native/cargo-complete/Cargo.lock": {
+      "sha256": "40bb4824db9814094513a24216188e8127d6514cece5e593d922fc8ebc28ec74",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/rust-native/cargo-complete/Cargo.toml": {
+      "sha256": "cd28b127d7a5f47d8a9155a7c84769b5c83833b853c9454424cf9674f7ac065c",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/rust-native/cargo-complete/src/inactive.rs": {
+      "sha256": "375b1683cae6addf570f9082be9e45d3e1b0cc41669508a9d6dd06ef688ababb",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/rust-native/cargo-complete/src/lib.rs": {
+      "sha256": "2609d23104a017a5ed65fc1d7463fb81c7b6b26d052f20014a087cf1d5a4981a",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/rust-native/cargo-complete/src/main.rs": {
+      "sha256": "cc78ca59ff9b603f4dc02bb664c4c63b54db4f834c08b152e67bccc7e75de8ec",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/rust-native/cargo-complete/tests/contract.rs": {
+      "sha256": "92711f9d094b6db6941b149560dc0dba69dad9ffb208aeca546da07e85642dd2",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/rust-native/complete.rs": {
+      "sha256": "5848ae7e66cdec35029a945b55d6f4b972c4f1b51256d1e050bba5cb45f0722d",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/rust-native/derived-gap.rs": {
+      "sha256": "4a5fa6094a61e2db4e8f58a8112270a3560a08585181e571c4f05a633e285cd1",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/rust-native/driver_complete.rs": {
+      "sha256": "a8be4cef00ed15911adb43f65662509eb9ace34a0fd98f5af2fd012b092d2aa3",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/rust-native/file-classification/Cargo.lock": {
+      "sha256": "5a6526e079c2564157287551a58ba19b60e740fd289e9bab1fe33f7ab9901e10",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/rust-native/file-classification/Cargo.toml": {
+      "sha256": "b714223e8d6c1027f31af25c525e8415bc1aa995acf3c95f70bb6a0ec5458e84",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/rust-native/file-classification/src/conditional.rs": {
+      "sha256": "325564756efaa8868f52f1af916cf0bee2340336fc9fb033e162a95bb278f2ee",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/rust-native/file-classification/src/declarations.rs": {
+      "sha256": "c05d9ec7bfc6254b9f336905b4ec00b5c24da53a6cb60701be532b5501d93824",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/rust-native/file-classification/src/derived.rs": {
+      "sha256": "38e329a72793c54e4c3e5bfd24a4ec6f2dd2a8fda6d11051260c26ca89541d9c",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/rust-native/file-classification/src/forward/child.rs": {
+      "sha256": "a4c4881f545f7711c0bbe7c09e29e49eb1c2c62e83eecff0fd24dc0bc98c17e9",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/rust-native/file-classification/src/forward/mod.rs": {
+      "sha256": "58c1c45d765e4298d06789132f156326b9c24c11404915d534f8ce95d377a3d0",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/rust-native/file-classification/src/generated.rs": {
+      "sha256": "af792d42ccea40987bd6a35e6722993e5c71b5c095f9c2dcd7137fb009619ed4",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/rust-native/file-classification/src/lib.rs": {
+      "sha256": "dd46330fcb8ac649615a84a938f4368cc612cb7eb862fe80b22979ae66a53c51",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/rust-native/file-classification/src/local.rs": {
+      "sha256": "e75aedfd03186fc1b3d53296b7b6ac819a3ea26e734d782acc1b083336eac60e",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/rust-native/file-classification/src/markers.rs": {
+      "sha256": "d52e4339232e8884efffde3a0da88c30968cf76012c988b514a9ec3c8e087077",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/rust-native/file-classification/src/orphan.rs": {
+      "sha256": "207647cdc395b5bdedc3d8bcbc27d838ee5ce0833dc413ab63bf47e700a456df",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/rust-native/file-classification/src/unexecuted.rs": {
+      "sha256": "a896a4821e7a1990fff9def38462721351019fe1245ed010afedcf2e80ad752e",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/rust-native/file-classification/tests/contract.rs": {
+      "sha256": "583f7d479180b9806a75a03ab0e268f744fadd3fe61879628cca25c79ecfc66a",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/rust-reference/equivalence-window.json": {
+      "sha256": "72dd67ccf9e31322fe0c864303ccba035d57b5349dcbf04773facb54417100c4",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/rust-reference/history.json": {
+      "sha256": "1b303a1e6a84d4abd5e1e273b2ab87c8f41ad87e6c14ade77b98ff465376ac96",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/rust-reference/phase-1-accepted-b92755f.json": {
+      "sha256": "062f4f607068abb332b67d28f6e1f9314abc2261a5f9a891c09ea86de5bf9928",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/app/.editorconfig": {
+      "sha256": "d62fd282eadb5b3ff888a23ba5968e490cc0a77dded2fbc4f704b7e6e247f4db",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/app/.gitignore": {
+      "sha256": "6faa24d286aa308f683225069e0cbabf9146bcb584e5ea06c812a5f7478b2abd",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/app/.node-version": {
+      "sha256": "55075b5ec4e8b31936cbbc282b8829116d1fd48f2f2f1856dee592a6650700ce",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/app/.npmrc": {
+      "sha256": "5816c9c0373487af9d9c80d873a721b4ed1ca509c4ef7aa3a0304f315114e9ef",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/app/.prettierrc": {
+      "sha256": "8cd4a6408c3eadd007f0e8986754f4f03e6f2ea451a0181040555671491069a9",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/app/angular.json": {
+      "sha256": "61e4599e1ff7239ffe5e8fa3b36105bf874091636d58a03a30c4857ccf042577",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/app/package-lock.json": {
+      "sha256": "f2eed8594891c8350ed90ad3613d2d17e5fd5c24c8c6fe9ceb3a72b9e955c93c",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/app/package.json": {
+      "sha256": "a8996c8c98054d4a33005f000a03d95500b1eb2de5a204630b2eaf44c24ba7fc",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/app/src/app/app.config.ts": {
+      "sha256": "705e77f2dbf12e8c9f7379d15564a5d4a42817909f7a45568cffb386765cfef2",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/app/src/app/app.css": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/app/src/app/app.html": {
+      "sha256": "8aa65a249a342ce1abc4897458aba86f2d06784ef358ed6c18a4861308723eb5",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/app/src/app/app.routes.ts": {
+      "sha256": "3126fe24248fb5777c124b87d4803e4f8672e9ec13b804b027659d2bec4165e0",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/app/src/app/app.spec.ts": {
+      "sha256": "4b81cde2519d4e2b562adc510eb8a440ce087d7c47035dc26ed346077ac641fd",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/app/src/app/app.ts": {
+      "sha256": "e8b9275808fbfd72c15cd1d872500672d8a3c4555f20e6fe06bc929f1eaa1962",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/app/src/app/details/details.css": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/app/src/app/details/details.html": {
+      "sha256": "837eaea8f8cbd64bccefabaa4bd1df881c637dcb031c802741e263a0fdbd198f",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/app/src/app/details/details.spec.ts": {
+      "sha256": "40ea2801243f5ba1e7b11f8e2ce0262ba09b0edba6126de83eb7d1102bbe04d2",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/app/src/app/details/details.ts": {
+      "sha256": "a506e5902cbfa879f446f686a8560c010537e33c20395ccf387d77f7f3b5cc2b",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/app/src/app/generated/core/ApiError.ts": {
+      "sha256": "ac1abaa5a3ad075d93628d6c832ec50267580258b3a1b433a14594cbda31e425",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/app/src/app/generated/core/ApiRequestOptions.ts": {
+      "sha256": "023524537825d077a570bf14b8e894992274df4d0c6c27f7e7ac2fd3f74f541f",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/app/src/app/generated/core/ApiResult.ts": {
+      "sha256": "ebcb6e0238fe3da2c4db6de78d4ffcd40e4f76d5c53f14b4fef734fb4556d8ba",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/app/src/app/generated/core/CancelablePromise.ts": {
+      "sha256": "3a248db3894a4c911cb65eb1fa6aa6729cf11be0e2c5e6ffe4cffabc6ca592e8",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/app/src/app/generated/core/OpenAPI.ts": {
+      "sha256": "05ef246b56d52d799dcb76b8656dfbb8eea1d332090f1234afa26de4478cd5de",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/app/src/app/generated/core/request.ts": {
+      "sha256": "1ccdeca0b9dae2b2cb17b2d6dd6957127a78c5b8d9b5e35c711f1958318bba0e",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/app/src/app/generated/index.ts": {
+      "sha256": "8197eed384890daf905c85575dc6695375baf3a0c4c996a9c33f546910231cfc",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/app/src/app/generated/models/Quote.ts": {
+      "sha256": "5ad86e3b3ef4f9658e7a8e062fccc7f1695377f48483225c951260321f05b735",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/app/src/app/generated/services/DefaultService.ts": {
+      "sha256": "c9f837329b220926f79d005a7bdaecc670eed14cf36107ad93c23f6df49156c5",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/app/src/app/pricing.spec.ts": {
+      "sha256": "80a654b4108cda97c77b75826969f2687d4f2d99ce7ab405c2515ba44b67fa5b",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/app/src/app/pricing.ts": {
+      "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/app/src/app/priority-quote.spec.ts": {
+      "sha256": "5944367abafa6e39121d8a88f80e246ada4aa03c4b2b2ca0c0192b3f37a1163e",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/app/src/app/priority-quote.ts": {
+      "sha256": "ed21f8293a612db7502354c84c6f807ff3b27550dcc9aa7568514f7fabdd57fc",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/app/src/app/quote-client.spec.ts": {
+      "sha256": "76fe6b81ed6f44e8a8cbf1dc24da253310f764bca6f900ad55795a818d1b3451",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/app/src/app/quote-client.ts": {
+      "sha256": "17dbdb262940a003f023ea8bde41811c769dc9913ec17e59b0e11a6ba3953fbc",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/app/src/app/standard-quote.spec.ts": {
+      "sha256": "2b2fbbce6370848c6be8385ef04906d4c8a0353f1390666b29fb33b7fa887897",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/app/src/app/standard-quote.ts": {
+      "sha256": "2a119c679b573b52192ee99fb1e195f95683058d539d173ccf926a909d0fe9ae",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/app/src/index.html": {
+      "sha256": "3b62af7a50dc71ef840caa119268d0ec62677813bf52bb6dae8d58b27b717c33",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/app/src/main.ts": {
+      "sha256": "2341253f1a947c37dfa27838951cf7e224f7abb32dff45a8d425f042b5eeed13",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/app/src/styles.css": {
+      "sha256": "c7295b915b6a250b910d30ff3b9d1991b6f43c9474d3afafc6cba59eee44383e",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/app/tsconfig.app.json": {
+      "sha256": "12e2786b56cc873a4e91f822894cc541082d16b90c0d7280aa5512469627d23f",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/app/tsconfig.json": {
+      "sha256": "3c3b6c2138f0a910f5284e1d64e9fc213af2b91409fdeaf5598ff495c28f79c2",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/app/tsconfig.spec.json": {
+      "sha256": "2b97fc8c7f8c11f52152ce2eebb2946f2789780e58b2538788a505c70b496dcb",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/app/vitest.config.ts": {
+      "sha256": "77c62ab2edcfcee90c6d9eb1264a05ac678fa1c3995b3dd534d1cb3300950201",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/collect.py": {
+      "sha256": "478cdb948510fe44b7a43b1929698941660bbd8e3f5290ef0b09123a0df5cd64",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/coverage-oracle.cjs": {
+      "sha256": "ef6217f217bc4c4237b1f2a3370d800e41c7b362458b18e3b1280450be060a04",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/evidence/index.json": {
+      "sha256": "db3aff23e536c30c12d468f096674095ff6e38649a5b847fc0cdee7bc6e79443",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/provider/Cargo.lock": {
+      "sha256": "5e24ca4e73031efae7cce7760ec3d8ce5be51105de9bf152f48623555a817ca9",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/provider/Cargo.toml": {
+      "sha256": "750772b99299f459a031683c8a107e8738b205491d55a3386e18d2e7b36f8b42",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/provider/openapi.json": {
+      "sha256": "8b6bd7b85a485434496ae0dc8a8a8b2da8f3e06b4f886d27bb14b5a5e36d35a2",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/provider/src/main.rs": {
+      "sha256": "023b69bd8a699c653cb7f32f552fdad12f58a98bd846ef67abf32d2ec43531f3",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/semantics/native-counters.json": {
+      "sha256": "7e52c0aadfd7459ec6edadceaf0aed66735f43f37d29f8d473460cc3a009530b",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/semantics/receipt.json": {
+      "sha256": "d972dcf03ad178758afd43274226b1664f4c7120a5af66077de73b4e1cf55d05",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/semantics/source-index.json": {
+      "sha256": "026a7a319d417d4168eabe57fcdf3ece6f1dd313f9ae90c5619f617920ad39ac",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/source-index.cjs": {
+      "sha256": "106ded3fd2d0e6dac933506b17a2043c85fb26d6e518f7fc2039f6d30f2c276b",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/fixtures/typescript-angular/toolchain.json": {
+      "sha256": "fcd428ad283c64b8e36e27a428be1c00851d2c890183383cd6e3a0d54d5777db",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/function_risk.py": {
+      "sha256": "474721231723fe5ca1ee3c50033a15319f59bbb152f755ce366d800e006c3abc",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/harness_evidence.py": {
+      "sha256": "fcb07569d8fa386fb11324003ba939a9bf2522a7baf60a7ef9194ac703414368",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/policy_engine.py": {
+      "sha256": "a3ac2948eec2a27b3968e531c2e6f9e7f797afd832f819190734aa545388e619",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/policy_ratchet.py": {
+      "sha256": "90eeb951393bed7393d5ed1a223c533e18c986ecb63ad06c7fbceeecef640620",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/production_coverage.py": {
+      "sha256": "170d7d7470161a25380fdfaf1d0ca62c453e988202ad23dd54ac7b4c548683f1",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/project_model.py": {
+      "sha256": "d1d493bbd4566b8aaf469d0f28fdee89a3c3a3e3ebfe3e1068b9d93e90d1b196",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/project_report.py": {
+      "sha256": "ff1a83d66fa63f988faad8a586e2f8ce9ad7c2f37d4e39c83841da6662c2acd5",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/quality_common.py": {
+      "sha256": "1b908a7e791fc6df4a5f2d5112a0180c35a6e39a1e8f932a95672d24c78e4cf8",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/quality_evidence.py": {
+      "sha256": "8938ce2fc2d49caf2e3f3dac284fe3d07a13a3da9cbd8e1e729f011e2d5d145e",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/rust-measure/Cargo.lock": {
+      "sha256": "bcdbad54b75431ca01275eb9a671334c5bf9008958d5edd1d16956d419db66a8",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/rust-measure/Cargo.toml": {
+      "sha256": "b906c51b311e34150d15b55ad0d32ad8d65735baf3052f3c723c4bced4e98044",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/rust-measure/plugin.json": {
+      "sha256": "274a64a632ca22fae01b4f0f664e611838b251cd9ddc8cbb7789ac8637116cfa",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/rust-measure/src/configuration.rs": {
+      "sha256": "cfd0b9f31855bdd492c456b6879752a067aa6e1c4c58148cac45db57afa2cf03",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/rust-measure/src/main.rs": {
+      "sha256": "6b9707ecca94913a7528092adb606b03d45a5bb778a25d387221a1d28f3309cc",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/rust-measure/src/native.rs": {
+      "sha256": "25253d0c21200bff991460e1bd64eec4b5b9a776cb759d6f0b4fe2fa3e7f681d",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/rust_collector_contract.py": {
+      "sha256": "9d9aa499cbed81293980c57c4ef96fd8b350ccb12acdeddf0b39f84115c62d71",
+      "owner": "GateProbes legacy compatibility"
+    },
+    "tools/quality/rust_collector_delivery.py": {
+      "sha256": "bbfabb192a8534ae31d9678b106a6a9758dc9c6fa31c45baff2d213bed14efd9",
+      "owner": "GateProbes legacy compatibility"
+    },
+    "tools/quality/rust_collector_entry.py": {
+      "sha256": "d13233de8cb94692bd916ef9e9c0f86ac0ebb39fbc81d30e9fd6883fc24cbdc5",
+      "owner": "GateProbes legacy compatibility"
+    },
+    "tools/quality/rust_collector_project.py": {
+      "sha256": "b9873d9fab94c88f7eb1638ea845d7a7d5093af6a0d8eef2b6e1c53be0e22b07",
+      "owner": "GateProbes legacy compatibility"
+    },
+    "tools/quality/rust_native.py": {
+      "sha256": "cafd5670a7d040f2beb7dbc5f5880825391bc19a6ccafece30e7bcd6b0ea5767",
+      "owner": "GateProbes legacy compatibility"
+    },
+    "tools/quality/rust_native_classify.py": {
+      "sha256": "b952ae1c7c5ed335013387e314898cccacd813720c200ddcdffdba2dc08916e7",
+      "owner": "GateProbes legacy compatibility"
+    },
+    "tools/quality/rust_native_config.py": {
+      "sha256": "4e1c80301839111098ffa17fb27830aabdd253f3088e0541b0884b24fb24edef",
+      "owner": "GateProbes legacy compatibility"
+    },
+    "tools/quality/rust_native_driver.py": {
+      "sha256": "52c717a76e9e45d5e1524654312ed513872a30f32d545c67e9451b0fca9ae93b",
+      "owner": "GateProbes legacy compatibility"
+    },
+    "tools/quality/rust_native_policy.py": {
+      "sha256": "7d44632b9f82284628ba6fe1742823b390644632a482a80f2bf0decd317cbcda",
+      "owner": "GateProbes legacy compatibility"
+    },
+    "tools/quality/rust_reference.py": {
+      "sha256": "73a76252eebbd1534cfae8d395c70c03a862de3c17908c721eee4d6c5a179a75",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/schema/capability-requirements.schema.json": {
+      "sha256": "763da8a3a15cde9c338e8ca076e52488f5d0795ff61e05f8018b61cdc63c40ea",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/schema/harness-evidence.schema.json": {
+      "sha256": "fbd0b737f73f8d65f196581859fcdf18d8d47da522c98d1020c22d2e0660d406",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/schema/policy-exceptions.schema.json": {
+      "sha256": "da3c0439d1a7484cef7571e9fd5bd5e3446f64419d51a7556ea69c7a004ead78",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/schema/policy.schema.json": {
+      "sha256": "3d3cb56ee6f5010bcc0a1a27284fcac69fb6cc59d91471d853af2bd570d82ba6",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/schema/project-config.schema.json": {
+      "sha256": "1c8c334f3eedee4d96d97136d4f8e8aad00631f9b34feb5c6935047a29dd4cee",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/schema/project-model.schema.json": {
+      "sha256": "fd6274e0f1f03a02c9ee701eccde3f117ff6f75d5d145e18a3f835995449282a",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/schema/quality-evidence.schema.json": {
+      "sha256": "ceb99d0e3c76a482985f064ce547019864353838d6eb040d4f54d2b91bfbad11",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/schema/rust-collector-delivery.schema.json": {
+      "sha256": "25b196707810bb48e36f7ee7740f459126f0b1f958af4466517f934b8d764266",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/schema/rust-collector-plugin.schema.json": {
+      "sha256": "432ee89d57eb08b1a0606d544391d8d5ef704948fc4a37d9f3bd96246a4ed8ef",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/schema/rust-project-collector-binding.schema.json": {
+      "sha256": "59cac4184eefc1ae3dc227b0c706d2748df761fc62bf7304dd4c6407761effee",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/schema/subject-mappings.schema.json": {
+      "sha256": "6a139b941278287af42f220004d4761742ce8d22c7b3bbcf9148fc9405510eaa",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/source_measure.py": {
+      "sha256": "52ecd7e33018ca3480d9aa78099e6037774b5e4f807265111e8f977c57fe5f8f",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/tests/native_policy_fixture.py": {
+      "sha256": "02edf6dff3b4b7ccba3afcde1a09ec0f40b0565e8afbf638f572ece302d934af",
+      "owner": "GateProbes legacy compatibility"
+    },
+    "tools/quality/tests/rust_collector_config_fixture.py": {
+      "sha256": "c3ee57529ac3265f3f281b13f54f3c0f13333796ebab69c9d823839985ff0e96",
+      "owner": "GateProbes legacy compatibility"
+    },
+    "tools/quality/tests/test_policy_engine.py": {
+      "sha256": "18e0a4ceef15bce206a2a43b4a299e7bce5214ce224ac0dd8da1c9e69e6cb9f2",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/tests/test_preset_packs.py": {
+      "sha256": "343d63616b5e0e4b65f759d20baf29fb48795692a6fab89d3c31b19ee5563059",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/tests/test_rust_collector_contract.py": {
+      "sha256": "7e58f991221785996da3849597e1eb9eef93f2495e0ff5b7f2f969d26c809f47",
+      "owner": "GateProbes legacy compatibility"
+    },
+    "tools/quality/tests/test_rust_collector_delivery.py": {
+      "sha256": "e9089f217ae2b8c5c7453f4854f02b5d8509959725d83f36bb11952597e55e54",
+      "owner": "GateProbes legacy compatibility"
+    },
+    "tools/quality/tests/test_rust_collector_project.py": {
+      "sha256": "456eba2acfb29f002039d94d929eea6359eb21aec35d2274ebc51ba7b5ea49e7",
+      "owner": "GateProbes legacy compatibility"
+    },
+    "tools/quality/tests/test_rust_collector_runtime.py": {
+      "sha256": "8c1edfaad51f3bd6d98666c5290acdafbab82fe980f611a41ab9f03df221dd49",
+      "owner": "GateProbes legacy compatibility"
+    },
+    "tools/quality/tests/test_rust_native.py": {
+      "sha256": "0528d2884bc6d85f52cd2de54ad11d920482e493f8bead0aa4e93fd4c5706aa1",
+      "owner": "GateProbes legacy compatibility"
+    },
+    "tools/quality/tests/test_typescript_acceptance.py": {
+      "sha256": "f7883f72732e115408f9c7d63bec293e1cc227a0f23488b96eb51dab82d3b32c",
+      "owner": "GateProbes legacy compatibility"
+    },
+    "tools/quality/tests/test_typescript_advisory.py": {
+      "sha256": "4d67af9a2bcc9e0e4414ee6fb49d3ffd9a1a26a3cfaf25e826c781d26982a506",
+      "owner": "GateProbes legacy compatibility"
+    },
+    "tools/quality/tests/test_typescript_contracts.py": {
+      "sha256": "4cc116aeaedd251cd0901cc44dd59e1198bca1c8f6780d05ec1ac5c754bde02d",
+      "owner": "GateProbes legacy compatibility"
+    },
+    "tools/quality/tests/test_typescript_policy.py": {
+      "sha256": "7423806a734d74c139fcb8f598b6c87c4481490ce85d839f8e7aa7ff574fdba3",
+      "owner": "frozen Core reference input"
+    },
+    "tools/quality/tests/test_typescript_reference.py": {
+      "sha256": "eb8cf4a15a741e32ce0b2d4ebf0ee5f30790da37c38ea1b6317d72cc9f55b642",
+      "owner": "GateProbes legacy compatibility"
+    },
+    "tools/quality/tests/test_typescript_semantics.py": {
+      "sha256": "b98e9fe1bf1fdaa7d64cc4515d0102084a76e1f93509e3d5c4ceda8c798b675f",
+      "owner": "GateProbes legacy compatibility"
+    },
+    "tools/quality/typescript_acceptance.py": {
+      "sha256": "73d3f5a6cfb65b162863074c23815a6044fde64bd578423316e68503bb180342",
+      "owner": "GateProbes legacy compatibility"
+    },
+    "tools/quality/typescript_advisory.py": {
+      "sha256": "2f1bb5b82b5b83717db499240c84028d6c9a9a77bdcd1ae5b4d6d0033c9ab3d5",
+      "owner": "GateProbes legacy compatibility"
+    },
+    "tools/quality/typescript_contracts.py": {
+      "sha256": "be30cd166091ab263cf344620fdaaedd3cfaa7a4ff61c0f3cdd971606b3637e9",
+      "owner": "GateProbes legacy compatibility"
+    },
+    "tools/quality/typescript_reference.py": {
+      "sha256": "347ec0c980e77d519a5b956af49762f6be9a3d15d6d03a8ad697ded1186b490b",
+      "owner": "GateProbes legacy compatibility"
+    },
+    "tools/quality/typescript_semantics.py": {
+      "sha256": "71ac267b84ca2c2cb24f88ec0d03fd05df84d63d61687f40d3eea0cd642647bc",
+      "owner": "GateProbes legacy compatibility"
+    },
+    "tools/quality/rust-collector-compatibility.json": {
+      "sha256": "c83fff75061e43b814f300048b6aaa53af3c89911090526cc04a2cd308da02d4",
+      "owner": "GateProbes legacy compatibility"
+    }
+  },
+  "held_classes": {
+    "test_rust_collector_runtime.StandaloneNativeTests": "Paused bundled-runtime product; original RUST_COLLECTOR_RUNTIME opt-in acceptance remains archived, never enabled by ordinary CI."
+  },
+  "core_owned_parity": [
+    "test_typescript_policy",
+    "test_preset_packs.PresetPackTests.test_typescript_uses_native_series_and_unsupported_crap"
+  ],
+  "policy": "Engineering Policy unchanged; frozen Python references are non-authoritative. No release, compiler, baseline or debt promotion."
+}

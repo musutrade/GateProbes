@@ -1,0 +1,11 @@
+{
+  "evaluation_error": {
+    "reason": "unknown relationship component",
+    "reason_class": "ModelError"
+  },
+  "validation": {
+    "accepted": false,
+    "reason": "unknown relationship component",
+    "reason_class": "MeasurementError"
+  }
+}

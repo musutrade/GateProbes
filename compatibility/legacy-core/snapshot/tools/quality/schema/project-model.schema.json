@@ -1,0 +1,376 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Shadow generic project model v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "id",
+    "metadata",
+    "components",
+    "subjects",
+    "relationships"
+  ],
+  "properties": {
+    "schema": {
+      "const": "harness-project/v1"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9._-]*$",
+      "minLength": 1
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "components": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Component"
+      },
+      "minItems": 1
+    },
+    "subjects": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Subject"
+      },
+      "minItems": 0
+    },
+    "relationships": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Relationship"
+      },
+      "minItems": 0
+    }
+  },
+  "definitions": {
+    "Target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "boundaries",
+        "metadata"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9._-]*$",
+          "minLength": 1
+        },
+        "boundaries": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9._-]*$",
+            "minLength": 1
+          },
+          "minItems": 1
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "SourceBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "path",
+        "role",
+        "metadata"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9._-]*$",
+          "minLength": 1
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "production",
+            "test",
+            "generated",
+            "contract"
+          ]
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "Component": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "path",
+        "metadata",
+        "targets",
+        "source_boundaries"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9._-]*$",
+          "minLength": 1
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "targets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Target"
+          },
+          "minItems": 1
+        },
+        "source_boundaries": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SourceBoundary"
+          },
+          "minItems": 1
+        }
+      }
+    },
+    "Span": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "start_line",
+        "start_column",
+        "end_line",
+        "end_column"
+      ],
+      "properties": {
+        "start_line": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "start_column": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "end_line": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "end_column": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "Subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "identity_version",
+        "component",
+        "target",
+        "boundary",
+        "kind",
+        "path",
+        "discriminator",
+        "source_sha256",
+        "metadata"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^subject-identity/v1:[0-9a-f]{64}$"
+        },
+        "identity_version": {
+          "const": "subject-identity/v1"
+        },
+        "component": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9._-]*$",
+          "minLength": 1
+        },
+        "target": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9._-]*$",
+          "minLength": 1
+        },
+        "boundary": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9._-]*$",
+          "minLength": 1
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "project/v1",
+            "component/v1",
+            "boundary/v1",
+            "file/v1",
+            "function/v1",
+            "method/v1",
+            "class/v1",
+            "route/v1",
+            "endpoint/v1",
+            "contract/v1",
+            "dependency/v1",
+            "critical_path/v1"
+          ]
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "discriminator": {
+          "type": "string",
+          "minLength": 1
+        },
+        "span": {
+          "$ref": "#/definitions/Span"
+        },
+        "source_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "Relationship": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "kind",
+        "producer",
+        "consumer",
+        "subjects",
+        "metadata"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9._-]*$",
+          "minLength": 1
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "depends_on/v1",
+            "consumes/v1",
+            "produces/v1",
+            "generated_from/v1"
+          ]
+        },
+        "producer": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9._-]*$",
+          "minLength": 1
+        },
+        "consumer": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9._-]*$",
+          "minLength": 1
+        },
+        "subjects": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^subject-identity/v1:[0-9a-f]{64}$"
+          },
+          "minItems": 1
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "Project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "id",
+        "metadata",
+        "components",
+        "subjects",
+        "relationships"
+      ],
+      "properties": {
+        "schema": {
+          "const": "harness-project/v1"
+        },
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9._-]*$",
+          "minLength": 1
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "components": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Component"
+          },
+          "minItems": 1
+        },
+        "subjects": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Subject"
+          },
+          "minItems": 0
+        },
+        "relationships": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Relationship"
+          },
+          "minItems": 0
+        }
+      }
+    }
+  }
+}

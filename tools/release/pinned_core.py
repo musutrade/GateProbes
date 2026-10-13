@@ -21,7 +21,7 @@ def contract(root: Path = ROOT) -> dict:
     value = json.loads((root / "docs/ownership.json").read_text())["core_contract"]
     if not re.fullmatch(r"[0-9a-f]{40}", value["source_commit"]):
         raise ValueError("Core modules require a full source commit")
-    if value["repository"] != "musutrade/Harness-Gate":
+    if value["repository"] != "musutrade/GateHouse":
         raise ValueError("unexpected Core repository")
     if value["release"] != "v" + value["version"]:
         raise ValueError("Core release/version mismatch")

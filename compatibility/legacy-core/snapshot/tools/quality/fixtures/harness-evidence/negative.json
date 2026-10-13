@@ -1,0 +1,158 @@
+[
+  {
+    "name": "missing-id",
+    "path": [
+      "id"
+    ],
+    "delete": true,
+    "error": "missing required"
+  },
+  {
+    "name": "illegal-status",
+    "path": [
+      "status"
+    ],
+    "value": "pass",
+    "error": "expected one of"
+  },
+  {
+    "name": "bad-digest",
+    "path": [
+      "artifacts",
+      0,
+      "sha256"
+    ],
+    "value": "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz",
+    "error": "pattern"
+  },
+  {
+    "name": "tampered-digest",
+    "path": [
+      "artifacts",
+      0,
+      "sha256"
+    ],
+    "value": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+    "error": "digest mismatch"
+  },
+  {
+    "name": "stale-artifact",
+    "path": [
+      "artifacts",
+      0,
+      "context",
+      "run"
+    ],
+    "value": "old-run",
+    "error": "stale artifact"
+  },
+  {
+    "name": "stale-evidence",
+    "path": [
+      "context",
+      "commit"
+    ],
+    "value": "2222222222222222222222222222222222222222",
+    "error": "stale commit"
+  },
+  {
+    "name": "missing-artifact",
+    "path": [
+      "artifacts",
+      0,
+      "path"
+    ],
+    "value": "artifacts/missing.json",
+    "error": "artifact/source"
+  },
+  {
+    "name": "path-escape",
+    "path": [
+      "artifacts",
+      0,
+      "path"
+    ],
+    "value": "../outside.json",
+    "error": "relative"
+  },
+  {
+    "name": "unknown-type",
+    "path": [
+      "metrics",
+      0,
+      "value",
+      "type"
+    ],
+    "value": "number",
+    "error": "unknown metric value type"
+  },
+  {
+    "name": "untyped-number",
+    "path": [
+      "metrics",
+      0,
+      "value"
+    ],
+    "value": 1,
+    "error": "unknown metric value type"
+  },
+  {
+    "name": "invalid-ratio",
+    "path": [
+      "metrics",
+      0,
+      "value",
+      "covered"
+    ],
+    "value": 6,
+    "error": "covered exceeds total"
+  },
+  {
+    "name": "unsupported-with-value",
+    "path": [
+      "capabilities",
+      0,
+      "state"
+    ],
+    "value": "unsupported",
+    "error": "capability/evidence mismatch"
+  },
+  {
+    "name": "supported-without-value",
+    "path": [
+      "capabilities",
+      6,
+      "state"
+    ],
+    "value": "supported",
+    "error": "capability/evidence mismatch"
+  },
+  {
+    "name": "wrong-series",
+    "path": [
+      "series",
+      "id"
+    ],
+    "value": "measurement-series/v1:0000000000000000000000000000000000000000000000000000000000000000",
+    "error": "noncanonical measurement series"
+  },
+  {
+    "name": "tool-version-drift",
+    "path": [
+      "series",
+      "tool",
+      "version"
+    ],
+    "value": "2",
+    "error": "noncanonical measurement series"
+  },
+  {
+    "name": "missing-base",
+    "path": [
+      "context",
+      "base_commit"
+    ],
+    "delete": true,
+    "error": "missing required"
+  }
+]

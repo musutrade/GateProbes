@@ -1,0 +1,1114 @@
+{
+  "policy_result": {
+    "aggregate": {
+      "blockers": [
+        {
+          "policy": "pricing-lines",
+          "state": "unsupported",
+          "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+        }
+      ],
+      "state": "blocked"
+    },
+    "debt_ledger": [],
+    "exception_review": {
+      "errors": [],
+      "exceptions": [],
+      "state": "none"
+    },
+    "mode": "shadow",
+    "quality_aggregate": {
+      "blockers": [
+        {
+          "policy": "pricing-lines",
+          "state": "unsupported",
+          "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+        }
+      ],
+      "state": "blocked"
+    },
+    "results": [
+      {
+        "policy": "pricing-lines",
+        "reason": "unsupported",
+        "record": {
+          "base": {
+            "covered": 5,
+            "total": 6,
+            "type": "ratio"
+          },
+          "baseline": {
+            "classification": "unchanged",
+            "inherits_history": true,
+            "lineage_base_subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685",
+            "lineage_kind": null
+          },
+          "component": "typescript",
+          "context": {
+            "base_commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+            "commit": "e8c569b30461a1502eb7d35336672799157465d3",
+            "run": "compatible-head",
+            "target": "node-jsdom"
+          },
+          "evidence_links": {
+            "base": {
+              "artifacts": [
+                {
+                  "bytes": 721522,
+                  "context": {
+                    "base_commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+                    "commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+                    "run": "compatible-base",
+                    "target": "node-jsdom"
+                  },
+                  "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.native.tar.gz",
+                  "kind": "raw",
+                  "media_type": "application/gzip",
+                  "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/native.tar.gz",
+                  "sha256": "98592277e40d9cd68f27a3a4f538e1e54d149c87a9b83395251534726f754716",
+                  "source": {
+                    "path": "app/src/app/pricing.ts",
+                    "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                  }
+                },
+                {
+                  "bytes": 25954,
+                  "context": {
+                    "base_commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+                    "commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+                    "run": "compatible-base",
+                    "target": "node-jsdom"
+                  },
+                  "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.source-index.json",
+                  "kind": "raw",
+                  "media_type": "application/json",
+                  "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/source-index.json",
+                  "sha256": "026a7a319d417d4168eabe57fcdf3ece6f1dd313f9ae90c5619f617920ad39ac",
+                  "source": {
+                    "path": "app/src/app/pricing.ts",
+                    "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                  }
+                },
+                {
+                  "bytes": 6239,
+                  "context": {
+                    "base_commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+                    "commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+                    "run": "compatible-base",
+                    "target": "node-jsdom"
+                  },
+                  "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.receipt.json",
+                  "kind": "raw",
+                  "media_type": "application/json",
+                  "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/receipt.json",
+                  "sha256": "6d094b927c8ce01a630f2cff1fde87e74e94750b7f806bdf53aec6b8317b5136",
+                  "source": {
+                    "path": "app/src/app/pricing.ts",
+                    "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                  }
+                }
+              ],
+              "evidence_id": "typescript-b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+            },
+            "head": {
+              "artifacts": [
+                {
+                  "bytes": 721651,
+                  "context": {
+                    "base_commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+                    "commit": "e8c569b30461a1502eb7d35336672799157465d3",
+                    "run": "compatible-head",
+                    "target": "node-jsdom"
+                  },
+                  "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.native.tar.gz",
+                  "kind": "raw",
+                  "media_type": "application/gzip",
+                  "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/native.tar.gz",
+                  "sha256": "151f9fd1406afab75466b3a96b67a6da849eae82a9bb65f0a27f9029e82ba939",
+                  "source": {
+                    "path": "app/src/app/pricing.ts",
+                    "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                  }
+                },
+                {
+                  "bytes": 25954,
+                  "context": {
+                    "base_commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+                    "commit": "e8c569b30461a1502eb7d35336672799157465d3",
+                    "run": "compatible-head",
+                    "target": "node-jsdom"
+                  },
+                  "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.source-index.json",
+                  "kind": "raw",
+                  "media_type": "application/json",
+                  "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/source-index.json",
+                  "sha256": "026a7a319d417d4168eabe57fcdf3ece6f1dd313f9ae90c5619f617920ad39ac",
+                  "source": {
+                    "path": "app/src/app/pricing.ts",
+                    "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                  }
+                },
+                {
+                  "bytes": 6239,
+                  "context": {
+                    "base_commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+                    "commit": "e8c569b30461a1502eb7d35336672799157465d3",
+                    "run": "compatible-head",
+                    "target": "node-jsdom"
+                  },
+                  "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.receipt.json",
+                  "kind": "raw",
+                  "media_type": "application/json",
+                  "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/receipt.json",
+                  "sha256": "4b65f3cac271ea03391c4fdd6c586cc96d0f45bc0691db1098c1fc6b426aa34f",
+                  "source": {
+                    "path": "app/src/app/pricing.ts",
+                    "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                  }
+                }
+              ],
+              "evidence_id": "typescript-b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+            }
+          },
+          "exception_review": {
+            "exceptions": [],
+            "state": "none"
+          },
+          "head": null,
+          "measurement_series": {
+            "base": "measurement-series/v1:b680df6dc529cafbbadf4ebba23627d2f34c6c16d30d22dcf5210b29c727a408",
+            "head": "measurement-series/v1:b680df6dc529cafbbadf4ebba23627d2f34c6c16d30d22dcf5210b29c727a408"
+          },
+          "metric": "coverage.line",
+          "policy": {
+            "id": "pricing-lines",
+            "limit": {
+              "covered": 4,
+              "total": 5,
+              "type": "ratio"
+            },
+            "metric": "coverage.line",
+            "on_violation": "fail",
+            "operator": "ge",
+            "ratchet": {
+              "allow_legacy_debt": true,
+              "deny_regression": true
+            },
+            "remediation_classes": [
+              "increase_meaningful_coverage"
+            ],
+            "required": true,
+            "scope": {
+              "kind": "subject",
+              "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+            }
+          },
+          "remediation_classes": [
+            "repair_measurement"
+          ],
+          "subject": {
+            "boundary": "production-ts",
+            "component": "typescript",
+            "discriminator": "typescript-original-source/v1:file",
+            "id": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685",
+            "identity_version": "subject-identity/v1",
+            "kind": "file/v1",
+            "metadata": {},
+            "path": "app/src/app/pricing.ts",
+            "source_sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b",
+            "target": "node-jsdom"
+          }
+        },
+        "state": "unsupported",
+        "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+      }
+    ],
+    "schema": "harness-policy-results/v1",
+    "violations": [
+      {
+        "policy": "pricing-lines",
+        "reason": "unsupported",
+        "record": {
+          "base": {
+            "covered": 5,
+            "total": 6,
+            "type": "ratio"
+          },
+          "baseline": {
+            "classification": "unchanged",
+            "inherits_history": true,
+            "lineage_base_subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685",
+            "lineage_kind": null
+          },
+          "component": "typescript",
+          "context": {
+            "base_commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+            "commit": "e8c569b30461a1502eb7d35336672799157465d3",
+            "run": "compatible-head",
+            "target": "node-jsdom"
+          },
+          "evidence_links": {
+            "base": {
+              "artifacts": [
+                {
+                  "bytes": 721522,
+                  "context": {
+                    "base_commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+                    "commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+                    "run": "compatible-base",
+                    "target": "node-jsdom"
+                  },
+                  "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.native.tar.gz",
+                  "kind": "raw",
+                  "media_type": "application/gzip",
+                  "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/native.tar.gz",
+                  "sha256": "98592277e40d9cd68f27a3a4f538e1e54d149c87a9b83395251534726f754716",
+                  "source": {
+                    "path": "app/src/app/pricing.ts",
+                    "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                  }
+                },
+                {
+                  "bytes": 25954,
+                  "context": {
+                    "base_commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+                    "commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+                    "run": "compatible-base",
+                    "target": "node-jsdom"
+                  },
+                  "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.source-index.json",
+                  "kind": "raw",
+                  "media_type": "application/json",
+                  "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/source-index.json",
+                  "sha256": "026a7a319d417d4168eabe57fcdf3ece6f1dd313f9ae90c5619f617920ad39ac",
+                  "source": {
+                    "path": "app/src/app/pricing.ts",
+                    "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                  }
+                },
+                {
+                  "bytes": 6239,
+                  "context": {
+                    "base_commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+                    "commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+                    "run": "compatible-base",
+                    "target": "node-jsdom"
+                  },
+                  "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.receipt.json",
+                  "kind": "raw",
+                  "media_type": "application/json",
+                  "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/receipt.json",
+                  "sha256": "6d094b927c8ce01a630f2cff1fde87e74e94750b7f806bdf53aec6b8317b5136",
+                  "source": {
+                    "path": "app/src/app/pricing.ts",
+                    "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                  }
+                }
+              ],
+              "evidence_id": "typescript-b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+            },
+            "head": {
+              "artifacts": [
+                {
+                  "bytes": 721651,
+                  "context": {
+                    "base_commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+                    "commit": "e8c569b30461a1502eb7d35336672799157465d3",
+                    "run": "compatible-head",
+                    "target": "node-jsdom"
+                  },
+                  "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.native.tar.gz",
+                  "kind": "raw",
+                  "media_type": "application/gzip",
+                  "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/native.tar.gz",
+                  "sha256": "151f9fd1406afab75466b3a96b67a6da849eae82a9bb65f0a27f9029e82ba939",
+                  "source": {
+                    "path": "app/src/app/pricing.ts",
+                    "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                  }
+                },
+                {
+                  "bytes": 25954,
+                  "context": {
+                    "base_commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+                    "commit": "e8c569b30461a1502eb7d35336672799157465d3",
+                    "run": "compatible-head",
+                    "target": "node-jsdom"
+                  },
+                  "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.source-index.json",
+                  "kind": "raw",
+                  "media_type": "application/json",
+                  "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/source-index.json",
+                  "sha256": "026a7a319d417d4168eabe57fcdf3ece6f1dd313f9ae90c5619f617920ad39ac",
+                  "source": {
+                    "path": "app/src/app/pricing.ts",
+                    "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                  }
+                },
+                {
+                  "bytes": 6239,
+                  "context": {
+                    "base_commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+                    "commit": "e8c569b30461a1502eb7d35336672799157465d3",
+                    "run": "compatible-head",
+                    "target": "node-jsdom"
+                  },
+                  "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.receipt.json",
+                  "kind": "raw",
+                  "media_type": "application/json",
+                  "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/receipt.json",
+                  "sha256": "4b65f3cac271ea03391c4fdd6c586cc96d0f45bc0691db1098c1fc6b426aa34f",
+                  "source": {
+                    "path": "app/src/app/pricing.ts",
+                    "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                  }
+                }
+              ],
+              "evidence_id": "typescript-b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+            }
+          },
+          "exception_review": {
+            "exceptions": [],
+            "state": "none"
+          },
+          "head": null,
+          "measurement_series": {
+            "base": "measurement-series/v1:b680df6dc529cafbbadf4ebba23627d2f34c6c16d30d22dcf5210b29c727a408",
+            "head": "measurement-series/v1:b680df6dc529cafbbadf4ebba23627d2f34c6c16d30d22dcf5210b29c727a408"
+          },
+          "metric": "coverage.line",
+          "policy": {
+            "id": "pricing-lines",
+            "limit": {
+              "covered": 4,
+              "total": 5,
+              "type": "ratio"
+            },
+            "metric": "coverage.line",
+            "on_violation": "fail",
+            "operator": "ge",
+            "ratchet": {
+              "allow_legacy_debt": true,
+              "deny_regression": true
+            },
+            "remediation_classes": [
+              "increase_meaningful_coverage"
+            ],
+            "required": true,
+            "scope": {
+              "kind": "subject",
+              "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+            }
+          },
+          "remediation_classes": [
+            "repair_measurement"
+          ],
+          "subject": {
+            "boundary": "production-ts",
+            "component": "typescript",
+            "discriminator": "typescript-original-source/v1:file",
+            "id": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685",
+            "identity_version": "subject-identity/v1",
+            "kind": "file/v1",
+            "metadata": {},
+            "path": "app/src/app/pricing.ts",
+            "source_sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b",
+            "target": "node-jsdom"
+          }
+        },
+        "state": "unsupported",
+        "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+      }
+    ]
+  },
+  "project_report": {
+    "aggregate": {
+      "blockers": [
+        {
+          "policy": "pricing-lines",
+          "state": "unsupported",
+          "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+        }
+      ],
+      "state": "blocked"
+    },
+    "components": {
+      "typescript": {
+        "aggregate": {
+          "blockers": [
+            {
+              "policy": "pricing-lines",
+              "state": "unsupported",
+              "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+            }
+          ],
+          "state": "blocked"
+        },
+        "cross_component": {
+          "blockers": [],
+          "state": "not_applicable"
+        },
+        "gates": [
+          "gate-000000"
+        ],
+        "local": {
+          "blockers": [
+            {
+              "policy": "pricing-lines",
+              "state": "unsupported",
+              "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+            }
+          ],
+          "state": "blocked"
+        }
+      }
+    },
+    "gates": {
+      "gate-000000": {
+        "policy": "pricing-lines",
+        "reason": "unsupported",
+        "record": {
+          "base": {
+            "covered": 5,
+            "total": 6,
+            "type": "ratio"
+          },
+          "baseline": {
+            "classification": "unchanged",
+            "inherits_history": true,
+            "lineage_base_subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685",
+            "lineage_kind": null
+          },
+          "component": "typescript",
+          "context": {
+            "base_commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+            "commit": "e8c569b30461a1502eb7d35336672799157465d3",
+            "run": "compatible-head",
+            "target": "node-jsdom"
+          },
+          "evidence_links": {
+            "base": {
+              "artifacts": [
+                {
+                  "bytes": 721522,
+                  "context": {
+                    "base_commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+                    "commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+                    "run": "compatible-base",
+                    "target": "node-jsdom"
+                  },
+                  "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.native.tar.gz",
+                  "kind": "raw",
+                  "media_type": "application/gzip",
+                  "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/native.tar.gz",
+                  "sha256": "98592277e40d9cd68f27a3a4f538e1e54d149c87a9b83395251534726f754716",
+                  "source": {
+                    "path": "app/src/app/pricing.ts",
+                    "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                  }
+                },
+                {
+                  "bytes": 25954,
+                  "context": {
+                    "base_commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+                    "commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+                    "run": "compatible-base",
+                    "target": "node-jsdom"
+                  },
+                  "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.source-index.json",
+                  "kind": "raw",
+                  "media_type": "application/json",
+                  "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/source-index.json",
+                  "sha256": "026a7a319d417d4168eabe57fcdf3ece6f1dd313f9ae90c5619f617920ad39ac",
+                  "source": {
+                    "path": "app/src/app/pricing.ts",
+                    "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                  }
+                },
+                {
+                  "bytes": 6239,
+                  "context": {
+                    "base_commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+                    "commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+                    "run": "compatible-base",
+                    "target": "node-jsdom"
+                  },
+                  "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.receipt.json",
+                  "kind": "raw",
+                  "media_type": "application/json",
+                  "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/receipt.json",
+                  "sha256": "6d094b927c8ce01a630f2cff1fde87e74e94750b7f806bdf53aec6b8317b5136",
+                  "source": {
+                    "path": "app/src/app/pricing.ts",
+                    "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                  }
+                }
+              ],
+              "evidence_id": "typescript-b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+            },
+            "head": {
+              "artifacts": [
+                {
+                  "bytes": 721651,
+                  "context": {
+                    "base_commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+                    "commit": "e8c569b30461a1502eb7d35336672799157465d3",
+                    "run": "compatible-head",
+                    "target": "node-jsdom"
+                  },
+                  "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.native.tar.gz",
+                  "kind": "raw",
+                  "media_type": "application/gzip",
+                  "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/native.tar.gz",
+                  "sha256": "151f9fd1406afab75466b3a96b67a6da849eae82a9bb65f0a27f9029e82ba939",
+                  "source": {
+                    "path": "app/src/app/pricing.ts",
+                    "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                  }
+                },
+                {
+                  "bytes": 25954,
+                  "context": {
+                    "base_commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+                    "commit": "e8c569b30461a1502eb7d35336672799157465d3",
+                    "run": "compatible-head",
+                    "target": "node-jsdom"
+                  },
+                  "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.source-index.json",
+                  "kind": "raw",
+                  "media_type": "application/json",
+                  "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/source-index.json",
+                  "sha256": "026a7a319d417d4168eabe57fcdf3ece6f1dd313f9ae90c5619f617920ad39ac",
+                  "source": {
+                    "path": "app/src/app/pricing.ts",
+                    "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                  }
+                },
+                {
+                  "bytes": 6239,
+                  "context": {
+                    "base_commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+                    "commit": "e8c569b30461a1502eb7d35336672799157465d3",
+                    "run": "compatible-head",
+                    "target": "node-jsdom"
+                  },
+                  "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.receipt.json",
+                  "kind": "raw",
+                  "media_type": "application/json",
+                  "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/receipt.json",
+                  "sha256": "4b65f3cac271ea03391c4fdd6c586cc96d0f45bc0691db1098c1fc6b426aa34f",
+                  "source": {
+                    "path": "app/src/app/pricing.ts",
+                    "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                  }
+                }
+              ],
+              "evidence_id": "typescript-b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+            }
+          },
+          "exception_review": {
+            "exceptions": [],
+            "state": "none"
+          },
+          "head": null,
+          "measurement_series": {
+            "base": "measurement-series/v1:b680df6dc529cafbbadf4ebba23627d2f34c6c16d30d22dcf5210b29c727a408",
+            "head": "measurement-series/v1:b680df6dc529cafbbadf4ebba23627d2f34c6c16d30d22dcf5210b29c727a408"
+          },
+          "metric": "coverage.line",
+          "policy": {
+            "id": "pricing-lines",
+            "limit": {
+              "covered": 4,
+              "total": 5,
+              "type": "ratio"
+            },
+            "metric": "coverage.line",
+            "on_violation": "fail",
+            "operator": "ge",
+            "ratchet": {
+              "allow_legacy_debt": true,
+              "deny_regression": true
+            },
+            "remediation_classes": [
+              "increase_meaningful_coverage"
+            ],
+            "required": true,
+            "scope": {
+              "kind": "subject",
+              "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+            }
+          },
+          "remediation_classes": [
+            "repair_measurement"
+          ],
+          "subject": {
+            "boundary": "production-ts",
+            "component": "typescript",
+            "discriminator": "typescript-original-source/v1:file",
+            "id": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685",
+            "identity_version": "subject-identity/v1",
+            "kind": "file/v1",
+            "metadata": {},
+            "path": "app/src/app/pricing.ts",
+            "source_sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b",
+            "target": "node-jsdom"
+          }
+        },
+        "state": "unsupported",
+        "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+      }
+    },
+    "indexes": {
+      "component": {
+        "typescript": [
+          "gate-000000"
+        ]
+      },
+      "policy": {
+        "pricing-lines": [
+          "gate-000000"
+        ]
+      },
+      "relationship": {},
+      "status": {
+        "unsupported": [
+          "gate-000000"
+        ]
+      },
+      "subject": {
+        "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685": [
+          "gate-000000"
+        ]
+      }
+    },
+    "mode": "shadow",
+    "policy_result": {
+      "aggregate": {
+        "blockers": [
+          {
+            "policy": "pricing-lines",
+            "state": "unsupported",
+            "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+          }
+        ],
+        "state": "blocked"
+      },
+      "debt_ledger": [],
+      "exception_review": {
+        "errors": [],
+        "exceptions": [],
+        "state": "none"
+      },
+      "mode": "shadow",
+      "quality_aggregate": {
+        "blockers": [
+          {
+            "policy": "pricing-lines",
+            "state": "unsupported",
+            "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+          }
+        ],
+        "state": "blocked"
+      },
+      "results": [
+        {
+          "policy": "pricing-lines",
+          "reason": "unsupported",
+          "record": {
+            "base": {
+              "covered": 5,
+              "total": 6,
+              "type": "ratio"
+            },
+            "baseline": {
+              "classification": "unchanged",
+              "inherits_history": true,
+              "lineage_base_subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685",
+              "lineage_kind": null
+            },
+            "component": "typescript",
+            "context": {
+              "base_commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+              "commit": "e8c569b30461a1502eb7d35336672799157465d3",
+              "run": "compatible-head",
+              "target": "node-jsdom"
+            },
+            "evidence_links": {
+              "base": {
+                "artifacts": [
+                  {
+                    "bytes": 721522,
+                    "context": {
+                      "base_commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+                      "commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+                      "run": "compatible-base",
+                      "target": "node-jsdom"
+                    },
+                    "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.native.tar.gz",
+                    "kind": "raw",
+                    "media_type": "application/gzip",
+                    "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/native.tar.gz",
+                    "sha256": "98592277e40d9cd68f27a3a4f538e1e54d149c87a9b83395251534726f754716",
+                    "source": {
+                      "path": "app/src/app/pricing.ts",
+                      "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                    }
+                  },
+                  {
+                    "bytes": 25954,
+                    "context": {
+                      "base_commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+                      "commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+                      "run": "compatible-base",
+                      "target": "node-jsdom"
+                    },
+                    "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.source-index.json",
+                    "kind": "raw",
+                    "media_type": "application/json",
+                    "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/source-index.json",
+                    "sha256": "026a7a319d417d4168eabe57fcdf3ece6f1dd313f9ae90c5619f617920ad39ac",
+                    "source": {
+                      "path": "app/src/app/pricing.ts",
+                      "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                    }
+                  },
+                  {
+                    "bytes": 6239,
+                    "context": {
+                      "base_commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+                      "commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+                      "run": "compatible-base",
+                      "target": "node-jsdom"
+                    },
+                    "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.receipt.json",
+                    "kind": "raw",
+                    "media_type": "application/json",
+                    "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/receipt.json",
+                    "sha256": "6d094b927c8ce01a630f2cff1fde87e74e94750b7f806bdf53aec6b8317b5136",
+                    "source": {
+                      "path": "app/src/app/pricing.ts",
+                      "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                    }
+                  }
+                ],
+                "evidence_id": "typescript-b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+              },
+              "head": {
+                "artifacts": [
+                  {
+                    "bytes": 721651,
+                    "context": {
+                      "base_commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+                      "commit": "e8c569b30461a1502eb7d35336672799157465d3",
+                      "run": "compatible-head",
+                      "target": "node-jsdom"
+                    },
+                    "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.native.tar.gz",
+                    "kind": "raw",
+                    "media_type": "application/gzip",
+                    "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/native.tar.gz",
+                    "sha256": "151f9fd1406afab75466b3a96b67a6da849eae82a9bb65f0a27f9029e82ba939",
+                    "source": {
+                      "path": "app/src/app/pricing.ts",
+                      "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                    }
+                  },
+                  {
+                    "bytes": 25954,
+                    "context": {
+                      "base_commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+                      "commit": "e8c569b30461a1502eb7d35336672799157465d3",
+                      "run": "compatible-head",
+                      "target": "node-jsdom"
+                    },
+                    "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.source-index.json",
+                    "kind": "raw",
+                    "media_type": "application/json",
+                    "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/source-index.json",
+                    "sha256": "026a7a319d417d4168eabe57fcdf3ece6f1dd313f9ae90c5619f617920ad39ac",
+                    "source": {
+                      "path": "app/src/app/pricing.ts",
+                      "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                    }
+                  },
+                  {
+                    "bytes": 6239,
+                    "context": {
+                      "base_commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+                      "commit": "e8c569b30461a1502eb7d35336672799157465d3",
+                      "run": "compatible-head",
+                      "target": "node-jsdom"
+                    },
+                    "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.receipt.json",
+                    "kind": "raw",
+                    "media_type": "application/json",
+                    "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/receipt.json",
+                    "sha256": "4b65f3cac271ea03391c4fdd6c586cc96d0f45bc0691db1098c1fc6b426aa34f",
+                    "source": {
+                      "path": "app/src/app/pricing.ts",
+                      "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                    }
+                  }
+                ],
+                "evidence_id": "typescript-b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+              }
+            },
+            "exception_review": {
+              "exceptions": [],
+              "state": "none"
+            },
+            "head": null,
+            "measurement_series": {
+              "base": "measurement-series/v1:b680df6dc529cafbbadf4ebba23627d2f34c6c16d30d22dcf5210b29c727a408",
+              "head": "measurement-series/v1:b680df6dc529cafbbadf4ebba23627d2f34c6c16d30d22dcf5210b29c727a408"
+            },
+            "metric": "coverage.line",
+            "policy": {
+              "id": "pricing-lines",
+              "limit": {
+                "covered": 4,
+                "total": 5,
+                "type": "ratio"
+              },
+              "metric": "coverage.line",
+              "on_violation": "fail",
+              "operator": "ge",
+              "ratchet": {
+                "allow_legacy_debt": true,
+                "deny_regression": true
+              },
+              "remediation_classes": [
+                "increase_meaningful_coverage"
+              ],
+              "required": true,
+              "scope": {
+                "kind": "subject",
+                "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+              }
+            },
+            "remediation_classes": [
+              "repair_measurement"
+            ],
+            "subject": {
+              "boundary": "production-ts",
+              "component": "typescript",
+              "discriminator": "typescript-original-source/v1:file",
+              "id": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685",
+              "identity_version": "subject-identity/v1",
+              "kind": "file/v1",
+              "metadata": {},
+              "path": "app/src/app/pricing.ts",
+              "source_sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b",
+              "target": "node-jsdom"
+            }
+          },
+          "state": "unsupported",
+          "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+        }
+      ],
+      "schema": "harness-policy-results/v1",
+      "violations": [
+        {
+          "policy": "pricing-lines",
+          "reason": "unsupported",
+          "record": {
+            "base": {
+              "covered": 5,
+              "total": 6,
+              "type": "ratio"
+            },
+            "baseline": {
+              "classification": "unchanged",
+              "inherits_history": true,
+              "lineage_base_subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685",
+              "lineage_kind": null
+            },
+            "component": "typescript",
+            "context": {
+              "base_commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+              "commit": "e8c569b30461a1502eb7d35336672799157465d3",
+              "run": "compatible-head",
+              "target": "node-jsdom"
+            },
+            "evidence_links": {
+              "base": {
+                "artifacts": [
+                  {
+                    "bytes": 721522,
+                    "context": {
+                      "base_commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+                      "commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+                      "run": "compatible-base",
+                      "target": "node-jsdom"
+                    },
+                    "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.native.tar.gz",
+                    "kind": "raw",
+                    "media_type": "application/gzip",
+                    "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/native.tar.gz",
+                    "sha256": "98592277e40d9cd68f27a3a4f538e1e54d149c87a9b83395251534726f754716",
+                    "source": {
+                      "path": "app/src/app/pricing.ts",
+                      "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                    }
+                  },
+                  {
+                    "bytes": 25954,
+                    "context": {
+                      "base_commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+                      "commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+                      "run": "compatible-base",
+                      "target": "node-jsdom"
+                    },
+                    "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.source-index.json",
+                    "kind": "raw",
+                    "media_type": "application/json",
+                    "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/source-index.json",
+                    "sha256": "026a7a319d417d4168eabe57fcdf3ece6f1dd313f9ae90c5619f617920ad39ac",
+                    "source": {
+                      "path": "app/src/app/pricing.ts",
+                      "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                    }
+                  },
+                  {
+                    "bytes": 6239,
+                    "context": {
+                      "base_commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+                      "commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+                      "run": "compatible-base",
+                      "target": "node-jsdom"
+                    },
+                    "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.receipt.json",
+                    "kind": "raw",
+                    "media_type": "application/json",
+                    "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/receipt.json",
+                    "sha256": "6d094b927c8ce01a630f2cff1fde87e74e94750b7f806bdf53aec6b8317b5136",
+                    "source": {
+                      "path": "app/src/app/pricing.ts",
+                      "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                    }
+                  }
+                ],
+                "evidence_id": "typescript-b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+              },
+              "head": {
+                "artifacts": [
+                  {
+                    "bytes": 721651,
+                    "context": {
+                      "base_commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+                      "commit": "e8c569b30461a1502eb7d35336672799157465d3",
+                      "run": "compatible-head",
+                      "target": "node-jsdom"
+                    },
+                    "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.native.tar.gz",
+                    "kind": "raw",
+                    "media_type": "application/gzip",
+                    "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/native.tar.gz",
+                    "sha256": "151f9fd1406afab75466b3a96b67a6da849eae82a9bb65f0a27f9029e82ba939",
+                    "source": {
+                      "path": "app/src/app/pricing.ts",
+                      "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                    }
+                  },
+                  {
+                    "bytes": 25954,
+                    "context": {
+                      "base_commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+                      "commit": "e8c569b30461a1502eb7d35336672799157465d3",
+                      "run": "compatible-head",
+                      "target": "node-jsdom"
+                    },
+                    "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.source-index.json",
+                    "kind": "raw",
+                    "media_type": "application/json",
+                    "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/source-index.json",
+                    "sha256": "026a7a319d417d4168eabe57fcdf3ece6f1dd313f9ae90c5619f617920ad39ac",
+                    "source": {
+                      "path": "app/src/app/pricing.ts",
+                      "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                    }
+                  },
+                  {
+                    "bytes": 6239,
+                    "context": {
+                      "base_commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+                      "commit": "e8c569b30461a1502eb7d35336672799157465d3",
+                      "run": "compatible-head",
+                      "target": "node-jsdom"
+                    },
+                    "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.receipt.json",
+                    "kind": "raw",
+                    "media_type": "application/json",
+                    "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/receipt.json",
+                    "sha256": "4b65f3cac271ea03391c4fdd6c586cc96d0f45bc0691db1098c1fc6b426aa34f",
+                    "source": {
+                      "path": "app/src/app/pricing.ts",
+                      "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                    }
+                  }
+                ],
+                "evidence_id": "typescript-b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+              }
+            },
+            "exception_review": {
+              "exceptions": [],
+              "state": "none"
+            },
+            "head": null,
+            "measurement_series": {
+              "base": "measurement-series/v1:b680df6dc529cafbbadf4ebba23627d2f34c6c16d30d22dcf5210b29c727a408",
+              "head": "measurement-series/v1:b680df6dc529cafbbadf4ebba23627d2f34c6c16d30d22dcf5210b29c727a408"
+            },
+            "metric": "coverage.line",
+            "policy": {
+              "id": "pricing-lines",
+              "limit": {
+                "covered": 4,
+                "total": 5,
+                "type": "ratio"
+              },
+              "metric": "coverage.line",
+              "on_violation": "fail",
+              "operator": "ge",
+              "ratchet": {
+                "allow_legacy_debt": true,
+                "deny_regression": true
+              },
+              "remediation_classes": [
+                "increase_meaningful_coverage"
+              ],
+              "required": true,
+              "scope": {
+                "kind": "subject",
+                "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+              }
+            },
+            "remediation_classes": [
+              "repair_measurement"
+            ],
+            "subject": {
+              "boundary": "production-ts",
+              "component": "typescript",
+              "discriminator": "typescript-original-source/v1:file",
+              "id": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685",
+              "identity_version": "subject-identity/v1",
+              "kind": "file/v1",
+              "metadata": {},
+              "path": "app/src/app/pricing.ts",
+              "source_sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b",
+              "target": "node-jsdom"
+            }
+          },
+          "state": "unsupported",
+          "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+        }
+      ]
+    },
+    "project": "typescript-reference",
+    "schema": "harness-project-report/v1"
+  },
+  "validation": {
+    "accepted": true
+  }
+}

@@ -1,0 +1,1253 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "FlowConfig",
+  "type": "object",
+  "required": [
+    "paths",
+    "project",
+    "scope",
+    "steps",
+    "version"
+  ],
+  "properties": {
+    "doctor": {
+      "default": {
+        "checks": []
+      },
+      "allOf": [
+        {
+          "$ref": "#/definitions/DoctorConfig"
+        }
+      ]
+    },
+    "execution": {
+      "default": {
+        "max_parallel": null,
+        "parallel": false,
+        "retries": {},
+        "shards": {}
+      },
+      "allOf": [
+        {
+          "$ref": "#/definitions/ExecutionConfig"
+        }
+      ]
+    },
+    "notifications": {
+      "default": {
+        "webhooks": []
+      },
+      "allOf": [
+        {
+          "$ref": "#/definitions/NotificationsConfig"
+        }
+      ]
+    },
+    "parsers": {
+      "default": {},
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/ParserConfig"
+      }
+    },
+    "paths": {
+      "$ref": "#/definitions/PathsConfig"
+    },
+    "policy": {
+      "default": {
+        "required_steps": [],
+        "waivers": []
+      },
+      "allOf": [
+        {
+          "$ref": "#/definitions/PolicyConfig"
+        }
+      ]
+    },
+    "project": {
+      "$ref": "#/definitions/ProjectConfig"
+    },
+    "report_templates": {
+      "default": {
+        "junit": null,
+        "root": null,
+        "template": null
+      },
+      "allOf": [
+        {
+          "$ref": "#/definitions/ReportTemplatesConfig"
+        }
+      ]
+    },
+    "scope": {
+      "$ref": "#/definitions/ScopeConfig"
+    },
+    "services": {
+      "default": {},
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/ServiceConfig"
+      }
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/StepConfig"
+      }
+    },
+    "version": {
+      "type": "integer",
+      "format": "uint32",
+      "minimum": 0.0
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "BuiltinGateType": {
+      "type": "string",
+      "enum": [
+        "secret-scan",
+        "architecture-audit"
+      ]
+    },
+    "ContainerRuntimeKind": {
+      "description": "Supported container runtimes for managed services.",
+      "type": "string",
+      "enum": [
+        "docker",
+        "podman"
+      ]
+    },
+    "DoctorCheck": {
+      "type": "object",
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "program"
+          ],
+          "properties": {
+            "args": {
+              "default": [],
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "command"
+              ]
+            },
+            "program": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "path"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "path"
+              ]
+            },
+            "path": {
+              "type": "string"
+            },
+            "path_scope": {
+              "default": "repository",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/PathScope"
+                }
+              ]
+            },
+            "path_type": {
+              "default": "any",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/PathType"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "pattern"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "glob"
+              ]
+            },
+            "pattern": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "name"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "env"
+              ]
+            },
+            "name": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "contains",
+            "env",
+            "kind",
+            "path"
+          ],
+          "properties": {
+            "contains": {
+              "type": "string"
+            },
+            "env": {
+              "type": "string"
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "env-or-file"
+              ]
+            },
+            "path": {
+              "type": "string"
+            },
+            "path_scope": {
+              "default": "repository",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/PathScope"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "expected",
+            "key",
+            "kind"
+          ],
+          "properties": {
+            "expected": {
+              "type": "string"
+            },
+            "key": {
+              "type": "string"
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "git-config"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "git-remotes"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "path",
+            "program"
+          ],
+          "properties": {
+            "args": {
+              "default": [],
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "version"
+              ]
+            },
+            "path": {
+              "type": "string"
+            },
+            "path_scope": {
+              "default": "repository",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/PathScope"
+                }
+              ]
+            },
+            "program": {
+              "type": "string"
+            },
+            "trim_prefix": {
+              "default": "",
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "service"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "service"
+              ]
+            },
+            "service": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      ],
+      "required": [
+        "id",
+        "label"
+      ],
+      "properties": {
+        "help": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "required": {
+          "default": true,
+          "type": "boolean"
+        },
+        "timeout_secs": {
+          "default": 15,
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0.0
+        }
+      }
+    },
+    "DoctorConfig": {
+      "type": "object",
+      "properties": {
+        "checks": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DoctorCheck"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "ExecutionConfig": {
+      "description": "Controls how eligible verification-plan nodes are dispatched.",
+      "type": "object",
+      "properties": {
+        "max_parallel": {
+          "default": null,
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint",
+          "maximum": 64.0,
+          "minimum": 1.0
+        },
+        "parallel": {
+          "default": false,
+          "type": "boolean"
+        },
+        "retries": {
+          "description": "Optional per-step retry policies. Retries are opt-in and fail closed.",
+          "default": {},
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/RetryConfig"
+          }
+        },
+        "shards": {
+          "description": "Optional per-step shard declaration. A runner receives the shard identity through reserved environment variables.",
+          "default": {},
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/ShardConfig"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "ExternalValuePolicy": {
+      "type": "string",
+      "enum": [
+        "none",
+        "isolated-postgres"
+      ]
+    },
+    "NotificationsConfig": {
+      "type": "object",
+      "properties": {
+        "webhooks": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/WebhookConfig"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "ParserConfig": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "patterns"
+          ],
+          "properties": {
+            "capture": {
+              "default": 1,
+              "type": "integer",
+              "format": "uint",
+              "minimum": 0.0
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "regex"
+              ]
+            },
+            "minimum": {
+              "default": 1,
+              "type": "integer",
+              "format": "uint",
+              "minimum": 0.0
+            },
+            "patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "description": "Parse standard JUnit XML testcases instead of counting log text.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "junit"
+              ]
+            },
+            "minimum": {
+              "default": 1,
+              "type": "integer",
+              "format": "uint",
+              "minimum": 0.0
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "description": "Parse Visual Studio TRX XML test results.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "trx"
+              ]
+            },
+            "minimum": {
+              "default": 1,
+              "type": "integer",
+              "format": "uint",
+              "minimum": 0.0
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "description": "Parse stable JSON results. `count_path` may point at an array or a numeric field; when omitted, common test-result arrays are discovered.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "count_path": {
+              "default": null,
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "json"
+              ]
+            },
+            "minimum": {
+              "default": 1,
+              "type": "integer",
+              "format": "uint",
+              "minimum": 0.0
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "PathAlias": {
+      "type": "object",
+      "required": [
+        "path"
+      ],
+      "properties": {
+        "env": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "path": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "PathScope": {
+      "description": "Where a doctor check path may point. Paths stay inside the repository by default; `host` explicitly opts into probing a host location such as an installed tool or user-level credential file.",
+      "type": "string",
+      "enum": [
+        "repository",
+        "host"
+      ]
+    },
+    "PathType": {
+      "type": "string",
+      "enum": [
+        "any",
+        "file",
+        "directory"
+      ]
+    },
+    "PathsConfig": {
+      "type": "object",
+      "required": [
+        "audit_config",
+        "reports"
+      ],
+      "properties": {
+        "aliases": {
+          "default": {},
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/PathAlias"
+          }
+        },
+        "audit_config": {
+          "type": "string"
+        },
+        "reports": {
+          "type": "string"
+        },
+        "secrets_config": {
+          "default": ".harness-gate/secrets.toml",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "PolicyConfig": {
+      "type": "object",
+      "properties": {
+        "required_steps": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "waivers": {
+          "description": "Explicit, expiring exceptions. DevRail owns approval policy; the executor validates scope and expiry before dispatch.",
+          "default": [],
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/WaiverConfig"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "ProjectConfig": {
+      "type": "object",
+      "required": [
+        "default_profile",
+        "hook_profile",
+        "name"
+      ],
+      "properties": {
+        "default_profile": {
+          "type": "string"
+        },
+        "hook_profile": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ReportTemplatesConfig": {
+      "type": "object",
+      "properties": {
+        "junit": {
+          "description": "Optional JUnit XML output path, relative to the report directory.",
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "root": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "template": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "RetryClass": {
+      "description": "Retry classes are a closed configuration vocabulary. Serde keeps the existing lowercase TOML/JSON spelling while rejecting unknown classes.",
+      "type": "string",
+      "enum": [
+        "cancelled",
+        "timeout",
+        "parser",
+        "exit"
+      ]
+    },
+    "RetryConfig": {
+      "type": "object",
+      "properties": {
+        "backoff_ms": {
+          "default": 0,
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "max_attempts": {
+          "default": 1,
+          "type": "integer",
+          "format": "uint32",
+          "maximum": 5.0,
+          "minimum": 1.0
+        },
+        "retryable": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RetryClass"
+          },
+          "uniqueItems": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "RunnerConfig": {
+      "description": "Declares how a test runner receives concurrency and result-contract inputs.",
+      "type": "object",
+      "required": [
+        "isolation",
+        "kind",
+        "version"
+      ],
+      "properties": {
+        "args": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "args_position": {
+          "description": "Insert runner arguments at this index in the configured step arguments. When omitted, arguments are appended.",
+          "default": null,
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint",
+          "minimum": 0.0
+        },
+        "isolation": {
+          "$ref": "#/definitions/TestIsolation"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "result_format": {
+          "default": "regex",
+          "allOf": [
+            {
+              "$ref": "#/definitions/RunnerResultFormat"
+            }
+          ]
+        },
+        "threads": {
+          "default": null,
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint",
+          "maximum": 256.0,
+          "minimum": 1.0
+        },
+        "threads_env": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "version": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0.0
+        }
+      },
+      "additionalProperties": false
+    },
+    "RunnerResultFormat": {
+      "type": "string",
+      "enum": [
+        "regex",
+        "junit",
+        "trx",
+        "json"
+      ]
+    },
+    "ScopeConfig": {
+      "type": "object",
+      "required": [
+        "rules"
+      ],
+      "properties": {
+        "rules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ScopeRule"
+          }
+        },
+        "unmatched": {
+          "default": "fail",
+          "allOf": [
+            {
+              "$ref": "#/definitions/UnmatchedScope"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "ScopeRule": {
+      "type": "object",
+      "required": [
+        "components",
+        "patterns"
+      ],
+      "properties": {
+        "components": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "patterns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "ServiceConfig": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "connection",
+            "container_port",
+            "healthcheck",
+            "image",
+            "inject_env",
+            "kind",
+            "startup_timeout_secs"
+          ],
+          "properties": {
+            "connection": {
+              "type": "string"
+            },
+            "container_port": {
+              "type": "integer",
+              "format": "uint16",
+              "minimum": 0.0
+            },
+            "environment": {
+              "default": {},
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "external_env": {
+              "default": null,
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "external_value_policy": {
+              "default": "none",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ExternalValuePolicy"
+                }
+              ]
+            },
+            "healthcheck": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "image": {
+              "type": "string"
+            },
+            "image_env": {
+              "default": null,
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "inject_env": {
+              "type": "string"
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "docker"
+              ]
+            },
+            "runtime": {
+              "description": "Container CLI used for this service. Podman supports the Docker command surface and is selected explicitly when requested.",
+              "default": "docker",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ContainerRuntimeKind"
+                }
+              ]
+            },
+            "startup_timeout_secs": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0.0
+            },
+            "timeout_env": {
+              "default": null,
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "inject_env",
+            "kind",
+            "source_env"
+          ],
+          "properties": {
+            "inject_env": {
+              "type": "string"
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "environment"
+              ]
+            },
+            "source_env": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "ShardConfig": {
+      "type": "object",
+      "required": [
+        "index",
+        "total"
+      ],
+      "properties": {
+        "index": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0.0
+        },
+        "total": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0.0
+        }
+      },
+      "additionalProperties": false
+    },
+    "StepConfig": {
+      "type": "object",
+      "required": [
+        "id",
+        "label"
+      ],
+      "properties": {
+        "args": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "component": {
+          "default": "",
+          "type": "string"
+        },
+        "cwd": {
+          "default": "",
+          "type": "string"
+        },
+        "depends_on": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "gate_type": {
+          "description": "Closed vocabulary for built-in gate declarations.",
+          "default": null,
+          "anyOf": [
+            {
+              "$ref": "#/definitions/BuiltinGateType"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "id": {
+          "type": "string"
+        },
+        "input": {
+          "description": "Repository input required by this step. Snapshot is the default and is the only source available to ordinary hook steps; `repository` is an explicit compatibility capability for commands that must inspect Git.",
+          "default": "snapshot",
+          "allOf": [
+            {
+              "$ref": "#/definitions/StepInput"
+            }
+          ]
+        },
+        "kind": {
+          "description": "Optional discriminator. When absent, this entry is a legacy external step.",
+          "default": null,
+          "anyOf": [
+            {
+              "$ref": "#/definitions/StepKind"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "label": {
+          "type": "string"
+        },
+        "log": {
+          "default": "",
+          "type": "string"
+        },
+        "parser": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "profiles": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "program": {
+          "default": "",
+          "type": "string"
+        },
+        "remove_env": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "runner": {
+          "description": "Optional versioned test-runner contract. Omitted for legacy steps.",
+          "default": null,
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RunnerConfig"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "services": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "timeout_env": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "timeout_secs": {
+          "default": 0,
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0.0
+        }
+      },
+      "additionalProperties": false
+    },
+    "StepInput": {
+      "oneOf": [
+        {
+          "description": "Read files from the invocation's immutable input root.",
+          "type": "string",
+          "enum": [
+            "snapshot"
+          ]
+        },
+        {
+          "description": "Read files from the original checkout. This is intentionally explicit.",
+          "type": "string",
+          "enum": [
+            "repository"
+          ]
+        }
+      ]
+    },
+    "StepKind": {
+      "type": "string",
+      "enum": [
+        "external-step",
+        "builtin-gate"
+      ]
+    },
+    "TestIsolation": {
+      "type": "string",
+      "enum": [
+        "shared",
+        "schema-per-worker",
+        "database-per-worker"
+      ]
+    },
+    "UnmatchedScope": {
+      "type": "string",
+      "enum": [
+        "fail",
+        "all",
+        "ignore"
+      ]
+    },
+    "WaiverConfig": {
+      "type": "object",
+      "required": [
+        "approved_by",
+        "compensating_control",
+        "created_at",
+        "expires_at",
+        "id",
+        "owner",
+        "reason",
+        "risk",
+        "step"
+      ],
+      "properties": {
+        "approved_by": {
+          "type": "string"
+        },
+        "compensating_control": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string"
+        },
+        "expires_at": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "revoked": {
+          "default": false,
+          "type": "boolean"
+        },
+        "risk": {
+          "type": "string"
+        },
+        "scope": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "step": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "WebhookConfig": {
+      "type": "object",
+      "required": [
+        "allowed_hosts",
+        "url"
+      ],
+      "properties": {
+        "allowed_hosts": {
+          "description": "Exact host names authorized for this destination. Wildcards are not accepted; address classification is still enforced at connection time.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "on_failure": {
+          "default": true,
+          "type": "boolean"
+        },
+        "on_success": {
+          "default": false,
+          "type": "boolean"
+        },
+        "url": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

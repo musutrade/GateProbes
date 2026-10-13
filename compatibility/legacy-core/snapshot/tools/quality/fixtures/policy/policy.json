@@ -1,0 +1,43 @@
+{
+  "schema": "harness-policy/v1",
+  "rules": [
+    {
+      "id": "coverage.line",
+      "scope": {
+        "kind": "component",
+        "component": "frontend"
+      },
+      "metric": "coverage.line",
+      "operator": "ge",
+      "limit": {
+        "type": "ratio",
+        "covered": 4,
+        "total": 5
+      },
+      "required": true,
+      "on_violation": "fail",
+      "remediation_classes": [
+        "increase_meaningful_coverage"
+      ]
+    },
+    {
+      "id": "risk.crap",
+      "scope": {
+        "kind": "component",
+        "component": "frontend"
+      },
+      "metric": "risk.crap",
+      "operator": "le",
+      "limit": {
+        "type": "decimal",
+        "value": "3"
+      },
+      "required": true,
+      "on_violation": "fail",
+      "remediation_classes": [
+        "reduce_complexity",
+        "increase_meaningful_coverage"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+version = 2
+
+[project]
+name = "angular-app"
+default_profile = "full"
+hook_profile = "hook"
+
+[paths]
+reports = ".harness-gate/reports"
+audit_config = ".harness-gate/audit.toml"
+secrets_config = ".harness-gate/secrets.toml"
+
+[paths.aliases.app]
+path = "."
+
+[policy]
+required_steps = ["angular.lint", "angular.tests", "angular.build"]
+
+[[doctor.checks]]
+id = "tool.git"
+label = "git"
+kind = "command"
+program = "git"
+args = ["--version"]
+
+[[doctor.checks]]
+id = "tool.node"
+label = "node"
+kind = "command"
+program = "node"
+args = ["--version"]
+
+[[doctor.checks]]
+id = "tool.npm"
+label = "npm"
+kind = "command"
+program = "npm"
+args = ["--version"]
+
+[[doctor.checks]]
+id = "project.dependencies"
+label = "npm dependencies"
+kind = "path"
+path = "{app}/node_modules"
+path_type = "directory"
+help = "run `npm ci`"
+
+[parsers.angular]
+kind = "regex"
+patterns = ['Tests\s+([0-9]+) passed']
+capture = 1
+minimum = 1
+
+[scope]
+unmatched = "all"
+
+[[scope.rules]]
+patterns = ["src/**", "package.json", "package-lock.json", "angular.json", "tsconfig*.json", ".harness-gate/**"]
+components = ["app"]
+
+[[steps]]
+id = "angular.lint"
+label = "Angular lint"
+component = "app"
+profiles = ["full", "ci", "hook"]
+program = "npm"
+args = ["run", "lint"]
+cwd = "{app}"
+log = "angular_lint.log"
+timeout_secs = 180
+
+[[steps]]
+id = "angular.tests"
+label = "Angular tests"
+component = "app"
+profiles = ["full", "ci"]
+program = "npm"
+args = ["test", "--", "--watch=false", "--runner=vitest"]
+cwd = "{app}"
+log = "angular_tests.log"
+timeout_secs = 300
+parser = "angular"
+
+[[steps]]
+id = "angular.build"
+label = "Angular production build"
+component = "app"
+profiles = ["full", "ci"]
+program = "npm"
+args = ["run", "build"]
+cwd = "{app}"
+log = "angular_build.log"
+timeout_secs = 300

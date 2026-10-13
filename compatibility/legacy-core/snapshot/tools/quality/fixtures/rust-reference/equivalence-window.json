@@ -1,0 +1,28 @@
+{
+  "schema": "rust-equivalence-window/v1",
+  "id": "gh118-retained-gh96-gh97",
+  "required_runs": 2,
+  "required_distinct_heads": 2,
+  "runs": [
+    {
+      "archive": "docs/quality/gh-96/candidate.tar.gz",
+      "sha256": "e227afc1ee994a2889d4df09758c339472d306aec4e3f2371ae1958db1c28dfd",
+      "candidate_sha256": "1535e38b04c99095cfa7f6801be0185b092b939d080e837fb4a17a6d00cf3001",
+      "identity": {
+        "commit": "41e23761e0caa06cab1f6d5ebca1a79648fbb301",
+        "base_commit": "c0e612351c2efd515fde96bcefad80c1365534a2",
+        "run": "gh96-local-3"
+      }
+    },
+    {
+      "archive": "docs/quality/gh-97/candidate.tar.gz",
+      "sha256": "190ca5b9ee04f0ed22c185907db62029ea00ad3be5ddcdf13dc46e8021110d6c",
+      "candidate_sha256": "81d0f9c1487c59edd077cdac8f30fc7e29049c497cbe73d51fcc87dd954f6530",
+      "identity": {
+        "commit": "381d5f418655969d29b81f89069845e6667f35c9",
+        "base_commit": "381d5f418655969d29b81f89069845e6667f35c9",
+        "run": "gh97-final-local"
+      }
+    }
+  ]
+}

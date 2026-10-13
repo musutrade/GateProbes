@@ -1,0 +1,293 @@
+[
+  {
+    "schema": "harness-evidence/v1",
+    "id": "rust-synthetic-evidence",
+    "project": "synthetic-platform",
+    "component": "api",
+    "collector": {
+      "name": "synthetic-rust",
+      "version": "1"
+    },
+    "series": {
+      "name": "rust-synthetic-1",
+      "collector": {
+        "name": "synthetic-rust",
+        "version": "1"
+      },
+      "tool": {
+        "name": "synthetic-llvm",
+        "version": "1"
+      },
+      "rule": {
+        "name": "rust-synthetic-rule",
+        "version": "1"
+      },
+      "runtime": {
+        "name": "rust-synthetic-runtime",
+        "version": "1"
+      },
+      "target": "default",
+      "source_identity": {
+        "name": "subject-identity",
+        "version": "1"
+      },
+      "normalization": {
+        "name": "rust-synthetic-normalization",
+        "version": "1"
+      },
+      "metrics": [
+        {
+          "name": "bundle.size",
+          "type": "size"
+        },
+        {
+          "name": "complexity.cyclomatic",
+          "type": "count"
+        },
+        {
+          "name": "contract.compatible",
+          "type": "boolean"
+        },
+        {
+          "name": "contract.schema_valid",
+          "type": "boolean"
+        },
+        {
+          "name": "coverage.branch",
+          "type": "ratio"
+        },
+        {
+          "name": "coverage.function",
+          "type": "ratio"
+        },
+        {
+          "name": "coverage.line",
+          "type": "ratio"
+        },
+        {
+          "name": "coverage.region",
+          "type": "ratio"
+        },
+        {
+          "name": "mutation.score",
+          "type": "ratio"
+        },
+        {
+          "name": "performance.duration",
+          "type": "duration"
+        },
+        {
+          "name": "risk.crap",
+          "type": "decimal"
+        }
+      ],
+      "id": "measurement-series/v1:a9e95521cb2682aa3dd8b56d0c616ec9c67469720724369a3581b41b8423be6d"
+    },
+    "subject": {
+      "id": "subject-identity/v1:51787f7d6a992215db7936a3032edb6cbf765ded6bdea69a396094fe7a979e0a",
+      "identity_version": "subject-identity/v1",
+      "component": "api",
+      "target": "default",
+      "boundary": "source",
+      "kind": "function/v1",
+      "path": "api/src/run.rs",
+      "discriminator": "api::run",
+      "span": {
+        "start_line": 1,
+        "start_column": 1,
+        "end_line": 1,
+        "end_column": 25
+      },
+      "source_sha256": "da634fb05ddb3730b63b5402f5bb4c2c06a797c5d1d921e1bd179f37d264dfa9",
+      "metadata": {
+        "short_name": "run"
+      }
+    },
+    "context": {
+      "commit": "1111111111111111111111111111111111111111",
+      "base_commit": "0000000000000000000000000000000000000000",
+      "target": "default",
+      "run": "synthetic-run-112"
+    },
+    "source": {
+      "path": "api/src/run.rs",
+      "sha256": "da634fb05ddb3730b63b5402f5bb4c2c06a797c5d1d921e1bd179f37d264dfa9"
+    },
+    "metrics": [
+      {
+        "name": "coverage.line",
+        "value": {
+          "type": "ratio",
+          "covered": 4,
+          "total": 5
+        },
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "name": "complexity.cyclomatic",
+        "value": {
+          "type": "count",
+          "value": 3
+        },
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "name": "risk.crap",
+        "value": {
+          "type": "decimal",
+          "value": "3.072"
+        },
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "name": "contract.schema_valid",
+        "value": {
+          "type": "boolean",
+          "value": true
+        },
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "name": "performance.duration",
+        "value": {
+          "type": "duration",
+          "value": 1000,
+          "unit": "nanoseconds"
+        },
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "name": "bundle.size",
+        "value": {
+          "type": "size",
+          "value": 128,
+          "unit": "bytes"
+        },
+        "artifacts": [
+          "raw"
+        ]
+      }
+    ],
+    "capabilities": [
+      {
+        "metric": "coverage.line",
+        "state": "supported",
+        "reason": "synthetic supported",
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "metric": "complexity.cyclomatic",
+        "state": "supported",
+        "reason": "synthetic supported",
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "metric": "risk.crap",
+        "state": "supported",
+        "reason": "synthetic supported",
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "metric": "contract.schema_valid",
+        "state": "supported",
+        "reason": "synthetic supported",
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "metric": "performance.duration",
+        "state": "supported",
+        "reason": "synthetic supported",
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "metric": "bundle.size",
+        "state": "supported",
+        "reason": "synthetic supported",
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "metric": "coverage.branch",
+        "state": "unsupported",
+        "reason": "synthetic unsupported",
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "metric": "coverage.function",
+        "state": "not_configured",
+        "reason": "synthetic not_configured",
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "metric": "coverage.region",
+        "state": "not_collected",
+        "reason": "synthetic not_collected",
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "metric": "mutation.score",
+        "state": "measurement_error",
+        "reason": "synthetic measurement_error",
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "metric": "contract.compatible",
+        "state": "not_applicable",
+        "reason": "synthetic not_applicable",
+        "artifacts": [
+          "raw"
+        ]
+      }
+    ],
+    "artifacts": [
+      {
+        "id": "raw",
+        "kind": "raw",
+        "media_type": "application/json",
+        "path": "harness-evidence/artifacts/rust.json",
+        "sha256": "0c7b33365a961019ed3fdc4b33347902b0dc08cf3323cf5741113d1a291ddde1",
+        "bytes": 1589,
+        "context": {
+          "commit": "1111111111111111111111111111111111111111",
+          "base_commit": "0000000000000000000000000000000000000000",
+          "target": "default",
+          "run": "synthetic-run-112"
+        },
+        "source": {
+          "path": "api/src/run.rs",
+          "sha256": "da634fb05ddb3730b63b5402f5bb4c2c06a797c5d1d921e1bd179f37d264dfa9"
+        }
+      }
+    ],
+    "status": "measurement_error"
+  }
+]

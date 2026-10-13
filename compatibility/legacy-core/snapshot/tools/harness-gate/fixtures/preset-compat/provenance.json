@@ -1,0 +1,47 @@
+{
+  "source_repository": "musutrade/Harness-Gate",
+  "source_commit": "da9a1082f698f17418b9d20ed077bd1aca2adfc8",
+  "purpose": "Frozen compatibility and rollback inputs only; production ecosystem presets are owned by GateProbes. catalog.json is a test adapter.",
+  "files": {
+    "angular-only.flow.toml": {
+      "source_path": "tools/harness-gate/presets/angular-only.flow.toml",
+      "sha256": "ca35338435b6b590aacd3873f72397b51890c6d058a7634ec4722d3c97a1ac07"
+    },
+    "angular-only.packs.json": {
+      "source_path": "tools/harness-gate/presets/angular-only.packs.json",
+      "sha256": "5996bd3ea92fd6f7bdaba756c8d889e18e6e40433e2ca86f4a34625d3f0d02ee"
+    },
+    "angular-rust-postgres.flow.toml": {
+      "source_path": "tools/harness-gate/presets/angular-rust-postgres.flow.toml",
+      "sha256": "0c1aec5f2e81ffeb25afd46deae9cb54d5e055ab0b6607c65fa6409242fa0b9a"
+    },
+    "angular-rust-postgres.packs.json": {
+      "source_path": "tools/harness-gate/presets/angular-rust-postgres.packs.json",
+      "sha256": "2a9e675df9031ece1d4c6a5e2123dec3db925ce60f0ff07d461f822cac76dbe0"
+    },
+    "catalog.json": {
+      "source_path": null,
+      "sha256": "f115dc9ac3b56acb4493e2b8047b1d1068a046a51fe2c0b1013944503078e640"
+    },
+    "packs/api-contract.json": {
+      "source_path": "tools/harness-gate/presets/packs/api-contract.json",
+      "sha256": "ba9548003dbaabd9c58f31564be5dcad996b2f206c10deec08016cde6e50bdec"
+    },
+    "packs/rust.json": {
+      "source_path": "tools/harness-gate/presets/packs/rust.json",
+      "sha256": "4c2f807ef4bc344bb7f19ceeca9356f1a0af863cb69913cb6885ecd9ee3b2bb5"
+    },
+    "packs/typescript.json": {
+      "source_path": "tools/harness-gate/presets/packs/typescript.json",
+      "sha256": "eedfc095557d0f06abde58b29ea5f034b4a347cf43e591fdb21983fffc12ae3d"
+    },
+    "rust-api.flow.toml": {
+      "source_path": "tools/harness-gate/presets/rust-api.flow.toml",
+      "sha256": "450683bc424d105454f5afa00e1cf8e05ccd1e51aac0b3096afdd70ca60d081c"
+    },
+    "rust-api.packs.json": {
+      "source_path": "tools/harness-gate/presets/rust-api.packs.json",
+      "sha256": "e4dd59d162b0a02a45dbc6321ee44be6872139a8cee1645f7267c7837917bdaf"
+    }
+  }
+}

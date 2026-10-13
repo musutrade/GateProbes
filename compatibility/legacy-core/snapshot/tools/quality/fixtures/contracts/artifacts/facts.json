@@ -1,0 +1,22 @@
+{
+  "synthetic": true,
+  "values": {
+    "contract.schema_valid": {
+      "type": "boolean",
+      "value": true
+    },
+    "contract.breaking_changes": {
+      "type": "count",
+      "value": 1
+    },
+    "contract.client_drift": {
+      "type": "boolean",
+      "value": true
+    },
+    "contract.compatible": {
+      "type": "boolean",
+      "value": false
+    }
+  },
+  "change": "email renamed to primaryEmail"
+}

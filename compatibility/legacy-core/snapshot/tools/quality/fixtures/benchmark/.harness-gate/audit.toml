@@ -1,0 +1,11 @@
+version = 2
+
+[engine]
+ignore_filename = ".auditignore"
+json_report_filename = "review_context.json"
+markdown_report_filename = "review_context.md"
+markdown_max_bytes = 4096
+markdown_occurrences_per_rule = 3
+
+[paths]
+exclude = ["target", ".git", ".harness-gate/reports"]

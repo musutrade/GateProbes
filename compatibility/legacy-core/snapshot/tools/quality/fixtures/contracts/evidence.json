@@ -1,0 +1,1464 @@
+[
+  {
+    "schema": "harness-evidence/v1",
+    "id": "typescript-synthetic-evidence",
+    "project": "synthetic-platform",
+    "component": "frontend",
+    "collector": {
+      "name": "synthetic-typescript",
+      "version": "1"
+    },
+    "series": {
+      "name": "typescript-synthetic-1",
+      "collector": {
+        "name": "synthetic-typescript",
+        "version": "1"
+      },
+      "tool": {
+        "name": "synthetic-istanbul",
+        "version": "1"
+      },
+      "rule": {
+        "name": "typescript-synthetic-rule",
+        "version": "1"
+      },
+      "runtime": {
+        "name": "typescript-synthetic-runtime",
+        "version": "1"
+      },
+      "target": "default",
+      "source_identity": {
+        "name": "subject-identity",
+        "version": "1"
+      },
+      "normalization": {
+        "name": "typescript-synthetic-normalization",
+        "version": "1"
+      },
+      "metrics": [
+        {
+          "name": "bundle.size",
+          "type": "size"
+        },
+        {
+          "name": "complexity.cyclomatic",
+          "type": "count"
+        },
+        {
+          "name": "contract.compatible",
+          "type": "boolean"
+        },
+        {
+          "name": "contract.schema_valid",
+          "type": "boolean"
+        },
+        {
+          "name": "coverage.branch",
+          "type": "ratio"
+        },
+        {
+          "name": "coverage.function",
+          "type": "ratio"
+        },
+        {
+          "name": "coverage.line",
+          "type": "ratio"
+        },
+        {
+          "name": "coverage.region",
+          "type": "ratio"
+        },
+        {
+          "name": "mutation.score",
+          "type": "ratio"
+        },
+        {
+          "name": "performance.duration",
+          "type": "duration"
+        },
+        {
+          "name": "risk.crap",
+          "type": "decimal"
+        }
+      ],
+      "id": "measurement-series/v1:8f845a0eb7e3e884c2dd872d7b9fa93d32d977f46304069637274928089796a2"
+    },
+    "subject": {
+      "id": "subject-identity/v1:fd7753a2fb1e09e3b28bffd95a5329ef3b60a64fb8137356a75e9962cff58e80",
+      "identity_version": "subject-identity/v1",
+      "component": "frontend",
+      "target": "default",
+      "boundary": "source",
+      "kind": "method/v1",
+      "path": "frontend/src/run.ts",
+      "discriminator": "App.run",
+      "span": {
+        "start_line": 1,
+        "start_column": 1,
+        "end_line": 1,
+        "end_column": 41
+      },
+      "source_sha256": "bc1433346d93df45e19f5a2e87c4474e44089706c5f5ad3152df86a1979d1cdf",
+      "metadata": {
+        "short_name": "run"
+      }
+    },
+    "context": {
+      "commit": "1111111111111111111111111111111111111111",
+      "base_commit": "0000000000000000000000000000000000000000",
+      "target": "default",
+      "run": "synthetic-run-112"
+    },
+    "source": {
+      "path": "frontend/src/run.ts",
+      "sha256": "bc1433346d93df45e19f5a2e87c4474e44089706c5f5ad3152df86a1979d1cdf"
+    },
+    "metrics": [
+      {
+        "name": "coverage.line",
+        "value": {
+          "type": "ratio",
+          "covered": 4,
+          "total": 5
+        },
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "name": "complexity.cyclomatic",
+        "value": {
+          "type": "count",
+          "value": 3
+        },
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "name": "risk.crap",
+        "value": {
+          "type": "decimal",
+          "value": "3.072"
+        },
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "name": "contract.schema_valid",
+        "value": {
+          "type": "boolean",
+          "value": true
+        },
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "name": "performance.duration",
+        "value": {
+          "type": "duration",
+          "value": 1000,
+          "unit": "nanoseconds"
+        },
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "name": "bundle.size",
+        "value": {
+          "type": "size",
+          "value": 128,
+          "unit": "bytes"
+        },
+        "artifacts": [
+          "raw"
+        ]
+      }
+    ],
+    "capabilities": [
+      {
+        "metric": "coverage.line",
+        "state": "supported",
+        "reason": "synthetic supported",
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "metric": "complexity.cyclomatic",
+        "state": "supported",
+        "reason": "synthetic supported",
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "metric": "risk.crap",
+        "state": "supported",
+        "reason": "synthetic supported",
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "metric": "contract.schema_valid",
+        "state": "supported",
+        "reason": "synthetic supported",
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "metric": "performance.duration",
+        "state": "supported",
+        "reason": "synthetic supported",
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "metric": "bundle.size",
+        "state": "supported",
+        "reason": "synthetic supported",
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "metric": "coverage.branch",
+        "state": "unsupported",
+        "reason": "synthetic unsupported",
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "metric": "coverage.function",
+        "state": "not_configured",
+        "reason": "synthetic not_configured",
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "metric": "coverage.region",
+        "state": "not_collected",
+        "reason": "synthetic not_collected",
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "metric": "mutation.score",
+        "state": "measurement_error",
+        "reason": "synthetic measurement_error",
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "metric": "contract.compatible",
+        "state": "not_applicable",
+        "reason": "synthetic not_applicable",
+        "artifacts": [
+          "raw"
+        ]
+      }
+    ],
+    "artifacts": [
+      {
+        "id": "raw",
+        "kind": "raw",
+        "media_type": "application/json",
+        "path": "harness-evidence/artifacts/typescript.json",
+        "sha256": "43ff838f69d9691973761d973f700e8971830b0344f280013bd05122fd0103db",
+        "bytes": 1604,
+        "context": {
+          "commit": "1111111111111111111111111111111111111111",
+          "base_commit": "0000000000000000000000000000000000000000",
+          "target": "default",
+          "run": "synthetic-run-112"
+        },
+        "source": {
+          "path": "frontend/src/run.ts",
+          "sha256": "bc1433346d93df45e19f5a2e87c4474e44089706c5f5ad3152df86a1979d1cdf"
+        }
+      }
+    ],
+    "status": "measurement_error"
+  },
+  {
+    "schema": "harness-evidence/v1",
+    "id": "rust-synthetic-evidence",
+    "project": "synthetic-platform",
+    "component": "api",
+    "collector": {
+      "name": "synthetic-rust",
+      "version": "1"
+    },
+    "series": {
+      "name": "rust-synthetic-1",
+      "collector": {
+        "name": "synthetic-rust",
+        "version": "1"
+      },
+      "tool": {
+        "name": "synthetic-llvm",
+        "version": "1"
+      },
+      "rule": {
+        "name": "rust-synthetic-rule",
+        "version": "1"
+      },
+      "runtime": {
+        "name": "rust-synthetic-runtime",
+        "version": "1"
+      },
+      "target": "default",
+      "source_identity": {
+        "name": "subject-identity",
+        "version": "1"
+      },
+      "normalization": {
+        "name": "rust-synthetic-normalization",
+        "version": "1"
+      },
+      "metrics": [
+        {
+          "name": "bundle.size",
+          "type": "size"
+        },
+        {
+          "name": "complexity.cyclomatic",
+          "type": "count"
+        },
+        {
+          "name": "contract.compatible",
+          "type": "boolean"
+        },
+        {
+          "name": "contract.schema_valid",
+          "type": "boolean"
+        },
+        {
+          "name": "coverage.branch",
+          "type": "ratio"
+        },
+        {
+          "name": "coverage.function",
+          "type": "ratio"
+        },
+        {
+          "name": "coverage.line",
+          "type": "ratio"
+        },
+        {
+          "name": "coverage.region",
+          "type": "ratio"
+        },
+        {
+          "name": "mutation.score",
+          "type": "ratio"
+        },
+        {
+          "name": "performance.duration",
+          "type": "duration"
+        },
+        {
+          "name": "risk.crap",
+          "type": "decimal"
+        }
+      ],
+      "id": "measurement-series/v1:a9e95521cb2682aa3dd8b56d0c616ec9c67469720724369a3581b41b8423be6d"
+    },
+    "subject": {
+      "id": "subject-identity/v1:51787f7d6a992215db7936a3032edb6cbf765ded6bdea69a396094fe7a979e0a",
+      "identity_version": "subject-identity/v1",
+      "component": "api",
+      "target": "default",
+      "boundary": "source",
+      "kind": "function/v1",
+      "path": "api/src/run.rs",
+      "discriminator": "api::run",
+      "span": {
+        "start_line": 1,
+        "start_column": 1,
+        "end_line": 1,
+        "end_column": 25
+      },
+      "source_sha256": "da634fb05ddb3730b63b5402f5bb4c2c06a797c5d1d921e1bd179f37d264dfa9",
+      "metadata": {
+        "short_name": "run"
+      }
+    },
+    "context": {
+      "commit": "1111111111111111111111111111111111111111",
+      "base_commit": "0000000000000000000000000000000000000000",
+      "target": "default",
+      "run": "synthetic-run-112"
+    },
+    "source": {
+      "path": "api/src/run.rs",
+      "sha256": "da634fb05ddb3730b63b5402f5bb4c2c06a797c5d1d921e1bd179f37d264dfa9"
+    },
+    "metrics": [
+      {
+        "name": "coverage.line",
+        "value": {
+          "type": "ratio",
+          "covered": 4,
+          "total": 5
+        },
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "name": "complexity.cyclomatic",
+        "value": {
+          "type": "count",
+          "value": 3
+        },
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "name": "risk.crap",
+        "value": {
+          "type": "decimal",
+          "value": "3.072"
+        },
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "name": "contract.schema_valid",
+        "value": {
+          "type": "boolean",
+          "value": true
+        },
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "name": "performance.duration",
+        "value": {
+          "type": "duration",
+          "value": 1000,
+          "unit": "nanoseconds"
+        },
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "name": "bundle.size",
+        "value": {
+          "type": "size",
+          "value": 128,
+          "unit": "bytes"
+        },
+        "artifacts": [
+          "raw"
+        ]
+      }
+    ],
+    "capabilities": [
+      {
+        "metric": "coverage.line",
+        "state": "supported",
+        "reason": "synthetic supported",
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "metric": "complexity.cyclomatic",
+        "state": "supported",
+        "reason": "synthetic supported",
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "metric": "risk.crap",
+        "state": "supported",
+        "reason": "synthetic supported",
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "metric": "contract.schema_valid",
+        "state": "supported",
+        "reason": "synthetic supported",
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "metric": "performance.duration",
+        "state": "supported",
+        "reason": "synthetic supported",
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "metric": "bundle.size",
+        "state": "supported",
+        "reason": "synthetic supported",
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "metric": "coverage.branch",
+        "state": "unsupported",
+        "reason": "synthetic unsupported",
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "metric": "coverage.function",
+        "state": "not_configured",
+        "reason": "synthetic not_configured",
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "metric": "coverage.region",
+        "state": "not_collected",
+        "reason": "synthetic not_collected",
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "metric": "mutation.score",
+        "state": "measurement_error",
+        "reason": "synthetic measurement_error",
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "metric": "contract.compatible",
+        "state": "not_applicable",
+        "reason": "synthetic not_applicable",
+        "artifacts": [
+          "raw"
+        ]
+      }
+    ],
+    "artifacts": [
+      {
+        "id": "raw",
+        "kind": "raw",
+        "media_type": "application/json",
+        "path": "harness-evidence/artifacts/rust.json",
+        "sha256": "0c7b33365a961019ed3fdc4b33347902b0dc08cf3323cf5741113d1a291ddde1",
+        "bytes": 1589,
+        "context": {
+          "commit": "1111111111111111111111111111111111111111",
+          "base_commit": "0000000000000000000000000000000000000000",
+          "target": "default",
+          "run": "synthetic-run-112"
+        },
+        "source": {
+          "path": "api/src/run.rs",
+          "sha256": "da634fb05ddb3730b63b5402f5bb4c2c06a797c5d1d921e1bd179f37d264dfa9"
+        }
+      }
+    ],
+    "status": "measurement_error"
+  },
+  {
+    "schema": "harness-evidence/v1",
+    "id": "python-synthetic-evidence",
+    "project": "synthetic-platform",
+    "component": "worker",
+    "collector": {
+      "name": "synthetic-python",
+      "version": "1"
+    },
+    "series": {
+      "name": "python-synthetic-1",
+      "collector": {
+        "name": "synthetic-python",
+        "version": "1"
+      },
+      "tool": {
+        "name": "synthetic-coverage.py",
+        "version": "1"
+      },
+      "rule": {
+        "name": "python-synthetic-rule",
+        "version": "1"
+      },
+      "runtime": {
+        "name": "python-synthetic-runtime",
+        "version": "1"
+      },
+      "target": "default",
+      "source_identity": {
+        "name": "subject-identity",
+        "version": "1"
+      },
+      "normalization": {
+        "name": "python-synthetic-normalization",
+        "version": "1"
+      },
+      "metrics": [
+        {
+          "name": "bundle.size",
+          "type": "size"
+        },
+        {
+          "name": "complexity.cyclomatic",
+          "type": "count"
+        },
+        {
+          "name": "contract.compatible",
+          "type": "boolean"
+        },
+        {
+          "name": "contract.schema_valid",
+          "type": "boolean"
+        },
+        {
+          "name": "coverage.branch",
+          "type": "ratio"
+        },
+        {
+          "name": "coverage.function",
+          "type": "ratio"
+        },
+        {
+          "name": "coverage.line",
+          "type": "ratio"
+        },
+        {
+          "name": "coverage.region",
+          "type": "ratio"
+        },
+        {
+          "name": "mutation.score",
+          "type": "ratio"
+        },
+        {
+          "name": "performance.duration",
+          "type": "duration"
+        },
+        {
+          "name": "risk.crap",
+          "type": "decimal"
+        }
+      ],
+      "id": "measurement-series/v1:0800f11e48598afcf35340823b2ce49c79066acd96a5834e8b710e8e9c347035"
+    },
+    "subject": {
+      "id": "subject-identity/v1:a8014c6d46eda90cae86ec48b4d88b07694194fc299229e5b39f90fa48b63e97",
+      "identity_version": "subject-identity/v1",
+      "component": "worker",
+      "target": "default",
+      "boundary": "source",
+      "kind": "function/v1",
+      "path": "worker/src/run.py",
+      "discriminator": "worker.run",
+      "span": {
+        "start_line": 1,
+        "start_column": 1,
+        "end_line": 2,
+        "end_column": 13
+      },
+      "source_sha256": "a40c04aa22c369fa354406d31613f110878d800e33ddd428e124b513762b3635",
+      "metadata": {
+        "short_name": "run"
+      }
+    },
+    "context": {
+      "commit": "1111111111111111111111111111111111111111",
+      "base_commit": "0000000000000000000000000000000000000000",
+      "target": "default",
+      "run": "synthetic-run-112"
+    },
+    "source": {
+      "path": "worker/src/run.py",
+      "sha256": "a40c04aa22c369fa354406d31613f110878d800e33ddd428e124b513762b3635"
+    },
+    "metrics": [
+      {
+        "name": "coverage.line",
+        "value": {
+          "type": "ratio",
+          "covered": 4,
+          "total": 5
+        },
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "name": "complexity.cyclomatic",
+        "value": {
+          "type": "count",
+          "value": 3
+        },
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "name": "risk.crap",
+        "value": {
+          "type": "decimal",
+          "value": "3.072"
+        },
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "name": "contract.schema_valid",
+        "value": {
+          "type": "boolean",
+          "value": true
+        },
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "name": "performance.duration",
+        "value": {
+          "type": "duration",
+          "value": 1000,
+          "unit": "nanoseconds"
+        },
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "name": "bundle.size",
+        "value": {
+          "type": "size",
+          "value": 128,
+          "unit": "bytes"
+        },
+        "artifacts": [
+          "raw"
+        ]
+      }
+    ],
+    "capabilities": [
+      {
+        "metric": "coverage.line",
+        "state": "supported",
+        "reason": "synthetic supported",
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "metric": "complexity.cyclomatic",
+        "state": "supported",
+        "reason": "synthetic supported",
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "metric": "risk.crap",
+        "state": "supported",
+        "reason": "synthetic supported",
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "metric": "contract.schema_valid",
+        "state": "supported",
+        "reason": "synthetic supported",
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "metric": "performance.duration",
+        "state": "supported",
+        "reason": "synthetic supported",
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "metric": "bundle.size",
+        "state": "supported",
+        "reason": "synthetic supported",
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "metric": "coverage.branch",
+        "state": "unsupported",
+        "reason": "synthetic unsupported",
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "metric": "coverage.function",
+        "state": "not_configured",
+        "reason": "synthetic not_configured",
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "metric": "coverage.region",
+        "state": "not_collected",
+        "reason": "synthetic not_collected",
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "metric": "mutation.score",
+        "state": "measurement_error",
+        "reason": "synthetic measurement_error",
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "metric": "contract.compatible",
+        "state": "not_applicable",
+        "reason": "synthetic not_applicable",
+        "artifacts": [
+          "raw"
+        ]
+      }
+    ],
+    "artifacts": [
+      {
+        "id": "raw",
+        "kind": "raw",
+        "media_type": "application/json",
+        "path": "harness-evidence/artifacts/python.json",
+        "sha256": "301596cbf3f66b5bb50932299ba52068687baf634d0d6a3b371d5f9b8dbb6f44",
+        "bytes": 1601,
+        "context": {
+          "commit": "1111111111111111111111111111111111111111",
+          "base_commit": "0000000000000000000000000000000000000000",
+          "target": "default",
+          "run": "synthetic-run-112"
+        },
+        "source": {
+          "path": "worker/src/run.py",
+          "sha256": "a40c04aa22c369fa354406d31613f110878d800e33ddd428e124b513762b3635"
+        }
+      }
+    ],
+    "status": "measurement_error"
+  },
+  {
+    "schema": "harness-evidence/v1",
+    "id": "java-synthetic-evidence",
+    "project": "synthetic-platform",
+    "component": "billing",
+    "collector": {
+      "name": "synthetic-java",
+      "version": "1"
+    },
+    "series": {
+      "name": "java-synthetic-1",
+      "collector": {
+        "name": "synthetic-java",
+        "version": "1"
+      },
+      "tool": {
+        "name": "synthetic-jacoco",
+        "version": "1"
+      },
+      "rule": {
+        "name": "java-synthetic-rule",
+        "version": "1"
+      },
+      "runtime": {
+        "name": "java-synthetic-runtime",
+        "version": "1"
+      },
+      "target": "default",
+      "source_identity": {
+        "name": "subject-identity",
+        "version": "1"
+      },
+      "normalization": {
+        "name": "java-synthetic-normalization",
+        "version": "1"
+      },
+      "metrics": [
+        {
+          "name": "bundle.size",
+          "type": "size"
+        },
+        {
+          "name": "complexity.cyclomatic",
+          "type": "count"
+        },
+        {
+          "name": "contract.compatible",
+          "type": "boolean"
+        },
+        {
+          "name": "contract.schema_valid",
+          "type": "boolean"
+        },
+        {
+          "name": "coverage.branch",
+          "type": "ratio"
+        },
+        {
+          "name": "coverage.function",
+          "type": "ratio"
+        },
+        {
+          "name": "coverage.line",
+          "type": "ratio"
+        },
+        {
+          "name": "coverage.region",
+          "type": "ratio"
+        },
+        {
+          "name": "mutation.score",
+          "type": "ratio"
+        },
+        {
+          "name": "performance.duration",
+          "type": "duration"
+        },
+        {
+          "name": "risk.crap",
+          "type": "decimal"
+        }
+      ],
+      "id": "measurement-series/v1:e85602192e5aa80e6946a68514f7b4ba115f1256e1f54b53b64c15141484c593"
+    },
+    "subject": {
+      "id": "subject-identity/v1:ea5aaa1335025764061ad80a163cbf8b8479918b7adc668f304980eabc22edc5",
+      "identity_version": "subject-identity/v1",
+      "component": "billing",
+      "target": "default",
+      "boundary": "source",
+      "kind": "method/v1",
+      "path": "billing/src/Run.java",
+      "discriminator": "Billing.run",
+      "span": {
+        "start_line": 1,
+        "start_column": 1,
+        "end_line": 1,
+        "end_column": 42
+      },
+      "source_sha256": "d89419590e04fdcf2af14db32cd12d2bbc57f33ab9fea81decaa1ed3eb14d2af",
+      "metadata": {
+        "short_name": "run"
+      }
+    },
+    "context": {
+      "commit": "1111111111111111111111111111111111111111",
+      "base_commit": "0000000000000000000000000000000000000000",
+      "target": "default",
+      "run": "synthetic-run-112"
+    },
+    "source": {
+      "path": "billing/src/Run.java",
+      "sha256": "d89419590e04fdcf2af14db32cd12d2bbc57f33ab9fea81decaa1ed3eb14d2af"
+    },
+    "metrics": [
+      {
+        "name": "coverage.line",
+        "value": {
+          "type": "ratio",
+          "covered": 4,
+          "total": 5
+        },
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "name": "complexity.cyclomatic",
+        "value": {
+          "type": "count",
+          "value": 3
+        },
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "name": "risk.crap",
+        "value": {
+          "type": "decimal",
+          "value": "3.072"
+        },
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "name": "contract.schema_valid",
+        "value": {
+          "type": "boolean",
+          "value": true
+        },
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "name": "performance.duration",
+        "value": {
+          "type": "duration",
+          "value": 1000,
+          "unit": "nanoseconds"
+        },
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "name": "bundle.size",
+        "value": {
+          "type": "size",
+          "value": 128,
+          "unit": "bytes"
+        },
+        "artifacts": [
+          "raw"
+        ]
+      }
+    ],
+    "capabilities": [
+      {
+        "metric": "coverage.line",
+        "state": "supported",
+        "reason": "synthetic supported",
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "metric": "complexity.cyclomatic",
+        "state": "supported",
+        "reason": "synthetic supported",
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "metric": "risk.crap",
+        "state": "supported",
+        "reason": "synthetic supported",
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "metric": "contract.schema_valid",
+        "state": "supported",
+        "reason": "synthetic supported",
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "metric": "performance.duration",
+        "state": "supported",
+        "reason": "synthetic supported",
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "metric": "bundle.size",
+        "state": "supported",
+        "reason": "synthetic supported",
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "metric": "coverage.branch",
+        "state": "unsupported",
+        "reason": "synthetic unsupported",
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "metric": "coverage.function",
+        "state": "not_configured",
+        "reason": "synthetic not_configured",
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "metric": "coverage.region",
+        "state": "not_collected",
+        "reason": "synthetic not_collected",
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "metric": "mutation.score",
+        "state": "measurement_error",
+        "reason": "synthetic measurement_error",
+        "artifacts": [
+          "raw"
+        ]
+      },
+      {
+        "metric": "contract.compatible",
+        "state": "not_applicable",
+        "reason": "synthetic not_applicable",
+        "artifacts": [
+          "raw"
+        ]
+      }
+    ],
+    "artifacts": [
+      {
+        "id": "raw",
+        "kind": "raw",
+        "media_type": "application/json",
+        "path": "harness-evidence/artifacts/java.json",
+        "sha256": "4c5da498546bd7d91cd8b067ae6a0c9f04d440a06fe3a924afb0faba32d68601",
+        "bytes": 1597,
+        "context": {
+          "commit": "1111111111111111111111111111111111111111",
+          "base_commit": "0000000000000000000000000000000000000000",
+          "target": "default",
+          "run": "synthetic-run-112"
+        },
+        "source": {
+          "path": "billing/src/Run.java",
+          "sha256": "d89419590e04fdcf2af14db32cd12d2bbc57f33ab9fea81decaa1ed3eb14d2af"
+        }
+      }
+    ],
+    "status": "measurement_error"
+  },
+  {
+    "schema": "harness-evidence/v1",
+    "id": "synthetic-contract",
+    "project": "synthetic-platform",
+    "component": "api",
+    "collector": {
+      "name": "synthetic-contract",
+      "version": "1"
+    },
+    "series": {
+      "name": "synthetic-api-client",
+      "collector": {
+        "name": "synthetic-contract",
+        "version": "1"
+      },
+      "tool": {
+        "name": "synthetic-contract-facts",
+        "version": "1"
+      },
+      "rule": {
+        "name": "synthetic-compatibility",
+        "version": "1"
+      },
+      "runtime": {
+        "name": "rust-synthetic-runtime",
+        "version": "1"
+      },
+      "target": "default",
+      "source_identity": {
+        "name": "subject-identity",
+        "version": "1"
+      },
+      "normalization": {
+        "name": "rust-synthetic-normalization",
+        "version": "1"
+      },
+      "metrics": [
+        {
+          "name": "contract.breaking_changes",
+          "type": "count"
+        },
+        {
+          "name": "contract.client_drift",
+          "type": "boolean"
+        },
+        {
+          "name": "contract.compatible",
+          "type": "boolean"
+        },
+        {
+          "name": "contract.schema_valid",
+          "type": "boolean"
+        }
+      ],
+      "id": "measurement-series/v1:a15f761f9a8badff4434a162f371d8e425c25807f4a3a0c7126d51f705138cab"
+    },
+    "subject": {
+      "id": "subject-identity/v1:2f1f66c69b658af55d4c45b541037e82a9b7eaef5023b292a04cef669e8407dc",
+      "identity_version": "subject-identity/v1",
+      "component": "api",
+      "target": "default",
+      "boundary": "source",
+      "kind": "contract/v1",
+      "path": "api/src/openapi.json",
+      "discriminator": "api.public",
+      "source_sha256": "959c1f6a71c951d98b683bc899e48a37e64799ef995fd26482e42b25c8f7af92",
+      "metadata": {
+        "format": "openapi"
+      }
+    },
+    "context": {
+      "commit": "1111111111111111111111111111111111111111",
+      "base_commit": "0000000000000000000000000000000000000000",
+      "target": "default",
+      "run": "synthetic-run-112"
+    },
+    "source": {
+      "path": "api/src/openapi.json",
+      "sha256": "959c1f6a71c951d98b683bc899e48a37e64799ef995fd26482e42b25c8f7af92"
+    },
+    "metrics": [
+      {
+        "name": "contract.schema_valid",
+        "value": {
+          "type": "boolean",
+          "value": true
+        },
+        "artifacts": [
+          "contract",
+          "baseline",
+          "consumer",
+          "client",
+          "facts"
+        ]
+      },
+      {
+        "name": "contract.breaking_changes",
+        "value": {
+          "type": "count",
+          "value": 1
+        },
+        "artifacts": [
+          "contract",
+          "baseline",
+          "consumer",
+          "client",
+          "facts"
+        ]
+      },
+      {
+        "name": "contract.client_drift",
+        "value": {
+          "type": "boolean",
+          "value": true
+        },
+        "artifacts": [
+          "contract",
+          "baseline",
+          "consumer",
+          "client",
+          "facts"
+        ]
+      },
+      {
+        "name": "contract.compatible",
+        "value": {
+          "type": "boolean",
+          "value": false
+        },
+        "artifacts": [
+          "contract",
+          "baseline",
+          "consumer",
+          "client",
+          "facts"
+        ]
+      }
+    ],
+    "capabilities": [
+      {
+        "metric": "contract.schema_valid",
+        "state": "supported",
+        "reason": "synthetic fixture; no certified adapter",
+        "artifacts": [
+          "contract",
+          "baseline",
+          "consumer",
+          "client",
+          "facts"
+        ]
+      },
+      {
+        "metric": "contract.breaking_changes",
+        "state": "supported",
+        "reason": "synthetic fixture; no certified adapter",
+        "artifacts": [
+          "contract",
+          "baseline",
+          "consumer",
+          "client",
+          "facts"
+        ]
+      },
+      {
+        "metric": "contract.client_drift",
+        "state": "supported",
+        "reason": "synthetic fixture; no certified adapter",
+        "artifacts": [
+          "contract",
+          "baseline",
+          "consumer",
+          "client",
+          "facts"
+        ]
+      },
+      {
+        "metric": "contract.compatible",
+        "state": "supported",
+        "reason": "synthetic fixture; no certified adapter",
+        "artifacts": [
+          "contract",
+          "baseline",
+          "consumer",
+          "client",
+          "facts"
+        ]
+      }
+    ],
+    "artifacts": [
+      {
+        "id": "contract",
+        "kind": "raw",
+        "media_type": "application/json",
+        "path": "contracts/artifacts/head-contract.json",
+        "sha256": "959c1f6a71c951d98b683bc899e48a37e64799ef995fd26482e42b25c8f7af92",
+        "bytes": 359,
+        "context": {
+          "commit": "1111111111111111111111111111111111111111",
+          "base_commit": "0000000000000000000000000000000000000000",
+          "target": "default",
+          "run": "synthetic-run-112"
+        },
+        "source": {
+          "path": "api/src/openapi.json",
+          "sha256": "959c1f6a71c951d98b683bc899e48a37e64799ef995fd26482e42b25c8f7af92"
+        }
+      },
+      {
+        "id": "baseline",
+        "kind": "raw",
+        "media_type": "application/json",
+        "path": "contracts/artifacts/base-contract.json",
+        "sha256": "6c3bea1781ae54c3f04f6b098cc2bd2274a87bec405de0ff93d245f669ab3588",
+        "bytes": 345,
+        "context": {
+          "commit": "1111111111111111111111111111111111111111",
+          "base_commit": "0000000000000000000000000000000000000000",
+          "target": "default",
+          "run": "synthetic-run-112"
+        },
+        "source": {
+          "path": "api/src/openapi.json",
+          "sha256": "959c1f6a71c951d98b683bc899e48a37e64799ef995fd26482e42b25c8f7af92"
+        }
+      },
+      {
+        "id": "consumer",
+        "kind": "raw",
+        "media_type": "application/json",
+        "path": "contracts/artifacts/consumer.json",
+        "sha256": "7fad0ad94def6f72f1884e70f783e944a510ecba858a3367276daf90f42708eb",
+        "bytes": 52,
+        "context": {
+          "commit": "1111111111111111111111111111111111111111",
+          "base_commit": "0000000000000000000000000000000000000000",
+          "target": "default",
+          "run": "synthetic-run-112"
+        },
+        "source": {
+          "path": "api/src/openapi.json",
+          "sha256": "959c1f6a71c951d98b683bc899e48a37e64799ef995fd26482e42b25c8f7af92"
+        }
+      },
+      {
+        "id": "client",
+        "kind": "raw",
+        "media_type": "application/json",
+        "path": "contracts/artifacts/client.json",
+        "sha256": "ae2c05fbdd9c300908f3cd1514be7f20fcff020f57b86a1d421444ef1e6740ab",
+        "bytes": 120,
+        "context": {
+          "commit": "1111111111111111111111111111111111111111",
+          "base_commit": "0000000000000000000000000000000000000000",
+          "target": "default",
+          "run": "synthetic-run-112"
+        },
+        "source": {
+          "path": "api/src/openapi.json",
+          "sha256": "959c1f6a71c951d98b683bc899e48a37e64799ef995fd26482e42b25c8f7af92"
+        }
+      },
+      {
+        "id": "facts",
+        "kind": "raw",
+        "media_type": "application/json",
+        "path": "contracts/artifacts/facts.json",
+        "sha256": "4271991322a294ea7df9cb50b7cb702f7c5438f7aa00e9fe46901a806f2e9775",
+        "bytes": 417,
+        "context": {
+          "commit": "1111111111111111111111111111111111111111",
+          "base_commit": "0000000000000000000000000000000000000000",
+          "target": "default",
+          "run": "synthetic-run-112"
+        },
+        "source": {
+          "path": "api/src/openapi.json",
+          "sha256": "959c1f6a71c951d98b683bc899e48a37e64799ef995fd26482e42b25c8f7af92"
+        }
+      }
+    ],
+    "status": "measured",
+    "contract": {
+      "relationship": "api-client",
+      "producer": "api",
+      "consumer": "frontend",
+      "contract_artifact": "contract",
+      "baseline": {
+        "artifact": "baseline",
+        "commit": "0000000000000000000000000000000000000000",
+        "series_id": "measurement-series/v1:a15f761f9a8badff4434a162f371d8e425c25807f4a3a0c7126d51f705138cab"
+      },
+      "consumer_artifact": "consumer",
+      "generated_client": {
+        "artifact": "client",
+        "contract_sha256": "6c3bea1781ae54c3f04f6b098cc2bd2274a87bec405de0ff93d245f669ab3588"
+      }
+    }
+  }
+]

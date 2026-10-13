@@ -1,0 +1,263 @@
+{
+  "schema": "harness-project/v1",
+  "id": "synthetic-platform",
+  "metadata": {
+    "purpose": "synthetic; no toolchains or measurement claims"
+  },
+  "components": [
+    {
+      "id": "frontend",
+      "path": "frontend",
+      "metadata": {
+        "language": "typescript",
+        "framework": "angular"
+      },
+      "targets": [
+        {
+          "id": "default",
+          "boundaries": [
+            "source"
+          ],
+          "metadata": {}
+        }
+      ],
+      "source_boundaries": [
+        {
+          "id": "source",
+          "path": "frontend/src",
+          "role": "production",
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "id": "api",
+      "path": "api",
+      "metadata": {
+        "language": "rust",
+        "framework": "synthetic"
+      },
+      "targets": [
+        {
+          "id": "default",
+          "boundaries": [
+            "source"
+          ],
+          "metadata": {}
+        }
+      ],
+      "source_boundaries": [
+        {
+          "id": "source",
+          "path": "api/src",
+          "role": "production",
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "id": "worker",
+      "path": "worker",
+      "metadata": {
+        "language": "python",
+        "framework": "synthetic"
+      },
+      "targets": [
+        {
+          "id": "default",
+          "boundaries": [
+            "source"
+          ],
+          "metadata": {}
+        }
+      ],
+      "source_boundaries": [
+        {
+          "id": "source",
+          "path": "worker/src",
+          "role": "production",
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "id": "billing",
+      "path": "billing",
+      "metadata": {
+        "language": "java",
+        "framework": "synthetic"
+      },
+      "targets": [
+        {
+          "id": "default",
+          "boundaries": [
+            "source"
+          ],
+          "metadata": {}
+        }
+      ],
+      "source_boundaries": [
+        {
+          "id": "source",
+          "path": "billing/src",
+          "role": "production",
+          "metadata": {}
+        }
+      ]
+    }
+  ],
+  "subjects": [
+    {
+      "id": "subject-identity/v1:02350109c84db83a672ada23416c1919ed37f07ef5e9da532dd14072ae705d4e",
+      "identity_version": "subject-identity/v1",
+      "component": "frontend",
+      "target": "default",
+      "boundary": "source",
+      "kind": "method/v1",
+      "path": "frontend/src/run.ts",
+      "discriminator": "App.execute",
+      "span": {
+        "start_line": 1,
+        "start_column": 1,
+        "end_line": 1,
+        "end_column": 45
+      },
+      "source_sha256": "43d323082cdc9b8169480f49ca9fa6c71e04fa5c4ecbd3f5782b1d7cfba00a9a",
+      "metadata": {
+        "short_name": "run"
+      }
+    },
+    {
+      "id": "subject-identity/v1:35799c263e2ab7c92a482cc555031ffef994512b9647cd4a7c711ef20e575ce3",
+      "identity_version": "subject-identity/v1",
+      "component": "api",
+      "target": "default",
+      "boundary": "source",
+      "kind": "function/v1",
+      "path": "api/src/moved.rs",
+      "discriminator": "api::run",
+      "span": {
+        "start_line": 1,
+        "start_column": 1,
+        "end_line": 1,
+        "end_column": 25
+      },
+      "source_sha256": "da634fb05ddb3730b63b5402f5bb4c2c06a797c5d1d921e1bd179f37d264dfa9",
+      "metadata": {
+        "short_name": "run"
+      }
+    },
+    {
+      "id": "subject-identity/v1:f9d37881a8de5b503717a8ba3a29717e28d7ef90332ca43036f89094011ec7cd",
+      "identity_version": "subject-identity/v1",
+      "component": "worker",
+      "target": "default",
+      "boundary": "source",
+      "kind": "function/v1",
+      "path": "worker/src/run.py",
+      "discriminator": "worker.prepare",
+      "span": {
+        "start_line": 1,
+        "start_column": 1,
+        "end_line": 2,
+        "end_column": 13
+      },
+      "source_sha256": "d9a807f2791a173ceeab98bdef93dd6ca735c10ac0b07cf0ed070b2fcb27ba48",
+      "metadata": {
+        "short_name": "run"
+      }
+    },
+    {
+      "id": "subject-identity/v1:ea5aaa1335025764061ad80a163cbf8b8479918b7adc668f304980eabc22edc5",
+      "identity_version": "subject-identity/v1",
+      "component": "billing",
+      "target": "default",
+      "boundary": "source",
+      "kind": "method/v1",
+      "path": "billing/src/Run.java",
+      "discriminator": "Billing.run",
+      "span": {
+        "start_line": 1,
+        "start_column": 1,
+        "end_line": 1,
+        "end_column": 42
+      },
+      "source_sha256": "d89419590e04fdcf2af14db32cd12d2bbc57f33ab9fea81decaa1ed3eb14d2af",
+      "metadata": {
+        "short_name": "run"
+      }
+    },
+    {
+      "id": "subject-identity/v1:6a068d74e82b9f1cdeb7a8c0e6ebe3c3a0b8fa997df9fa7d5481e3081dfb3e4c",
+      "identity_version": "subject-identity/v1",
+      "component": "api",
+      "target": "default",
+      "boundary": "source",
+      "kind": "contract/v1",
+      "path": "api/src/openapi.json",
+      "discriminator": "api.public",
+      "source_sha256": "aa17e322ab2e77709904324daec249619531fe06174466a7b1bac4253455daa6",
+      "metadata": {
+        "format": "openapi"
+      }
+    },
+    {
+      "id": "subject-identity/v1:1ae1e002ecdd7e4261aaef8dbaf629bc257b660170ea6129697fc1dccb42d44e",
+      "identity_version": "subject-identity/v1",
+      "component": "worker",
+      "target": "default",
+      "boundary": "source",
+      "kind": "function/v1",
+      "path": "worker/src/run.py",
+      "discriminator": "worker.finish",
+      "span": {
+        "start_line": 4,
+        "start_column": 1,
+        "end_line": 5,
+        "end_column": 13
+      },
+      "source_sha256": "d9a807f2791a173ceeab98bdef93dd6ca735c10ac0b07cf0ed070b2fcb27ba48",
+      "metadata": {
+        "short_name": "run"
+      }
+    }
+  ],
+  "relationships": [
+    {
+      "id": "api-client",
+      "kind": "consumes/v1",
+      "producer": "api",
+      "consumer": "frontend",
+      "subjects": [
+        "subject-identity/v1:02350109c84db83a672ada23416c1919ed37f07ef5e9da532dd14072ae705d4e",
+        "subject-identity/v1:35799c263e2ab7c92a482cc555031ffef994512b9647cd4a7c711ef20e575ce3",
+        "subject-identity/v1:6a068d74e82b9f1cdeb7a8c0e6ebe3c3a0b8fa997df9fa7d5481e3081dfb3e4c"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "work-queue",
+      "kind": "consumes/v1",
+      "producer": "api",
+      "consumer": "worker",
+      "subjects": [
+        "subject-identity/v1:35799c263e2ab7c92a482cc555031ffef994512b9647cd4a7c711ef20e575ce3",
+        "subject-identity/v1:f9d37881a8de5b503717a8ba3a29717e28d7ef90332ca43036f89094011ec7cd",
+        "subject-identity/v1:1ae1e002ecdd7e4261aaef8dbaf629bc257b660170ea6129697fc1dccb42d44e"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "billing-events",
+      "kind": "consumes/v1",
+      "producer": "billing",
+      "consumer": "worker",
+      "subjects": [
+        "subject-identity/v1:ea5aaa1335025764061ad80a163cbf8b8479918b7adc668f304980eabc22edc5",
+        "subject-identity/v1:f9d37881a8de5b503717a8ba3a29717e28d7ef90332ca43036f89094011ec7cd",
+        "subject-identity/v1:1ae1e002ecdd7e4261aaef8dbaf629bc257b660170ea6129697fc1dccb42d44e"
+      ],
+      "metadata": {}
+    }
+  ]
+}

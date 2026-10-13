@@ -1,0 +1,12 @@
+{
+  "schema": "rust-measure-plugin/v1",
+  "name": "harness-gate-rust-measure",
+  "version": "0.3.1",
+  "executable": "harness-gate-rust-measure",
+  "analyzer": "harness-gate-rust-measure",
+  "rule": "mccabe-rust-3",
+  "series_rule": "mccabe-rust-3/1",
+  "target": "x86_64-unknown-linux-gnu",
+  "authority": "measurement-only",
+  "consumer": "core CI function-risk gate via tools/quality/source_measure.py"
+}

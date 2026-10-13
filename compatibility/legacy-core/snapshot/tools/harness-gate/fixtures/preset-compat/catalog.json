@@ -1,0 +1,25 @@
+{
+  "schema": "harness-preset-catalog/v1",
+  "presets": {
+    "rust-api": {
+      "description": "Single Rust crate with fmt, Clippy, check, and tests",
+      "flow": "rust-api.flow.toml",
+      "recipe": "rust-api.packs.json"
+    },
+    "angular-only": {
+      "description": "Angular/npm project with lint, tests, and build",
+      "flow": "angular-only.flow.toml",
+      "recipe": "angular-only.packs.json"
+    },
+    "angular-rust-postgres": {
+      "description": "Angular frontend, Rust backend, and temporary PostgreSQL",
+      "flow": "angular-rust-postgres.flow.toml",
+      "recipe": "angular-rust-postgres.packs.json"
+    }
+  },
+  "packs": {
+    "rust": "packs/rust.json",
+    "typescript": "packs/typescript.json",
+    "api-contract": "packs/api-contract.json"
+  }
+}

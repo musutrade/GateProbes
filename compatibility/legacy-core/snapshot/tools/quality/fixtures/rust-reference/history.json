@@ -1,0 +1,53 @@
+{
+  "accepted_baseline": {
+    "path": "tools/quality/fixtures/rust-reference/phase-1-accepted-b92755f.json",
+    "sha256": "062f4f607068abb332b67d28f6e1f9314abc2261a5f9a891c09ea86de5bf9928",
+    "commit": "b92755f9ec87c251516863a0136c28f811187ab5",
+    "series": "x86_64-unknown-linux-gnu:rustc 1.98.0 (88d9e12ae 2026-08-18):1:1:cold-and-warm",
+    "projection": "measurement_error",
+    "reason": "Accepted Phase 1 performance series predates the production/risk candidate contract; never reinterpret it as a modern Rust baseline."
+  },
+  "retained_candidate": {
+    "path": "docs/quality/gh-97/candidate.tar.gz",
+    "sha256": "190ca5b9ee04f0ed22c185907db62029ea00ad3be5ddcdf13dc46e8021110d6c",
+    "accepted_baseline": false,
+    "functions": 212,
+    "legacy_debt": 75,
+    "aggregate": {
+      "lines": [
+        9844,
+        11470
+      ],
+      "functions": [
+        830,
+        1114
+      ],
+      "regions": [
+        14039,
+        17037
+      ]
+    }
+  },
+  "derived_cases": [
+    {
+      "name": "failed_gate",
+      "change": "Increase production threshold to 100, preserving every raw count.",
+      "expected": "fail"
+    },
+    {
+      "name": "measurement_error",
+      "change": "Tamper a retained risk artifact, or remove it.",
+      "expected": "measurement_error"
+    },
+    {
+      "name": "legacy_debt",
+      "change": "Replay unchanged nonselected historical debt.",
+      "expected": "accepted with coverage_debt"
+    },
+    {
+      "name": "changed_function_ratchet",
+      "change": "Remove selected baseline matches to replay low-CC and high-CC changed functions.",
+      "expected": "Low CC requires CRAP <= 30; high CC also requires 80% lines and regions."
+    }
+  ]
+}

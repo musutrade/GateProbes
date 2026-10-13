@@ -1,0 +1,57 @@
+{
+  "schema": "harness-project/v1",
+  "id": "synthetic-platform",
+  "metadata": {
+    "purpose": "synthetic; no toolchains or measurement claims"
+  },
+  "components": [
+    {
+      "id": "api",
+      "path": "api",
+      "metadata": {
+        "language": "rust",
+        "framework": "synthetic"
+      },
+      "targets": [
+        {
+          "id": "default",
+          "boundaries": [
+            "source"
+          ],
+          "metadata": {}
+        }
+      ],
+      "source_boundaries": [
+        {
+          "id": "source",
+          "path": "api/src",
+          "role": "production",
+          "metadata": {}
+        }
+      ]
+    }
+  ],
+  "subjects": [
+    {
+      "id": "subject-identity/v1:51787f7d6a992215db7936a3032edb6cbf765ded6bdea69a396094fe7a979e0a",
+      "identity_version": "subject-identity/v1",
+      "component": "api",
+      "target": "default",
+      "boundary": "source",
+      "kind": "function/v1",
+      "path": "api/src/run.rs",
+      "discriminator": "api::run",
+      "span": {
+        "start_line": 1,
+        "start_column": 1,
+        "end_line": 1,
+        "end_column": 25
+      },
+      "source_sha256": "da634fb05ddb3730b63b5402f5bb4c2c06a797c5d1d921e1bd179f37d264dfa9",
+      "metadata": {
+        "short_name": "run"
+      }
+    }
+  ],
+  "relationships": []
+}

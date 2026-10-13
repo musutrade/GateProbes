@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "project": {
+    "id": "${project}",
+    "name": "${project}"
+  },
+  "components": {},
+  "subjects": {},
+  "relationships": {},
+  "collectors": {},
+  "policies": {},
+  "profiles": {
+    "hook": {
+      "assurance": "partial",
+      "collectors": [],
+      "policies": [],
+      "workflow": {
+        "state": ".harness-gate/runtime/hook-state.json",
+        "trusted_keys": ".harness-gate/runtime/trusted-keys.json"
+      }
+    },
+    "full": {
+      "assurance": "complete",
+      "collectors": [],
+      "policies": [],
+      "workflow": {
+        "state": ".harness-gate/runtime/full-state.json",
+        "trusted_keys": ".harness-gate/runtime/trusted-keys.json"
+      }
+    },
+    "ci": {
+      "assurance": "complete",
+      "collectors": [],
+      "policies": [],
+      "workflow": {
+        "state": ".harness-gate/runtime/ci-state.json",
+        "trusted_keys": ".harness-gate/runtime/trusted-keys.json"
+      }
+    }
+  },
+  "baseline": {
+    "required": false,
+    "provider": {
+      "kind": "none"
+    }
+  },
+  "reporting": {
+    "output": ".harness-gate/reports/quality",
+    "formats": [
+      "human",
+      "json"
+    ]
+  }
+}

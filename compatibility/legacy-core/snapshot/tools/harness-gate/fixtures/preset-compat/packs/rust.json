@@ -1,0 +1,229 @@
+{
+  "quality": {
+    "collectors": {
+      "${binding}": {
+        "protocol": "harness-collector-request/v1",
+        "request": ".harness-gate/runtime/${binding}-request.json",
+        "produces": [
+          {
+            "target": {
+              "kind": "component",
+              "id": "${binding}"
+            },
+            "capability": "coverage.line",
+            "series": "measurement-series/v1:4fa98f3128d8c3ac0dd5279ba9b4f4f9ae83cc3538575cfd5a6be1599a95dd98"
+          },
+          {
+            "target": {
+              "kind": "component",
+              "id": "${binding}"
+            },
+            "capability": "coverage.region",
+            "series": "measurement-series/v1:4fa98f3128d8c3ac0dd5279ba9b4f4f9ae83cc3538575cfd5a6be1599a95dd98"
+          },
+          {
+            "target": {
+              "kind": "component",
+              "id": "${binding}"
+            },
+            "capability": "risk.crap",
+            "series": "measurement-series/v1:4fa98f3128d8c3ac0dd5279ba9b4f4f9ae83cc3538575cfd5a6be1599a95dd98"
+          }
+        ]
+      }
+    },
+    "policies": {
+      "${binding}.coverage.line": {
+        "policy_file": ".harness-gate/packs/${binding}/policy.json",
+        "rule": "${binding}.coverage.line",
+        "expectation": {
+          "target": {
+            "kind": "component",
+            "id": "${binding}"
+          },
+          "capability": "coverage.line",
+          "series": "measurement-series/v1:4fa98f3128d8c3ac0dd5279ba9b4f4f9ae83cc3538575cfd5a6be1599a95dd98"
+        }
+      },
+      "${binding}.coverage.region": {
+        "policy_file": ".harness-gate/packs/${binding}/policy.json",
+        "rule": "${binding}.coverage.region",
+        "expectation": {
+          "target": {
+            "kind": "component",
+            "id": "${binding}"
+          },
+          "capability": "coverage.region",
+          "series": "measurement-series/v1:4fa98f3128d8c3ac0dd5279ba9b4f4f9ae83cc3538575cfd5a6be1599a95dd98"
+        }
+      },
+      "${binding}.risk.crap": {
+        "policy_file": ".harness-gate/packs/${binding}/policy.json",
+        "rule": "${binding}.risk.crap",
+        "expectation": {
+          "target": {
+            "kind": "component",
+            "id": "${binding}"
+          },
+          "capability": "risk.crap",
+          "series": "measurement-series/v1:4fa98f3128d8c3ac0dd5279ba9b4f4f9ae83cc3538575cfd5a6be1599a95dd98"
+        }
+      }
+    },
+    "profiles": {
+      "full": {
+        "collectors": [
+          "${binding}"
+        ],
+        "policies": [
+          "${binding}.coverage.line",
+          "${binding}.coverage.region",
+          "${binding}.risk.crap"
+        ]
+      },
+      "ci": {
+        "collectors": [
+          "${binding}"
+        ],
+        "policies": [
+          "${binding}.coverage.line",
+          "${binding}.coverage.region",
+          "${binding}.risk.crap"
+        ]
+      }
+    },
+    "components": {
+      "${binding}": {
+        "flow_components": [
+          "${binding}"
+        ],
+        "source_roots": [
+          "${source_root}"
+        ],
+        "artifact_root": ".harness-gate/reports/evidence/${binding}"
+      }
+    }
+  },
+  "files": {
+    ".harness-gate/packs/${binding}/policy.json": {
+      "schema": "harness-policy/v1",
+      "rules": [
+        {
+          "id": "${binding}.coverage.line",
+          "limit": {
+            "covered": 4,
+            "total": 5,
+            "type": "ratio"
+          },
+          "metric": "coverage.line",
+          "on_violation": "fail",
+          "operator": "ge",
+          "remediation_classes": [
+            "review_retained_rust_evidence"
+          ],
+          "required": true,
+          "scope": {
+            "kind": "component",
+            "component": "${binding}"
+          }
+        },
+        {
+          "id": "${binding}.coverage.region",
+          "limit": {
+            "covered": 4,
+            "total": 5,
+            "type": "ratio"
+          },
+          "metric": "coverage.region",
+          "on_violation": "fail",
+          "operator": "ge",
+          "remediation_classes": [
+            "review_retained_rust_evidence"
+          ],
+          "required": true,
+          "scope": {
+            "kind": "component",
+            "component": "${binding}"
+          }
+        },
+        {
+          "id": "${binding}.risk.crap",
+          "limit": {
+            "denominator": 1,
+            "numerator": 30,
+            "type": "rational"
+          },
+          "metric": "risk.crap",
+          "on_violation": "fail",
+          "operator": "le",
+          "remediation_classes": [
+            "review_retained_rust_evidence"
+          ],
+          "required": true,
+          "scope": {
+            "kind": "component",
+            "component": "${binding}"
+          }
+        }
+      ]
+    },
+    ".harness-gate/packs/${binding}/capabilities.json": {
+      "series": {
+        "collector": {
+          "name": "rust-reference",
+          "version": "1"
+        },
+        "id": "measurement-series/v1:4fa98f3128d8c3ac0dd5279ba9b4f4f9ae83cc3538575cfd5a6be1599a95dd98",
+        "metrics": [
+          {
+            "name": "complexity.cyclomatic",
+            "type": "count"
+          },
+          {
+            "name": "coverage.branch",
+            "type": "ratio"
+          },
+          {
+            "name": "coverage.line",
+            "type": "ratio"
+          },
+          {
+            "name": "coverage.region",
+            "type": "ratio"
+          },
+          {
+            "name": "risk.crap",
+            "type": "rational"
+          }
+        ],
+        "name": "rust-function-risk",
+        "normalization": {
+          "name": "rust-reference",
+          "version": "1"
+        },
+        "rule": {
+          "name": "rust-function-risk",
+          "version": "df3c0826a11321a0388990a3fb11118e3943d017844179d05a25394c2f036dcd"
+        },
+        "runtime": {
+          "name": "rust",
+          "version": "d24ba8c58c2dcc755f6581fca8f9e15fe8b4d1a8f630fd688ecb939ca64d0b6f"
+        },
+        "source_identity": {
+          "name": "rust-native-identity",
+          "version": "1"
+        },
+        "target": "x86_64-unknown-linux-gnu",
+        "tool": {
+          "name": "retained-rust-tools",
+          "version": "df3c0826a11321a0388990a3fb11118e3943d017844179d05a25394c2f036dcd"
+        }
+      },
+      "states": {
+        "coverage.line": "supported",
+        "coverage.region": "supported",
+        "risk.crap": "supported"
+      }
+    }
+  }
+}

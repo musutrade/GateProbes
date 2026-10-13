@@ -1,0 +1,391 @@
+{
+  "kind": "complexity-evidence",
+  "schema_version": "1",
+  "series": {
+    "analyzer": {
+      "license": "MIT",
+      "name": "harness-gate-complexity",
+      "version": "0.1.1"
+    },
+    "rule": {
+      "license": "MIT",
+      "name": "mccabe-rust-1",
+      "version": "1"
+    },
+    "source": {
+      "bytes": 1771,
+      "language": "rust",
+      "path": "controls.rs",
+      "sha256": "e049647d1177f5bbbb2bd2f73cf11169722544a571b16fbc3aef823a393e3bb8"
+    },
+    "toolchain": {
+      "python": "3.14.4",
+      "target": "x86_64"
+    }
+  },
+  "symbols": [
+    {
+      "id": "controls.rs::function::decision@7:1:e049647d1177",
+      "kind": "function",
+      "metrics": {
+        "cyclomatic_complexity": 5
+      },
+      "qualified_name": "decision",
+      "raw": {
+        "and_and": 1,
+        "closures": 0,
+        "for": 0,
+        "guards": 0,
+        "if": 2,
+        "loop": 0,
+        "macro_invocations_skipped": 0,
+        "match": 0,
+        "match_arms": 0,
+        "nested_functions": 0,
+        "or_or": 1,
+        "question_mark": 0,
+        "while": 0
+      },
+      "source": {
+        "path": "controls.rs",
+        "sha256": "e049647d1177f5bbbb2bd2f73cf11169722544a571b16fbc3aef823a393e3bb8"
+      },
+      "span": {
+        "end_column": 1,
+        "end_line": 15,
+        "start_column": 1,
+        "start_line": 7
+      }
+    },
+    {
+      "id": "controls.rs::function::classify@17:1:e049647d1177",
+      "kind": "function",
+      "metrics": {
+        "cyclomatic_complexity": 5
+      },
+      "qualified_name": "classify",
+      "raw": {
+        "and_and": 0,
+        "closures": 0,
+        "for": 0,
+        "guards": 2,
+        "if": 0,
+        "loop": 0,
+        "macro_invocations_skipped": 0,
+        "match": 1,
+        "match_arms": 3,
+        "nested_functions": 0,
+        "or_or": 0,
+        "question_mark": 0,
+        "while": 0
+      },
+      "source": {
+        "path": "controls.rs",
+        "sha256": "e049647d1177f5bbbb2bd2f73cf11169722544a571b16fbc3aef823a393e3bb8"
+      },
+      "span": {
+        "end_column": 1,
+        "end_line": 23,
+        "start_column": 1,
+        "start_line": 17
+      }
+    },
+    {
+      "id": "controls.rs::function::loops@25:1:e049647d1177",
+      "kind": "function",
+      "metrics": {
+        "cyclomatic_complexity": 5
+      },
+      "qualified_name": "loops",
+      "raw": {
+        "and_and": 0,
+        "closures": 0,
+        "for": 1,
+        "guards": 0,
+        "if": 1,
+        "loop": 1,
+        "macro_invocations_skipped": 0,
+        "match": 0,
+        "match_arms": 0,
+        "nested_functions": 0,
+        "or_or": 0,
+        "question_mark": 0,
+        "while": 1
+      },
+      "source": {
+        "path": "controls.rs",
+        "sha256": "e049647d1177f5bbbb2bd2f73cf11169722544a571b16fbc3aef823a393e3bb8"
+      },
+      "span": {
+        "end_column": 1,
+        "end_line": 39,
+        "start_column": 1,
+        "start_line": 25
+      }
+    },
+    {
+      "id": "controls.rs::function::query@41:1:e049647d1177",
+      "kind": "function",
+      "metrics": {
+        "cyclomatic_complexity": 2
+      },
+      "qualified_name": "query",
+      "raw": {
+        "and_and": 0,
+        "closures": 1,
+        "for": 0,
+        "guards": 0,
+        "if": 0,
+        "loop": 0,
+        "macro_invocations_skipped": 0,
+        "match": 0,
+        "match_arms": 0,
+        "nested_functions": 0,
+        "or_or": 0,
+        "question_mark": 1,
+        "while": 0
+      },
+      "source": {
+        "path": "controls.rs",
+        "sha256": "e049647d1177f5bbbb2bd2f73cf11169722544a571b16fbc3aef823a393e3bb8"
+      },
+      "span": {
+        "end_column": 1,
+        "end_line": 46,
+        "start_column": 1,
+        "start_line": 41
+      }
+    },
+    {
+      "id": "controls.rs::closure::query::closure_1@42:33:e049647d1177",
+      "kind": "closure",
+      "metrics": {
+        "cyclomatic_complexity": 1
+      },
+      "qualified_name": "query::closure_1",
+      "raw": {
+        "and_and": 0,
+        "closures": 0,
+        "for": 0,
+        "guards": 0,
+        "if": 0,
+        "loop": 0,
+        "macro_invocations_skipped": 0,
+        "match": 0,
+        "match_arms": 0,
+        "nested_functions": 0,
+        "or_or": 0,
+        "question_mark": 0,
+        "while": 0
+      },
+      "source": {
+        "path": "controls.rs",
+        "sha256": "e049647d1177f5bbbb2bd2f73cf11169722544a571b16fbc3aef823a393e3bb8"
+      },
+      "span": {
+        "end_column": 5,
+        "end_line": 45,
+        "start_column": 33,
+        "start_line": 42
+      }
+    },
+    {
+      "id": "controls.rs::function::call_double@48:1:e049647d1177",
+      "kind": "function",
+      "metrics": {
+        "cyclomatic_complexity": 1
+      },
+      "qualified_name": "call_double",
+      "raw": {
+        "and_and": 0,
+        "closures": 2,
+        "for": 0,
+        "guards": 0,
+        "if": 0,
+        "loop": 0,
+        "macro_invocations_skipped": 0,
+        "match": 0,
+        "match_arms": 0,
+        "nested_functions": 0,
+        "or_or": 0,
+        "question_mark": 0,
+        "while": 0
+      },
+      "source": {
+        "path": "controls.rs",
+        "sha256": "e049647d1177f5bbbb2bd2f73cf11169722544a571b16fbc3aef823a393e3bb8"
+      },
+      "span": {
+        "end_column": 1,
+        "end_line": 60,
+        "start_column": 1,
+        "start_line": 48
+      }
+    },
+    {
+      "id": "controls.rs::closure::call_double::closure_1@49:18:e049647d1177",
+      "kind": "closure",
+      "metrics": {
+        "cyclomatic_complexity": 2
+      },
+      "qualified_name": "call_double::closure_1",
+      "raw": {
+        "and_and": 0,
+        "closures": 0,
+        "for": 0,
+        "guards": 0,
+        "if": 1,
+        "loop": 0,
+        "macro_invocations_skipped": 0,
+        "match": 0,
+        "match_arms": 0,
+        "nested_functions": 0,
+        "or_or": 0,
+        "question_mark": 0,
+        "while": 0
+      },
+      "source": {
+        "path": "controls.rs",
+        "sha256": "e049647d1177f5bbbb2bd2f73cf11169722544a571b16fbc3aef823a393e3bb8"
+      },
+      "span": {
+        "end_column": 5,
+        "end_line": 55,
+        "start_column": 18,
+        "start_line": 49
+      }
+    },
+    {
+      "id": "controls.rs::closure::call_double::closure_2@56:18:e049647d1177",
+      "kind": "closure",
+      "metrics": {
+        "cyclomatic_complexity": 1
+      },
+      "qualified_name": "call_double::closure_2",
+      "raw": {
+        "and_and": 0,
+        "closures": 0,
+        "for": 0,
+        "guards": 0,
+        "if": 0,
+        "loop": 0,
+        "macro_invocations_skipped": 0,
+        "match": 0,
+        "match_arms": 0,
+        "nested_functions": 0,
+        "or_or": 0,
+        "question_mark": 0,
+        "while": 0
+      },
+      "source": {
+        "path": "controls.rs",
+        "sha256": "e049647d1177f5bbbb2bd2f73cf11169722544a571b16fbc3aef823a393e3bb8"
+      },
+      "span": {
+        "end_column": 5,
+        "end_line": 58,
+        "start_column": 18,
+        "start_line": 56
+      }
+    },
+    {
+      "id": "controls.rs::function::outer@62:1:e049647d1177",
+      "kind": "function",
+      "metrics": {
+        "cyclomatic_complexity": 1
+      },
+      "qualified_name": "outer",
+      "raw": {
+        "and_and": 0,
+        "closures": 0,
+        "for": 0,
+        "guards": 0,
+        "if": 0,
+        "loop": 0,
+        "macro_invocations_skipped": 0,
+        "match": 0,
+        "match_arms": 0,
+        "nested_functions": 1,
+        "or_or": 0,
+        "question_mark": 0,
+        "while": 0
+      },
+      "source": {
+        "path": "controls.rs",
+        "sha256": "e049647d1177f5bbbb2bd2f73cf11169722544a571b16fbc3aef823a393e3bb8"
+      },
+      "span": {
+        "end_column": 1,
+        "end_line": 71,
+        "start_column": 1,
+        "start_line": 62
+      }
+    },
+    {
+      "id": "controls.rs::function::with_macros@73:1:e049647d1177",
+      "kind": "function",
+      "metrics": {
+        "cyclomatic_complexity": 1
+      },
+      "qualified_name": "with_macros",
+      "raw": {
+        "and_and": 0,
+        "closures": 0,
+        "for": 0,
+        "guards": 0,
+        "if": 0,
+        "loop": 0,
+        "macro_invocations_skipped": 2,
+        "match": 0,
+        "match_arms": 0,
+        "nested_functions": 0,
+        "or_or": 0,
+        "question_mark": 0,
+        "while": 0
+      },
+      "source": {
+        "path": "controls.rs",
+        "sha256": "e049647d1177f5bbbb2bd2f73cf11169722544a571b16fbc3aef823a393e3bb8"
+      },
+      "span": {
+        "end_column": 1,
+        "end_line": 78,
+        "start_column": 1,
+        "start_line": 73
+      }
+    },
+    {
+      "id": "controls.rs::function::main@80:1:e049647d1177",
+      "kind": "function",
+      "metrics": {
+        "cyclomatic_complexity": 1
+      },
+      "qualified_name": "main",
+      "raw": {
+        "and_and": 0,
+        "closures": 0,
+        "for": 0,
+        "guards": 0,
+        "if": 0,
+        "loop": 0,
+        "macro_invocations_skipped": 0,
+        "match": 0,
+        "match_arms": 0,
+        "nested_functions": 0,
+        "or_or": 0,
+        "question_mark": 0,
+        "while": 0
+      },
+      "source": {
+        "path": "controls.rs",
+        "sha256": "e049647d1177f5bbbb2bd2f73cf11169722544a571b16fbc3aef823a393e3bb8"
+      },
+      "span": {
+        "end_column": 1,
+        "end_line": 88,
+        "start_column": 1,
+        "start_line": 80
+      }
+    }
+  ]
+}

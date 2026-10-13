@@ -1,0 +1,520 @@
+{
+  "authoritative": false,
+  "cases": [
+    {
+      "aggregate": "pass",
+      "change": "Retained normalized input, without semantic mutation",
+      "expected": "rust-0-production.expected.json.gz",
+      "id": "rust-0-production",
+      "input": "rust-0-production.input.json.gz",
+      "origin": "docs/quality/gh-96/candidate.tar.gz",
+      "validation": {
+        "accepted": true
+      }
+    },
+    {
+      "aggregate": "pass",
+      "change": "Retained normalized input, without semantic mutation",
+      "expected": "rust-0-base-risk.expected.json.gz",
+      "id": "rust-0-base-risk",
+      "input": "rust-0-base-risk.input.json.gz",
+      "origin": "docs/quality/gh-96/candidate.tar.gz",
+      "validation": {
+        "accepted": true
+      }
+    },
+    {
+      "aggregate": "pass",
+      "change": "Retained normalized input, without semantic mutation",
+      "expected": "rust-0-head-risk.expected.json.gz",
+      "id": "rust-0-head-risk",
+      "input": "rust-0-head-risk.input.json.gz",
+      "origin": "docs/quality/gh-96/candidate.tar.gz",
+      "validation": {
+        "accepted": true
+      }
+    },
+    {
+      "aggregate": "pass",
+      "change": "Retained normalized input, without semantic mutation",
+      "expected": "rust-1-production.expected.json.gz",
+      "id": "rust-1-production",
+      "input": "rust-1-production.input.json.gz",
+      "origin": "docs/quality/gh-97/candidate.tar.gz",
+      "validation": {
+        "accepted": true
+      }
+    },
+    {
+      "aggregate": "pass",
+      "change": "Retained normalized input, without semantic mutation",
+      "expected": "rust-1-base-risk.expected.json.gz",
+      "id": "rust-1-base-risk",
+      "input": "rust-1-base-risk.input.json.gz",
+      "origin": "docs/quality/gh-97/candidate.tar.gz",
+      "validation": {
+        "accepted": true
+      }
+    },
+    {
+      "aggregate": "pass",
+      "change": "Retained normalized input, without semantic mutation",
+      "expected": "rust-1-head-risk.expected.json.gz",
+      "id": "rust-1-head-risk",
+      "input": "rust-1-head-risk.input.json.gz",
+      "origin": "docs/quality/gh-97/candidate.tar.gz",
+      "validation": {
+        "accepted": true
+      }
+    },
+    {
+      "aggregate": "pass",
+      "change": "Retained normalized input, without semantic mutation",
+      "expected": "angular-compatible-threshold.expected.json",
+      "id": "angular-compatible-threshold",
+      "input": "angular-compatible-threshold.input.json.gz",
+      "origin": "docs/quality/gh-134/compatible-{base,head}",
+      "validation": {
+        "accepted": true
+      }
+    },
+    {
+      "aggregate": "pass",
+      "change": "Retained normalized input, without semantic mutation",
+      "expected": "angular-compatible-debt.expected.json",
+      "id": "angular-compatible-debt",
+      "input": "angular-compatible-debt.input.json.gz",
+      "origin": "docs/quality/gh-134/compatible-{base,head}",
+      "validation": {
+        "accepted": true
+      }
+    },
+    {
+      "aggregate": "fail",
+      "change": "Retained normalized input, without semantic mutation",
+      "expected": "angular-regression-threshold.expected.json",
+      "id": "angular-regression-threshold",
+      "input": "angular-regression-threshold.input.json.gz",
+      "origin": "docs/quality/gh-134/regression-{base,head}",
+      "validation": {
+        "accepted": true
+      }
+    },
+    {
+      "aggregate": "fail",
+      "change": "Retained normalized input, without semantic mutation",
+      "expected": "angular-regression-debt.expected.json",
+      "id": "angular-regression-debt",
+      "input": "angular-regression-debt.input.json.gz",
+      "origin": "docs/quality/gh-134/regression-{base,head}",
+      "validation": {
+        "accepted": true
+      }
+    },
+    {
+      "aggregate": "fail",
+      "change": "Retained normalized input, without semantic mutation",
+      "expected": "contract-breaking.expected.json.gz",
+      "id": "contract-breaking",
+      "input": "contract-breaking.input.json.gz",
+      "origin": "docs/quality/gh-133/breaking-native.tar.gz",
+      "validation": {
+        "accepted": true
+      }
+    },
+    {
+      "aggregate": "pass",
+      "change": "Retained normalized input, without semantic mutation",
+      "expected": "contract-compatible.expected.json.gz",
+      "id": "contract-compatible",
+      "input": "contract-compatible.input.json.gz",
+      "origin": "docs/quality/gh-133/compatible-native.tar.gz",
+      "validation": {
+        "accepted": true
+      }
+    },
+    {
+      "aggregate": "measurement_error",
+      "change": "missing-evidence",
+      "expected": "rust-missing-evidence.expected.json.gz",
+      "id": "rust-missing-evidence",
+      "input": "rust-missing-evidence.input.json.gz",
+      "origin": "rust positive case",
+      "validation": {
+        "accepted": false,
+        "reason": "evidence batch must be nonempty",
+        "reason_class": "MeasurementError"
+      }
+    },
+    {
+      "aggregate": "measurement_error",
+      "change": "stale-context",
+      "expected": "rust-stale-context.expected.json.gz",
+      "id": "rust-stale-context",
+      "input": "rust-stale-context.input.json.gz",
+      "origin": "rust positive case",
+      "validation": {
+        "accepted": false,
+        "reason": "stale commit/base/target/run evidence",
+        "reason_class": "MeasurementError"
+      }
+    },
+    {
+      "aggregate": "measurement_error",
+      "change": "tampered-artifact",
+      "expected": "rust-tampered-artifact.expected.json.gz",
+      "id": "rust-tampered-artifact",
+      "input": "rust-tampered-artifact.input.json.gz",
+      "origin": "rust positive case",
+      "validation": {
+        "accepted": false,
+        "reason": "artifact/source digest mismatch",
+        "reason_class": "MeasurementError"
+      }
+    },
+    {
+      "aggregate": "measurement_error",
+      "change": "missing-source",
+      "expected": "rust-missing-source.expected.json.gz",
+      "id": "rust-missing-source",
+      "input": "rust-missing-source.input.json.gz",
+      "origin": "rust positive case",
+      "validation": {
+        "accepted": false,
+        "reason": "artifact/source evidence/production.json: [Errno 2] No such file or directory: '$CASE_ROOT/head/source/evidence'",
+        "reason_class": "MeasurementError"
+      }
+    },
+    {
+      "aggregate": "rejected",
+      "change": "duplicate-subject",
+      "expected": "rust-duplicate-subject.expected.json",
+      "id": "rust-duplicate-subject",
+      "input": "rust-duplicate-subject.input.json.gz",
+      "origin": "rust positive case",
+      "validation": {
+        "accepted": false,
+        "reason": "duplicate subject identity: subject-identity/v1:fbe7e8107cff88dcab66d99b911a3890062740bfce1a2f392f31eb4471df77d3",
+        "reason_class": "MeasurementError"
+      }
+    },
+    {
+      "aggregate": "measurement_error",
+      "change": "malformed-value",
+      "expected": "rust-malformed-value.expected.json.gz",
+      "id": "rust-malformed-value",
+      "input": "rust-malformed-value.input.json.gz",
+      "origin": "rust positive case",
+      "validation": {
+        "accepted": false,
+        "reason": "covered exceeds total",
+        "reason_class": "MeasurementError"
+      }
+    },
+    {
+      "aggregate": "measurement_error",
+      "change": "unknown-capability",
+      "expected": "rust-unknown-capability.expected.json.gz",
+      "id": "rust-unknown-capability",
+      "input": "rust-unknown-capability.input.json.gz",
+      "origin": "rust positive case",
+      "validation": {
+        "accepted": false,
+        "reason": "$.capabilities[0].state: expected one of ['supported', 'unsupported', 'not_configured', 'not_collected', 'measurement_error', 'not_applicable'], got 'unknown'",
+        "reason_class": "MeasurementError"
+      }
+    },
+    {
+      "aggregate": "blocked",
+      "change": "required-unsupported",
+      "expected": "rust-required-unsupported.expected.json.gz",
+      "id": "rust-required-unsupported",
+      "input": "rust-required-unsupported.input.json.gz",
+      "origin": "rust positive case",
+      "validation": {
+        "accepted": true
+      }
+    },
+    {
+      "aggregate": "measurement_error",
+      "change": "missing-evidence",
+      "expected": "angular-missing-evidence.expected.json",
+      "id": "angular-missing-evidence",
+      "input": "angular-missing-evidence.input.json.gz",
+      "origin": "angular positive case",
+      "validation": {
+        "accepted": false,
+        "reason": "evidence batch must be nonempty",
+        "reason_class": "MeasurementError"
+      }
+    },
+    {
+      "aggregate": "measurement_error",
+      "change": "stale-context",
+      "expected": "angular-stale-context.expected.json",
+      "id": "angular-stale-context",
+      "input": "angular-stale-context.input.json.gz",
+      "origin": "angular positive case",
+      "validation": {
+        "accepted": false,
+        "reason": "stale commit/base/target/run evidence",
+        "reason_class": "MeasurementError"
+      }
+    },
+    {
+      "aggregate": "measurement_error",
+      "change": "tampered-artifact",
+      "expected": "angular-tampered-artifact.expected.json",
+      "id": "angular-tampered-artifact",
+      "input": "angular-tampered-artifact.input.json.gz",
+      "origin": "angular positive case",
+      "validation": {
+        "accepted": false,
+        "reason": "artifact/source digest mismatch",
+        "reason_class": "MeasurementError"
+      }
+    },
+    {
+      "aggregate": "measurement_error",
+      "change": "missing-source",
+      "expected": "angular-missing-source.expected.json",
+      "id": "angular-missing-source",
+      "input": "angular-missing-source.input.json.gz",
+      "origin": "angular positive case",
+      "validation": {
+        "accepted": false,
+        "reason": "artifact/source app/src/app/pricing.ts: [Errno 2] No such file or directory: '$CASE_ROOT/head/source/app/src/app/pricing.ts'",
+        "reason_class": "MeasurementError"
+      }
+    },
+    {
+      "aggregate": "rejected",
+      "change": "duplicate-subject",
+      "expected": "angular-duplicate-subject.expected.json",
+      "id": "angular-duplicate-subject",
+      "input": "angular-duplicate-subject.input.json.gz",
+      "origin": "angular positive case",
+      "validation": {
+        "accepted": false,
+        "reason": "duplicate subject identity: subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685",
+        "reason_class": "MeasurementError"
+      }
+    },
+    {
+      "aggregate": "measurement_error",
+      "change": "malformed-value",
+      "expected": "angular-malformed-value.expected.json",
+      "id": "angular-malformed-value",
+      "input": "angular-malformed-value.input.json.gz",
+      "origin": "angular positive case",
+      "validation": {
+        "accepted": false,
+        "reason": "covered exceeds total",
+        "reason_class": "MeasurementError"
+      }
+    },
+    {
+      "aggregate": "measurement_error",
+      "change": "unknown-capability",
+      "expected": "angular-unknown-capability.expected.json",
+      "id": "angular-unknown-capability",
+      "input": "angular-unknown-capability.input.json.gz",
+      "origin": "angular positive case",
+      "validation": {
+        "accepted": false,
+        "reason": "$.capabilities[0].state: expected one of ['supported', 'unsupported', 'not_configured', 'not_collected', 'measurement_error', 'not_applicable'], got 'unknown'",
+        "reason_class": "MeasurementError"
+      }
+    },
+    {
+      "aggregate": "blocked",
+      "change": "required-unsupported",
+      "expected": "angular-required-unsupported.expected.json",
+      "id": "angular-required-unsupported",
+      "input": "angular-required-unsupported.input.json.gz",
+      "origin": "angular positive case",
+      "validation": {
+        "accepted": true
+      }
+    },
+    {
+      "aggregate": "measurement_error",
+      "change": "missing-base",
+      "expected": "angular-missing-base.expected.json",
+      "id": "angular-missing-base",
+      "input": "angular-missing-base.input.json.gz",
+      "origin": "angular-compatible-threshold",
+      "validation": {
+        "accepted": true
+      }
+    },
+    {
+      "aggregate": "measurement_error",
+      "change": "incompatible-series",
+      "expected": "angular-incompatible-series.expected.json",
+      "id": "angular-incompatible-series",
+      "input": "angular-incompatible-series.input.json.gz",
+      "origin": "angular-compatible-threshold",
+      "validation": {
+        "accepted": true
+      }
+    },
+    {
+      "aggregate": "measurement_error",
+      "change": "invalid-exception",
+      "expected": "angular-invalid-exception.expected.json",
+      "id": "angular-invalid-exception",
+      "input": "angular-invalid-exception.input.json.gz",
+      "origin": "angular-compatible-threshold",
+      "validation": {
+        "accepted": true
+      }
+    },
+    {
+      "aggregate": "blocked",
+      "change": "empty-selection",
+      "expected": "angular-empty-selection.expected.json",
+      "id": "angular-empty-selection",
+      "input": "angular-empty-selection.input.json.gz",
+      "origin": "angular-compatible-threshold",
+      "validation": {
+        "accepted": true
+      }
+    },
+    {
+      "aggregate": "rejected",
+      "change": "Unknown relationship producer",
+      "expected": "contract-unknown-producer.expected.json",
+      "id": "contract-unknown-producer",
+      "input": "contract-unknown-producer.input.json.gz",
+      "origin": "contract-breaking",
+      "validation": {
+        "accepted": false,
+        "reason": "unknown relationship component",
+        "reason_class": "MeasurementError"
+      }
+    }
+  ],
+  "contracts": [
+    "harness-project/v1",
+    "harness-evidence/v1",
+    "harness-policy/v1",
+    "harness-policy-results/v1",
+    "harness-project-report/v1"
+  ],
+  "files": {
+    "angular-compatible-debt.expected.json": "f697859485c5abc741ef894a8a897dca9dd81f0d5e2e5903bf68bcfc8d8fd77c",
+    "angular-compatible-debt.input.json.gz": "1029a9a104e80873cdbe659bf639252c14b2a0712a2919b5142608b7c074c052",
+    "angular-compatible-threshold.expected.json": "f9d65f114bc84b10148308987eb09c08c72478bde27740de2ee5bcfe95703fe0",
+    "angular-compatible-threshold.input.json.gz": "e1d29d731024c2f0abc81b5a533ac176d34dfbfab27b66d6a287b6c3a2dceba8",
+    "angular-duplicate-subject.expected.json": "1e6812c24d37741712df8ec7b37577737a4b969037aed9b6288c155d83b9d449",
+    "angular-duplicate-subject.input.json.gz": "bfd7217195214a5cce6f18fa4164f22569b0628824e5e2f996336953ed575e96",
+    "angular-empty-selection.expected.json": "47961a19116ebb6473a84077ac22e203122e8e794a139d5afd16b8ec21154131",
+    "angular-empty-selection.input.json.gz": "19e0add240535bc7da518554886d77b409d7dd3b9d6c0368c6f79bf1c7a20eef",
+    "angular-incompatible-series.expected.json": "5f7de22d3e74a17a479cf968d34b51784219016fbd63475d3ea496d39e270856",
+    "angular-incompatible-series.input.json.gz": "4663292a0e6b99dbe8b44d556c44375dfcfe4aced55c0cfa60a44d212b0f121d",
+    "angular-invalid-exception.expected.json": "359e94ccd995864ba65859f874ffe7a3a923ed88056c198a2fb3b8d514f9ecf1",
+    "angular-invalid-exception.input.json.gz": "e7347eab831f689fc8ed1760566982d4292e907985413049a456aea2ff9a401a",
+    "angular-malformed-value.expected.json": "394d2aeb1245ced69b37a5cc8d7fc25e716781b78f0ed8b902a133f2ad4e2373",
+    "angular-malformed-value.input.json.gz": "5398f06915e7a5f04d83484c386eb19d4b2c789ac46cd672c44fa0c40f899701",
+    "angular-missing-base.expected.json": "f592baf6f736a12c35b82625b7a476f784b42c7b38cd8bf8194b03c3bef715bc",
+    "angular-missing-base.input.json.gz": "3d5e7c6f67a2f3449ac91eadf2970d63f5b4d3dd2ed89ec06ff2cf2e489e8ebf",
+    "angular-missing-evidence.expected.json": "9bf333546b6227496e897aedf5198824d0bb03a54315df32898de05124990e02",
+    "angular-missing-evidence.input.json.gz": "a36f8c2dc7b3f661b6e7f07803212c2cc5ec6a651e58a990df4f63dae72b02cf",
+    "angular-missing-source.expected.json": "8404c1b73659aedefe28624b4fe3cc1ecd546983cbd25092ca39073bee8dd97c",
+    "angular-missing-source.input.json.gz": "32e605d151826ddb70bcad0a1e12b0e236fce1e11f9d1fc7d16b921cc3c4107b",
+    "angular-regression-debt.expected.json": "130576a02170f6d215304847292e57a16b2360a91b3100390691eefb0de80c24",
+    "angular-regression-debt.input.json.gz": "330046854ec953f2ed6c67a4f7fb4fe51ab3b6fcbeee614d7882a1dc0c83f461",
+    "angular-regression-threshold.expected.json": "9040467da5098ba7639782d014140dd713e677b27508be1e59404f65c457ac53",
+    "angular-regression-threshold.input.json.gz": "5d4fcb0cc431838ca016396946e452ed0862924e30263a0152daf179a0acc3c3",
+    "angular-required-unsupported.expected.json": "49b93ab3c164b23e8dd41ece422271ad7adafecc6cf05720e9cd137e26bd86b2",
+    "angular-required-unsupported.input.json.gz": "fdf9c91b80735dfe5714c4fc510c21c9477a235feb61138d7d631d0915031aa5",
+    "angular-stale-context.expected.json": "8b72567f9fbead4669b79810b882643d0a880b98d3a3a9023e924fecf6884041",
+    "angular-stale-context.input.json.gz": "16284ee06b8e6f27232cb61566c63d18805e819220b09548a43e1084e5305f68",
+    "angular-tampered-artifact.expected.json": "401b5daf519f9079e4f7cd23a200fc2005fd6c9959441fb0da0a1425a46e75ad",
+    "angular-tampered-artifact.input.json.gz": "b7c9e6e71c7db1eb38ea82348c5b7cc9cc77b502f6269a1dc12163b650a6cdb9",
+    "angular-unknown-capability.expected.json": "0508ba85bef75ac770fdf6162d52e6cf0d8a31eafc1c1c94df11201f2e58c0a6",
+    "angular-unknown-capability.input.json.gz": "e999855234277f5ee7a0a7efa0ae09162bf7b16af739057e8e8290e3edc2d138",
+    "artifacts.tar.gz": "fb6563e5ef2ae62fd2a802c72215f7fc37ece859bd252df18a625f143e997429",
+    "contract-breaking.expected.json.gz": "24b905293e1543dc60e08c213b1e9e8c15329f7bb3e663457fba0e824ba62cbc",
+    "contract-breaking.input.json.gz": "1f682deb73daaf1dee556fedd4f99bce19062f23ff6520bc45484b425ffc69ac",
+    "contract-compatible.expected.json.gz": "9cad0e1d20f18e007b18d57c26daf96a41f4fc4c83b24343638d529ab7ff44be",
+    "contract-compatible.input.json.gz": "8496e81cfcc3fdcf4fac57830fe4557267c2f19a863074c016b1070e70f43201",
+    "contract-unknown-producer.expected.json": "74d6b69fc774331b57f06f1ad3d8199b2e6627f8dd284f94bc3767000ebfbede",
+    "contract-unknown-producer.input.json.gz": "7b41f3b1a71d44dd67f4882f93795292944c220ef688b3ec38dce47b89a9447d",
+    "rust-0-base-risk.expected.json.gz": "33ceab25abef027b146bb1694452cbe9d53d2006d8893b46f22d6e80acd9d6e1",
+    "rust-0-base-risk.input.json.gz": "1356c730f31c87abec64fa6d9cbe97b404120789315bd411f9f90dfc6c109e7e",
+    "rust-0-head-risk.expected.json.gz": "05ed62a03c0c746dc3dd62bcd986cefbca74843ff68dba6f453b97e84e0012aa",
+    "rust-0-head-risk.input.json.gz": "ca5c372be4917c75375654d100cc0d9ffdc27c9e8b2325439096c0e705660620",
+    "rust-0-production.expected.json.gz": "4d2301ca73d507a7664de22410de75d38e212a867ec4c02b692a216ab3a10f06",
+    "rust-0-production.input.json.gz": "33771192a53cd92a99cd784086637566aec9438f712787af05daf937678ec4e3",
+    "rust-1-base-risk.expected.json.gz": "bd82f44b0e12a366040545c5088ac8ff18fceb55dea904e3438fad914f179332",
+    "rust-1-base-risk.input.json.gz": "6352ddad04bc6821a751aa541e213c8038c96166b4776568f56dd988315b6fa5",
+    "rust-1-head-risk.expected.json.gz": "52c1a3c35109dd466c8c15a359ee4cdb23b304eced1c3da9f00cab6b0ec0e168",
+    "rust-1-head-risk.input.json.gz": "796d07bf3a43863b10e0819d38f9751daa7876c920237ab017d8c97c3745a45d",
+    "rust-1-production.expected.json.gz": "2ca4218a2a6472955b8d15fc378049cb36c557dabc37b33a42cd95c6ff0094d9",
+    "rust-1-production.input.json.gz": "4dd1ef84163953325bbc003f856bbf488bbac85c9e4807494fc4df1ad127bd49",
+    "rust-duplicate-subject.expected.json": "22d712260486c71fbf85af181c93af0c351918eb60fb4610e7d1a4540aa9b584",
+    "rust-duplicate-subject.input.json.gz": "54ad06bda4d5dc86d4b57b901e5a6b1df8443fcacda14087e533438d35c9494f",
+    "rust-malformed-value.expected.json.gz": "224e7b5c16be23de8fb2303846eb9a4850b21a047b89e2b37a54d305c3d79d78",
+    "rust-malformed-value.input.json.gz": "e2a860cdc36f60c6b8159c88831ef2e75e592306c2f934a7b655fc7b30f0f40b",
+    "rust-missing-evidence.expected.json.gz": "d844ee1b537f69cd01114e30f6e9809c22a26df7d199133f840049dcc59e5016",
+    "rust-missing-evidence.input.json.gz": "042ac04f817d5445a9c6390b44079d02051b3228f40df8bf48dde71f30557d1f",
+    "rust-missing-source.expected.json.gz": "27a7024a174ef93749b70dee62ce9310d7fc0855a64d2c93119e1dd5324703b2",
+    "rust-missing-source.input.json.gz": "41c46558c90135f67dd547fa5f6cdf836b7c651491b6ee615c9d9b0280e1674c",
+    "rust-required-unsupported.expected.json.gz": "2f5b7f7c1be7b0d8ce2691ca21883091c36a736d1e60bb837b064425f4a778b6",
+    "rust-required-unsupported.input.json.gz": "b118241792417068660396a83228f1b672d145dc165102713a819f27c62e6240",
+    "rust-stale-context.expected.json.gz": "7432caf4694eab79638a1bc00cdc45ac833e341cfe6c7d0c4940097f04edb072",
+    "rust-stale-context.input.json.gz": "fcf9e23f4ebb01a9b08407f7781ad689de0363c56afa0f61aa53838fcd4a02a7",
+    "rust-tampered-artifact.expected.json.gz": "6ac9fb6d49beb99b0ec50b3597a9dd96d1215fba49f227952b5cf9081c2ba6b7",
+    "rust-tampered-artifact.input.json.gz": "3176ae889d1beff69f32fc2c3bda7e2aba72bfdac93aaac0b077d4895fd34bba",
+    "rust-unknown-capability.expected.json.gz": "900e6ed26c3c620b561a349e9f5c7d637f72a49551595a04f6dcafa03431b733",
+    "rust-unknown-capability.input.json.gz": "a7548543c1fcddfde25989174c86ebb156a0f29383bdae2f203cc75a63ec24f9"
+  },
+  "origins": {
+    "docs/quality/gh-133/breaking-native.tar.gz": "4737984f683bdc30d53fae29207248e3425d4711649e334e1cedcdaa4bc752d2",
+    "docs/quality/gh-133/compatible-native.tar.gz": "014466ec14f6f3362a6325368151aab0d685c3d4d2b95ccdb87d8fd4582db96e",
+    "docs/quality/gh-134/compatible-base/native-counters.json": "772e7ae48562604f1c9d7111660898bfe03b13379f5e886b5c9d7ca8aaf24e6d",
+    "docs/quality/gh-134/compatible-base/native-counters.json.command.json": "89ee8040fc2c7a3e2cb8673705eb9bcaecd37a99c443ce98476a7d8b92752631",
+    "docs/quality/gh-134/compatible-base/native.tar.gz": "98592277e40d9cd68f27a3a4f538e1e54d149c87a9b83395251534726f754716",
+    "docs/quality/gh-134/compatible-base/normalized.json": "798a3d689549e5fd18a21151fa08d981ae6467ce35f68214724a40566fadee2b",
+    "docs/quality/gh-134/compatible-base/receipt.json": "d39bd001622f263d1d4e3c7e5c8bc681c914791dd4f5446cafaca8c796a1fd32",
+    "docs/quality/gh-134/compatible-base/source-index.json": "026a7a319d417d4168eabe57fcdf3ece6f1dd313f9ae90c5619f617920ad39ac",
+    "docs/quality/gh-134/compatible-base/source-index.json.command.json": "1669c35d638f6964a2c2098c0c1502fc2b0e8d1060ba8c4bc4492ebe92f425d4",
+    "docs/quality/gh-134/compatible-head/native-counters.json": "772e7ae48562604f1c9d7111660898bfe03b13379f5e886b5c9d7ca8aaf24e6d",
+    "docs/quality/gh-134/compatible-head/native-counters.json.command.json": "a151f7f6dc145e72ade49eed17d97a0fe192506ca489b5a3bbb3dcbef440672d",
+    "docs/quality/gh-134/compatible-head/native.tar.gz": "151f9fd1406afab75466b3a96b67a6da849eae82a9bb65f0a27f9029e82ba939",
+    "docs/quality/gh-134/compatible-head/normalized.json": "306303b339359375c3696b96863ffce6ae1e103729e06d6dc5e66f648f6c13e4",
+    "docs/quality/gh-134/compatible-head/receipt.json": "2b1f99137bae41e67590a085d15cc49c47fbf5af7183dbb3f209fcf2123898bb",
+    "docs/quality/gh-134/compatible-head/source-index.json": "026a7a319d417d4168eabe57fcdf3ece6f1dd313f9ae90c5619f617920ad39ac",
+    "docs/quality/gh-134/compatible-head/source-index.json.command.json": "1669c35d638f6964a2c2098c0c1502fc2b0e8d1060ba8c4bc4492ebe92f425d4",
+    "docs/quality/gh-134/regression-base/native-counters.json": "772e7ae48562604f1c9d7111660898bfe03b13379f5e886b5c9d7ca8aaf24e6d",
+    "docs/quality/gh-134/regression-base/native-counters.json.command.json": "60c30bd20ee97e3a6ce9178cf6ca16a5159ec5e4b27cd7cf21580e545d68ee2f",
+    "docs/quality/gh-134/regression-base/native.tar.gz": "9fcb59050decb914fd1f7a75b51f60d53823601b556e455d6c6795da1aad0e40",
+    "docs/quality/gh-134/regression-base/normalized.json": "bde57c1baaf6a64a9bf230a296744619152e9f83659240984ea480c7e764bbd9",
+    "docs/quality/gh-134/regression-base/receipt.json": "47dd1f12f4acdea5e5cfa39cece8228f70f5c4d1377540609d8508c92025991f",
+    "docs/quality/gh-134/regression-base/source-index.json": "026a7a319d417d4168eabe57fcdf3ece6f1dd313f9ae90c5619f617920ad39ac",
+    "docs/quality/gh-134/regression-base/source-index.json.command.json": "176f4179529f6c1dd722f5e01b2288038a7cfe4e353edc7497ddb84c8d7c0449",
+    "docs/quality/gh-134/regression-head/native-counters.json": "7e52c0aadfd7459ec6edadceaf0aed66735f43f37d29f8d473460cc3a009530b",
+    "docs/quality/gh-134/regression-head/native-counters.json.command.json": "b49087bb425765258633a366a000b6d0e38855a768d3690a43b53679b4031468",
+    "docs/quality/gh-134/regression-head/native.tar.gz": "3a70f38108b9926e1c5e2d9c39dc47de8f4d81212ab7b27cc72874c9cfcffae3",
+    "docs/quality/gh-134/regression-head/normalized.json": "1856725b24ea836a6d43d9e8c59e4fbee31a7c5d63938a6e82c59307e975c8f7",
+    "docs/quality/gh-134/regression-head/receipt.json": "ec70f0fe1d9293d604f68374fe9fb641e5387d542b4353f45a603f0f5d04143e",
+    "docs/quality/gh-134/regression-head/source-index.json": "026a7a319d417d4168eabe57fcdf3ece6f1dd313f9ae90c5619f617920ad39ac",
+    "docs/quality/gh-134/regression-head/source-index.json.command.json": "176f4179529f6c1dd722f5e01b2288038a7cfe4e353edc7497ddb84c8d7c0449",
+    "docs/quality/gh-96/candidate.tar.gz": "e227afc1ee994a2889d4df09758c339472d306aec4e3f2371ae1958db1c28dfd",
+    "docs/quality/gh-97/candidate.tar.gz": "190ca5b9ee04f0ed22c185907db62029ea00ad3be5ddcdf13dc46e8021110d6c"
+  },
+  "schema": "generic-core-corpus/v1",
+  "schemas": {
+    "schema/collector-protocol.schema.json": "a3c23c578783dd4cbb1f4be3bb41a5c3552aee563e89116a5ff53fd4c159e545",
+    "tools/quality/schema/capability-requirements.schema.json": "763da8a3a15cde9c338e8ca076e52488f5d0795ff61e05f8018b61cdc63c40ea",
+    "tools/quality/schema/harness-evidence.schema.json": "fbd0b737f73f8d65f196581859fcdf18d8d47da522c98d1020c22d2e0660d406",
+    "tools/quality/schema/policy-exceptions.schema.json": "da3c0439d1a7484cef7571e9fd5bd5e3446f64419d51a7556ea69c7a004ead78",
+    "tools/quality/schema/policy.schema.json": "3d3cb56ee6f5010bcc0a1a27284fcac69fb6cc59d91471d853af2bd570d82ba6",
+    "tools/quality/schema/project-config.schema.json": "1c8c334f3eedee4d96d97136d4f8e8aad00631f9b34feb5c6935047a29dd4cee",
+    "tools/quality/schema/project-model.schema.json": "fd6274e0f1f03a02c9ee701eccde3f117ff6f75d5d145e18a3f835995449282a",
+    "tools/quality/schema/quality-evidence.schema.json": "ceb99d0e3c76a482985f064ce547019864353838d6eb040d4f54d2b91bfbad11",
+    "tools/quality/schema/subject-mappings.schema.json": "6a139b941278287af42f220004d4761742ce8d22c7b3bbcf9148fc9405510eaa"
+  }
+}

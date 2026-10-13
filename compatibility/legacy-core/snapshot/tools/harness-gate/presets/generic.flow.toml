@@ -1,0 +1,57 @@
+version = 2
+
+[project]
+name = "project"
+default_profile = "full"
+hook_profile = "hook"
+
+[paths]
+reports = ".harness-gate/reports"
+audit_config = ".harness-gate/audit.toml"
+secrets_config = ".harness-gate/secrets.toml"
+
+[policy]
+required_steps = ["project.diff-check", "project.staged-diff-check"]
+
+[[doctor.checks]]
+id = "tool.git"
+label = "git"
+kind = "command"
+program = "git"
+args = ["--version"]
+
+[[doctor.checks]]
+id = "git.remotes"
+label = "Git remotes"
+kind = "git-remotes"
+
+[scope]
+unmatched = "all"
+
+[[scope.rules]]
+patterns = ["**"]
+components = ["project"]
+
+[[steps]]
+id = "project.diff-check"
+label = "Git whitespace check"
+component = "project"
+profiles = ["full"]
+program = "git"
+args = ["diff", "--check"]
+cwd = "{root}"
+log = "git_diff_check.log"
+timeout_secs = 60
+input = "repository"
+
+[[steps]]
+id = "project.staged-diff-check"
+label = "staged Git whitespace check"
+component = "project"
+profiles = ["hook"]
+program = "git"
+args = ["diff", "--cached", "--check"]
+cwd = "{root}"
+log = "git_staged_diff_check.log"
+timeout_secs = 60
+input = "repository"

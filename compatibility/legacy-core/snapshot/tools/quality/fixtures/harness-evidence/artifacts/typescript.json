@@ -1,0 +1,60 @@
+{
+  "synthetic": true,
+  "language": "typescript",
+  "tool": "synthetic-istanbul",
+  "context": {
+    "commit": "1111111111111111111111111111111111111111",
+    "base_commit": "0000000000000000000000000000000000000000",
+    "target": "default",
+    "run": "synthetic-run-112"
+  },
+  "source": {
+    "path": "frontend/src/run.ts",
+    "sha256": "bc1433346d93df45e19f5a2e87c4474e44089706c5f5ad3152df86a1979d1cdf"
+  },
+  "tool_native": {
+    "fixture_note": "Illustrative facts only; no real collector executed",
+    "values": {
+      "coverage.line": {
+        "type": "ratio",
+        "covered": 4,
+        "total": 5
+      },
+      "complexity.cyclomatic": {
+        "type": "count",
+        "value": 3
+      },
+      "risk.crap": {
+        "type": "decimal",
+        "value": "3.072"
+      },
+      "contract.schema_valid": {
+        "type": "boolean",
+        "value": true
+      },
+      "performance.duration": {
+        "type": "duration",
+        "value": 1000,
+        "unit": "nanoseconds"
+      },
+      "bundle.size": {
+        "type": "size",
+        "value": 128,
+        "unit": "bytes"
+      }
+    },
+    "capability_states": {
+      "coverage.line": "supported",
+      "complexity.cyclomatic": "supported",
+      "risk.crap": "supported",
+      "contract.schema_valid": "supported",
+      "performance.duration": "supported",
+      "bundle.size": "supported",
+      "coverage.branch": "unsupported",
+      "coverage.function": "not_configured",
+      "coverage.region": "not_collected",
+      "mutation.score": "measurement_error",
+      "contract.compatible": "not_applicable"
+    }
+  }
+}

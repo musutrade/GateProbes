@@ -1,0 +1,544 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "QualityConfig",
+  "type": "object",
+  "required": [
+    "baseline",
+    "collectors",
+    "components",
+    "policies",
+    "profiles",
+    "project",
+    "reporting",
+    "version"
+  ],
+  "properties": {
+    "baseline": {
+      "$ref": "#/definitions/Baseline"
+    },
+    "collectors": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/Collector"
+      }
+    },
+    "components": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/Component"
+      }
+    },
+    "limits": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/CollectionLimits"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "policies": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/PolicyBinding"
+      }
+    },
+    "profiles": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/Participation"
+      }
+    },
+    "project": {
+      "$ref": "#/definitions/QualityProject"
+    },
+    "relationships": {
+      "default": {},
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/Relationship"
+      }
+    },
+    "reporting": {
+      "$ref": "#/definitions/Reporting"
+    },
+    "subjects": {
+      "default": {},
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/Subject"
+      }
+    },
+    "version": {
+      "type": "integer",
+      "format": "uint32",
+      "maximum": 1.0,
+      "minimum": 1.0
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "Assurance": {
+      "type": "string",
+      "enum": [
+        "complete",
+        "partial"
+      ]
+    },
+    "Baseline": {
+      "type": "object",
+      "required": [
+        "provider",
+        "required"
+      ],
+      "properties": {
+        "provider": {
+          "$ref": "#/definitions/BaselineProvider"
+        },
+        "required": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "BaselineProvider": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "none"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "merge_base",
+            "reference"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "git"
+              ]
+            },
+            "merge_base": {
+              "type": "boolean"
+            },
+            "reference": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "manifest"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "retained_artifact"
+              ]
+            },
+            "manifest": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "CollectionLimits": {
+      "description": "Host-reviewed collection resource limits, bound by the quality configuration digest.",
+      "type": "object",
+      "required": [
+        "max_artifact_bytes"
+      ],
+      "properties": {
+        "max_artifact_bytes": {
+          "description": "Aggregate on-disk bytes in the shared artifact root, including undeclared files.",
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 1.0
+        }
+      },
+      "additionalProperties": false
+    },
+    "Collector": {
+      "type": "object",
+      "required": [
+        "produces",
+        "protocol",
+        "request"
+      ],
+      "properties": {
+        "produces": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Expectation"
+          }
+        },
+        "protocol": {
+          "$ref": "#/definitions/CollectorProtocol"
+        },
+        "request": {
+          "description": "Repository-relative signed adapter request material; never inline policy.",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "CollectorProtocol": {
+      "type": "string",
+      "enum": [
+        "harness-collector-request/v1"
+      ]
+    },
+    "Component": {
+      "type": "object",
+      "required": [
+        "artifact_root",
+        "flow_components",
+        "source_roots"
+      ],
+      "properties": {
+        "artifact_root": {
+          "type": "string"
+        },
+        "flow_components": {
+          "description": "Nonempty subset of execution-plane component names.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "source_roots": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "Expectation": {
+      "type": "object",
+      "required": [
+        "capability",
+        "series",
+        "target"
+      ],
+      "properties": {
+        "capability": {
+          "type": "string"
+        },
+        "series": {
+          "description": "Exact existing measurement-series identity, not a new naming scheme.",
+          "type": "string",
+          "pattern": "^measurement-series/v1:[0-9a-f]{64}$"
+        },
+        "target": {
+          "$ref": "#/definitions/Target"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Participation": {
+      "type": "object",
+      "required": [
+        "collectors",
+        "policies"
+      ],
+      "properties": {
+        "assurance": {
+          "description": "Complete profiles enforce every configured required policy. Partial profiles may omit work, but cannot certify complete project quality.",
+          "default": "complete",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Assurance"
+            }
+          ]
+        },
+        "collectors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "policies": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "workflow": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Workflow"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "PolicyBinding": {
+      "type": "object",
+      "required": [
+        "expectation",
+        "policy_file",
+        "rule"
+      ],
+      "properties": {
+        "expectation": {
+          "$ref": "#/definitions/Expectation"
+        },
+        "policy_file": {
+          "description": "Reference to a harness-policy/v1 document and rule, resolved by compilation.",
+          "type": "string"
+        },
+        "rule": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "QualityProject": {
+      "type": "object",
+      "required": [
+        "id",
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "description": "Must match flow.project.name; id is the stable quality identity.",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Relationship": {
+      "type": "object",
+      "required": [
+        "from",
+        "kind",
+        "to"
+      ],
+      "properties": {
+        "from": {
+          "$ref": "#/definitions/Target"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "to": {
+          "$ref": "#/definitions/Target"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ReportFormat": {
+      "type": "string",
+      "enum": [
+        "human",
+        "json"
+      ]
+    },
+    "Reporting": {
+      "type": "object",
+      "required": [
+        "formats",
+        "output"
+      ],
+      "properties": {
+        "formats": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ReportFormat"
+          },
+          "uniqueItems": true
+        },
+        "output": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Subject": {
+      "type": "object",
+      "required": [
+        "component",
+        "kind",
+        "selection"
+      ],
+      "properties": {
+        "component": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "selection": {
+          "$ref": "#/definitions/SubjectSelection"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SubjectSelection": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "paths"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "explicit"
+              ]
+            },
+            "paths": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "collector",
+            "kind",
+            "query"
+          ],
+          "properties": {
+            "collector": {
+              "type": "string"
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "discovery"
+              ]
+            },
+            "query": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "Target": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "id",
+            "kind"
+          ],
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "component"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "id",
+            "kind"
+          ],
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "subject"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "id",
+            "kind"
+          ],
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "relationship"
+              ]
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "Workflow": {
+      "description": "Host-produced inputs for this profile; collectors cannot supply trust roots.",
+      "type": "object",
+      "required": [
+        "state",
+        "trusted_keys"
+      ],
+      "properties": {
+        "baseline_request": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "state": {
+          "type": "string"
+        },
+        "trusted_keys": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

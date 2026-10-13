@@ -163,6 +163,7 @@ jobs:
           if platform not in platforms:
               raise SystemExit("no pinned Core mapping for platform " + platform)
           pinned = platforms[platform]
+          print("repository=" + contract["repository"])
           print("release=" + contract["release"])
           print("binary=" + pinned["binary"])
           print("sha256=" + pinned["sha256"])
@@ -172,6 +173,7 @@ jobs:
 
       - name: Fetch pinned Core binary and modules
         env:
+          CORE_REPOSITORY: ${{ steps.core.outputs.repository }}
           CORE_RELEASE: ${{ steps.core.outputs.release }}
           CORE_BINARY: ${{ steps.core.outputs.binary }}
           CORE_BINARY_SHA256: ${{ steps.core.outputs.sha256 }}
@@ -182,7 +184,7 @@ jobs:
           mkdir -p "$root/bin" "$root/tools/quality/schema"
           curl --fail --show-error --location --proto '=https' --tlsv1.2 \
             -o "$root/bin/$CORE_BINARY" \
-            "https://github.com/musutrade/Harness-Gate/releases/download/${CORE_RELEASE}/${CORE_BINARY}"
+            "https://github.com/${CORE_REPOSITORY}/releases/download/${CORE_RELEASE}/${CORE_BINARY}"
           actual=$(python3 -c "import hashlib,sys;print(hashlib.sha256(open(sys.argv[1],'rb').read()).hexdigest())" "$root/bin/$CORE_BINARY")
           if [ "$actual" != "$CORE_BINARY_SHA256" ]; then
             echo "pinned Core digest mismatch for $CORE_BINARY" >&2

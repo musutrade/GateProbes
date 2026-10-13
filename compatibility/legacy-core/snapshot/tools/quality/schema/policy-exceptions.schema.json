@@ -1,0 +1,52 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Policy exception review metadata v1",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "policy",
+      "subject",
+      "owner",
+      "issue",
+      "reason",
+      "expiry",
+      "compensating_control"
+    ],
+    "properties": {
+      "policy": {
+        "type": "string",
+        "minLength": 1
+      },
+      "subject": {
+        "type": "string",
+        "minLength": 1
+      },
+      "owner": {
+        "type": "string",
+        "minLength": 1
+      },
+      "issue": {
+        "type": "string",
+        "minLength": 1
+      },
+      "reason": {
+        "type": "string",
+        "minLength": 1
+      },
+      "expiry": {
+        "type": "string",
+        "minLength": 1
+      },
+      "compensating_control": {
+        "type": "string",
+        "minLength": 1
+      },
+      "approver": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  }
+}

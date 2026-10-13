@@ -1,0 +1,186 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Host-pinned Rust project collector capture binding",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "input",
+    "invocation_id",
+    "config_digest",
+    "capture",
+    "project",
+    "series",
+    "native_identity",
+    "capabilities"
+  ],
+  "properties": {
+    "source_prefix": {
+      "type": "string"
+    },
+    "schema": {
+      "const": "rust-project-collector-binding/v1"
+    },
+    "input": {
+      "type": "object"
+    },
+    "invocation_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "config_digest": {
+      "type": "string",
+      "minLength": 1
+    },
+    "capture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "anchor"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "anchor": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "project": {
+      "type": "object"
+    },
+    "series": {
+      "type": "object"
+    },
+    "native_identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "native_sha256",
+        "projection_sha256"
+      ],
+      "properties": {
+        "native_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "projection_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "capabilities": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "metric",
+          "state",
+          "reason"
+        ],
+        "properties": {
+          "metric": {
+            "type": "string",
+            "minLength": 1
+          },
+          "state": {
+            "enum": [
+              "supported",
+              "unsupported",
+              "not_configured",
+              "not_collected",
+              "not_applicable",
+              "measurement_error"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "delivery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "manifest",
+        "matrix",
+        "core_path",
+        "core"
+      ],
+      "properties": {
+        "manifest": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "sha256"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "minLength": 1
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          }
+        },
+        "matrix": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "sha256"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "minLength": 1
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          }
+        },
+        "core_path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "core": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "version",
+            "commit",
+            "sha256"
+          ],
+          "properties": {
+            "version": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(-[0-9A-Za-z-]+(\\.[0-9A-Za-z-]+)*)?(\\+[0-9A-Za-z-]+(\\.[0-9A-Za-z-]+)*)?$"
+            },
+            "commit": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{40}$"
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          }
+        }
+      }
+    }
+  }
+}

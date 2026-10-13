@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "invocation_id": "inv-fixture-0001",
+  "request_id": "devrail-fixture-request-0001",
+  "commit": "fixture-serial-baseline",
+  "scope": {"mode": "all", "components": ["project"]},
+  "effective_config": {"profile": "full", "parallel": false, "max_parallel": 1},
+  "command": {"program": "cargo", "args": ["test"], "environment_keys": [], "environment_values": {}},
+  "steps": ["builtin.secret-scan", "builtin.architecture-audit", "project.tests"],
+  "report_paths": ["test_result.json", "test_result.md", "manifest.json"],
+  "status_mapping": {"success": "PASS", "failure": "FAIL", "cancelled": "CANCELLED", "skipped": "SKIPPED", "waived": "WAIVED"},
+  "artifacts": [{"path": "logs/project.tests.log", "kind": "step-log", "atomic": true}],
+  "cleanup": {"services": "CLEANED", "leases": "RELEASED", "isolation": "REMOVED"},
+  "errors": {"parser": "RESULT_PARSE_FAILURE", "zero": "RESULT_ZERO", "partial": "RESULT_PARTIAL", "report_write": "E1404"},
+  "platform": {"os": "fixture", "architecture": "fixture", "toolchain": "stable"}
+}
