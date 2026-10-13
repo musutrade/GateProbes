@@ -59,8 +59,9 @@ warning. Plugins with `cargo_checks: true` additionally run `cargo fmt` and
 rustc path instead, so its declared lint settings are not a claim that the
 directly compiled launcher ran Clippy. This round registers Linux acceptance
 for the four non-native plugins. Native Rust has its own platform release
-workflow; the other four plugins now have a tag-only independent publication
-workflow. See [independent releases](docs/independent-releases.md) for versions,
+workflow; the other four plugins have published immutable independent releases
+through their tag-only workflow. See [independent releases](docs/independent-releases.md)
+for versions,
 the fixed Core acceptance contract, installation and publication gates. A
 workflow declaration alone does not establish release or platform acceptance.
 

@@ -14,12 +14,38 @@ publication does not certify new measurement capabilities or reset a series.
 | Rust source risk | `rust-source-risk-v0.1.0-rc.7` | `harness-gate-rust-source-risk-0.1.0-rc.7-linux-amd64.tar.gz` |
 | Rust measurer | `rust-measure-v0.3.1` | `harness-gate-rust-measure-0.3.1-linux-amd64.tar.gz` |
 
-These are intended first tags; the workflow's presence is not evidence that a
-release exists or has passed installation acceptance. Source-risk and measurer
+All four tags were published as immutable releases on 2026-10-13 from
+`f9834a988e9e55ec99b7ebe81fb67a9ca16b2928`, after exact-commit main CI passed.
+Independent public download and installation acceptance passed; see the
+[Core handoff receipt](https://github.com/musutrade/Harness-Gate/blob/796556875e362d8c5035c53860fc32718052309d/docs/quality/independent-plugin-release-acceptance.json). Source-risk and measurer
 archives retain their Linux x86-64 scope; npm packages retain Node 24 and their
 existing Linux acceptance. Other operating systems are not newly certified.
-Consumers select an explicit plugin tag; a collector release does not replace
-the repository-wide `latest` release.
+Consumers must select an explicit plugin tag. The four workflows pass
+`--latest=false`; GitHub currently resolves this repository's latest stable
+release to `rust-measure-v0.3.1`, so `/releases/latest` is not a plugin selector.
+
+## Published acceptance
+
+| Plugin | Successful release run | Public package installation |
+| --- | --- | --- |
+| TypeScript risk | [38339077287](https://github.com/musutrade/GateProbes/actions/runs/38339077287) | 21 tests and the pinned Core decision contract |
+| HTTP/JSON contract | [38338985149](https://github.com/musutrade/GateProbes/actions/runs/38338985149) | 21 tests and the pinned Core collector contract |
+| Rust source risk | [38338987066](https://github.com/musutrade/GateProbes/actions/runs/38338987066) | 26 tests without skips and the pinned Core metric contract |
+| Rust measurer | [38338989282](https://github.com/musutrade/GateProbes/actions/runs/38338989282) | Extracted analyzer/version/rule identity and Core AST consumer contract |
+
+The 48 downloaded files match the four signed inventories. All 16 integrity
+subjects passed exact-tag Sigstore identity and exact-source GitHub provenance
+checks. Wrong repository and wrong tag identities were rejected. Fresh public
+package installs passed on Linux x86_64 with Node 24.18.0 and Rust 1.97.1 for
+source-risk. Runtime dependencies stay inside each Node production install;
+withholding TypeScript causes the installed CLI to fail. No plugin or Core
+binary was rebuilt for this public-package acceptance. Historical releases and
+measurement identities remain intact.
+
+[Core PR #353](https://github.com/musutrade/Harness-Gate/pull/353) removes the
+four-plugin packaging dependency after this acceptance. Core's existing
+measurer consumption pin remains unchanged; source cleanup and ordinary CI
+migration remain separate work.
 
 ## Version and eligibility contract
 
