@@ -1,0 +1,113 @@
+# Independent plugin releases
+
+The four collectors below publish through
+`.github/workflows/collector-release.yml`. Native Rust continues to use
+`native-collector-release.yml`. The relevant Harness-Gate engineering-policy
+semantics are unchanged: collectors measure; Core owns protocol validation,
+thresholds, requiredness, baseline/ratchet rules and final decisions. Moving
+publication does not certify new measurement capabilities or reset a series.
+
+| Plugin | Initial independent tag | Archive |
+| --- | --- | --- |
+| TypeScript risk | `typescript-risk-v0.1.0-rc.4` | `harness-gate-typescript-collector-0.1.0-rc.4.tgz` |
+| HTTP/JSON contract | `http-json-contract-v0.1.0-rc.5` | `harness-gate-http-json-contract-collector-0.1.0-rc.5.tgz` |
+| Rust source risk | `rust-source-risk-v0.1.0-rc.7` | `harness-gate-rust-source-risk-0.1.0-rc.7-linux-amd64.tar.gz` |
+| Rust measurer | `rust-measure-v0.3.1` | `harness-gate-rust-measure-0.3.1-linux-amd64.tar.gz` |
+
+These are intended first tags; the workflow's presence is not evidence that a
+release exists or has passed installation acceptance. Source-risk and measurer
+archives retain their Linux x86-64 scope; npm packages retain Node 24 and their
+existing Linux acceptance. Other operating systems are not newly certified.
+Consumers select an explicit plugin tag; a collector release does not replace
+the repository-wide `latest` release.
+
+## Version and eligibility contract
+
+`plugins/releases.json` maps each plugin to its tag prefix and asset name.
+Versions come from that plugin's identity and package/lock manifests. The
+adapter rejects missing plugins, malformed or stale tags and disagreement
+between these manifests. Plugin versions are independent of the Core version.
+The first releases retain the existing collector versions and measurement
+identities; previous Core releases remain available and unchanged.
+
+`plugin_release.py verify` calls the unchanged generated Core policy checker
+for real tag-to-commit binding, reachability from protected `main`, a successful
+`ci.yml` push run for that exact commit and its successful
+`Required Quality Aggregate`. It records this evidence before packaging.
+Only a plugin tag starts the release workflow. PR/main CI retains its existing
+change classification; it does not run a second complete packaging matrix.
+
+## Packaging and acceptance
+
+The packaging job fetches the Core release, Linux binary SHA-256, version and
+full source commit specified by `docs/ownership.json`'s `core_contract`.
+Acceptance executes that released binary and its pinned Python consumers.
+It never compiles Core or substitutes a locally built Core executable.
+The pinned Core's SBOM generator remains a temporary build input.
+
+Each tag packages one plugin from this repository and verifies the installed
+archive: npm packages receive a fresh production-only install, run their
+protocol tests from the installed runtime and exercise the pinned Core contract;
+installed Node processes have no source dependency search path. Only the copied
+test harness receives an absolute Istanbul test-tool import. Runtime dependency
+paths must resolve inside the clean consumer, and temporarily removing its
+TypeScript dependency must make the installed CLI fail.
+Rust source risk runs its suite against the extracted program and checks the
+Core metric contract; the measurer checks its extracted identity and the Core
+AST consumer. Rust archives include precompiled programs. Rust, LLVM, Python,
+Node and other external environments are not bundled or silently installed on
+consumer machines. Source-risk measurement series and external toolchain
+requirements remain those documented by the plugin.
+
+For a local candidate, use fresh output directories outside the checkout:
+
+```bash
+python3 tools/release/pinned_core.py --output /tmp/gateprobes-core-contract
+python3 tools/release/package_plugin.py --plugin typescript-risk \
+  --core-root /tmp/gateprobes-core-contract --output /tmp/typescript-release-candidate
+```
+
+Local packaging requires the declared external tools (Node 24 or Rust 1.97.1
+with LLVM tools and Rust documentation, plus Python). It is a candidate check;
+the workflow still performs its own eligibility, packaging and signing gates.
+Routine lightweight tests use only the Python standard library. Full packaging
+runs only for a selected tag and has a 35-minute job limit; native publication
+continues on its existing platform workflow.
+
+## Integrity and installation
+
+Each release includes exactly its package, CycloneDX SBOM, release inventory,
+checksum manifest, and their Sigstore signatures/certificates. The package-only
+inventory adapter uses the shared inventory schema and regular-file/hash
+validation. All checksum, signature, attestation, upload-set and final inventory
+verification operations use the unchanged generated Core inventory tool.
+Additional or missing files block publication.
+
+The signing identity is the exact tag ref:
+
+```text
+https://github.com/musutrade/GateProbes/.github/workflows/collector-release.yml@refs/tags/<plugin-tag>
+```
+
+Verify the inventory with this identity and GitHub's OIDC issuer
+`https://token.actions.githubusercontent.com`, then use its explicit subject
+list to verify every Sigstore signature, checksum and GitHub provenance
+attestation. Provenance must name
+`musutrade/GateProbes/.github/workflows/collector-release.yml`. A checksum alone
+does not establish publisher identity. After verification, install a `.tgz`
+with `npm install --ignore-scripts` or extract the Rust archive into a fresh
+directory and follow that plugin's README. Never use the Core workflow identity
+to accept a newly published GateProbes artifact.
+
+Publication requires the `release` environment, uses short-lived GitHub OIDC
+credentials and refuses any existing release tag. Fixes require a new plugin
+version/tag; existing releases are never overwritten. Core's legacy packaging
+job can be removed only after these four signed releases and their actual
+installation acceptance have succeeded.
+
+On 2026-10-13, GateProbes enabled immutable releases for future publication and
+the active `release-tags` ruleset (ID `24964258`). It forbids updates and deletion
+of all five collector tag prefixes, with no bypass actors. Historical RC8 retains
+its original `immutable=false` state; this migration does not rewrite it. The
+workflow also refetches tag/main references and repeats exact-commit eligibility
+immediately before publication, with the release target bound to `GITHUB_SHA`.

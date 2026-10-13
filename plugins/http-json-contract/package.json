@@ -21,6 +21,7 @@
     "README.md",
     "LICENSE",
     "npm-shrinkwrap.json",
+    "plugin.json",
     "schema.cjs",
     "clients.cjs",
     "legacy-measure.cjs"
