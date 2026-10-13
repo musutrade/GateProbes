@@ -23,7 +23,7 @@ class NativeFileClassificationTests(unittest.TestCase):
         driver, sysroot = os.environ.get('NATIVE_DRIVER'), os.environ.get('NATIVE_DRIVER_SYSROOT')
         if not driver or not sysroot:
             raise unittest.SkipTest('NATIVE_DRIVER and NATIVE_DRIVER_SYSROOT required for real file classification')
-        base = ROOT / 'target/gh-221/file-tests'
+        base = Path(os.environ.get('HARNESS_GATE_NATIVE_ACCEPTANCE_ROOT', ROOT / 'target/gh-221/file-tests'))
         base.mkdir(parents=True, exist_ok=True)
         cls.work = Path(tempfile.mkdtemp(dir=base))
         project = cls.work / 'project'
@@ -32,7 +32,8 @@ class NativeFileClassificationTests(unittest.TestCase):
         cls.anchors = []
         for name, features in [('default', []), ('extra', ['extra'])]:
             output = cls.work / name
-            anchor = native.collect_cargo(project / 'Cargo.toml', output, driver, sysroot, ['contract'], features)
+            anchor = native.collect_cargo(project / 'Cargo.toml', output, driver, sysroot, ['contract'], features,
+                                          wrapper=os.environ.get('NATIVE_PLUGIN_BINARY'))
             cls.anchors.append(anchor)
             cls.evidence.append(classify.load_evidence(output / 'raw', anchor))
         cls.default, cls.extra = cls.evidence

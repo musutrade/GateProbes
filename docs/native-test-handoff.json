@@ -8,7 +8,9 @@
     },
     "tools/quality/tests/test_rust_native_classify.py": {
       "path": "plugins/rust-native-plugin/tests/test_rust_native_classify.py",
-      "sha256": "2a17af6780549c2dd22931746322147d0827f3bf49f00db5956d33762e2a0182"
+      "sha256": "2a17af6780549c2dd22931746322147d0827f3bf49f00db5956d33762e2a0182",
+      "gateprobes_sha256": "6d4add1950218e7aa6ea8d2fd2c65138a67ba5690b8390a0ffb1aa2a48a92f1f",
+      "adaptation": "Use the existing cross-platform NATIVE_PLUGIN_BINARY workspace wrapper and HARNESS_GATE_NATIVE_ACCEPTANCE_ROOT artifact directory. Test methods, assertions and fixture bytes are unchanged."
     },
     "tools/quality/fixtures/rust-native/file-classification/Cargo.lock": {
       "path": "plugins/rust-native-plugin/fixtures/rust-native/file-classification/Cargo.lock",
