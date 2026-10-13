@@ -1,0 +1,220 @@
+{
+  "quality": {
+    "collectors": {
+      "${binding}": {
+        "protocol": "harness-collector-request/v1",
+        "request": ".harness-gate/runtime/${binding}-request.json",
+        "produces": [
+          {
+            "target": {
+              "kind": "relationship",
+              "id": "${binding}"
+            },
+            "capability": "contract.breaking_changes",
+            "series": "measurement-series/v1:0b7ab5d8cf69f7a5fcd4df7e7ffe8acb0483d92a67cabcf3eafc3c05adce78ae"
+          },
+          {
+            "target": {
+              "kind": "relationship",
+              "id": "${binding}"
+            },
+            "capability": "contract.client_drift",
+            "series": "measurement-series/v1:0b7ab5d8cf69f7a5fcd4df7e7ffe8acb0483d92a67cabcf3eafc3c05adce78ae"
+          },
+          {
+            "target": {
+              "kind": "relationship",
+              "id": "${binding}"
+            },
+            "capability": "contract.compatible",
+            "series": "measurement-series/v1:0b7ab5d8cf69f7a5fcd4df7e7ffe8acb0483d92a67cabcf3eafc3c05adce78ae"
+          }
+        ]
+      }
+    },
+    "policies": {
+      "${binding}.contract.breaking_changes": {
+        "policy_file": ".harness-gate/packs/${binding}/policy.json",
+        "rule": "${binding}.contract.breaking_changes",
+        "expectation": {
+          "target": {
+            "kind": "relationship",
+            "id": "${binding}"
+          },
+          "capability": "contract.breaking_changes",
+          "series": "measurement-series/v1:0b7ab5d8cf69f7a5fcd4df7e7ffe8acb0483d92a67cabcf3eafc3c05adce78ae"
+        }
+      },
+      "${binding}.contract.client_drift": {
+        "policy_file": ".harness-gate/packs/${binding}/policy.json",
+        "rule": "${binding}.contract.client_drift",
+        "expectation": {
+          "target": {
+            "kind": "relationship",
+            "id": "${binding}"
+          },
+          "capability": "contract.client_drift",
+          "series": "measurement-series/v1:0b7ab5d8cf69f7a5fcd4df7e7ffe8acb0483d92a67cabcf3eafc3c05adce78ae"
+        }
+      },
+      "${binding}.contract.compatible": {
+        "policy_file": ".harness-gate/packs/${binding}/policy.json",
+        "rule": "${binding}.contract.compatible",
+        "expectation": {
+          "target": {
+            "kind": "relationship",
+            "id": "${binding}"
+          },
+          "capability": "contract.compatible",
+          "series": "measurement-series/v1:0b7ab5d8cf69f7a5fcd4df7e7ffe8acb0483d92a67cabcf3eafc3c05adce78ae"
+        }
+      }
+    },
+    "profiles": {
+      "full": {
+        "collectors": [
+          "${binding}"
+        ],
+        "policies": [
+          "${binding}.contract.breaking_changes",
+          "${binding}.contract.client_drift",
+          "${binding}.contract.compatible"
+        ]
+      },
+      "ci": {
+        "collectors": [
+          "${binding}"
+        ],
+        "policies": [
+          "${binding}.contract.breaking_changes",
+          "${binding}.contract.client_drift",
+          "${binding}.contract.compatible"
+        ]
+      }
+    },
+    "relationships": {
+      "${binding}": {
+        "kind": "api-contract",
+        "from": {
+          "kind": "component",
+          "id": "${consumer}"
+        },
+        "to": {
+          "kind": "component",
+          "id": "${provider}"
+        }
+      }
+    }
+  },
+  "files": {
+    ".harness-gate/packs/${binding}/policy.json": {
+      "schema": "harness-policy/v1",
+      "rules": [
+        {
+          "id": "${binding}.contract.breaking_changes",
+          "limit": {
+            "type": "count",
+            "value": 0
+          },
+          "metric": "contract.breaking_changes",
+          "on_violation": "fail",
+          "operator": "eq",
+          "remediation_classes": [
+            "repair_contract"
+          ],
+          "required": true,
+          "scope": {
+            "kind": "relationship",
+            "relationship": "${binding}"
+          }
+        },
+        {
+          "id": "${binding}.contract.client_drift",
+          "limit": {
+            "type": "boolean",
+            "value": false
+          },
+          "metric": "contract.client_drift",
+          "on_violation": "fail",
+          "operator": "eq",
+          "remediation_classes": [
+            "repair_contract"
+          ],
+          "required": true,
+          "scope": {
+            "kind": "relationship",
+            "relationship": "${binding}"
+          }
+        },
+        {
+          "id": "${binding}.contract.compatible",
+          "limit": {
+            "type": "boolean",
+            "value": true
+          },
+          "metric": "contract.compatible",
+          "on_violation": "fail",
+          "operator": "eq",
+          "remediation_classes": [
+            "repair_contract"
+          ],
+          "required": true,
+          "scope": {
+            "kind": "relationship",
+            "relationship": "${binding}"
+          }
+        }
+      ]
+    },
+    ".harness-gate/packs/${binding}/capabilities.json": {
+      "series": {
+        "collector": {
+          "name": "typescript-contract-reference",
+          "version": "1"
+        },
+        "id": "measurement-series/v1:0b7ab5d8cf69f7a5fcd4df7e7ffe8acb0483d92a67cabcf3eafc3c05adce78ae",
+        "metrics": [
+          {
+            "name": "contract.breaking_changes",
+            "type": "count"
+          },
+          {
+            "name": "contract.client_drift",
+            "type": "boolean"
+          },
+          {
+            "name": "contract.compatible",
+            "type": "boolean"
+          }
+        ],
+        "name": "native-quote-contract-api",
+        "normalization": {
+          "name": "typescript-contract-reference",
+          "version": "1"
+        },
+        "rule": {
+          "name": "oasdiff-and-generated-bytes",
+          "version": "1"
+        },
+        "runtime": {
+          "name": "node-rust-linux-x86-64",
+          "version": "reference-v1"
+        },
+        "source_identity": {
+          "name": "subject-identity",
+          "version": "1"
+        },
+        "target": "native-contract",
+        "tool": {
+          "name": "native-contract-toolchain",
+          "version": "cargo=cargo 1.97.1 (c980f4866 2026-06-30);generator=0.29.0;llvm-cov=cargo-llvm-cov 0.9.0;node=v24.18.0;npm=11.16.0;oasdiff=oasdiff version 1.11.7;rustc=rustc 1.97.1 (8bab26f4f 2026-07-14)"
+        }
+      },
+      "states": {
+        "contract.breaking_changes": "supported",
+        "contract.client_drift": "supported",
+        "contract.compatible": "supported"
+      }
+    }
+  }
+}

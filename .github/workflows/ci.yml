@@ -313,10 +313,36 @@ jobs:
             *) echo "unexpected installed version: $installed" >&2; exit 1 ;;
           esac
 
+  presets:
+    name: External preset compatibility
+    needs: classify
+    if: needs.classify.outputs.run_plugins == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - name: Verify migrated templates against the fixed released Core
+        run: |
+          set -euo pipefail
+          python3 - <<'PYCORE'
+          import hashlib, json, os, pathlib, urllib.request
+          contract = json.load(open('docs/ownership.json'))['core_contract']
+          pinned = contract['platforms']['linux']
+          path = pathlib.Path(os.environ['RUNNER_TEMP']) / 'preset-core'
+          url = f"https://github.com/{contract['repository']}/releases/download/{contract['release']}/{pinned['binary']}"
+          with urllib.request.urlopen(url, timeout=60) as response:
+              payload = response.read()
+          if hashlib.sha256(payload).hexdigest() != pinned['sha256']:
+              raise SystemExit('pinned Core digest mismatch')
+          path.write_bytes(payload)
+          path.chmod(0o755)
+          PYCORE
+          python3 tools/presets/accept.py --core "$RUNNER_TEMP/preset-core"
+
   required_aggregate:
     name: Required Quality Aggregate
     if: ${{ always() }}
-    needs: [ classify, lightweight, plugins ]
+    needs: [ classify, lightweight, plugins, presets ]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -329,4 +355,5 @@ jobs:
             --run-light "${{ needs.classify.outputs.run_light }}" \
             --run-plugins "${{ needs.classify.outputs.run_plugins }}" \
             --light-result "${{ needs.lightweight.result }}" \
-            --plugins-result "${{ needs.plugins.result }}"
+            --plugins-result "${{ needs.plugins.result }}" \
+            --presets-result "${{ needs.presets.result }}"
