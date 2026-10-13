@@ -47,9 +47,20 @@ same output and policy boundaries. No plugin measurements or baseline are
 fabricated. A future template change must explicitly update its compatibility
 contract; unchanged copied bytes alone never establish new ecosystem support.
 
-The native acceptance suite also carries the unchanged portable-artifact tests
+The native acceptance suite also carries the portable-artifact tests
 and real file-classification tests recorded in
 [native test provenance](native-test-handoff.json). It supplies a real driver and
-sysroot on all four native platforms and fails on any skip. Legacy runtime,
+sysroot on all four native platforms and fails on any skip. The 3 artifact-path
+cases run on every platform (26 total acceptance cases); the 8 classification
+cases run on Linux (34 total), preserving the original Linux Quality Script
+Tests boundary. Assertions and fixture bytes are unchanged; setup adaptations
+are recorded explicitly.
+
+An attempted Windows classification run [38342558580](https://github.com/musutrade/GateProbes/actions/runs/38342558580)
+failed in `prepare_units` with `unowned local compiler instance`. This is a known
+limitation of the historical classification fixture/collector combination, not
+accepted Windows classification coverage. It remains rejected; the migration
+does not alter measurement algorithms or weaken owner validation. macOS
+classification support is likewise not claimed by this bounded transfer. Legacy runtime,
 historical TypeScript formats and generic Core policy/reference tests remain
 with their existing Core consumers.
