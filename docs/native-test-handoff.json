@@ -4,7 +4,9 @@
   "files": {
     "tools/quality/tests/test_native_artifact_paths.py": {
       "path": "plugins/rust-native-plugin/tests/test_native_artifact_paths.py",
-      "sha256": "970522363180ddd259378a04fec48a0c654f076f69f98c9f68e1a0bfef5f5570"
+      "sha256": "970522363180ddd259378a04fec48a0c654f076f69f98c9f68e1a0bfef5f5570",
+      "gateprobes_sha256": "0e725279fa863df130232b5e81b3f595c23aea14e0f29366f8e5540186cb8bee",
+      "adaptation": "Resolve the test temporary root before constructing artifact paths: macOS temporary directories may include /var symlink aliases. Artifact alias rejection and all test assertions are unchanged."
     },
     "tools/quality/tests/test_rust_native_classify.py": {
       "path": "plugins/rust-native-plugin/tests/test_rust_native_classify.py",
