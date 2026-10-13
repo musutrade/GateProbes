@@ -18,7 +18,7 @@ def selection(value: str, name: str) -> bool:
 
 
 def evaluate(classify_result: str, run_light: str, run_plugins: str,
-             light_result: str, plugins_result: str) -> list[str]:
+             light_result: str, plugins_result: str, presets_result: str) -> list[str]:
     failures = []
     if classify_result != "success":
         return [f"classification did not succeed: {classify_result}"]
@@ -31,11 +31,12 @@ def evaluate(classify_result: str, run_light: str, run_plugins: str,
         failures.append("run_light must always be true")
     elif light_result != "success":
         failures.append(f"lightweight checks selected but {light_result}")
-    if plugins:
-        if plugins_result != "success":
-            failures.append(f"plugin checks selected but {plugins_result}")
-    elif plugins_result not in ("skipped", "success"):
-        failures.append(f"plugin checks not selected but {plugins_result}")
+    for label, result in (("plugin", plugins_result), ("preset", presets_result)):
+        if plugins:
+            if result != "success":
+                failures.append(f"{label} checks selected but {result}")
+        elif result not in ("skipped", "success"):
+            failures.append(f"{label} checks not selected but {result}")
     return failures
 
 
@@ -46,9 +47,10 @@ def main() -> int:
     parser.add_argument("--run-plugins", required=True)
     parser.add_argument("--light-result", required=True)
     parser.add_argument("--plugins-result", required=True)
+    parser.add_argument("--presets-result", required=True)
     args = parser.parse_args()
     failures = evaluate(args.classify_result, args.run_light, args.run_plugins,
-                        args.light_result, args.plugins_result)
+                        args.light_result, args.plugins_result, args.presets_result)
     if failures:
         print("aggregate failed:", file=sys.stderr)
         for failure in failures:

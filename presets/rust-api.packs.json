@@ -1,0 +1,9 @@
+[
+  {
+    "pack": "rust",
+    "bindings": {
+      "binding": "app",
+      "source_root": "src"
+    }
+  }
+]

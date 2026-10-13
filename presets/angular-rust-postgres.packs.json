@@ -1,0 +1,24 @@
+[
+  {
+    "pack": "typescript",
+    "bindings": {
+      "binding": "frontend",
+      "source_root": "frontend/src"
+    }
+  },
+  {
+    "pack": "rust",
+    "bindings": {
+      "binding": "backend",
+      "source_root": "backend/src"
+    }
+  },
+  {
+    "pack": "api-contract",
+    "bindings": {
+      "binding": "frontend-api",
+      "consumer": "frontend",
+      "provider": "backend"
+    }
+  }
+]

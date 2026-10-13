@@ -490,8 +490,15 @@ if __name__ == '__main__':
         raise SystemExit('openssl is required for real Core signature verification')
     os.environ['HARNESS_GATE_LEGACY_EXPERIMENT'] = '1'
     from test_rust_native_driver import NativeDriverTests
+    from test_rust_native_classify import NativeFileClassificationTests
+    from test_native_artifact_paths import NativeArtifactPathTests
+    cases = [ExternalPluginTests, NativeDriverTests, NativeArtifactPathTests]
+    # This transfers the Linux Core Quality Script Tests scope. The historical
+    # classification fixture has no accepted Windows/macOS measurement contract.
+    if sys.platform == 'linux':
+        cases.append(NativeFileClassificationTests)
     suite = unittest.TestSuite(unittest.defaultTestLoader.loadTestsFromTestCase(case)
-        for case in (ExternalPluginTests, NativeDriverTests))
+        for case in cases)
     result = unittest.TextTestRunner(verbosity=2).run(suite)
     print('Retained acceptance artifacts:', ExternalPluginTests.work)
     raise SystemExit(0 if result.wasSuccessful() and not result.skipped else 1)

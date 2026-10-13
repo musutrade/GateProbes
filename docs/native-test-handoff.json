@@ -1,0 +1,74 @@
+{
+  "source_repository": "musutrade/Harness-Gate",
+  "source_commit": "da9a1082f698f17418b9d20ed077bd1aca2adfc8",
+  "files": {
+    "tools/quality/tests/test_native_artifact_paths.py": {
+      "path": "plugins/rust-native-plugin/tests/test_native_artifact_paths.py",
+      "sha256": "970522363180ddd259378a04fec48a0c654f076f69f98c9f68e1a0bfef5f5570",
+      "gateprobes_sha256": "0e725279fa863df130232b5e81b3f595c23aea14e0f29366f8e5540186cb8bee",
+      "adaptation": "Resolve the test temporary root before constructing artifact paths: macOS temporary directories may include /var symlink aliases. Artifact alias rejection and all test assertions are unchanged."
+    },
+    "tools/quality/tests/test_rust_native_classify.py": {
+      "path": "plugins/rust-native-plugin/tests/test_rust_native_classify.py",
+      "sha256": "2a17af6780549c2dd22931746322147d0827f3bf49f00db5956d33762e2a0182",
+      "gateprobes_sha256": "6d4add1950218e7aa6ea8d2fd2c65138a67ba5690b8390a0ffb1aa2a48a92f1f",
+      "adaptation": "Use the existing cross-platform NATIVE_PLUGIN_BINARY workspace wrapper and HARNESS_GATE_NATIVE_ACCEPTANCE_ROOT artifact directory. Test methods, assertions and fixture bytes are unchanged."
+    },
+    "tools/quality/fixtures/rust-native/file-classification/Cargo.lock": {
+      "path": "plugins/rust-native-plugin/fixtures/rust-native/file-classification/Cargo.lock",
+      "sha256": "5a6526e079c2564157287551a58ba19b60e740fd289e9bab1fe33f7ab9901e10"
+    },
+    "tools/quality/fixtures/rust-native/file-classification/Cargo.toml": {
+      "path": "plugins/rust-native-plugin/fixtures/rust-native/file-classification/Cargo.toml",
+      "sha256": "b714223e8d6c1027f31af25c525e8415bc1aa995acf3c95f70bb6a0ec5458e84"
+    },
+    "tools/quality/fixtures/rust-native/file-classification/src/conditional.rs": {
+      "path": "plugins/rust-native-plugin/fixtures/rust-native/file-classification/src/conditional.rs",
+      "sha256": "325564756efaa8868f52f1af916cf0bee2340336fc9fb033e162a95bb278f2ee"
+    },
+    "tools/quality/fixtures/rust-native/file-classification/src/declarations.rs": {
+      "path": "plugins/rust-native-plugin/fixtures/rust-native/file-classification/src/declarations.rs",
+      "sha256": "c05d9ec7bfc6254b9f336905b4ec00b5c24da53a6cb60701be532b5501d93824"
+    },
+    "tools/quality/fixtures/rust-native/file-classification/src/derived.rs": {
+      "path": "plugins/rust-native-plugin/fixtures/rust-native/file-classification/src/derived.rs",
+      "sha256": "38e329a72793c54e4c3e5bfd24a4ec6f2dd2a8fda6d11051260c26ca89541d9c"
+    },
+    "tools/quality/fixtures/rust-native/file-classification/src/forward/child.rs": {
+      "path": "plugins/rust-native-plugin/fixtures/rust-native/file-classification/src/forward/child.rs",
+      "sha256": "a4c4881f545f7711c0bbe7c09e29e49eb1c2c62e83eecff0fd24dc0bc98c17e9"
+    },
+    "tools/quality/fixtures/rust-native/file-classification/src/forward/mod.rs": {
+      "path": "plugins/rust-native-plugin/fixtures/rust-native/file-classification/src/forward/mod.rs",
+      "sha256": "58c1c45d765e4298d06789132f156326b9c24c11404915d534f8ce95d377a3d0"
+    },
+    "tools/quality/fixtures/rust-native/file-classification/src/generated.rs": {
+      "path": "plugins/rust-native-plugin/fixtures/rust-native/file-classification/src/generated.rs",
+      "sha256": "af792d42ccea40987bd6a35e6722993e5c71b5c095f9c2dcd7137fb009619ed4"
+    },
+    "tools/quality/fixtures/rust-native/file-classification/src/lib.rs": {
+      "path": "plugins/rust-native-plugin/fixtures/rust-native/file-classification/src/lib.rs",
+      "sha256": "dd46330fcb8ac649615a84a938f4368cc612cb7eb862fe80b22979ae66a53c51"
+    },
+    "tools/quality/fixtures/rust-native/file-classification/src/local.rs": {
+      "path": "plugins/rust-native-plugin/fixtures/rust-native/file-classification/src/local.rs",
+      "sha256": "e75aedfd03186fc1b3d53296b7b6ac819a3ea26e734d782acc1b083336eac60e"
+    },
+    "tools/quality/fixtures/rust-native/file-classification/src/markers.rs": {
+      "path": "plugins/rust-native-plugin/fixtures/rust-native/file-classification/src/markers.rs",
+      "sha256": "d52e4339232e8884efffde3a0da88c30968cf76012c988b514a9ec3c8e087077"
+    },
+    "tools/quality/fixtures/rust-native/file-classification/src/orphan.rs": {
+      "path": "plugins/rust-native-plugin/fixtures/rust-native/file-classification/src/orphan.rs",
+      "sha256": "207647cdc395b5bdedc3d8bcbc27d838ee5ce0833dc413ab63bf47e700a456df"
+    },
+    "tools/quality/fixtures/rust-native/file-classification/src/unexecuted.rs": {
+      "path": "plugins/rust-native-plugin/fixtures/rust-native/file-classification/src/unexecuted.rs",
+      "sha256": "a896a4821e7a1990fff9def38462721351019fe1245ed010afedcf2e80ad752e"
+    },
+    "tools/quality/fixtures/rust-native/file-classification/tests/contract.rs": {
+      "path": "plugins/rust-native-plugin/fixtures/rust-native/file-classification/tests/contract.rs",
+      "sha256": "583f7d479180b9806a75a03ab0e268f744fadd3fe61879628cca25c79ecfc66a"
+    }
+  }
+}
