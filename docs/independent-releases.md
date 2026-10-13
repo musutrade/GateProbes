@@ -40,7 +40,9 @@ change classification; it does not run a second complete packaging matrix.
 ## Packaging and acceptance
 
 The packaging job fetches the Core release, Linux binary SHA-256, version and
-full source commit specified by `docs/ownership.json`'s `core_contract`.
+separate Python consumer/schema source pin specified by
+`docs/ownership.json`'s `core_contract`. The consumer pin is not the released
+binary's source commit; the binary is identified by its release tag and digest.
 Acceptance executes that released binary and its pinned Python consumers.
 It never compiles Core or substitutes a locally built Core executable.
 The pinned Core's SBOM generator remains a temporary build input.
