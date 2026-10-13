@@ -339,7 +339,7 @@ jobs:
           path.write_bytes(payload)
           path.chmod(0o755)
           PYCORE
-          python3 tools/presets/accept.py --core "$RUNNER_TEMP/preset-core"
+          python3 tools/presets/accept.py --core "$RUNNER_TEMP/preset-core" --external
 
   compatibility:
     name: Legacy compatibility ownership
