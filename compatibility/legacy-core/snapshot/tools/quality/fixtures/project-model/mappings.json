@@ -1,0 +1,31 @@
+{
+  "schema": "subject-mappings/v1",
+  "project": "synthetic-platform",
+  "mappings": [
+    {
+      "kind": "rename",
+      "from": "subject-identity/v1:fd7753a2fb1e09e3b28bffd95a5329ef3b60a64fb8137356a75e9962cff58e80",
+      "to": [
+        "subject-identity/v1:02350109c84db83a672ada23416c1919ed37f07ef5e9da532dd14072ae705d4e"
+      ],
+      "reason": "Synthetic identity-only rename; no baseline accepted"
+    },
+    {
+      "kind": "move",
+      "from": "subject-identity/v1:51787f7d6a992215db7936a3032edb6cbf765ded6bdea69a396094fe7a979e0a",
+      "to": [
+        "subject-identity/v1:35799c263e2ab7c92a482cc555031ffef994512b9647cd4a7c711ef20e575ce3"
+      ],
+      "reason": "Synthetic identity-only move; no baseline accepted"
+    },
+    {
+      "kind": "split",
+      "from": "subject-identity/v1:a8014c6d46eda90cae86ec48b4d88b07694194fc299229e5b39f90fa48b63e97",
+      "to": [
+        "subject-identity/v1:f9d37881a8de5b503717a8ba3a29717e28d7ef90332ca43036f89094011ec7cd",
+        "subject-identity/v1:1ae1e002ecdd7e4261aaef8dbaf629bc257b660170ea6129697fc1dccb42d44e"
+      ],
+      "reason": "Synthetic identity-only split; no baseline accepted"
+    }
+  ]
+}

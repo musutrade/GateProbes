@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "request_id": "devrail-fixture-request-0001",
+  "profile": "full",
+  "components": ["project"],
+  "staged": false,
+  "all": true
+}

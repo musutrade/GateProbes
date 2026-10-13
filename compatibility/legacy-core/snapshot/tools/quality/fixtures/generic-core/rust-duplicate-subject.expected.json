@@ -1,0 +1,11 @@
+{
+  "evaluation_error": {
+    "reason": "duplicate subject identity: subject-identity/v1:fbe7e8107cff88dcab66d99b911a3890062740bfce1a2f392f31eb4471df77d3",
+    "reason_class": "ModelError"
+  },
+  "validation": {
+    "accepted": false,
+    "reason": "duplicate subject identity: subject-identity/v1:fbe7e8107cff88dcab66d99b911a3890062740bfce1a2f392f31eb4471df77d3",
+    "reason_class": "MeasurementError"
+  }
+}

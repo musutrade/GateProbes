@@ -1,0 +1,56 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Capability requirements v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "requirements"
+  ],
+  "properties": {
+    "schema": {
+      "const": "capability-requirements/v1"
+    },
+    "requirements": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Requirement"
+      },
+      "minItems": 1
+    }
+  },
+  "definitions": {
+    "Requirement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "component",
+        "metric",
+        "mode",
+        "on_unavailable"
+      ],
+      "properties": {
+        "component": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9._-]*$"
+        },
+        "metric": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
+        },
+        "mode": {
+          "enum": [
+            "required",
+            "informational"
+          ]
+        },
+        "on_unavailable": {
+          "enum": [
+            "blocked",
+            "measurement_error"
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,3 @@
+[workspace]
+members = ["generator", "macros", "consumer"]
+resolver = "2"

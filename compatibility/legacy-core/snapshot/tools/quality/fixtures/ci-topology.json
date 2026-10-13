@@ -1,0 +1,419 @@
+{
+  "schema_version": 1,
+  "source_commit": "f11467e133cc1c791dabcb21e8af8e81e09a1950",
+  "source_workflow_blob": "dfcf4b07f4e9f73762622fda4cec939bb8a3c5e2",
+  "workflow": "CI",
+  "branches": [
+    "main"
+  ],
+  "events": [
+    "pull_request",
+    "push"
+  ],
+  "aggregate_job": "quality-required",
+  "jobs": {
+    "test": {
+      "name": "Test",
+      "check_names": [
+        "Test"
+      ],
+      "runner_labels": [
+        "ubuntu-latest"
+      ],
+      "events": [
+        "pull_request",
+        "push"
+      ],
+      "required_events": [
+        "pull_request",
+        "push"
+      ],
+      "needs": [
+        "classify"
+      ],
+      "outcome": "Full locked Linux nextest suite; exported schema must match committed schema.",
+      "condition": "${{ needs.classify.outputs.run_full == 'true' }}"
+    },
+    "test-cross-platform": {
+      "name": "Test (${{ matrix.os }})",
+      "check_names": [
+        "Test (macos-latest)",
+        "Test (windows-latest)"
+      ],
+      "runner_labels": [
+        "macos-latest",
+        "windows-latest"
+      ],
+      "events": [
+        "pull_request",
+        "push"
+      ],
+      "required_events": [
+        "pull_request",
+        "push"
+      ],
+      "needs": [
+        "classify"
+      ],
+      "outcome": "Full locked native macOS and Windows nextest suites with --no-fail-fast; both PR-required.",
+      "condition": "${{ needs.classify.outputs.run_full == 'true' }}"
+    },
+    "security-audit": {
+      "name": "Security Audit",
+      "check_names": [
+        "Security Audit"
+      ],
+      "runner_labels": [
+        "ubuntu-latest"
+      ],
+      "events": [
+        "pull_request",
+        "push"
+      ],
+      "required_events": [
+        "pull_request",
+        "push"
+      ],
+      "needs": [
+        "classify"
+      ],
+      "outcome": "cargo audit --deny warnings; installation errors block.",
+      "condition": "${{ needs.classify.outputs.run_full == 'true' }}"
+    },
+    "fmt": {
+      "name": "Format",
+      "check_names": [
+        "Format"
+      ],
+      "runner_labels": [
+        "ubuntu-latest"
+      ],
+      "events": [
+        "pull_request",
+        "push"
+      ],
+      "required_events": [
+        "pull_request",
+        "push"
+      ],
+      "needs": [
+        "classify"
+      ],
+      "outcome": "cargo fmt --check.",
+      "condition": "${{ needs.classify.outputs.run_full == 'true' }}"
+    },
+    "clippy": {
+      "name": "Clippy",
+      "check_names": [
+        "Clippy"
+      ],
+      "runner_labels": [
+        "ubuntu-latest"
+      ],
+      "events": [
+        "pull_request",
+        "push"
+      ],
+      "required_events": [
+        "pull_request",
+        "push"
+      ],
+      "needs": [
+        "classify"
+      ],
+      "outcome": "Locked all-targets/all-features Clippy with warnings denied.",
+      "condition": "${{ needs.classify.outputs.run_full == 'true' }}"
+    },
+    "build": {
+      "name": "Build",
+      "check_names": [
+        "Build"
+      ],
+      "runner_labels": [
+        "ubuntu-latest"
+      ],
+      "events": [
+        "pull_request",
+        "push"
+      ],
+      "required_events": [
+        "pull_request",
+        "push"
+      ],
+      "needs": [
+        "classify"
+      ],
+      "outcome": "Locked Linux release build; artifact absence retains existing ignore policy.",
+      "condition": "${{ needs.classify.outputs.run_full == 'true' }}"
+    },
+    "build-cross-platform": {
+      "name": "Build (${{ matrix.os }})",
+      "check_names": [
+        "Build (macos-latest)",
+        "Build (windows-latest)"
+      ],
+      "runner_labels": [
+        "macos-latest",
+        "windows-latest"
+      ],
+      "events": [
+        "push"
+      ],
+      "required_events": [
+        "push"
+      ],
+      "needs": [
+        "classify"
+      ],
+      "outcome": "Locked native macOS and Windows release builds.",
+      "condition": "${{ needs.classify.outputs.run_full == 'true' && github.event_name == 'push' }}"
+    },
+    "coverage": {
+      "name": "Code Coverage",
+      "check_names": [
+        "Code Coverage"
+      ],
+      "runner_labels": [
+        "ubuntu-latest"
+      ],
+      "events": [
+        "push"
+      ],
+      "required_events": [
+        "push"
+      ],
+      "needs": [
+        "classify"
+      ],
+      "outcome": "Full tarpaulin LLVM coverage; Codecov upload retains fail_ci_if_error: false.",
+      "condition": "${{ needs.classify.outputs.run_full == 'true' && github.event_name == 'push' }}"
+    },
+    "quality-coverage": {
+      "name": "Quality Coverage and Critical Paths",
+      "check_names": [
+        "Quality Coverage and Critical Paths"
+      ],
+      "runner_labels": [
+        "ubuntu-latest"
+      ],
+      "events": [
+        "pull_request",
+        "push"
+      ],
+      "required_events": [
+        "pull_request",
+        "push"
+      ],
+      "needs": [
+        "classify"
+      ],
+      "outcome": "Fresh legacy coverage, production coverage, base/head exact risk and isolated critical-path evidence; all four stages required; always retain available candidate evidence.",
+      "condition": "${{ needs.classify.outputs.run_full == 'true' }}"
+    },
+    "quality-generic-shadow": {
+      "name": "Generic Quality Shadow",
+      "check_names": [
+        "Generic Quality Shadow"
+      ],
+      "runner_labels": [
+        "ubuntu-latest"
+      ],
+      "events": [
+        "pull_request",
+        "push"
+      ],
+      "required_events": [],
+      "needs": [
+        "classify",
+        "quality-coverage"
+      ],
+      "outcome": "Advisory projection of retained candidate with identity/hash validation; no aggregate dependency or release authority.",
+      "condition": "${{ always() && needs.classify.outputs.run_full == 'true' }}"
+    },
+    "quality-contracts": {
+      "name": "Quality CLI Contracts",
+      "check_names": [
+        "Quality CLI Contracts"
+      ],
+      "runner_labels": [
+        "ubuntu-latest"
+      ],
+      "events": [
+        "pull_request",
+        "push"
+      ],
+      "required_events": [
+        "pull_request",
+        "push"
+      ],
+      "needs": [
+        "classify"
+      ],
+      "outcome": "Linux CLI contract snapshots, exit codes and output evidence.",
+      "condition": "${{ needs.classify.outputs.run_full == 'true' }}"
+    },
+    "quality-contracts-cross-platform": {
+      "name": "Quality CLI Contracts (${{ matrix.os }})",
+      "check_names": [
+        "Quality CLI Contracts (macos-latest)",
+        "Quality CLI Contracts (windows-latest)"
+      ],
+      "runner_labels": [
+        "macos-latest",
+        "windows-latest"
+      ],
+      "events": [
+        "push"
+      ],
+      "required_events": [
+        "push"
+      ],
+      "needs": [
+        "classify"
+      ],
+      "outcome": "Native macOS/Windows structured CLI contracts.",
+      "condition": "${{ needs.classify.outputs.run_full == 'true' && github.event_name == 'push' }}"
+    },
+    "quality-baseline": {
+      "name": "Quality Performance Baseline",
+      "check_names": [
+        "Quality Performance Baseline (ubuntu-latest)",
+        "Quality Performance Baseline (macos-latest)",
+        "Quality Performance Baseline (windows-latest)"
+      ],
+      "runner_labels": [
+        "ubuntu-latest",
+        "macos-latest",
+        "windows-latest"
+      ],
+      "events": [
+        "push"
+      ],
+      "required_events": [
+        "push"
+      ],
+      "needs": [
+        "classify"
+      ],
+      "outcome": "Native Linux/macOS/Windows benchmark and size candidates, five samples, existing performance policy.",
+      "condition": "${{ needs.classify.outputs.run_full == 'true' && github.event_name == 'push' }}"
+    },
+    "docs-consistency": {
+      "name": "Documentation Consistency",
+      "check_names": [
+        "Documentation Consistency"
+      ],
+      "runner_labels": [
+        "ubuntu-latest"
+      ],
+      "events": [
+        "pull_request",
+        "push"
+      ],
+      "required_events": [
+        "pull_request",
+        "push"
+      ],
+      "needs": [
+        "classify"
+      ],
+      "outcome": "Documentation/examples/presets/migration/schema/policy-anchor/link/sandbox consistency."
+    },
+    "release-contracts": {
+      "name": "Release Governance Contracts",
+      "check_names": [
+        "Release Governance Contracts"
+      ],
+      "runner_labels": [
+        "ubuntu-latest"
+      ],
+      "events": [
+        "pull_request",
+        "push"
+      ],
+      "required_events": [
+        "pull_request",
+        "push"
+      ],
+      "needs": [
+        "classify"
+      ],
+      "outcome": "Release governance unit tests and compile checks; publication authority unchanged.",
+      "condition": "${{ needs.classify.outputs.run_full == 'true' }}"
+    },
+    "quality-scripts": {
+      "name": "Quality Script Tests",
+      "check_names": [
+        "Quality Script Tests"
+      ],
+      "runner_labels": [
+        "ubuntu-latest"
+      ],
+      "events": [
+        "pull_request",
+        "push"
+      ],
+      "required_events": [
+        "pull_request",
+        "push"
+      ],
+      "needs": [
+        "classify"
+      ],
+      "outcome": "All quality Python unit tests and compile checks.",
+      "condition": "${{ needs.classify.outputs.run_full == 'true' }}"
+    },
+    "quality-required": {
+      "name": "Required Quality Aggregate",
+      "check_names": [
+        "Required Quality Aggregate"
+      ],
+      "runner_labels": [
+        "ubuntu-latest"
+      ],
+      "events": [
+        "pull_request",
+        "push"
+      ],
+      "required_events": [],
+      "needs": [
+        "classify",
+        "test",
+        "test-cross-platform",
+        "security-audit",
+        "fmt",
+        "clippy",
+        "build",
+        "build-cross-platform",
+        "coverage",
+        "quality-coverage",
+        "quality-contracts",
+        "quality-contracts-cross-platform",
+        "quality-baseline",
+        "docs-consistency",
+        "release-contracts",
+        "quality-scripts"
+      ],
+      "outcome": "Always evaluate event-applicable needs; only exact success passes. Stable ruleset check name; no collection or product compilation.",
+      "condition": "${{ always() }}"
+    },
+    "classify": {
+      "name": "Classify change",
+      "check_names": [
+        "Classify change"
+      ],
+      "runner_labels": [
+        "ubuntu-latest"
+      ],
+      "events": [
+        "pull_request",
+        "push"
+      ],
+      "required_events": [],
+      "aggregate_required": true,
+      "needs": [],
+      "outcome": "Pure-docs vs full selection from changed paths; conservative for unknown or empty scope."
+    }
+  },
+  "observed_pre_change_aggregate_gap": "test-cross-platform ran on both events but was mistakenly in ci_quality.PUSH_ONLY. GH-164 enforces the already specified PR requirement; no scheduling change."
+}

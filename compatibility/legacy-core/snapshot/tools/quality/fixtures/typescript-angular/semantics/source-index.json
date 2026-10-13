@@ -1,0 +1,1163 @@
+{
+  "schema": "typescript-source-index/v1",
+  "compiler": "6.0.2",
+  "files": {
+    "src/app/app.config.ts": {
+      "sha256": "705e77f2dbf12e8c9f7379d15564a5d4a42817909f7a45568cffb386765cfef2",
+      "template": false,
+      "generated": false,
+      "functions": []
+    },
+    "src/app/app.routes.ts": {
+      "sha256": "3126fe24248fb5777c124b87d4803e4f8672e9ec13b804b027659d2bec4165e0",
+      "template": false,
+      "generated": false,
+      "functions": [
+        {
+          "kind": "function/v1",
+          "name": "ArrowFunction",
+          "start": {
+            "line": 4,
+            "column": 36
+          },
+          "end": {
+            "line": 4,
+            "column": 90
+          },
+          "declaration": {
+            "line": 4,
+            "column": 36
+          },
+          "body": {
+            "line": 4,
+            "column": 42
+          }
+        },
+        {
+          "kind": "function/v1",
+          "name": "ArrowFunction",
+          "start": {
+            "line": 4,
+            "column": 75
+          },
+          "end": {
+            "line": 4,
+            "column": 89
+          },
+          "declaration": {
+            "line": 4,
+            "column": 75
+          },
+          "body": {
+            "line": 4,
+            "column": 80
+          }
+        }
+      ]
+    },
+    "src/app/app.ts": {
+      "sha256": "e8b9275808fbfd72c15cd1d872500672d8a3c4555f20e6fe06bc929f1eaa1962",
+      "template": true,
+      "generated": false,
+      "functions": []
+    },
+    "src/app/details/details.ts": {
+      "sha256": "a506e5902cbfa879f446f686a8560c010537e33c20395ccf387d77f7f3b5cc2b",
+      "template": true,
+      "generated": false,
+      "functions": []
+    },
+    "src/app/generated/core/ApiError.ts": {
+      "sha256": "ac1abaa5a3ad075d93628d6c832ec50267580258b3a1b433a14594cbda31e425",
+      "template": false,
+      "generated": true,
+      "functions": []
+    },
+    "src/app/generated/core/ApiRequestOptions.ts": {
+      "sha256": "023524537825d077a570bf14b8e894992274df4d0c6c27f7e7ac2fd3f74f541f",
+      "template": false,
+      "generated": true,
+      "functions": []
+    },
+    "src/app/generated/core/ApiResult.ts": {
+      "sha256": "ebcb6e0238fe3da2c4db6de78d4ffcd40e4f76d5c53f14b4fef734fb4556d8ba",
+      "template": false,
+      "generated": true,
+      "functions": []
+    },
+    "src/app/generated/core/CancelablePromise.ts": {
+      "sha256": "3a248db3894a4c911cb65eb1fa6aa6729cf11be0e2c5e6ffe4cffabc6ca592e8",
+      "template": false,
+      "generated": true,
+      "functions": [
+        {
+          "kind": "function/v1",
+          "name": "CancelablePromise.ArrowFunction",
+          "start": {
+            "line": 45,
+            "column": 39
+          },
+          "end": {
+            "line": 85,
+            "column": 9
+          },
+          "declaration": {
+            "line": 45,
+            "column": 39
+          },
+          "body": {
+            "line": 45,
+            "column": 60
+          }
+        },
+        {
+          "kind": "function/v1",
+          "name": "CancelablePromise.ArrowFunction",
+          "start": {
+            "line": 49,
+            "column": 30
+          },
+          "end": {
+            "line": 55,
+            "column": 13
+          },
+          "declaration": {
+            "line": 49,
+            "column": 30
+          },
+          "body": {
+            "line": 49,
+            "column": 67
+          }
+        },
+        {
+          "kind": "function/v1",
+          "name": "CancelablePromise.ArrowFunction",
+          "start": {
+            "line": 57,
+            "column": 29
+          },
+          "end": {
+            "line": 63,
+            "column": 13
+          },
+          "declaration": {
+            "line": 57,
+            "column": 29
+          },
+          "body": {
+            "line": 57,
+            "column": 53
+          }
+        },
+        {
+          "kind": "function/v1",
+          "name": "CancelablePromise.ArrowFunction",
+          "start": {
+            "line": 65,
+            "column": 29
+          },
+          "end": {
+            "line": 70,
+            "column": 13
+          },
+          "declaration": {
+            "line": 65,
+            "column": 29
+          },
+          "body": {
+            "line": 65,
+            "column": 66
+          }
+        },
+        {
+          "kind": "function/v1",
+          "name": "CancelablePromise.ArrowFunction",
+          "start": {
+            "line": 73,
+            "column": 21
+          },
+          "end": {
+            "line": 73,
+            "column": 52
+          },
+          "declaration": {
+            "line": 73,
+            "column": 21
+          },
+          "body": {
+            "line": 73,
+            "column": 36
+          }
+        },
+        {
+          "kind": "function/v1",
+          "name": "CancelablePromise.ArrowFunction",
+          "start": {
+            "line": 77,
+            "column": 21
+          },
+          "end": {
+            "line": 77,
+            "column": 52
+          },
+          "declaration": {
+            "line": 77,
+            "column": 21
+          },
+          "body": {
+            "line": 77,
+            "column": 36
+          }
+        },
+        {
+          "kind": "function/v1",
+          "name": "CancelablePromise.ArrowFunction",
+          "start": {
+            "line": 81,
+            "column": 21
+          },
+          "end": {
+            "line": 81,
+            "column": 53
+          },
+          "declaration": {
+            "line": 81,
+            "column": 21
+          },
+          "body": {
+            "line": 81,
+            "column": 36
+          }
+        },
+        {
+          "kind": "method/v1",
+          "name": "CancelablePromise.then",
+          "start": {
+            "line": 92,
+            "column": 4
+          },
+          "end": {
+            "line": 97,
+            "column": 5
+          },
+          "declaration": {
+            "line": 92,
+            "column": 11
+          },
+          "body": {
+            "line": 95,
+            "column": 36
+          }
+        },
+        {
+          "kind": "method/v1",
+          "name": "CancelablePromise.catch",
+          "start": {
+            "line": 99,
+            "column": 4
+          },
+          "end": {
+            "line": 103,
+            "column": 5
+          },
+          "declaration": {
+            "line": 99,
+            "column": 11
+          },
+          "body": {
+            "line": 101,
+            "column": 28
+          }
+        },
+        {
+          "kind": "method/v1",
+          "name": "CancelablePromise.finally",
+          "start": {
+            "line": 105,
+            "column": 4
+          },
+          "end": {
+            "line": 107,
+            "column": 5
+          },
+          "declaration": {
+            "line": 105,
+            "column": 11
+          },
+          "body": {
+            "line": 105,
+            "column": 64
+          }
+        },
+        {
+          "kind": "method/v1",
+          "name": "CancelablePromise.cancel",
+          "start": {
+            "line": 109,
+            "column": 4
+          },
+          "end": {
+            "line": 126,
+            "column": 5
+          },
+          "declaration": {
+            "line": 109,
+            "column": 11
+          },
+          "body": {
+            "line": 109,
+            "column": 26
+          }
+        }
+      ]
+    },
+    "src/app/generated/core/OpenAPI.ts": {
+      "sha256": "05ef246b56d52d799dcb76b8656dfbb8eea1d332090f1234afa26de4478cd5de",
+      "template": false,
+      "generated": true,
+      "functions": []
+    },
+    "src/app/generated/core/request.ts": {
+      "sha256": "1ccdeca0b9dae2b2cb17b2d6dd6957127a78c5b8d9b5e35c711f1958318bba0e",
+      "template": false,
+      "generated": true,
+      "functions": [
+        {
+          "kind": "function/v1",
+          "name": "ArrowFunction",
+          "start": {
+            "line": 12,
+            "column": 25
+          },
+          "end": {
+            "line": 14,
+            "column": 1
+          },
+          "declaration": {
+            "line": 12,
+            "column": 25
+          },
+          "body": {
+            "line": 12,
+            "column": 100
+          }
+        },
+        {
+          "kind": "function/v1",
+          "name": "ArrowFunction",
+          "start": {
+            "line": 16,
+            "column": 24
+          },
+          "end": {
+            "line": 18,
+            "column": 1
+          },
+          "declaration": {
+            "line": 16,
+            "column": 24
+          },
+          "body": {
+            "line": 16,
+            "column": 57
+          }
+        },
+        {
+          "kind": "function/v1",
+          "name": "ArrowFunction",
+          "start": {
+            "line": 20,
+            "column": 33
+          },
+          "end": {
+            "line": 22,
+            "column": 1
+          },
+          "declaration": {
+            "line": 20,
+            "column": 33
+          },
+          "body": {
+            "line": 20,
+            "column": 66
+          }
+        },
+        {
+          "kind": "function/v1",
+          "name": "ArrowFunction",
+          "start": {
+            "line": 24,
+            "column": 22
+          },
+          "end": {
+            "line": 35,
+            "column": 1
+          },
+          "declaration": {
+            "line": 24,
+            "column": 22
+          },
+          "body": {
+            "line": 24,
+            "column": 53
+          }
+        },
+        {
+          "kind": "function/v1",
+          "name": "ArrowFunction",
+          "start": {
+            "line": 37,
+            "column": 26
+          },
+          "end": {
+            "line": 39,
+            "column": 1
+          },
+          "declaration": {
+            "line": 37,
+            "column": 26
+          },
+          "body": {
+            "line": 37,
+            "column": 61
+          }
+        },
+        {
+          "kind": "function/v1",
+          "name": "ArrowFunction",
+          "start": {
+            "line": 41,
+            "column": 22
+          },
+          "end": {
+            "line": 48,
+            "column": 1
+          },
+          "declaration": {
+            "line": 41,
+            "column": 22
+          },
+          "body": {
+            "line": 41,
+            "column": 47
+          }
+        },
+        {
+          "kind": "function/v1",
+          "name": "ArrowFunction",
+          "start": {
+            "line": 50,
+            "column": 30
+          },
+          "end": {
+            "line": 82,
+            "column": 1
+          },
+          "declaration": {
+            "line": 50,
+            "column": 30
+          },
+          "body": {
+            "line": 50,
+            "column": 71
+          }
+        },
+        {
+          "kind": "function/v1",
+          "name": "ArrowFunction",
+          "start": {
+            "line": 53,
+            "column": 19
+          },
+          "end": {
+            "line": 55,
+            "column": 5
+          },
+          "declaration": {
+            "line": 53,
+            "column": 19
+          },
+          "body": {
+            "line": 53,
+            "column": 48
+          }
+        },
+        {
+          "kind": "function/v1",
+          "name": "ArrowFunction",
+          "start": {
+            "line": 57,
+            "column": 20
+          },
+          "end": {
+            "line": 71,
+            "column": 5
+          },
+          "declaration": {
+            "line": 57,
+            "column": 20
+          },
+          "body": {
+            "line": 57,
+            "column": 49
+          }
+        },
+        {
+          "kind": "function/v1",
+          "name": "ArrowFunction",
+          "start": {
+            "line": 60,
+            "column": 30
+          },
+          "end": {
+            "line": 62,
+            "column": 17
+          },
+          "declaration": {
+            "line": 60,
+            "column": 30
+          },
+          "body": {
+            "line": 60,
+            "column": 35
+          }
+        },
+        {
+          "kind": "function/v1",
+          "name": "ArrowFunction",
+          "start": {
+            "line": 64,
+            "column": 46
+          },
+          "end": {
+            "line": 66,
+            "column": 17
+          },
+          "declaration": {
+            "line": 64,
+            "column": 46
+          },
+          "body": {
+            "line": 64,
+            "column": 58
+          }
+        },
+        {
+          "kind": "function/v1",
+          "name": "ArrowFunction",
+          "start": {
+            "line": 73,
+            "column": 35
+          },
+          "end": {
+            "line": 75,
+            "column": 5
+          },
+          "declaration": {
+            "line": 73,
+            "column": 35
+          },
+          "body": {
+            "line": 73,
+            "column": 53
+          }
+        },
+        {
+          "kind": "function/v1",
+          "name": "ArrowFunction",
+          "start": {
+            "line": 84,
+            "column": 15
+          },
+          "end": {
+            "line": 101,
+            "column": 1
+          },
+          "declaration": {
+            "line": 84,
+            "column": 15
+          },
+          "body": {
+            "line": 84,
+            "column": 78
+          }
+        },
+        {
+          "kind": "function/v1",
+          "name": "ArrowFunction",
+          "start": {
+            "line": 89,
+            "column": 29
+          },
+          "end": {
+            "line": 94,
+            "column": 9
+          },
+          "declaration": {
+            "line": 89,
+            "column": 29
+          },
+          "body": {
+            "line": 89,
+            "column": 67
+          }
+        },
+        {
+          "kind": "function/v1",
+          "name": "ArrowFunction",
+          "start": {
+            "line": 103,
+            "column": 27
+          },
+          "end": {
+            "line": 128,
+            "column": 1
+          },
+          "declaration": {
+            "line": 103,
+            "column": 27
+          },
+          "body": {
+            "line": 103,
+            "column": 81
+          }
+        },
+        {
+          "kind": "function/v1",
+          "name": "ArrowFunction",
+          "start": {
+            "line": 107,
+            "column": 24
+          },
+          "end": {
+            "line": 113,
+            "column": 9
+          },
+          "declaration": {
+            "line": 107,
+            "column": 24
+          },
+          "body": {
+            "line": 107,
+            "column": 53
+          }
+        },
+        {
+          "kind": "function/v1",
+          "name": "ArrowFunction",
+          "start": {
+            "line": 116,
+            "column": 20
+          },
+          "end": {
+            "line": 116,
+            "column": 52
+          },
+          "declaration": {
+            "line": 116,
+            "column": 20
+          },
+          "body": {
+            "line": 116,
+            "column": 36
+          }
+        },
+        {
+          "kind": "function/v1",
+          "name": "ArrowFunction",
+          "start": {
+            "line": 117,
+            "column": 21
+          },
+          "end": {
+            "line": 123,
+            "column": 13
+          },
+          "declaration": {
+            "line": 117,
+            "column": 21
+          },
+          "body": {
+            "line": 117,
+            "column": 39
+          }
+        },
+        {
+          "kind": "function/v1",
+          "name": "ArrowFunction",
+          "start": {
+            "line": 119,
+            "column": 34
+          },
+          "end": {
+            "line": 119,
+            "column": 54
+          },
+          "declaration": {
+            "line": 119,
+            "column": 34
+          },
+          "body": {
+            "line": 119,
+            "column": 39
+          }
+        },
+        {
+          "kind": "function/v1",
+          "name": "ArrowFunction",
+          "start": {
+            "line": 132,
+            "column": 23
+          },
+          "end": {
+            "line": 137,
+            "column": 1
+          },
+          "declaration": {
+            "line": 132,
+            "column": 23
+          },
+          "body": {
+            "line": 132,
+            "column": 116
+          }
+        },
+        {
+          "kind": "function/v1",
+          "name": "ArrowFunction",
+          "start": {
+            "line": 139,
+            "column": 26
+          },
+          "end": {
+            "line": 180,
+            "column": 1
+          },
+          "declaration": {
+            "line": 139,
+            "column": 26
+          },
+          "body": {
+            "line": 139,
+            "column": 105
+          }
+        },
+        {
+          "kind": "function/v1",
+          "name": "ArrowFunction",
+          "start": {
+            "line": 152,
+            "column": 16
+          },
+          "end": {
+            "line": 152,
+            "column": 48
+          },
+          "declaration": {
+            "line": 152,
+            "column": 16
+          },
+          "body": {
+            "line": 152,
+            "column": 32
+          }
+        },
+        {
+          "kind": "function/v1",
+          "name": "ArrowFunction",
+          "start": {
+            "line": 153,
+            "column": 16
+          },
+          "end": {
+            "line": 156,
+            "column": 10
+          },
+          "declaration": {
+            "line": 153,
+            "column": 16
+          },
+          "body": {
+            "line": 153,
+            "column": 43
+          }
+        },
+        {
+          "kind": "function/v1",
+          "name": "ArrowFunction",
+          "start": {
+            "line": 182,
+            "column": 30
+          },
+          "end": {
+            "line": 193,
+            "column": 1
+          },
+          "declaration": {
+            "line": 182,
+            "column": 30
+          },
+          "body": {
+            "line": 182,
+            "column": 67
+          }
+        },
+        {
+          "kind": "function/v1",
+          "name": "ArrowFunction",
+          "start": {
+            "line": 195,
+            "column": 27
+          },
+          "end": {
+            "line": 220,
+            "column": 1
+          },
+          "declaration": {
+            "line": 195,
+            "column": 27
+          },
+          "body": {
+            "line": 203,
+            "column": 24
+          }
+        },
+        {
+          "kind": "function/v1",
+          "name": "ArrowFunction",
+          "start": {
+            "line": 217,
+            "column": 13
+          },
+          "end": {
+            "line": 217,
+            "column": 37
+          },
+          "declaration": {
+            "line": 217,
+            "column": 13
+          },
+          "body": {
+            "line": 217,
+            "column": 19
+          }
+        },
+        {
+          "kind": "function/v1",
+          "name": "ArrowFunction",
+          "start": {
+            "line": 222,
+            "column": 33
+          },
+          "end": {
+            "line": 230,
+            "column": 1
+          },
+          "declaration": {
+            "line": 222,
+            "column": 33
+          },
+          "body": {
+            "line": 222,
+            "column": 102
+          }
+        },
+        {
+          "kind": "function/v1",
+          "name": "ArrowFunction",
+          "start": {
+            "line": 232,
+            "column": 31
+          },
+          "end": {
+            "line": 250,
+            "column": 1
+          },
+          "declaration": {
+            "line": 232,
+            "column": 31
+          },
+          "body": {
+            "line": 232,
+            "column": 75
+          }
+        },
+        {
+          "kind": "function/v1",
+          "name": "ArrowFunction",
+          "start": {
+            "line": 238,
+            "column": 46
+          },
+          "end": {
+            "line": 238,
+            "column": 96
+          },
+          "declaration": {
+            "line": 238,
+            "column": 46
+          },
+          "body": {
+            "line": 238,
+            "column": 54
+          }
+        },
+        {
+          "kind": "function/v1",
+          "name": "ArrowFunction",
+          "start": {
+            "line": 252,
+            "column": 31
+          },
+          "end": {
+            "line": 284,
+            "column": 1
+          },
+          "declaration": {
+            "line": 252,
+            "column": 31
+          },
+          "body": {
+            "line": 252,
+            "column": 88
+          }
+        },
+        {
+          "kind": "function/v1",
+          "name": "ArrowFunction",
+          "start": {
+            "line": 272,
+            "column": 27
+          },
+          "end": {
+            "line": 278,
+            "column": 9
+          },
+          "declaration": {
+            "line": 272,
+            "column": 27
+          },
+          "body": {
+            "line": 272,
+            "column": 33
+          }
+        },
+        {
+          "kind": "function/v1",
+          "name": "ArrowFunction",
+          "start": {
+            "line": 293,
+            "column": 23
+          },
+          "end": {
+            "line": 322,
+            "column": 1
+          },
+          "declaration": {
+            "line": 293,
+            "column": 23
+          },
+          "body": {
+            "line": 293,
+            "column": 103
+          }
+        },
+        {
+          "kind": "function/v1",
+          "name": "ArrowFunction",
+          "start": {
+            "line": 294,
+            "column": 33
+          },
+          "end": {
+            "line": 321,
+            "column": 5
+          },
+          "declaration": {
+            "line": 294,
+            "column": 33
+          },
+          "body": {
+            "line": 294,
+            "column": 70
+          }
+        }
+      ]
+    },
+    "src/app/generated/index.ts": {
+      "sha256": "8197eed384890daf905c85575dc6695375baf3a0c4c996a9c33f546910231cfc",
+      "template": false,
+      "generated": true,
+      "functions": []
+    },
+    "src/app/generated/models/Quote.ts": {
+      "sha256": "5ad86e3b3ef4f9658e7a8e062fccc7f1695377f48483225c951260321f05b735",
+      "template": false,
+      "generated": true,
+      "functions": []
+    },
+    "src/app/generated/services/DefaultService.ts": {
+      "sha256": "c9f837329b220926f79d005a7bdaecc670eed14cf36107ad93c23f6df49156c5",
+      "template": false,
+      "generated": true,
+      "functions": [
+        {
+          "kind": "method/v1",
+          "name": "DefaultService.getQuote",
+          "start": {
+            "line": 14,
+            "column": 4
+          },
+          "end": {
+            "line": 19,
+            "column": 5
+          },
+          "declaration": {
+            "line": 14,
+            "column": 18
+          },
+          "body": {
+            "line": 14,
+            "column": 55
+          }
+        }
+      ]
+    },
+    "src/app/pricing.ts": {
+      "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b",
+      "template": false,
+      "generated": false,
+      "functions": [
+        {
+          "kind": "method/v1",
+          "name": "Pricing.quote",
+          "start": {
+            "line": 5,
+            "column": 2
+          },
+          "end": {
+            "line": 13,
+            "column": 3
+          },
+          "declaration": {
+            "line": 5,
+            "column": 2
+          },
+          "body": {
+            "line": 5,
+            "column": 34
+          }
+        }
+      ]
+    },
+    "src/app/priority-quote.ts": {
+      "sha256": "ed21f8293a612db7502354c84c6f807ff3b27550dcc9aa7568514f7fabdd57fc",
+      "template": false,
+      "generated": false,
+      "functions": [
+        {
+          "kind": "method/v1",
+          "name": "PriorityQuote.quote",
+          "start": {
+            "line": 2,
+            "column": 2
+          },
+          "end": {
+            "line": 2,
+            "column": 32
+          },
+          "declaration": {
+            "line": 2,
+            "column": 2
+          },
+          "body": {
+            "line": 2,
+            "column": 18
+          }
+        }
+      ]
+    },
+    "src/app/quote-client.ts": {
+      "sha256": "17dbdb262940a003f023ea8bde41811c769dc9913ec17e59b0e11a6ba3953fbc",
+      "template": false,
+      "generated": false,
+      "functions": [
+        {
+          "kind": "function/v1",
+          "name": "fetchQuote",
+          "start": {
+            "line": 3,
+            "column": 0
+          },
+          "end": {
+            "line": 6,
+            "column": 1
+          },
+          "declaration": {
+            "line": 3,
+            "column": 22
+          },
+          "body": {
+            "line": 3,
+            "column": 50
+          }
+        }
+      ]
+    },
+    "src/app/standard-quote.ts": {
+      "sha256": "2a119c679b573b52192ee99fb1e195f95683058d539d173ccf926a909d0fe9ae",
+      "template": false,
+      "generated": false,
+      "functions": [
+        {
+          "kind": "method/v1",
+          "name": "StandardQuote.quote",
+          "start": {
+            "line": 2,
+            "column": 2
+          },
+          "end": {
+            "line": 2,
+            "column": 32
+          },
+          "declaration": {
+            "line": 2,
+            "column": 2
+          },
+          "body": {
+            "line": 2,
+            "column": 18
+          }
+        }
+      ]
+    },
+    "src/main.ts": {
+      "sha256": "2341253f1a947c37dfa27838951cf7e224f7abb32dff45a8d425f042b5eeed13",
+      "template": false,
+      "generated": false,
+      "functions": [
+        {
+          "kind": "function/v1",
+          "name": "ArrowFunction",
+          "start": {
+            "line": 6,
+            "column": 9
+          },
+          "end": {
+            "line": 6,
+            "column": 36
+          },
+          "declaration": {
+            "line": 6,
+            "column": 9
+          },
+          "body": {
+            "line": 6,
+            "column": 18
+          }
+        }
+      ]
+    }
+  }
+}

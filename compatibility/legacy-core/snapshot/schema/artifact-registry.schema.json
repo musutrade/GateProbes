@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/musutrade/Harness-Gate/schema/artifact-registry.schema.json",
+  "title": "Harness-Gate Artifact Registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "invocation_id", "artifacts"],
+  "properties": {
+    "schema_version": {"const": "1"},
+    "invocation_id": {"type": "string", "minLength": 1},
+    "artifacts": {
+      "type": "array",
+      "items": {"$ref": "#/definitions/artifact"}
+    }
+  },
+  "definitions": {
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["invocation_id", "kind", "path", "size_bytes", "sha256"],
+      "properties": {
+        "invocation_id": {"type": "string", "minLength": 1},
+        "step_id": {"type": ["string", "null"], "minLength": 1},
+        "kind": {"type": "string", "minLength": 1},
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+"
+        },
+        "size_bytes": {"type": "integer", "minimum": 0},
+        "sha256": {"type": "string", "pattern": "^[A-Fa-f0-9]{64}$"}
+      }
+    }
+  }
+}

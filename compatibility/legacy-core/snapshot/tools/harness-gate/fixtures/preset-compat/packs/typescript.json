@@ -1,0 +1,233 @@
+{
+  "quality": {
+    "collectors": {
+      "${binding}": {
+        "protocol": "harness-collector-request/v1",
+        "request": ".harness-gate/runtime/${binding}-request.json",
+        "produces": [
+          {
+            "target": {
+              "kind": "component",
+              "id": "${binding}"
+            },
+            "capability": "coverage.line",
+            "series": "measurement-series/v1:aafce3307210d37f5a1a09f98a7b33b04dfb34e4a269a4d2b78feadf349ff6f1"
+          },
+          {
+            "target": {
+              "kind": "component",
+              "id": "${binding}"
+            },
+            "capability": "coverage.function",
+            "series": "measurement-series/v1:aafce3307210d37f5a1a09f98a7b33b04dfb34e4a269a4d2b78feadf349ff6f1"
+          },
+          {
+            "target": {
+              "kind": "component",
+              "id": "${binding}"
+            },
+            "capability": "risk.crap",
+            "series": "measurement-series/v1:aafce3307210d37f5a1a09f98a7b33b04dfb34e4a269a4d2b78feadf349ff6f1"
+          }
+        ]
+      }
+    },
+    "policies": {
+      "${binding}.coverage.line": {
+        "policy_file": ".harness-gate/packs/${binding}/policy.json",
+        "rule": "${binding}.coverage.line",
+        "expectation": {
+          "target": {
+            "kind": "component",
+            "id": "${binding}"
+          },
+          "capability": "coverage.line",
+          "series": "measurement-series/v1:aafce3307210d37f5a1a09f98a7b33b04dfb34e4a269a4d2b78feadf349ff6f1"
+        }
+      },
+      "${binding}.coverage.function": {
+        "policy_file": ".harness-gate/packs/${binding}/policy.json",
+        "rule": "${binding}.coverage.function",
+        "expectation": {
+          "target": {
+            "kind": "component",
+            "id": "${binding}"
+          },
+          "capability": "coverage.function",
+          "series": "measurement-series/v1:aafce3307210d37f5a1a09f98a7b33b04dfb34e4a269a4d2b78feadf349ff6f1"
+        }
+      },
+      "${binding}.risk.crap": {
+        "policy_file": ".harness-gate/packs/${binding}/policy.json",
+        "rule": "${binding}.risk.crap",
+        "expectation": {
+          "target": {
+            "kind": "component",
+            "id": "${binding}"
+          },
+          "capability": "risk.crap",
+          "series": "measurement-series/v1:aafce3307210d37f5a1a09f98a7b33b04dfb34e4a269a4d2b78feadf349ff6f1"
+        }
+      }
+    },
+    "profiles": {
+      "full": {
+        "collectors": [
+          "${binding}"
+        ],
+        "policies": [
+          "${binding}.coverage.line",
+          "${binding}.coverage.function",
+          "${binding}.risk.crap"
+        ]
+      },
+      "ci": {
+        "collectors": [
+          "${binding}"
+        ],
+        "policies": [
+          "${binding}.coverage.line",
+          "${binding}.coverage.function",
+          "${binding}.risk.crap"
+        ]
+      }
+    },
+    "components": {
+      "${binding}": {
+        "flow_components": [
+          "${binding}"
+        ],
+        "source_roots": [
+          "${source_root}"
+        ],
+        "artifact_root": ".harness-gate/reports/evidence/${binding}"
+      }
+    }
+  },
+  "files": {
+    ".harness-gate/packs/${binding}/policy.json": {
+      "schema": "harness-policy/v1",
+      "rules": [
+        {
+          "id": "${binding}.coverage.line",
+          "scope": {
+            "kind": "component",
+            "component": "${binding}"
+          },
+          "metric": "coverage.line",
+          "operator": "ge",
+          "limit": {
+            "type": "ratio",
+            "covered": 4,
+            "total": 5
+          },
+          "required": true,
+          "on_violation": "fail",
+          "remediation_classes": [
+            "review_quality_evidence"
+          ]
+        },
+        {
+          "id": "${binding}.coverage.function",
+          "scope": {
+            "kind": "component",
+            "component": "${binding}"
+          },
+          "metric": "coverage.function",
+          "operator": "ge",
+          "limit": {
+            "type": "ratio",
+            "covered": 4,
+            "total": 5
+          },
+          "required": true,
+          "on_violation": "fail",
+          "remediation_classes": [
+            "review_quality_evidence"
+          ]
+        },
+        {
+          "id": "${binding}.risk.crap",
+          "scope": {
+            "kind": "component",
+            "component": "${binding}"
+          },
+          "metric": "risk.crap",
+          "operator": "le",
+          "limit": {
+            "type": "rational",
+            "numerator": 30,
+            "denominator": 1
+          },
+          "required": false,
+          "on_violation": "fail",
+          "remediation_classes": [
+            "review_quality_evidence"
+          ]
+        }
+      ]
+    },
+    ".harness-gate/packs/${binding}/capabilities.json": {
+      "series": {
+        "name": "typescript-source-coverage",
+        "collector": {
+          "name": "typescript-reference",
+          "version": "1"
+        },
+        "tool": {
+          "name": "typescript-toolchain",
+          "version": "50d0b22c1c80eb5b71f66afb2535e7f090999c6edb15a35cd8ae4ff398c195e4"
+        },
+        "rule": {
+          "name": "typescript-source-coverage",
+          "version": "50d0b22c1c80eb5b71f66afb2535e7f090999c6edb15a35cd8ae4ff398c195e4"
+        },
+        "runtime": {
+          "name": "node-jsdom",
+          "version": "24.18.0/jsdom@28.0.0"
+        },
+        "target": "node-jsdom",
+        "source_identity": {
+          "name": "typescript-original-source/v1",
+          "version": "1"
+        },
+        "normalization": {
+          "name": "istanbul-start-line-max-innermost/v1",
+          "version": "1"
+        },
+        "metrics": [
+          {
+            "name": "complexity.cognitive",
+            "type": "count"
+          },
+          {
+            "name": "complexity.cyclomatic",
+            "type": "count"
+          },
+          {
+            "name": "coverage.branch",
+            "type": "ratio"
+          },
+          {
+            "name": "coverage.function",
+            "type": "ratio"
+          },
+          {
+            "name": "coverage.line",
+            "type": "ratio"
+          },
+          {
+            "name": "risk.crap",
+            "type": "decimal"
+          }
+        ],
+        "id": "measurement-series/v1:aafce3307210d37f5a1a09f98a7b33b04dfb34e4a269a4d2b78feadf349ff6f1"
+      },
+      "states": {
+        "coverage.line": "supported",
+        "coverage.function": "supported",
+        "risk.crap": "unsupported"
+      }
+    }
+  }
+}

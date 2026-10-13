@@ -1,0 +1,44 @@
+version = 2
+
+[project]
+name = "quality-benchmark"
+default_profile = "full"
+hook_profile = "full"
+
+[paths]
+reports = ".harness-gate/reports"
+audit_config = ".harness-gate/audit.toml"
+secrets_config = ".harness-gate/secrets.toml"
+
+[services.benchmark]
+kind = "environment"
+source_env = "HARNESS_GATE_BENCHMARK_SERVICE_URL"
+inject_env = "BENCHMARK_SERVICE_URL"
+
+[scope]
+unmatched = "all"
+rules = [{ patterns = ["**"], components = ["project"] }]
+
+[[steps]]
+id = "benchmark.diff"
+label = "benchmark diff"
+component = "project"
+profiles = ["full"]
+program = "python3"
+args = ["benchmark_worker.py", ".harness-gate/parallel-state/state.json"]
+cwd = "{root}"
+log = "benchmark_diff.log"
+timeout_secs = 30
+services = ["benchmark"]
+
+[[steps]]
+id = "benchmark.status"
+label = "benchmark status"
+component = "project"
+profiles = ["full"]
+program = "python3"
+args = ["benchmark_worker.py", ".harness-gate/parallel-state/state.json"]
+cwd = "{root}"
+log = "benchmark_status.log"
+timeout_secs = 30
+services = ["benchmark"]

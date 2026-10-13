@@ -1,0 +1,293 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/musutrade/Harness-Gate/schema/machine-result.schema.json",
+  "title": "Harness-Gate Machine Result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "invocation_id",
+    "executor_version",
+    "report_directory",
+    "timestamp",
+    "profile",
+    "input_mode",
+    "project_identity",
+    "source_identity",
+    "execution_root",
+    "configuration_digest",
+    "scope",
+    "services",
+    "steps",
+    "skipped_steps",
+    "warnings",
+    "failures",
+    "artifacts",
+    "evidence_complete",
+    "passed",
+    "status"
+  ],
+  "properties": {
+    "schema_version": {"const": "1"},
+    "invocation_id": {"type": "string", "minLength": 1},
+    "executor_version": {"type": "string", "minLength": 1},
+    "report_directory": {"type": "string", "minLength": 1},
+    "timestamp": {"type": "string", "format": "date-time"},
+    "profile": {"type": "string", "minLength": 1},
+    "input_mode": {"enum": ["working-tree", "staged", "base", "all"]},
+    "project_identity": {"type": "string", "minLength": 1},
+    "source_identity": {"type": "string", "minLength": 1},
+    "execution_root": {"type": "string", "minLength": 1},
+    "configuration_digest": {"type": "string", "pattern": "^sha256:[A-Fa-f0-9]{64}$"},
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "changed_files", "components", "unmatched_files"],
+      "properties": {
+        "mode": {"type": "string"},
+        "changed_files": {"type": "array", "items": {"type": "string"}},
+        "components": {"type": "array", "items": {"type": "string"}},
+        "unmatched_files": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "services": {"type": "array", "items": {"$ref": "#/definitions/service"}},
+    "steps": {"type": "array", "items": {"$ref": "#/definitions/step"}},
+    "skipped_steps": {"type": "array", "items": {"$ref": "#/definitions/skipped_step"}},
+    "warnings": {"type": "array", "items": {"$ref": "#/definitions/warning"}},
+    "failures": {"type": "array", "items": {"$ref": "#/definitions/failure"}},
+    "artifacts": {"type": "array", "items": {"$ref": "#/definitions/artifact"}},
+    "evidence_complete": {"type": "boolean"},
+    "quality": {"$ref": "#/definitions/quality"},
+    "passed": {"type": "boolean"},
+    "status": {"enum": ["PASS", "WAIVED", "FAIL", "SKIPPED", "CANCELLED"]}
+  },
+  "definitions": {
+    "quality": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "status", "phase", "error", "selection", "inputs", "evidence", "baseline", "project_report", "project_report_path", "output", "formats", "evaluation_time"],
+      "properties": {
+        "schema": {"const": "quality-verification/v1"},
+        "status": {"enum": ["pass", "fail", "blocked"]},
+        "phase": {"enum": ["configuration", "baseline", "collection", "evaluation", "complete"]},
+        "error": {"type": ["string", "null"]},
+        "selection": {"type": ["object", "null"]},
+        "inputs": {"type": ["object", "null"]},
+        "evidence": {"type": ["array", "null"]},
+        "baseline": {"type": ["object", "null"]},
+        "project_report": {"type": ["object", "null"], "description": "Complete authoritative harness-project-report/v1, validated by the released generic core."},
+        "project_report_path": {"type": ["string", "null"]},
+        "output": {"type": ["string", "null"]},
+        "formats": {"type": "array", "uniqueItems": true, "items": {"enum": ["json", "human"]}},
+        "evaluation_time": {"type": ["string", "null"], "format": "date-time"}
+      }
+    },
+    "step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "step_id",
+        "invocation_id",
+        "label",
+        "passed",
+        "status",
+        "timed_out",
+        "cancelled",
+        "duration_ms",
+        "log",
+        "detail",
+        "failure_code",
+        "runner",
+        "waived",
+        "waiver",
+        "attempts",
+        "retry_count",
+        "flaky",
+        "retry_class",
+        "parser"
+      ],
+      "properties": {
+        "step_id": {"type": ["string", "null"]},
+        "invocation_id": {"type": ["string", "null"]},
+        "label": {"type": "string"},
+        "passed": {"type": "boolean"},
+        "status": {"enum": ["PASS", "WAIVED", "FAIL", "CANCELLED"]},
+        "timed_out": {"type": "boolean"},
+        "cancelled": {"type": "boolean"},
+        "duration_ms": {"type": "integer", "minimum": 0},
+        "log": {"type": "string"},
+        "detail": {"type": ["string", "null"]},
+        "failure_code": {"anyOf": [{"$ref": "#/definitions/failure_code"}, {"type": "null"}]},
+        "waived": {"type": "boolean"},
+        "waiver": {"anyOf": [{"$ref": "#/definitions/waiver"}, {"type": "null"}]},
+        "runner": {"anyOf": [{"$ref": "#/definitions/runner"}, {"type": "null"}]},
+        "attempts": {"type": "array", "minItems": 1, "items": {"$ref": "#/definitions/attempt"}},
+        "retry_count": {"type": "integer", "minimum": 0},
+        "flaky": {"type": "boolean"},
+        "retry_class": {"anyOf": [{"$ref": "#/definitions/retry_class"}, {"type": "null"}]},
+        "parser": {"anyOf": [{"$ref": "#/definitions/parser"}, {"type": "null"}]}
+      }
+    },
+    "waiver": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "risk", "owner", "approved_by", "created_at", "expires_at", "compensating_control"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "risk": {"type": "string", "minLength": 1},
+        "owner": {"type": "string", "minLength": 1},
+        "approved_by": {"type": "string", "minLength": 1},
+        "created_at": {"type": "string", "format": "date-time"},
+        "expires_at": {"type": "string", "format": "date-time"},
+        "compensating_control": {"type": "string", "minLength": 1}
+      }
+    },
+    "attempt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["attempt", "status", "started_at", "finished_at", "duration_ms", "timed_out", "cancelled", "log", "detail"],
+      "properties": {
+        "attempt": {"type": "integer", "minimum": 1},
+        "status": {"enum": ["PASS", "WAIVED", "FAIL", "CANCELLED"]},
+        "started_at": {"type": ["string", "null"]},
+        "finished_at": {"type": ["string", "null"]},
+        "duration_ms": {"type": "integer", "minimum": 0},
+        "timed_out": {"type": "boolean"},
+        "cancelled": {"type": "boolean"},
+        "log": {"type": "string"},
+        "detail": {"type": ["string", "null"]}
+      }
+    },
+    "parser": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "version", "observed", "minimum", "complete"],
+      "properties": {
+        "mode": {"enum": ["regex", "junit", "trx", "json"]},
+        "version": {"type": "integer", "minimum": 1},
+        "observed": {"type": "integer", "minimum": 0},
+        "minimum": {"type": "integer", "minimum": 0},
+        "complete": {"type": "boolean"}
+      }
+    },
+    "runner": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "version", "kind", "program", "effective_args", "environment", "result_format",
+        "isolation", "threads", "worker_ids", "migration_decision", "lock_decision"
+      ],
+      "properties": {
+        "version": {"type": "integer", "minimum": 1},
+        "kind": {"type": "string", "minLength": 1},
+        "program": {"type": "string", "minLength": 1},
+        "effective_args": {"type": "array", "items": {"type": "string"}},
+        "environment": {"type": "object", "additionalProperties": {"type": "string"}},
+        "result_format": {"enum": ["regex", "junit", "trx", "json"]},
+        "isolation": {"enum": ["shared", "schema-per-worker", "database-per-worker"]},
+        "threads": {"type": ["integer", "null"], "minimum": 1},
+        "worker_ids": {"type": "array", "items": {"type": "string"}},
+        "isolation_id": {"type": ["string", "null"]},
+        "isolation_root": {"type": ["string", "null"]},
+        "migration_decision": {"type": "string"},
+        "lock_decision": {"type": "string"},
+        "shard_index": {"type": ["integer", "null"], "minimum": 0},
+        "shard_total": {"type": ["integer", "null"], "minimum": 1},
+        "merge_identity": {"type": ["string", "null"]}
+      }
+    },
+    "skipped_step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "label", "status", "reason"],
+      "properties": {
+        "id": {"type": "string"},
+        "label": {"type": "string"},
+        "status": {"const": "SKIPPED"},
+        "reason": {"type": "string"}
+      }
+    },
+    "warning": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "message"],
+      "properties": {
+        "code": {"type": "string"},
+        "message": {"type": "string"}
+      }
+    },
+    "failure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["step_id", "code", "message"],
+      "properties": {
+        "step_id": {"type": ["string", "null"]},
+        "code": {"$ref": "#/definitions/failure_code"},
+        "message": {"type": "string"}
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "kind"],
+      "properties": {
+        "path": {"type": "string", "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+"},
+        "kind": {"type": "string", "minLength": 1},
+        "invocation_id": {"type": ["string", "null"], "minLength": 1},
+        "step_id": {"type": ["string", "null"], "minLength": 1},
+        "size_bytes": {"type": ["integer", "null"], "minimum": 0},
+        "sha256": {"type": ["string", "null"], "pattern": "^[A-Fa-f0-9]{64}$"}
+      }
+    },
+    "service": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "status"],
+      "properties": {
+        "id": {"type": "string"},
+        "status": {"enum": ["READY", "FAILED", "CLEANED", "LEAKED"]}
+      }
+    },
+    "failure_code": {
+      "type": "string",
+      "enum": [
+        "WEBHOOK_DESTINATION_DENIED",
+        "WEBHOOK_REDIRECT_DENIED",
+        "LEASE_OWNERSHIP_UNCERTAIN",
+        "SERVICE_SETUP_FAILURE",
+        "SERVICE_LEASE_FAILURE",
+        "RESULT_PARSE_FAILURE",
+        "RESULT_ZERO",
+        "RESULT_PARTIAL",
+        "SCHEDULER_FAILURE",
+        "SECRET_SCAN_FAILURE",
+        "ARCHITECTURE_AUDIT_FAILURE",
+        "QUALITY_BLOCKED",
+        "STEP_EXECUTION_FAILURE",
+        "STEP_SKIPPED",
+        "OUTPUT_LIMIT_EXCEEDED",
+        "READER_DEADLINE_EXCEEDED",
+        "STEP_CANCELLED",
+        "STEP_TIMEOUT",
+        "STEP_FAILED",
+        "EVIDENCE_PATH_ESCAPE",
+        "EVIDENCE_PENDING",
+        "EVIDENCE_FINALIZATION_FAILURE",
+        "EVIDENCE_PUBLICATION_FAILURE",
+        "EVIDENCE_DUPLICATE_PATH",
+        "EVIDENCE_STEP_UNBOUND",
+        "EVIDENCE_INVOCATION_MISMATCH",
+        "EVIDENCE_MISSING",
+        "EVIDENCE_UNDECLARED_FILE",
+        "EVIDENCE_SYMLINK",
+        "EVIDENCE_INVALID_TYPE",
+        "EVIDENCE_READ_FAILURE",
+        "EVIDENCE_INVALID_METADATA"
+      ]
+    },
+    "retry_class": {
+      "type": "string",
+      "enum": ["cancelled", "timeout", "parser", "exit"]
+    }
+  }
+}

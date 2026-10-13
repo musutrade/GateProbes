@@ -1,0 +1,153 @@
+{
+  "schema": "harness-policy/v1",
+  "rules": [
+    {
+      "id": "frontend.local",
+      "scope": {
+        "kind": "subject",
+        "subject": "subject-identity/v1:fd7753a2fb1e09e3b28bffd95a5329ef3b60a64fb8137356a75e9962cff58e80"
+      },
+      "metric": "coverage.line",
+      "operator": "ge",
+      "limit": {
+        "type": "ratio",
+        "covered": 4,
+        "total": 5
+      },
+      "required": true,
+      "on_violation": "fail",
+      "remediation_classes": [
+        "increase_meaningful_coverage"
+      ]
+    },
+    {
+      "id": "api.local",
+      "scope": {
+        "kind": "subject",
+        "subject": "subject-identity/v1:51787f7d6a992215db7936a3032edb6cbf765ded6bdea69a396094fe7a979e0a"
+      },
+      "metric": "coverage.line",
+      "operator": "ge",
+      "limit": {
+        "type": "ratio",
+        "covered": 4,
+        "total": 5
+      },
+      "required": true,
+      "on_violation": "fail",
+      "remediation_classes": [
+        "increase_meaningful_coverage"
+      ]
+    },
+    {
+      "id": "worker.local",
+      "scope": {
+        "kind": "subject",
+        "subject": "subject-identity/v1:a8014c6d46eda90cae86ec48b4d88b07694194fc299229e5b39f90fa48b63e97"
+      },
+      "metric": "coverage.line",
+      "operator": "ge",
+      "limit": {
+        "type": "ratio",
+        "covered": 4,
+        "total": 5
+      },
+      "required": true,
+      "on_violation": "fail",
+      "remediation_classes": [
+        "increase_meaningful_coverage"
+      ]
+    },
+    {
+      "id": "billing.local",
+      "scope": {
+        "kind": "subject",
+        "subject": "subject-identity/v1:ea5aaa1335025764061ad80a163cbf8b8479918b7adc668f304980eabc22edc5"
+      },
+      "metric": "coverage.line",
+      "operator": "ge",
+      "limit": {
+        "type": "ratio",
+        "covered": 4,
+        "total": 5
+      },
+      "required": true,
+      "on_violation": "fail",
+      "remediation_classes": [
+        "increase_meaningful_coverage"
+      ]
+    },
+    {
+      "id": "contract.schema_valid",
+      "scope": {
+        "kind": "relationship",
+        "relationship": "api-client"
+      },
+      "metric": "contract.schema_valid",
+      "operator": "eq",
+      "limit": {
+        "type": "boolean",
+        "value": true
+      },
+      "required": true,
+      "on_violation": "fail",
+      "remediation_classes": [
+        "restore_contract_compatibility"
+      ]
+    },
+    {
+      "id": "contract.breaking_changes",
+      "scope": {
+        "kind": "relationship",
+        "relationship": "api-client"
+      },
+      "metric": "contract.breaking_changes",
+      "operator": "eq",
+      "limit": {
+        "type": "count",
+        "value": 0
+      },
+      "required": true,
+      "on_violation": "fail",
+      "remediation_classes": [
+        "restore_contract_compatibility"
+      ]
+    },
+    {
+      "id": "contract.client_drift",
+      "scope": {
+        "kind": "relationship",
+        "relationship": "api-client"
+      },
+      "metric": "contract.client_drift",
+      "operator": "eq",
+      "limit": {
+        "type": "boolean",
+        "value": false
+      },
+      "required": true,
+      "on_violation": "fail",
+      "remediation_classes": [
+        "restore_contract_compatibility"
+      ]
+    },
+    {
+      "id": "contract.compatible",
+      "scope": {
+        "kind": "relationship",
+        "relationship": "api-client"
+      },
+      "metric": "contract.compatible",
+      "operator": "eq",
+      "limit": {
+        "type": "boolean",
+        "value": true
+      },
+      "required": true,
+      "on_violation": "fail",
+      "remediation_classes": [
+        "restore_contract_compatibility"
+      ]
+    }
+  ]
+}

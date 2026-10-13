@@ -1,0 +1,143 @@
+{
+  "origin": "rust-reference/history.json retained head-risk projection, high boundary",
+  "series": {
+    "collector": {
+      "name": "rust-reference",
+      "version": "1"
+    },
+    "id": "measurement-series/v1:4fa98f3128d8c3ac0dd5279ba9b4f4f9ae83cc3538575cfd5a6be1599a95dd98",
+    "metrics": [
+      {
+        "name": "complexity.cyclomatic",
+        "type": "count"
+      },
+      {
+        "name": "coverage.branch",
+        "type": "ratio"
+      },
+      {
+        "name": "coverage.line",
+        "type": "ratio"
+      },
+      {
+        "name": "coverage.region",
+        "type": "ratio"
+      },
+      {
+        "name": "risk.crap",
+        "type": "rational"
+      }
+    ],
+    "name": "rust-function-risk",
+    "normalization": {
+      "name": "rust-reference",
+      "version": "1"
+    },
+    "rule": {
+      "name": "rust-function-risk",
+      "version": "df3c0826a11321a0388990a3fb11118e3943d017844179d05a25394c2f036dcd"
+    },
+    "runtime": {
+      "name": "rust",
+      "version": "d24ba8c58c2dcc755f6581fca8f9e15fe8b4d1a8f630fd688ecb939ca64d0b6f"
+    },
+    "source_identity": {
+      "name": "rust-native-identity",
+      "version": "1"
+    },
+    "target": "x86_64-unknown-linux-gnu",
+    "tool": {
+      "name": "retained-rust-tools",
+      "version": "df3c0826a11321a0388990a3fb11118e3943d017844179d05a25394c2f036dcd"
+    }
+  },
+  "rules": [
+    {
+      "id": "high.coverage.line",
+      "limit": {
+        "covered": 4,
+        "total": 5,
+        "type": "ratio"
+      },
+      "metric": "coverage.line",
+      "on_violation": "fail",
+      "operator": "ge",
+      "remediation_classes": [
+        "review_retained_rust_evidence"
+      ],
+      "required": true,
+      "scope": {
+        "boundary": "high",
+        "component": "rust",
+        "kind": "boundary"
+      }
+    },
+    {
+      "id": "high.coverage.region",
+      "limit": {
+        "covered": 4,
+        "total": 5,
+        "type": "ratio"
+      },
+      "metric": "coverage.region",
+      "on_violation": "fail",
+      "operator": "ge",
+      "remediation_classes": [
+        "review_retained_rust_evidence"
+      ],
+      "required": true,
+      "scope": {
+        "boundary": "high",
+        "component": "rust",
+        "kind": "boundary"
+      }
+    },
+    {
+      "id": "high.risk.crap",
+      "limit": {
+        "denominator": 1,
+        "numerator": 30,
+        "type": "rational"
+      },
+      "metric": "risk.crap",
+      "on_violation": "fail",
+      "operator": "le",
+      "remediation_classes": [
+        "review_retained_rust_evidence"
+      ],
+      "required": true,
+      "scope": {
+        "boundary": "high",
+        "component": "rust",
+        "kind": "boundary"
+      }
+    }
+  ],
+  "profiles": {
+    "hook": {
+      "assurance": "partial",
+      "collectors": [],
+      "policies": []
+    },
+    "full": {
+      "collectors": [
+        "certified"
+      ],
+      "policies": [
+        "high.coverage.line",
+        "high.coverage.region",
+        "high.risk.crap"
+      ]
+    },
+    "ci": {
+      "collectors": [
+        "certified"
+      ],
+      "policies": [
+        "high.coverage.line",
+        "high.coverage.region",
+        "high.risk.crap"
+      ]
+    }
+  }
+}

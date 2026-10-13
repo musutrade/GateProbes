@@ -1,0 +1,77 @@
+{
+  "schema": "capability-requirements/v1",
+  "requirements": [
+    {
+      "component": "frontend",
+      "metric": "coverage.line",
+      "mode": "required",
+      "on_unavailable": "blocked"
+    },
+    {
+      "component": "frontend",
+      "metric": "coverage.branch",
+      "mode": "required",
+      "on_unavailable": "blocked"
+    },
+    {
+      "component": "frontend",
+      "metric": "coverage.region",
+      "mode": "informational",
+      "on_unavailable": "blocked"
+    },
+    {
+      "component": "api",
+      "metric": "coverage.line",
+      "mode": "required",
+      "on_unavailable": "blocked"
+    },
+    {
+      "component": "api",
+      "metric": "coverage.branch",
+      "mode": "required",
+      "on_unavailable": "blocked"
+    },
+    {
+      "component": "api",
+      "metric": "coverage.region",
+      "mode": "informational",
+      "on_unavailable": "blocked"
+    },
+    {
+      "component": "worker",
+      "metric": "coverage.line",
+      "mode": "required",
+      "on_unavailable": "blocked"
+    },
+    {
+      "component": "worker",
+      "metric": "coverage.branch",
+      "mode": "required",
+      "on_unavailable": "blocked"
+    },
+    {
+      "component": "worker",
+      "metric": "coverage.region",
+      "mode": "informational",
+      "on_unavailable": "blocked"
+    },
+    {
+      "component": "billing",
+      "metric": "coverage.line",
+      "mode": "required",
+      "on_unavailable": "blocked"
+    },
+    {
+      "component": "billing",
+      "metric": "coverage.branch",
+      "mode": "required",
+      "on_unavailable": "blocked"
+    },
+    {
+      "component": "billing",
+      "metric": "coverage.region",
+      "mode": "informational",
+      "on_unavailable": "blocked"
+    }
+  ]
+}

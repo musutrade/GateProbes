@@ -1,0 +1,5 @@
+{
+  "required_response_fields": [
+    "email"
+  ]
+}

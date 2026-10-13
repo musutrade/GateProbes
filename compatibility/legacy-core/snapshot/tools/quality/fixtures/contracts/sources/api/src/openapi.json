@@ -1,0 +1,23 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Synthetic",
+    "version": "2"
+  },
+  "paths": {},
+  "components": {
+    "schemas": {
+      "User": {
+        "type": "object",
+        "required": [
+          "primaryEmail"
+        ],
+        "properties": {
+          "primaryEmail": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

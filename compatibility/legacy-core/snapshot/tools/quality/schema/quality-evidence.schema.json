@@ -1,0 +1,309 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/musutrade/Harness-Gate/main/tools/quality/schema/quality-evidence.schema.json",
+  "title": "Harness-Gate complexity evidence record",
+  "description": "Versioned machine-readable evidence produced by the locked development complexity analyzer.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "kind",
+    "series",
+    "symbols"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1"
+    },
+    "kind": {
+      "const": "complexity-evidence"
+    },
+    "commit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$",
+      "minLength": 40,
+      "maxLength": 40
+    },
+    "series": {
+      "$ref": "#/definitions/series"
+    },
+    "symbols": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/symbol"
+      }
+    }
+  },
+  "definitions": {
+    "series": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "analyzer",
+        "rule",
+        "toolchain",
+        "source"
+      ],
+      "properties": {
+        "analyzer": {
+          "$ref": "#/definitions/component"
+        },
+        "rule": {
+          "$ref": "#/definitions/component"
+        },
+        "toolchain": {
+          "$ref": "#/definitions/toolchain"
+        },
+        "source": {
+          "$ref": "#/definitions/source"
+        }
+      }
+    },
+    "component": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "version",
+        "license"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "license": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "toolchain": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "target",
+        "python"
+      ],
+      "properties": {
+        "target": {
+          "type": "string",
+          "minLength": 1
+        },
+        "python": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "bytes",
+        "language"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "minLength": 64,
+          "maxLength": 64
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "language": {
+          "const": "rust"
+        }
+      }
+    },
+    "symbol": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "kind",
+        "qualified_name",
+        "source",
+        "span",
+        "metrics",
+        "raw"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "enum": [
+            "function",
+            "closure"
+          ]
+        },
+        "qualified_name": {
+          "type": "string",
+          "pattern": "^[A-Za-z_][A-Za-z0-9_]*(?:::[A-Za-z_][A-Za-z0-9_]*)*$",
+          "minLength": 1
+        },
+        "source": {
+          "$ref": "#/definitions/symbol-source"
+        },
+        "span": {
+          "$ref": "#/definitions/span"
+        },
+        "metrics": {
+          "$ref": "#/definitions/metrics"
+        },
+        "raw": {
+          "$ref": "#/definitions/raw-counts"
+        }
+      }
+    },
+    "symbol-source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "minLength": 64,
+          "maxLength": 64
+        }
+      }
+    },
+    "span": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "start_line",
+        "start_column",
+        "end_line",
+        "end_column"
+      ],
+      "properties": {
+        "start_line": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "start_column": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "end_line": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "end_column": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "cyclomatic_complexity"
+      ],
+      "properties": {
+        "cyclomatic_complexity": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "raw-counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "if",
+        "guards",
+        "match",
+        "match_arms",
+        "while",
+        "for",
+        "loop",
+        "and_and",
+        "or_or",
+        "question_mark",
+        "closures",
+        "macro_invocations_skipped",
+        "nested_functions"
+      ],
+      "properties": {
+        "if": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "guards": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "match": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "match_arms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "while": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "for": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "loop": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "and_and": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "or_or": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "question_mark": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "closures": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "macro_invocations_skipped": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "nested_functions": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}

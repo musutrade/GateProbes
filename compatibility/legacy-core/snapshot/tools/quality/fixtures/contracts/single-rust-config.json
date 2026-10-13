@@ -1,0 +1,5 @@
+{
+  "schema": "harness-project-config/v1",
+  "project_model": "tools/quality/fixtures/contracts/single-rust-project.json",
+  "policy": "tools/quality/fixtures/contracts/single-rust-policy.json"
+}

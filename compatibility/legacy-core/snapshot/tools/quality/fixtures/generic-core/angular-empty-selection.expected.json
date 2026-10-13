@@ -1,0 +1,402 @@
+{
+  "policy_result": {
+    "aggregate": {
+      "blockers": [
+        {
+          "policy": "pricing-lines",
+          "state": "not_applicable",
+          "subject": null
+        }
+      ],
+      "state": "blocked"
+    },
+    "debt_ledger": [],
+    "exception_review": {
+      "errors": [],
+      "exceptions": [],
+      "state": "none"
+    },
+    "mode": "shadow",
+    "quality_aggregate": {
+      "blockers": [
+        {
+          "policy": "pricing-lines",
+          "state": "not_applicable",
+          "subject": null
+        }
+      ],
+      "state": "blocked"
+    },
+    "results": [
+      {
+        "policy": "pricing-lines",
+        "reason": "scope selects no subjects",
+        "record": {
+          "base": null,
+          "component": null,
+          "context": {
+            "base_commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+            "commit": "e8c569b30461a1502eb7d35336672799157465d3",
+            "run": "compatible-head",
+            "target": "node-jsdom"
+          },
+          "evidence_links": {
+            "base": null,
+            "head": null
+          },
+          "exception_review": {
+            "exceptions": [],
+            "state": "none"
+          },
+          "head": null,
+          "measurement_series": {
+            "base": null,
+            "head": null
+          },
+          "metric": "coverage.line",
+          "policy": {
+            "id": "pricing-lines",
+            "limit": {
+              "covered": 4,
+              "total": 5,
+              "type": "ratio"
+            },
+            "metric": "coverage.line",
+            "on_violation": "fail",
+            "operator": "ge",
+            "ratchet": {
+              "allow_legacy_debt": true,
+              "deny_regression": true
+            },
+            "remediation_classes": [
+              "increase_meaningful_coverage"
+            ],
+            "required": true,
+            "scope": {
+              "kind": "changed_subject"
+            }
+          },
+          "remediation_classes": [
+            "repair_measurement"
+          ],
+          "subject": null
+        },
+        "state": "not_applicable",
+        "subject": null
+      }
+    ],
+    "schema": "harness-policy-results/v1",
+    "violations": [
+      {
+        "policy": "pricing-lines",
+        "reason": "scope selects no subjects",
+        "record": {
+          "base": null,
+          "component": null,
+          "context": {
+            "base_commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+            "commit": "e8c569b30461a1502eb7d35336672799157465d3",
+            "run": "compatible-head",
+            "target": "node-jsdom"
+          },
+          "evidence_links": {
+            "base": null,
+            "head": null
+          },
+          "exception_review": {
+            "exceptions": [],
+            "state": "none"
+          },
+          "head": null,
+          "measurement_series": {
+            "base": null,
+            "head": null
+          },
+          "metric": "coverage.line",
+          "policy": {
+            "id": "pricing-lines",
+            "limit": {
+              "covered": 4,
+              "total": 5,
+              "type": "ratio"
+            },
+            "metric": "coverage.line",
+            "on_violation": "fail",
+            "operator": "ge",
+            "ratchet": {
+              "allow_legacy_debt": true,
+              "deny_regression": true
+            },
+            "remediation_classes": [
+              "increase_meaningful_coverage"
+            ],
+            "required": true,
+            "scope": {
+              "kind": "changed_subject"
+            }
+          },
+          "remediation_classes": [
+            "repair_measurement"
+          ],
+          "subject": null
+        },
+        "state": "not_applicable",
+        "subject": null
+      }
+    ]
+  },
+  "project_report": {
+    "aggregate": {
+      "blockers": [
+        {
+          "policy": "pricing-lines",
+          "state": "not_applicable",
+          "subject": null
+        }
+      ],
+      "state": "blocked"
+    },
+    "components": {
+      "typescript": {
+        "aggregate": {
+          "blockers": [],
+          "state": "not_applicable"
+        },
+        "cross_component": {
+          "blockers": [],
+          "state": "not_applicable"
+        },
+        "gates": [],
+        "local": {
+          "blockers": [],
+          "state": "not_applicable"
+        }
+      }
+    },
+    "gates": {
+      "gate-000000": {
+        "policy": "pricing-lines",
+        "reason": "scope selects no subjects",
+        "record": {
+          "base": null,
+          "component": null,
+          "context": {
+            "base_commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+            "commit": "e8c569b30461a1502eb7d35336672799157465d3",
+            "run": "compatible-head",
+            "target": "node-jsdom"
+          },
+          "evidence_links": {
+            "base": null,
+            "head": null
+          },
+          "exception_review": {
+            "exceptions": [],
+            "state": "none"
+          },
+          "head": null,
+          "measurement_series": {
+            "base": null,
+            "head": null
+          },
+          "metric": "coverage.line",
+          "policy": {
+            "id": "pricing-lines",
+            "limit": {
+              "covered": 4,
+              "total": 5,
+              "type": "ratio"
+            },
+            "metric": "coverage.line",
+            "on_violation": "fail",
+            "operator": "ge",
+            "ratchet": {
+              "allow_legacy_debt": true,
+              "deny_regression": true
+            },
+            "remediation_classes": [
+              "increase_meaningful_coverage"
+            ],
+            "required": true,
+            "scope": {
+              "kind": "changed_subject"
+            }
+          },
+          "remediation_classes": [
+            "repair_measurement"
+          ],
+          "subject": null
+        },
+        "state": "not_applicable",
+        "subject": null
+      }
+    },
+    "indexes": {
+      "component": {},
+      "policy": {
+        "pricing-lines": [
+          "gate-000000"
+        ]
+      },
+      "relationship": {},
+      "status": {
+        "not_applicable": [
+          "gate-000000"
+        ]
+      },
+      "subject": {}
+    },
+    "mode": "shadow",
+    "policy_result": {
+      "aggregate": {
+        "blockers": [
+          {
+            "policy": "pricing-lines",
+            "state": "not_applicable",
+            "subject": null
+          }
+        ],
+        "state": "blocked"
+      },
+      "debt_ledger": [],
+      "exception_review": {
+        "errors": [],
+        "exceptions": [],
+        "state": "none"
+      },
+      "mode": "shadow",
+      "quality_aggregate": {
+        "blockers": [
+          {
+            "policy": "pricing-lines",
+            "state": "not_applicable",
+            "subject": null
+          }
+        ],
+        "state": "blocked"
+      },
+      "results": [
+        {
+          "policy": "pricing-lines",
+          "reason": "scope selects no subjects",
+          "record": {
+            "base": null,
+            "component": null,
+            "context": {
+              "base_commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+              "commit": "e8c569b30461a1502eb7d35336672799157465d3",
+              "run": "compatible-head",
+              "target": "node-jsdom"
+            },
+            "evidence_links": {
+              "base": null,
+              "head": null
+            },
+            "exception_review": {
+              "exceptions": [],
+              "state": "none"
+            },
+            "head": null,
+            "measurement_series": {
+              "base": null,
+              "head": null
+            },
+            "metric": "coverage.line",
+            "policy": {
+              "id": "pricing-lines",
+              "limit": {
+                "covered": 4,
+                "total": 5,
+                "type": "ratio"
+              },
+              "metric": "coverage.line",
+              "on_violation": "fail",
+              "operator": "ge",
+              "ratchet": {
+                "allow_legacy_debt": true,
+                "deny_regression": true
+              },
+              "remediation_classes": [
+                "increase_meaningful_coverage"
+              ],
+              "required": true,
+              "scope": {
+                "kind": "changed_subject"
+              }
+            },
+            "remediation_classes": [
+              "repair_measurement"
+            ],
+            "subject": null
+          },
+          "state": "not_applicable",
+          "subject": null
+        }
+      ],
+      "schema": "harness-policy-results/v1",
+      "violations": [
+        {
+          "policy": "pricing-lines",
+          "reason": "scope selects no subjects",
+          "record": {
+            "base": null,
+            "component": null,
+            "context": {
+              "base_commit": "c549ccc9994d63c28fc979a1d4d34203816adbd6",
+              "commit": "e8c569b30461a1502eb7d35336672799157465d3",
+              "run": "compatible-head",
+              "target": "node-jsdom"
+            },
+            "evidence_links": {
+              "base": null,
+              "head": null
+            },
+            "exception_review": {
+              "exceptions": [],
+              "state": "none"
+            },
+            "head": null,
+            "measurement_series": {
+              "base": null,
+              "head": null
+            },
+            "metric": "coverage.line",
+            "policy": {
+              "id": "pricing-lines",
+              "limit": {
+                "covered": 4,
+                "total": 5,
+                "type": "ratio"
+              },
+              "metric": "coverage.line",
+              "on_violation": "fail",
+              "operator": "ge",
+              "ratchet": {
+                "allow_legacy_debt": true,
+                "deny_regression": true
+              },
+              "remediation_classes": [
+                "increase_meaningful_coverage"
+              ],
+              "required": true,
+              "scope": {
+                "kind": "changed_subject"
+              }
+            },
+            "remediation_classes": [
+              "repair_measurement"
+            ],
+            "subject": null
+          },
+          "state": "not_applicable",
+          "subject": null
+        }
+      ]
+    },
+    "project": "typescript-reference",
+    "schema": "harness-project-report/v1"
+  },
+  "validation": {
+    "accepted": true
+  }
+}

@@ -1,0 +1,1595 @@
+{
+  "policy_result": {
+    "aggregate": {
+      "blockers": [
+        {
+          "policy": "pricing-lines",
+          "state": "fail",
+          "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+        }
+      ],
+      "state": "fail"
+    },
+    "debt_ledger": [
+      {
+        "policy": "pricing-lines",
+        "reason": "ratchet regressed; debt new",
+        "record": {
+          "base": {
+            "covered": 5,
+            "total": 6,
+            "type": "ratio"
+          },
+          "baseline": {
+            "classification": "unchanged",
+            "inherits_history": true,
+            "lineage_base_subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685",
+            "lineage_kind": null
+          },
+          "component": "typescript",
+          "context": {
+            "base_commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+            "commit": "6322986c399e84b161e947bda5c72c983b78c7bf",
+            "run": "regression-head",
+            "target": "node-jsdom"
+          },
+          "evidence_links": {
+            "base": {
+              "artifacts": [
+                {
+                  "bytes": 721494,
+                  "context": {
+                    "base_commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                    "commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                    "run": "regression-base",
+                    "target": "node-jsdom"
+                  },
+                  "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.native.tar.gz",
+                  "kind": "raw",
+                  "media_type": "application/gzip",
+                  "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/native.tar.gz",
+                  "sha256": "9fcb59050decb914fd1f7a75b51f60d53823601b556e455d6c6795da1aad0e40",
+                  "source": {
+                    "path": "app/src/app/pricing.ts",
+                    "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                  }
+                },
+                {
+                  "bytes": 25954,
+                  "context": {
+                    "base_commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                    "commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                    "run": "regression-base",
+                    "target": "node-jsdom"
+                  },
+                  "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.source-index.json",
+                  "kind": "raw",
+                  "media_type": "application/json",
+                  "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/source-index.json",
+                  "sha256": "026a7a319d417d4168eabe57fcdf3ece6f1dd313f9ae90c5619f617920ad39ac",
+                  "source": {
+                    "path": "app/src/app/pricing.ts",
+                    "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                  }
+                },
+                {
+                  "bytes": 6239,
+                  "context": {
+                    "base_commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                    "commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                    "run": "regression-base",
+                    "target": "node-jsdom"
+                  },
+                  "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.receipt.json",
+                  "kind": "raw",
+                  "media_type": "application/json",
+                  "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/receipt.json",
+                  "sha256": "7037e550c891b05ede7ef72df6d9dc832e8dc36fc9362bcdf568f6ca7dc0caf6",
+                  "source": {
+                    "path": "app/src/app/pricing.ts",
+                    "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                  }
+                }
+              ],
+              "evidence_id": "typescript-b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+            },
+            "head": {
+              "artifacts": [
+                {
+                  "bytes": 721329,
+                  "context": {
+                    "base_commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                    "commit": "6322986c399e84b161e947bda5c72c983b78c7bf",
+                    "run": "regression-head",
+                    "target": "node-jsdom"
+                  },
+                  "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.native.tar.gz",
+                  "kind": "raw",
+                  "media_type": "application/gzip",
+                  "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/native.tar.gz",
+                  "sha256": "3a70f38108b9926e1c5e2d9c39dc47de8f4d81212ab7b27cc72874c9cfcffae3",
+                  "source": {
+                    "path": "app/src/app/pricing.ts",
+                    "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                  }
+                },
+                {
+                  "bytes": 25954,
+                  "context": {
+                    "base_commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                    "commit": "6322986c399e84b161e947bda5c72c983b78c7bf",
+                    "run": "regression-head",
+                    "target": "node-jsdom"
+                  },
+                  "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.source-index.json",
+                  "kind": "raw",
+                  "media_type": "application/json",
+                  "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/source-index.json",
+                  "sha256": "026a7a319d417d4168eabe57fcdf3ece6f1dd313f9ae90c5619f617920ad39ac",
+                  "source": {
+                    "path": "app/src/app/pricing.ts",
+                    "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                  }
+                },
+                {
+                  "bytes": 6239,
+                  "context": {
+                    "base_commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                    "commit": "6322986c399e84b161e947bda5c72c983b78c7bf",
+                    "run": "regression-head",
+                    "target": "node-jsdom"
+                  },
+                  "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.receipt.json",
+                  "kind": "raw",
+                  "media_type": "application/json",
+                  "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/receipt.json",
+                  "sha256": "18b5cd4cb26225937e0dd41cb10a9d4c11f0c18b938c5921c32f79d1a43e7cef",
+                  "source": {
+                    "path": "app/src/app/pricing.ts",
+                    "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                  }
+                }
+              ],
+              "evidence_id": "typescript-b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+            }
+          },
+          "exception_review": {
+            "exceptions": [],
+            "state": "none"
+          },
+          "head": {
+            "covered": 4,
+            "total": 6,
+            "type": "ratio"
+          },
+          "measurement_series": {
+            "base": "measurement-series/v1:b680df6dc529cafbbadf4ebba23627d2f34c6c16d30d22dcf5210b29c727a408",
+            "head": "measurement-series/v1:b680df6dc529cafbbadf4ebba23627d2f34c6c16d30d22dcf5210b29c727a408"
+          },
+          "metric": "coverage.line",
+          "policy": {
+            "id": "pricing-lines",
+            "limit": {
+              "covered": 4,
+              "total": 5,
+              "type": "ratio"
+            },
+            "metric": "coverage.line",
+            "on_violation": "fail",
+            "operator": "ge",
+            "ratchet": {
+              "allow_legacy_debt": true,
+              "deny_regression": true
+            },
+            "remediation_classes": [
+              "increase_meaningful_coverage"
+            ],
+            "required": true,
+            "scope": {
+              "kind": "subject",
+              "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+            }
+          },
+          "ratchet": {
+            "absolute_compliant": false,
+            "base_absolute_compliant": true,
+            "debt": "new",
+            "legacy_debt_allowed": false,
+            "regression": true,
+            "remaining_debt": true,
+            "trend": "regressed"
+          },
+          "remediation_classes": [
+            "increase_meaningful_coverage"
+          ],
+          "subject": {
+            "boundary": "production-ts",
+            "component": "typescript",
+            "discriminator": "typescript-original-source/v1:file",
+            "id": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685",
+            "identity_version": "subject-identity/v1",
+            "kind": "file/v1",
+            "metadata": {},
+            "path": "app/src/app/pricing.ts",
+            "source_sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b",
+            "target": "node-jsdom"
+          }
+        },
+        "state": "fail",
+        "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+      }
+    ],
+    "exception_review": {
+      "errors": [],
+      "exceptions": [],
+      "state": "none"
+    },
+    "mode": "shadow",
+    "quality_aggregate": {
+      "blockers": [
+        {
+          "policy": "pricing-lines",
+          "state": "fail",
+          "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+        }
+      ],
+      "state": "fail"
+    },
+    "results": [
+      {
+        "policy": "pricing-lines",
+        "reason": "ratchet regressed; debt new",
+        "record": {
+          "base": {
+            "covered": 5,
+            "total": 6,
+            "type": "ratio"
+          },
+          "baseline": {
+            "classification": "unchanged",
+            "inherits_history": true,
+            "lineage_base_subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685",
+            "lineage_kind": null
+          },
+          "component": "typescript",
+          "context": {
+            "base_commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+            "commit": "6322986c399e84b161e947bda5c72c983b78c7bf",
+            "run": "regression-head",
+            "target": "node-jsdom"
+          },
+          "evidence_links": {
+            "base": {
+              "artifacts": [
+                {
+                  "bytes": 721494,
+                  "context": {
+                    "base_commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                    "commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                    "run": "regression-base",
+                    "target": "node-jsdom"
+                  },
+                  "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.native.tar.gz",
+                  "kind": "raw",
+                  "media_type": "application/gzip",
+                  "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/native.tar.gz",
+                  "sha256": "9fcb59050decb914fd1f7a75b51f60d53823601b556e455d6c6795da1aad0e40",
+                  "source": {
+                    "path": "app/src/app/pricing.ts",
+                    "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                  }
+                },
+                {
+                  "bytes": 25954,
+                  "context": {
+                    "base_commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                    "commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                    "run": "regression-base",
+                    "target": "node-jsdom"
+                  },
+                  "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.source-index.json",
+                  "kind": "raw",
+                  "media_type": "application/json",
+                  "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/source-index.json",
+                  "sha256": "026a7a319d417d4168eabe57fcdf3ece6f1dd313f9ae90c5619f617920ad39ac",
+                  "source": {
+                    "path": "app/src/app/pricing.ts",
+                    "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                  }
+                },
+                {
+                  "bytes": 6239,
+                  "context": {
+                    "base_commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                    "commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                    "run": "regression-base",
+                    "target": "node-jsdom"
+                  },
+                  "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.receipt.json",
+                  "kind": "raw",
+                  "media_type": "application/json",
+                  "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/receipt.json",
+                  "sha256": "7037e550c891b05ede7ef72df6d9dc832e8dc36fc9362bcdf568f6ca7dc0caf6",
+                  "source": {
+                    "path": "app/src/app/pricing.ts",
+                    "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                  }
+                }
+              ],
+              "evidence_id": "typescript-b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+            },
+            "head": {
+              "artifacts": [
+                {
+                  "bytes": 721329,
+                  "context": {
+                    "base_commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                    "commit": "6322986c399e84b161e947bda5c72c983b78c7bf",
+                    "run": "regression-head",
+                    "target": "node-jsdom"
+                  },
+                  "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.native.tar.gz",
+                  "kind": "raw",
+                  "media_type": "application/gzip",
+                  "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/native.tar.gz",
+                  "sha256": "3a70f38108b9926e1c5e2d9c39dc47de8f4d81212ab7b27cc72874c9cfcffae3",
+                  "source": {
+                    "path": "app/src/app/pricing.ts",
+                    "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                  }
+                },
+                {
+                  "bytes": 25954,
+                  "context": {
+                    "base_commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                    "commit": "6322986c399e84b161e947bda5c72c983b78c7bf",
+                    "run": "regression-head",
+                    "target": "node-jsdom"
+                  },
+                  "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.source-index.json",
+                  "kind": "raw",
+                  "media_type": "application/json",
+                  "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/source-index.json",
+                  "sha256": "026a7a319d417d4168eabe57fcdf3ece6f1dd313f9ae90c5619f617920ad39ac",
+                  "source": {
+                    "path": "app/src/app/pricing.ts",
+                    "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                  }
+                },
+                {
+                  "bytes": 6239,
+                  "context": {
+                    "base_commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                    "commit": "6322986c399e84b161e947bda5c72c983b78c7bf",
+                    "run": "regression-head",
+                    "target": "node-jsdom"
+                  },
+                  "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.receipt.json",
+                  "kind": "raw",
+                  "media_type": "application/json",
+                  "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/receipt.json",
+                  "sha256": "18b5cd4cb26225937e0dd41cb10a9d4c11f0c18b938c5921c32f79d1a43e7cef",
+                  "source": {
+                    "path": "app/src/app/pricing.ts",
+                    "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                  }
+                }
+              ],
+              "evidence_id": "typescript-b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+            }
+          },
+          "exception_review": {
+            "exceptions": [],
+            "state": "none"
+          },
+          "head": {
+            "covered": 4,
+            "total": 6,
+            "type": "ratio"
+          },
+          "measurement_series": {
+            "base": "measurement-series/v1:b680df6dc529cafbbadf4ebba23627d2f34c6c16d30d22dcf5210b29c727a408",
+            "head": "measurement-series/v1:b680df6dc529cafbbadf4ebba23627d2f34c6c16d30d22dcf5210b29c727a408"
+          },
+          "metric": "coverage.line",
+          "policy": {
+            "id": "pricing-lines",
+            "limit": {
+              "covered": 4,
+              "total": 5,
+              "type": "ratio"
+            },
+            "metric": "coverage.line",
+            "on_violation": "fail",
+            "operator": "ge",
+            "ratchet": {
+              "allow_legacy_debt": true,
+              "deny_regression": true
+            },
+            "remediation_classes": [
+              "increase_meaningful_coverage"
+            ],
+            "required": true,
+            "scope": {
+              "kind": "subject",
+              "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+            }
+          },
+          "ratchet": {
+            "absolute_compliant": false,
+            "base_absolute_compliant": true,
+            "debt": "new",
+            "legacy_debt_allowed": false,
+            "regression": true,
+            "remaining_debt": true,
+            "trend": "regressed"
+          },
+          "remediation_classes": [
+            "increase_meaningful_coverage"
+          ],
+          "subject": {
+            "boundary": "production-ts",
+            "component": "typescript",
+            "discriminator": "typescript-original-source/v1:file",
+            "id": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685",
+            "identity_version": "subject-identity/v1",
+            "kind": "file/v1",
+            "metadata": {},
+            "path": "app/src/app/pricing.ts",
+            "source_sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b",
+            "target": "node-jsdom"
+          }
+        },
+        "state": "fail",
+        "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+      }
+    ],
+    "schema": "harness-policy-results/v1",
+    "violations": [
+      {
+        "policy": "pricing-lines",
+        "reason": "ratchet regressed; debt new",
+        "record": {
+          "base": {
+            "covered": 5,
+            "total": 6,
+            "type": "ratio"
+          },
+          "baseline": {
+            "classification": "unchanged",
+            "inherits_history": true,
+            "lineage_base_subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685",
+            "lineage_kind": null
+          },
+          "component": "typescript",
+          "context": {
+            "base_commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+            "commit": "6322986c399e84b161e947bda5c72c983b78c7bf",
+            "run": "regression-head",
+            "target": "node-jsdom"
+          },
+          "evidence_links": {
+            "base": {
+              "artifacts": [
+                {
+                  "bytes": 721494,
+                  "context": {
+                    "base_commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                    "commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                    "run": "regression-base",
+                    "target": "node-jsdom"
+                  },
+                  "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.native.tar.gz",
+                  "kind": "raw",
+                  "media_type": "application/gzip",
+                  "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/native.tar.gz",
+                  "sha256": "9fcb59050decb914fd1f7a75b51f60d53823601b556e455d6c6795da1aad0e40",
+                  "source": {
+                    "path": "app/src/app/pricing.ts",
+                    "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                  }
+                },
+                {
+                  "bytes": 25954,
+                  "context": {
+                    "base_commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                    "commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                    "run": "regression-base",
+                    "target": "node-jsdom"
+                  },
+                  "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.source-index.json",
+                  "kind": "raw",
+                  "media_type": "application/json",
+                  "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/source-index.json",
+                  "sha256": "026a7a319d417d4168eabe57fcdf3ece6f1dd313f9ae90c5619f617920ad39ac",
+                  "source": {
+                    "path": "app/src/app/pricing.ts",
+                    "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                  }
+                },
+                {
+                  "bytes": 6239,
+                  "context": {
+                    "base_commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                    "commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                    "run": "regression-base",
+                    "target": "node-jsdom"
+                  },
+                  "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.receipt.json",
+                  "kind": "raw",
+                  "media_type": "application/json",
+                  "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/receipt.json",
+                  "sha256": "7037e550c891b05ede7ef72df6d9dc832e8dc36fc9362bcdf568f6ca7dc0caf6",
+                  "source": {
+                    "path": "app/src/app/pricing.ts",
+                    "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                  }
+                }
+              ],
+              "evidence_id": "typescript-b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+            },
+            "head": {
+              "artifacts": [
+                {
+                  "bytes": 721329,
+                  "context": {
+                    "base_commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                    "commit": "6322986c399e84b161e947bda5c72c983b78c7bf",
+                    "run": "regression-head",
+                    "target": "node-jsdom"
+                  },
+                  "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.native.tar.gz",
+                  "kind": "raw",
+                  "media_type": "application/gzip",
+                  "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/native.tar.gz",
+                  "sha256": "3a70f38108b9926e1c5e2d9c39dc47de8f4d81212ab7b27cc72874c9cfcffae3",
+                  "source": {
+                    "path": "app/src/app/pricing.ts",
+                    "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                  }
+                },
+                {
+                  "bytes": 25954,
+                  "context": {
+                    "base_commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                    "commit": "6322986c399e84b161e947bda5c72c983b78c7bf",
+                    "run": "regression-head",
+                    "target": "node-jsdom"
+                  },
+                  "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.source-index.json",
+                  "kind": "raw",
+                  "media_type": "application/json",
+                  "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/source-index.json",
+                  "sha256": "026a7a319d417d4168eabe57fcdf3ece6f1dd313f9ae90c5619f617920ad39ac",
+                  "source": {
+                    "path": "app/src/app/pricing.ts",
+                    "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                  }
+                },
+                {
+                  "bytes": 6239,
+                  "context": {
+                    "base_commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                    "commit": "6322986c399e84b161e947bda5c72c983b78c7bf",
+                    "run": "regression-head",
+                    "target": "node-jsdom"
+                  },
+                  "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.receipt.json",
+                  "kind": "raw",
+                  "media_type": "application/json",
+                  "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/receipt.json",
+                  "sha256": "18b5cd4cb26225937e0dd41cb10a9d4c11f0c18b938c5921c32f79d1a43e7cef",
+                  "source": {
+                    "path": "app/src/app/pricing.ts",
+                    "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                  }
+                }
+              ],
+              "evidence_id": "typescript-b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+            }
+          },
+          "exception_review": {
+            "exceptions": [],
+            "state": "none"
+          },
+          "head": {
+            "covered": 4,
+            "total": 6,
+            "type": "ratio"
+          },
+          "measurement_series": {
+            "base": "measurement-series/v1:b680df6dc529cafbbadf4ebba23627d2f34c6c16d30d22dcf5210b29c727a408",
+            "head": "measurement-series/v1:b680df6dc529cafbbadf4ebba23627d2f34c6c16d30d22dcf5210b29c727a408"
+          },
+          "metric": "coverage.line",
+          "policy": {
+            "id": "pricing-lines",
+            "limit": {
+              "covered": 4,
+              "total": 5,
+              "type": "ratio"
+            },
+            "metric": "coverage.line",
+            "on_violation": "fail",
+            "operator": "ge",
+            "ratchet": {
+              "allow_legacy_debt": true,
+              "deny_regression": true
+            },
+            "remediation_classes": [
+              "increase_meaningful_coverage"
+            ],
+            "required": true,
+            "scope": {
+              "kind": "subject",
+              "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+            }
+          },
+          "ratchet": {
+            "absolute_compliant": false,
+            "base_absolute_compliant": true,
+            "debt": "new",
+            "legacy_debt_allowed": false,
+            "regression": true,
+            "remaining_debt": true,
+            "trend": "regressed"
+          },
+          "remediation_classes": [
+            "increase_meaningful_coverage"
+          ],
+          "subject": {
+            "boundary": "production-ts",
+            "component": "typescript",
+            "discriminator": "typescript-original-source/v1:file",
+            "id": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685",
+            "identity_version": "subject-identity/v1",
+            "kind": "file/v1",
+            "metadata": {},
+            "path": "app/src/app/pricing.ts",
+            "source_sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b",
+            "target": "node-jsdom"
+          }
+        },
+        "state": "fail",
+        "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+      }
+    ]
+  },
+  "project_report": {
+    "aggregate": {
+      "blockers": [
+        {
+          "policy": "pricing-lines",
+          "state": "fail",
+          "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+        }
+      ],
+      "state": "fail"
+    },
+    "components": {
+      "typescript": {
+        "aggregate": {
+          "blockers": [
+            {
+              "policy": "pricing-lines",
+              "state": "fail",
+              "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+            }
+          ],
+          "state": "fail"
+        },
+        "cross_component": {
+          "blockers": [],
+          "state": "not_applicable"
+        },
+        "gates": [
+          "gate-000000"
+        ],
+        "local": {
+          "blockers": [
+            {
+              "policy": "pricing-lines",
+              "state": "fail",
+              "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+            }
+          ],
+          "state": "fail"
+        }
+      }
+    },
+    "gates": {
+      "gate-000000": {
+        "policy": "pricing-lines",
+        "reason": "ratchet regressed; debt new",
+        "record": {
+          "base": {
+            "covered": 5,
+            "total": 6,
+            "type": "ratio"
+          },
+          "baseline": {
+            "classification": "unchanged",
+            "inherits_history": true,
+            "lineage_base_subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685",
+            "lineage_kind": null
+          },
+          "component": "typescript",
+          "context": {
+            "base_commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+            "commit": "6322986c399e84b161e947bda5c72c983b78c7bf",
+            "run": "regression-head",
+            "target": "node-jsdom"
+          },
+          "evidence_links": {
+            "base": {
+              "artifacts": [
+                {
+                  "bytes": 721494,
+                  "context": {
+                    "base_commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                    "commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                    "run": "regression-base",
+                    "target": "node-jsdom"
+                  },
+                  "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.native.tar.gz",
+                  "kind": "raw",
+                  "media_type": "application/gzip",
+                  "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/native.tar.gz",
+                  "sha256": "9fcb59050decb914fd1f7a75b51f60d53823601b556e455d6c6795da1aad0e40",
+                  "source": {
+                    "path": "app/src/app/pricing.ts",
+                    "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                  }
+                },
+                {
+                  "bytes": 25954,
+                  "context": {
+                    "base_commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                    "commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                    "run": "regression-base",
+                    "target": "node-jsdom"
+                  },
+                  "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.source-index.json",
+                  "kind": "raw",
+                  "media_type": "application/json",
+                  "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/source-index.json",
+                  "sha256": "026a7a319d417d4168eabe57fcdf3ece6f1dd313f9ae90c5619f617920ad39ac",
+                  "source": {
+                    "path": "app/src/app/pricing.ts",
+                    "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                  }
+                },
+                {
+                  "bytes": 6239,
+                  "context": {
+                    "base_commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                    "commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                    "run": "regression-base",
+                    "target": "node-jsdom"
+                  },
+                  "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.receipt.json",
+                  "kind": "raw",
+                  "media_type": "application/json",
+                  "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/receipt.json",
+                  "sha256": "7037e550c891b05ede7ef72df6d9dc832e8dc36fc9362bcdf568f6ca7dc0caf6",
+                  "source": {
+                    "path": "app/src/app/pricing.ts",
+                    "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                  }
+                }
+              ],
+              "evidence_id": "typescript-b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+            },
+            "head": {
+              "artifacts": [
+                {
+                  "bytes": 721329,
+                  "context": {
+                    "base_commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                    "commit": "6322986c399e84b161e947bda5c72c983b78c7bf",
+                    "run": "regression-head",
+                    "target": "node-jsdom"
+                  },
+                  "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.native.tar.gz",
+                  "kind": "raw",
+                  "media_type": "application/gzip",
+                  "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/native.tar.gz",
+                  "sha256": "3a70f38108b9926e1c5e2d9c39dc47de8f4d81212ab7b27cc72874c9cfcffae3",
+                  "source": {
+                    "path": "app/src/app/pricing.ts",
+                    "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                  }
+                },
+                {
+                  "bytes": 25954,
+                  "context": {
+                    "base_commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                    "commit": "6322986c399e84b161e947bda5c72c983b78c7bf",
+                    "run": "regression-head",
+                    "target": "node-jsdom"
+                  },
+                  "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.source-index.json",
+                  "kind": "raw",
+                  "media_type": "application/json",
+                  "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/source-index.json",
+                  "sha256": "026a7a319d417d4168eabe57fcdf3ece6f1dd313f9ae90c5619f617920ad39ac",
+                  "source": {
+                    "path": "app/src/app/pricing.ts",
+                    "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                  }
+                },
+                {
+                  "bytes": 6239,
+                  "context": {
+                    "base_commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                    "commit": "6322986c399e84b161e947bda5c72c983b78c7bf",
+                    "run": "regression-head",
+                    "target": "node-jsdom"
+                  },
+                  "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.receipt.json",
+                  "kind": "raw",
+                  "media_type": "application/json",
+                  "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/receipt.json",
+                  "sha256": "18b5cd4cb26225937e0dd41cb10a9d4c11f0c18b938c5921c32f79d1a43e7cef",
+                  "source": {
+                    "path": "app/src/app/pricing.ts",
+                    "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                  }
+                }
+              ],
+              "evidence_id": "typescript-b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+            }
+          },
+          "exception_review": {
+            "exceptions": [],
+            "state": "none"
+          },
+          "head": {
+            "covered": 4,
+            "total": 6,
+            "type": "ratio"
+          },
+          "measurement_series": {
+            "base": "measurement-series/v1:b680df6dc529cafbbadf4ebba23627d2f34c6c16d30d22dcf5210b29c727a408",
+            "head": "measurement-series/v1:b680df6dc529cafbbadf4ebba23627d2f34c6c16d30d22dcf5210b29c727a408"
+          },
+          "metric": "coverage.line",
+          "policy": {
+            "id": "pricing-lines",
+            "limit": {
+              "covered": 4,
+              "total": 5,
+              "type": "ratio"
+            },
+            "metric": "coverage.line",
+            "on_violation": "fail",
+            "operator": "ge",
+            "ratchet": {
+              "allow_legacy_debt": true,
+              "deny_regression": true
+            },
+            "remediation_classes": [
+              "increase_meaningful_coverage"
+            ],
+            "required": true,
+            "scope": {
+              "kind": "subject",
+              "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+            }
+          },
+          "ratchet": {
+            "absolute_compliant": false,
+            "base_absolute_compliant": true,
+            "debt": "new",
+            "legacy_debt_allowed": false,
+            "regression": true,
+            "remaining_debt": true,
+            "trend": "regressed"
+          },
+          "remediation_classes": [
+            "increase_meaningful_coverage"
+          ],
+          "subject": {
+            "boundary": "production-ts",
+            "component": "typescript",
+            "discriminator": "typescript-original-source/v1:file",
+            "id": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685",
+            "identity_version": "subject-identity/v1",
+            "kind": "file/v1",
+            "metadata": {},
+            "path": "app/src/app/pricing.ts",
+            "source_sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b",
+            "target": "node-jsdom"
+          }
+        },
+        "state": "fail",
+        "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+      }
+    },
+    "indexes": {
+      "component": {
+        "typescript": [
+          "gate-000000"
+        ]
+      },
+      "policy": {
+        "pricing-lines": [
+          "gate-000000"
+        ]
+      },
+      "relationship": {},
+      "status": {
+        "fail": [
+          "gate-000000"
+        ]
+      },
+      "subject": {
+        "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685": [
+          "gate-000000"
+        ]
+      }
+    },
+    "mode": "shadow",
+    "policy_result": {
+      "aggregate": {
+        "blockers": [
+          {
+            "policy": "pricing-lines",
+            "state": "fail",
+            "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+          }
+        ],
+        "state": "fail"
+      },
+      "debt_ledger": [
+        {
+          "policy": "pricing-lines",
+          "reason": "ratchet regressed; debt new",
+          "record": {
+            "base": {
+              "covered": 5,
+              "total": 6,
+              "type": "ratio"
+            },
+            "baseline": {
+              "classification": "unchanged",
+              "inherits_history": true,
+              "lineage_base_subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685",
+              "lineage_kind": null
+            },
+            "component": "typescript",
+            "context": {
+              "base_commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+              "commit": "6322986c399e84b161e947bda5c72c983b78c7bf",
+              "run": "regression-head",
+              "target": "node-jsdom"
+            },
+            "evidence_links": {
+              "base": {
+                "artifacts": [
+                  {
+                    "bytes": 721494,
+                    "context": {
+                      "base_commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                      "commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                      "run": "regression-base",
+                      "target": "node-jsdom"
+                    },
+                    "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.native.tar.gz",
+                    "kind": "raw",
+                    "media_type": "application/gzip",
+                    "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/native.tar.gz",
+                    "sha256": "9fcb59050decb914fd1f7a75b51f60d53823601b556e455d6c6795da1aad0e40",
+                    "source": {
+                      "path": "app/src/app/pricing.ts",
+                      "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                    }
+                  },
+                  {
+                    "bytes": 25954,
+                    "context": {
+                      "base_commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                      "commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                      "run": "regression-base",
+                      "target": "node-jsdom"
+                    },
+                    "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.source-index.json",
+                    "kind": "raw",
+                    "media_type": "application/json",
+                    "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/source-index.json",
+                    "sha256": "026a7a319d417d4168eabe57fcdf3ece6f1dd313f9ae90c5619f617920ad39ac",
+                    "source": {
+                      "path": "app/src/app/pricing.ts",
+                      "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                    }
+                  },
+                  {
+                    "bytes": 6239,
+                    "context": {
+                      "base_commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                      "commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                      "run": "regression-base",
+                      "target": "node-jsdom"
+                    },
+                    "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.receipt.json",
+                    "kind": "raw",
+                    "media_type": "application/json",
+                    "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/receipt.json",
+                    "sha256": "7037e550c891b05ede7ef72df6d9dc832e8dc36fc9362bcdf568f6ca7dc0caf6",
+                    "source": {
+                      "path": "app/src/app/pricing.ts",
+                      "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                    }
+                  }
+                ],
+                "evidence_id": "typescript-b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+              },
+              "head": {
+                "artifacts": [
+                  {
+                    "bytes": 721329,
+                    "context": {
+                      "base_commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                      "commit": "6322986c399e84b161e947bda5c72c983b78c7bf",
+                      "run": "regression-head",
+                      "target": "node-jsdom"
+                    },
+                    "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.native.tar.gz",
+                    "kind": "raw",
+                    "media_type": "application/gzip",
+                    "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/native.tar.gz",
+                    "sha256": "3a70f38108b9926e1c5e2d9c39dc47de8f4d81212ab7b27cc72874c9cfcffae3",
+                    "source": {
+                      "path": "app/src/app/pricing.ts",
+                      "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                    }
+                  },
+                  {
+                    "bytes": 25954,
+                    "context": {
+                      "base_commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                      "commit": "6322986c399e84b161e947bda5c72c983b78c7bf",
+                      "run": "regression-head",
+                      "target": "node-jsdom"
+                    },
+                    "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.source-index.json",
+                    "kind": "raw",
+                    "media_type": "application/json",
+                    "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/source-index.json",
+                    "sha256": "026a7a319d417d4168eabe57fcdf3ece6f1dd313f9ae90c5619f617920ad39ac",
+                    "source": {
+                      "path": "app/src/app/pricing.ts",
+                      "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                    }
+                  },
+                  {
+                    "bytes": 6239,
+                    "context": {
+                      "base_commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                      "commit": "6322986c399e84b161e947bda5c72c983b78c7bf",
+                      "run": "regression-head",
+                      "target": "node-jsdom"
+                    },
+                    "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.receipt.json",
+                    "kind": "raw",
+                    "media_type": "application/json",
+                    "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/receipt.json",
+                    "sha256": "18b5cd4cb26225937e0dd41cb10a9d4c11f0c18b938c5921c32f79d1a43e7cef",
+                    "source": {
+                      "path": "app/src/app/pricing.ts",
+                      "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                    }
+                  }
+                ],
+                "evidence_id": "typescript-b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+              }
+            },
+            "exception_review": {
+              "exceptions": [],
+              "state": "none"
+            },
+            "head": {
+              "covered": 4,
+              "total": 6,
+              "type": "ratio"
+            },
+            "measurement_series": {
+              "base": "measurement-series/v1:b680df6dc529cafbbadf4ebba23627d2f34c6c16d30d22dcf5210b29c727a408",
+              "head": "measurement-series/v1:b680df6dc529cafbbadf4ebba23627d2f34c6c16d30d22dcf5210b29c727a408"
+            },
+            "metric": "coverage.line",
+            "policy": {
+              "id": "pricing-lines",
+              "limit": {
+                "covered": 4,
+                "total": 5,
+                "type": "ratio"
+              },
+              "metric": "coverage.line",
+              "on_violation": "fail",
+              "operator": "ge",
+              "ratchet": {
+                "allow_legacy_debt": true,
+                "deny_regression": true
+              },
+              "remediation_classes": [
+                "increase_meaningful_coverage"
+              ],
+              "required": true,
+              "scope": {
+                "kind": "subject",
+                "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+              }
+            },
+            "ratchet": {
+              "absolute_compliant": false,
+              "base_absolute_compliant": true,
+              "debt": "new",
+              "legacy_debt_allowed": false,
+              "regression": true,
+              "remaining_debt": true,
+              "trend": "regressed"
+            },
+            "remediation_classes": [
+              "increase_meaningful_coverage"
+            ],
+            "subject": {
+              "boundary": "production-ts",
+              "component": "typescript",
+              "discriminator": "typescript-original-source/v1:file",
+              "id": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685",
+              "identity_version": "subject-identity/v1",
+              "kind": "file/v1",
+              "metadata": {},
+              "path": "app/src/app/pricing.ts",
+              "source_sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b",
+              "target": "node-jsdom"
+            }
+          },
+          "state": "fail",
+          "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+        }
+      ],
+      "exception_review": {
+        "errors": [],
+        "exceptions": [],
+        "state": "none"
+      },
+      "mode": "shadow",
+      "quality_aggregate": {
+        "blockers": [
+          {
+            "policy": "pricing-lines",
+            "state": "fail",
+            "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+          }
+        ],
+        "state": "fail"
+      },
+      "results": [
+        {
+          "policy": "pricing-lines",
+          "reason": "ratchet regressed; debt new",
+          "record": {
+            "base": {
+              "covered": 5,
+              "total": 6,
+              "type": "ratio"
+            },
+            "baseline": {
+              "classification": "unchanged",
+              "inherits_history": true,
+              "lineage_base_subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685",
+              "lineage_kind": null
+            },
+            "component": "typescript",
+            "context": {
+              "base_commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+              "commit": "6322986c399e84b161e947bda5c72c983b78c7bf",
+              "run": "regression-head",
+              "target": "node-jsdom"
+            },
+            "evidence_links": {
+              "base": {
+                "artifacts": [
+                  {
+                    "bytes": 721494,
+                    "context": {
+                      "base_commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                      "commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                      "run": "regression-base",
+                      "target": "node-jsdom"
+                    },
+                    "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.native.tar.gz",
+                    "kind": "raw",
+                    "media_type": "application/gzip",
+                    "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/native.tar.gz",
+                    "sha256": "9fcb59050decb914fd1f7a75b51f60d53823601b556e455d6c6795da1aad0e40",
+                    "source": {
+                      "path": "app/src/app/pricing.ts",
+                      "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                    }
+                  },
+                  {
+                    "bytes": 25954,
+                    "context": {
+                      "base_commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                      "commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                      "run": "regression-base",
+                      "target": "node-jsdom"
+                    },
+                    "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.source-index.json",
+                    "kind": "raw",
+                    "media_type": "application/json",
+                    "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/source-index.json",
+                    "sha256": "026a7a319d417d4168eabe57fcdf3ece6f1dd313f9ae90c5619f617920ad39ac",
+                    "source": {
+                      "path": "app/src/app/pricing.ts",
+                      "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                    }
+                  },
+                  {
+                    "bytes": 6239,
+                    "context": {
+                      "base_commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                      "commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                      "run": "regression-base",
+                      "target": "node-jsdom"
+                    },
+                    "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.receipt.json",
+                    "kind": "raw",
+                    "media_type": "application/json",
+                    "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/receipt.json",
+                    "sha256": "7037e550c891b05ede7ef72df6d9dc832e8dc36fc9362bcdf568f6ca7dc0caf6",
+                    "source": {
+                      "path": "app/src/app/pricing.ts",
+                      "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                    }
+                  }
+                ],
+                "evidence_id": "typescript-b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+              },
+              "head": {
+                "artifacts": [
+                  {
+                    "bytes": 721329,
+                    "context": {
+                      "base_commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                      "commit": "6322986c399e84b161e947bda5c72c983b78c7bf",
+                      "run": "regression-head",
+                      "target": "node-jsdom"
+                    },
+                    "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.native.tar.gz",
+                    "kind": "raw",
+                    "media_type": "application/gzip",
+                    "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/native.tar.gz",
+                    "sha256": "3a70f38108b9926e1c5e2d9c39dc47de8f4d81212ab7b27cc72874c9cfcffae3",
+                    "source": {
+                      "path": "app/src/app/pricing.ts",
+                      "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                    }
+                  },
+                  {
+                    "bytes": 25954,
+                    "context": {
+                      "base_commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                      "commit": "6322986c399e84b161e947bda5c72c983b78c7bf",
+                      "run": "regression-head",
+                      "target": "node-jsdom"
+                    },
+                    "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.source-index.json",
+                    "kind": "raw",
+                    "media_type": "application/json",
+                    "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/source-index.json",
+                    "sha256": "026a7a319d417d4168eabe57fcdf3ece6f1dd313f9ae90c5619f617920ad39ac",
+                    "source": {
+                      "path": "app/src/app/pricing.ts",
+                      "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                    }
+                  },
+                  {
+                    "bytes": 6239,
+                    "context": {
+                      "base_commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                      "commit": "6322986c399e84b161e947bda5c72c983b78c7bf",
+                      "run": "regression-head",
+                      "target": "node-jsdom"
+                    },
+                    "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.receipt.json",
+                    "kind": "raw",
+                    "media_type": "application/json",
+                    "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/receipt.json",
+                    "sha256": "18b5cd4cb26225937e0dd41cb10a9d4c11f0c18b938c5921c32f79d1a43e7cef",
+                    "source": {
+                      "path": "app/src/app/pricing.ts",
+                      "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                    }
+                  }
+                ],
+                "evidence_id": "typescript-b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+              }
+            },
+            "exception_review": {
+              "exceptions": [],
+              "state": "none"
+            },
+            "head": {
+              "covered": 4,
+              "total": 6,
+              "type": "ratio"
+            },
+            "measurement_series": {
+              "base": "measurement-series/v1:b680df6dc529cafbbadf4ebba23627d2f34c6c16d30d22dcf5210b29c727a408",
+              "head": "measurement-series/v1:b680df6dc529cafbbadf4ebba23627d2f34c6c16d30d22dcf5210b29c727a408"
+            },
+            "metric": "coverage.line",
+            "policy": {
+              "id": "pricing-lines",
+              "limit": {
+                "covered": 4,
+                "total": 5,
+                "type": "ratio"
+              },
+              "metric": "coverage.line",
+              "on_violation": "fail",
+              "operator": "ge",
+              "ratchet": {
+                "allow_legacy_debt": true,
+                "deny_regression": true
+              },
+              "remediation_classes": [
+                "increase_meaningful_coverage"
+              ],
+              "required": true,
+              "scope": {
+                "kind": "subject",
+                "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+              }
+            },
+            "ratchet": {
+              "absolute_compliant": false,
+              "base_absolute_compliant": true,
+              "debt": "new",
+              "legacy_debt_allowed": false,
+              "regression": true,
+              "remaining_debt": true,
+              "trend": "regressed"
+            },
+            "remediation_classes": [
+              "increase_meaningful_coverage"
+            ],
+            "subject": {
+              "boundary": "production-ts",
+              "component": "typescript",
+              "discriminator": "typescript-original-source/v1:file",
+              "id": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685",
+              "identity_version": "subject-identity/v1",
+              "kind": "file/v1",
+              "metadata": {},
+              "path": "app/src/app/pricing.ts",
+              "source_sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b",
+              "target": "node-jsdom"
+            }
+          },
+          "state": "fail",
+          "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+        }
+      ],
+      "schema": "harness-policy-results/v1",
+      "violations": [
+        {
+          "policy": "pricing-lines",
+          "reason": "ratchet regressed; debt new",
+          "record": {
+            "base": {
+              "covered": 5,
+              "total": 6,
+              "type": "ratio"
+            },
+            "baseline": {
+              "classification": "unchanged",
+              "inherits_history": true,
+              "lineage_base_subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685",
+              "lineage_kind": null
+            },
+            "component": "typescript",
+            "context": {
+              "base_commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+              "commit": "6322986c399e84b161e947bda5c72c983b78c7bf",
+              "run": "regression-head",
+              "target": "node-jsdom"
+            },
+            "evidence_links": {
+              "base": {
+                "artifacts": [
+                  {
+                    "bytes": 721494,
+                    "context": {
+                      "base_commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                      "commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                      "run": "regression-base",
+                      "target": "node-jsdom"
+                    },
+                    "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.native.tar.gz",
+                    "kind": "raw",
+                    "media_type": "application/gzip",
+                    "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/native.tar.gz",
+                    "sha256": "9fcb59050decb914fd1f7a75b51f60d53823601b556e455d6c6795da1aad0e40",
+                    "source": {
+                      "path": "app/src/app/pricing.ts",
+                      "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                    }
+                  },
+                  {
+                    "bytes": 25954,
+                    "context": {
+                      "base_commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                      "commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                      "run": "regression-base",
+                      "target": "node-jsdom"
+                    },
+                    "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.source-index.json",
+                    "kind": "raw",
+                    "media_type": "application/json",
+                    "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/source-index.json",
+                    "sha256": "026a7a319d417d4168eabe57fcdf3ece6f1dd313f9ae90c5619f617920ad39ac",
+                    "source": {
+                      "path": "app/src/app/pricing.ts",
+                      "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                    }
+                  },
+                  {
+                    "bytes": 6239,
+                    "context": {
+                      "base_commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                      "commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                      "run": "regression-base",
+                      "target": "node-jsdom"
+                    },
+                    "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.receipt.json",
+                    "kind": "raw",
+                    "media_type": "application/json",
+                    "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/receipt.json",
+                    "sha256": "7037e550c891b05ede7ef72df6d9dc832e8dc36fc9362bcdf568f6ca7dc0caf6",
+                    "source": {
+                      "path": "app/src/app/pricing.ts",
+                      "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                    }
+                  }
+                ],
+                "evidence_id": "typescript-b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+              },
+              "head": {
+                "artifacts": [
+                  {
+                    "bytes": 721329,
+                    "context": {
+                      "base_commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                      "commit": "6322986c399e84b161e947bda5c72c983b78c7bf",
+                      "run": "regression-head",
+                      "target": "node-jsdom"
+                    },
+                    "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.native.tar.gz",
+                    "kind": "raw",
+                    "media_type": "application/gzip",
+                    "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/native.tar.gz",
+                    "sha256": "3a70f38108b9926e1c5e2d9c39dc47de8f4d81212ab7b27cc72874c9cfcffae3",
+                    "source": {
+                      "path": "app/src/app/pricing.ts",
+                      "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                    }
+                  },
+                  {
+                    "bytes": 25954,
+                    "context": {
+                      "base_commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                      "commit": "6322986c399e84b161e947bda5c72c983b78c7bf",
+                      "run": "regression-head",
+                      "target": "node-jsdom"
+                    },
+                    "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.source-index.json",
+                    "kind": "raw",
+                    "media_type": "application/json",
+                    "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/source-index.json",
+                    "sha256": "026a7a319d417d4168eabe57fcdf3ece6f1dd313f9ae90c5619f617920ad39ac",
+                    "source": {
+                      "path": "app/src/app/pricing.ts",
+                      "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                    }
+                  },
+                  {
+                    "bytes": 6239,
+                    "context": {
+                      "base_commit": "e09b480256c2bc9ca30d4d1e5f70dea5b312eae4",
+                      "commit": "6322986c399e84b161e947bda5c72c983b78c7bf",
+                      "run": "regression-head",
+                      "target": "node-jsdom"
+                    },
+                    "id": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e.receipt.json",
+                    "kind": "raw",
+                    "media_type": "application/json",
+                    "path": "source-f1a9c924e0a09df0da5d9edde09fe58457e77653744a1f69aac078aec4d3548e/receipt.json",
+                    "sha256": "18b5cd4cb26225937e0dd41cb10a9d4c11f0c18b938c5921c32f79d1a43e7cef",
+                    "source": {
+                      "path": "app/src/app/pricing.ts",
+                      "sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b"
+                    }
+                  }
+                ],
+                "evidence_id": "typescript-b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+              }
+            },
+            "exception_review": {
+              "exceptions": [],
+              "state": "none"
+            },
+            "head": {
+              "covered": 4,
+              "total": 6,
+              "type": "ratio"
+            },
+            "measurement_series": {
+              "base": "measurement-series/v1:b680df6dc529cafbbadf4ebba23627d2f34c6c16d30d22dcf5210b29c727a408",
+              "head": "measurement-series/v1:b680df6dc529cafbbadf4ebba23627d2f34c6c16d30d22dcf5210b29c727a408"
+            },
+            "metric": "coverage.line",
+            "policy": {
+              "id": "pricing-lines",
+              "limit": {
+                "covered": 4,
+                "total": 5,
+                "type": "ratio"
+              },
+              "metric": "coverage.line",
+              "on_violation": "fail",
+              "operator": "ge",
+              "ratchet": {
+                "allow_legacy_debt": true,
+                "deny_regression": true
+              },
+              "remediation_classes": [
+                "increase_meaningful_coverage"
+              ],
+              "required": true,
+              "scope": {
+                "kind": "subject",
+                "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+              }
+            },
+            "ratchet": {
+              "absolute_compliant": false,
+              "base_absolute_compliant": true,
+              "debt": "new",
+              "legacy_debt_allowed": false,
+              "regression": true,
+              "remaining_debt": true,
+              "trend": "regressed"
+            },
+            "remediation_classes": [
+              "increase_meaningful_coverage"
+            ],
+            "subject": {
+              "boundary": "production-ts",
+              "component": "typescript",
+              "discriminator": "typescript-original-source/v1:file",
+              "id": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685",
+              "identity_version": "subject-identity/v1",
+              "kind": "file/v1",
+              "metadata": {},
+              "path": "app/src/app/pricing.ts",
+              "source_sha256": "099555b8ae2cc9d231231912b2ea586a8e9de27198569d57c4719b77c249a42b",
+              "target": "node-jsdom"
+            }
+          },
+          "state": "fail",
+          "subject": "subject-identity/v1:b627bf1d0b36ee3c128cd6cc5e3119b62c355c621e458a6475ca05f302cd2685"
+        }
+      ]
+    },
+    "project": "typescript-reference",
+    "schema": "harness-project-report/v1"
+  },
+  "validation": {
+    "accepted": true
+  }
+}

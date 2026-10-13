@@ -1,0 +1,9 @@
+{
+  "generated_fields": [
+    "email"
+  ],
+  "generator": {
+    "name": "synthetic-generator",
+    "version": "1"
+  }
+}

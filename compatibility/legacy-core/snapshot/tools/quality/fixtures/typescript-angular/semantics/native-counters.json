@@ -1,0 +1,136 @@
+{
+  "provider": "istanbul-lib-coverage@3.2.2",
+  "files": {
+    "src/app/app.routes.ts": [
+      {
+        "scope": "file",
+        "lines": {
+          "covered": 1,
+          "total": 1
+        },
+        "functions": {
+          "covered": 2,
+          "total": 2
+        }
+      },
+      {
+        "scope": "ArrowFunction@4:36",
+        "lines": {
+          "covered": 1,
+          "total": 1
+        },
+        "functions": {
+          "covered": 1,
+          "total": 1
+        }
+      },
+      {
+        "scope": "ArrowFunction@4:75",
+        "lines": {
+          "covered": 1,
+          "total": 1
+        },
+        "functions": {
+          "covered": 1,
+          "total": 1
+        }
+      }
+    ],
+    "src/app/pricing.ts": [
+      {
+        "scope": "file",
+        "lines": {
+          "covered": 4,
+          "total": 6
+        },
+        "functions": {
+          "covered": 1,
+          "total": 1
+        }
+      },
+      {
+        "scope": "Pricing.quote@5:2",
+        "lines": {
+          "covered": 3,
+          "total": 5
+        },
+        "functions": {
+          "covered": 1,
+          "total": 1
+        }
+      }
+    ],
+    "src/app/priority-quote.ts": [
+      {
+        "scope": "file",
+        "lines": {
+          "covered": 1,
+          "total": 1
+        },
+        "functions": {
+          "covered": 1,
+          "total": 1
+        }
+      },
+      {
+        "scope": "PriorityQuote.quote@2:2",
+        "lines": {
+          "covered": 1,
+          "total": 1
+        },
+        "functions": {
+          "covered": 1,
+          "total": 1
+        }
+      }
+    ],
+    "src/app/quote-client.ts": [
+      {
+        "scope": "file",
+        "lines": {
+          "covered": 2,
+          "total": 2
+        },
+        "functions": {
+          "covered": 1,
+          "total": 1
+        }
+      },
+      {
+        "scope": "fetchQuote@3:0",
+        "lines": {
+          "covered": 2,
+          "total": 2
+        },
+        "functions": {
+          "covered": 1,
+          "total": 1
+        }
+      }
+    ],
+    "src/app/standard-quote.ts": [
+      {
+        "scope": "file",
+        "lines": {
+          "covered": 1,
+          "total": 1
+        },
+        "functions": {
+          "covered": 1,
+          "total": 1
+        }
+      },
+      {
+        "scope": "StandardQuote.quote@2:2",
+        "lines": {
+          "covered": 1,
+          "total": 1
+        },
+        "functions": {
+          "covered": 1,
+          "total": 1
+        }
+      }
+    ]
+  }
+}

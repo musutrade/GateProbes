@@ -1,0 +1,24 @@
+{
+  "schema": "harness-policy/v1",
+  "rules": [
+    {
+      "id": "api.local",
+      "scope": {
+        "kind": "subject",
+        "subject": "subject-identity/v1:51787f7d6a992215db7936a3032edb6cbf765ded6bdea69a396094fe7a979e0a"
+      },
+      "metric": "coverage.line",
+      "operator": "ge",
+      "limit": {
+        "type": "ratio",
+        "covered": 4,
+        "total": 5
+      },
+      "required": true,
+      "on_violation": "fail",
+      "remediation_classes": [
+        "increase_meaningful_coverage"
+      ]
+    }
+  ]
+}

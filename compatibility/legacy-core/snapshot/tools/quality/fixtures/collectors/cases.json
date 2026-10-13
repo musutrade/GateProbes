@@ -1,0 +1,19 @@
+[
+  {"scenario": "success", "result": "evidence"},
+  {"scenario": "unsupported", "result": "evidence", "state": "unsupported"},
+  {"scenario": "measurement_error", "error": "measurement_error"},
+  {"scenario": "stale_commit", "error": "stale_context"},
+  {"scenario": "duplicate_subject", "error": "duplicate_subject"},
+  {"scenario": "artifact_tamper", "error": "artifact_tampering"},
+  {"scenario": "undeclared_artifact", "error": "undeclared_artifact"},
+  {"scenario": "unlisted_artifact", "error": "undeclared_artifact"},
+  {"scenario": "output_escape", "error": "output_root_escape"},
+  {"scenario": "symlink_escape", "error": "output_root_escape"},
+  {"scenario": "release_decision", "error": "invalid_response"},
+  {"scenario": "missing_capability", "error": "missing_capability"},
+  {"scenario": "nonzero", "error": "subprocess_exit", "external_only": true},
+  {"scenario": "timeout", "error": "timeout", "external_only": true},
+  {"scenario": "malformed_json", "error": "malformed_json", "external_only": true},
+  {"scenario": "duplicate_json_key", "error": "malformed_json", "external_only": true},
+  {"scenario": "invalid_utf8", "error": "malformed_json", "external_only": true}
+]

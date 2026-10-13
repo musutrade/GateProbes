@@ -1,0 +1,364 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "rules"
+  ],
+  "properties": {
+    "schema": {
+      "const": "harness-policy/v1"
+    },
+    "rules": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/definitions/Rule"
+      }
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Harness generic policy v1",
+  "definitions": {
+    "Ratio": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "covered",
+        "total"
+      ],
+      "properties": {
+        "type": {
+          "const": "ratio"
+        },
+        "covered": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "Count": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "value"
+      ],
+      "properties": {
+        "type": {
+          "const": "count"
+        },
+        "value": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "Boolean": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "value"
+      ],
+      "properties": {
+        "type": {
+          "const": "boolean"
+        },
+        "value": {
+          "type": "boolean"
+        }
+      }
+    },
+    "Decimal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "value"
+      ],
+      "properties": {
+        "type": {
+          "const": "decimal"
+        },
+        "value": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]*[1-9])?$"
+        }
+      }
+    },
+    "Duration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "value",
+        "unit"
+      ],
+      "properties": {
+        "type": {
+          "const": "duration"
+        },
+        "value": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "unit": {
+          "const": "nanoseconds"
+        }
+      }
+    },
+    "Size": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "value",
+        "unit"
+      ],
+      "properties": {
+        "type": {
+          "const": "size"
+        },
+        "value": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "unit": {
+          "const": "bytes"
+        }
+      }
+    },
+    "Rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "scope",
+        "metric",
+        "operator",
+        "limit",
+        "required",
+        "on_violation",
+        "remediation_classes"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scope": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "kind"
+              ],
+              "properties": {
+                "kind": {
+                  "enum": [
+                    "project"
+                  ]
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "kind",
+                "component"
+              ],
+              "properties": {
+                "kind": {
+                  "enum": [
+                    "component"
+                  ]
+                },
+                "component": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "kind",
+                "component",
+                "boundary"
+              ],
+              "properties": {
+                "kind": {
+                  "enum": [
+                    "boundary"
+                  ]
+                },
+                "component": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "boundary": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "kind"
+              ],
+              "properties": {
+                "kind": {
+                  "enum": [
+                    "changed_subject",
+                    "critical_subject"
+                  ]
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "kind",
+                "relationship"
+              ],
+              "properties": {
+                "kind": {
+                  "const": "relationship"
+                },
+                "relationship": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9._-]*$"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "kind",
+                "subject"
+              ],
+              "properties": {
+                "kind": {
+                  "const": "subject"
+                },
+                "subject": {
+                  "type": "string",
+                  "pattern": "^subject-identity/v1:[0-9a-f]{64}$"
+                }
+              }
+            }
+          ]
+        },
+        "metric": {
+          "type": "string",
+          "minLength": 1
+        },
+        "operator": {
+          "enum": [
+            "lt",
+            "le",
+            "eq",
+            "ne",
+            "ge",
+            "gt"
+          ]
+        },
+        "limit": {
+          "oneOf": [
+            {
+              "$ref": "#/definitions/Ratio"
+            },
+            {
+              "$ref": "#/definitions/Count"
+            },
+            {
+              "$ref": "#/definitions/Boolean"
+            },
+            {
+              "$ref": "#/definitions/Decimal"
+            },
+            {
+              "$ref": "#/definitions/Duration"
+            },
+            {
+              "$ref": "#/definitions/Size"
+            },
+            {
+              "$ref": "#/definitions/Rational"
+            }
+          ]
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "on_violation": {
+          "enum": [
+            "fail",
+            "warning",
+            "informational"
+          ]
+        },
+        "remediation_classes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "ratchet": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "deny_regression",
+            "allow_legacy_debt"
+          ],
+          "properties": {
+            "deny_regression": {
+              "type": "boolean"
+            },
+            "allow_legacy_debt": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "Rational": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "numerator",
+        "denominator"
+      ],
+      "properties": {
+        "type": {
+          "const": "rational"
+        },
+        "numerator": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "denominator": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    }
+  }
+}
