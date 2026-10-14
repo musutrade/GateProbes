@@ -1,0 +1,566 @@
+{
+  "schema": "gateprobes-native-publication/v1",
+  "verified_at": "2026-10-14T04:27:56.659792+00:00",
+  "repository": "musutrade/GateProbes",
+  "tag": "rust-collector-v0.1.0-rc.8",
+  "source_commit": "155b233fb2f525f520b4fcc0ed73e017154345e0",
+  "release_id": 410325966,
+  "draft": false,
+  "prerelease": true,
+  "immutable": false,
+  "immutability_settings": {
+    "enabled": true,
+    "enforced_by_owner": false
+  },
+  "integrity_status": "pass",
+  "protection_status": "legacy-mutable",
+  "certificate_identity": "https://github.com/musutrade/GateProbes/.github/workflows/native-collector-release.yml@refs/tags/rust-collector-v0.1.0-rc.8",
+  "signed_and_attested_subjects": 10,
+  "assets": [
+    {
+      "name": "SHA256SUMS",
+      "id": 633054455,
+      "size": 1001,
+      "sha256": "d8f2302dc56108b6db8d971bed18c7d3bf0265506768663de8fb91d27011444b"
+    },
+    {
+      "name": "SHA256SUMS.crt",
+      "id": 633054453,
+      "size": 3648,
+      "sha256": "5d0442528f62b44d80e8df23cc8216854f59778c075aa8fdf82073d5e9f9c88e"
+    },
+    {
+      "name": "SHA256SUMS.sig",
+      "id": 633054456,
+      "size": 96,
+      "sha256": "1d4b0d60b0d4bcd54a543a8b341d54e7fae543654c4883e671aeeb28038a7d59"
+    },
+    {
+      "name": "harness-gate-rust-collector-linux-amd64",
+      "id": 633054457,
+      "size": 1344072,
+      "sha256": "da9b52b7097d5b824db44af80b82a7a9f03f0e9ed8c90801cf8ba2e65ab69744"
+    },
+    {
+      "name": "harness-gate-rust-collector-linux-amd64.crt",
+      "id": 633054452,
+      "size": 3648,
+      "sha256": "f7af22f48068c5c136618e82d85bead88e271b3a460900a0e8b4d9cfb8120b2f"
+    },
+    {
+      "name": "harness-gate-rust-collector-linux-amd64.sbom.cdx.json",
+      "id": 633054475,
+      "size": 10149,
+      "sha256": "ef37070bfd906323c54affd3d22fa5d5b74d1a5b22da2c005ac3a937450af42a"
+    },
+    {
+      "name": "harness-gate-rust-collector-linux-amd64.sbom.cdx.json.crt",
+      "id": 633054478,
+      "size": 3648,
+      "sha256": "3e025025a19bef1237a9aec49076381800059d4da1be9c50a2e34528c2e6591f"
+    },
+    {
+      "name": "harness-gate-rust-collector-linux-amd64.sbom.cdx.json.sig",
+      "id": 633054482,
+      "size": 96,
+      "sha256": "f33634321e023a719ca2f949e9e73ef3f4c39ac5a63adc56fbbf6ea7068c3440"
+    },
+    {
+      "name": "harness-gate-rust-collector-linux-amd64.sig",
+      "id": 633054484,
+      "size": 96,
+      "sha256": "e3362dcb623dd01ab28a5c3dc6fe3df71bd5043fba448074ddc7bf3bf3362edc"
+    },
+    {
+      "name": "harness-gate-rust-collector-macos-amd64",
+      "id": 633054486,
+      "size": 1330096,
+      "sha256": "a937cf396def804ba6309265603c3f11b19e38d243903c200dc9ecb838e8206f"
+    },
+    {
+      "name": "harness-gate-rust-collector-macos-amd64.crt",
+      "id": 633054493,
+      "size": 3648,
+      "sha256": "0d74002fefb1d9131e553f975059e229f750d5d99fa8cdfa784cf143859b4951"
+    },
+    {
+      "name": "harness-gate-rust-collector-macos-amd64.sbom.cdx.json",
+      "id": 633054501,
+      "size": 10145,
+      "sha256": "af338c35d43231ce97c33dd386dcab6299d83e1361b443c04b825a6f7e38f7ee"
+    },
+    {
+      "name": "harness-gate-rust-collector-macos-amd64.sbom.cdx.json.crt",
+      "id": 633054502,
+      "size": 3648,
+      "sha256": "0b61654bd356d114fe4a15302293b6e3306e3c968c1cf520881a77e25eb0ae56"
+    },
+    {
+      "name": "harness-gate-rust-collector-macos-amd64.sbom.cdx.json.sig",
+      "id": 633054508,
+      "size": 96,
+      "sha256": "c5e7c94ceed4f448455d5c2463851992d87f9e933b4e57bd8d11251ef58174ee"
+    },
+    {
+      "name": "harness-gate-rust-collector-macos-amd64.sig",
+      "id": 633054517,
+      "size": 96,
+      "sha256": "220accf7a8d505efa7ab99f19c4d15a21322d2be9d052e03cb9614cff3b73640"
+    },
+    {
+      "name": "harness-gate-rust-collector-macos-arm64",
+      "id": 633054521,
+      "size": 1385712,
+      "sha256": "fb7c4913e15cac54897c7f2c169d42c03cafd354fc2368b5bebc6d7c7c24ec29"
+    },
+    {
+      "name": "harness-gate-rust-collector-macos-arm64.crt",
+      "id": 633054524,
+      "size": 3648,
+      "sha256": "92d840640d6820f5e2798884d20bc4ee46e9945b260ef6ad6039ab2693381df8"
+    },
+    {
+      "name": "harness-gate-rust-collector-macos-arm64.sbom.cdx.json",
+      "id": 633054526,
+      "size": 10482,
+      "sha256": "d323dd0aa0dde0e846f94aed35dd8f66f816d458522aaadea83d0ef1097138b3"
+    },
+    {
+      "name": "harness-gate-rust-collector-macos-arm64.sbom.cdx.json.crt",
+      "id": 633054533,
+      "size": 3648,
+      "sha256": "2ceac4c2e7d762421ecc1562d33d8ed0c3fc358d5907339ab7cfe92506b81706"
+    },
+    {
+      "name": "harness-gate-rust-collector-macos-arm64.sbom.cdx.json.sig",
+      "id": 633054536,
+      "size": 96,
+      "sha256": "d2c1ce0bbeffb99e069177b79c94d23ee6b567e57f072e758c7fbdb7f0c4d556"
+    },
+    {
+      "name": "harness-gate-rust-collector-macos-arm64.sig",
+      "id": 633054540,
+      "size": 96,
+      "sha256": "f461cb778db5b08d9991a43797ca14a2e22425cd6a51faf5585abfcc534e6da8"
+    },
+    {
+      "name": "harness-gate-rust-collector-windows-amd64.exe",
+      "id": 633054542,
+      "size": 1229824,
+      "sha256": "fa4abe84a2a0cf9df6eb45760e749f87a5d16a147415c46cf25ebd3710c033c3"
+    },
+    {
+      "name": "harness-gate-rust-collector-windows-amd64.exe.crt",
+      "id": 633054544,
+      "size": 3648,
+      "sha256": "8d3e22560ba54adf8fdead406f00d2e1b4fc895df57996e54a73499dca873217"
+    },
+    {
+      "name": "harness-gate-rust-collector-windows-amd64.exe.sig",
+      "id": 633054552,
+      "size": 96,
+      "sha256": "0e3b47a85b00b1162d62922c3a8f540960fdafbcc0dfddf8441514b63a855411"
+    },
+    {
+      "name": "harness-gate-rust-collector-windows-amd64.sbom.cdx.json",
+      "id": 633054555,
+      "size": 10390,
+      "sha256": "6ccd1860619b44e493e643e4a98454f5e76869d4a236618d83a1f51cc46f0aa5"
+    },
+    {
+      "name": "harness-gate-rust-collector-windows-amd64.sbom.cdx.json.crt",
+      "id": 633054567,
+      "size": 3648,
+      "sha256": "6b2870895b13a9fb60454e9f42f7a08dedb8048afa8c105c83cd462d058258ef"
+    },
+    {
+      "name": "harness-gate-rust-collector-windows-amd64.sbom.cdx.json.sig",
+      "id": 633054568,
+      "size": 96,
+      "sha256": "0a3bba43c94020a5a08e91c78600dd2a10d5971e2d7668f5adfee60176e818b5"
+    },
+    {
+      "name": "release-inventory.json",
+      "id": 633054582,
+      "size": 5664,
+      "sha256": "dca9f7fef5770052a1411ef7bd1cb9a1d63eda35df79197c04f26a7c9ed5da7c"
+    },
+    {
+      "name": "release-inventory.json.crt",
+      "id": 633054583,
+      "size": 3648,
+      "sha256": "6d7a10daf06e821a97e4d6da606e35ecee8ff4b3bb6ff3a11452cd9471d4e54d"
+    },
+    {
+      "name": "release-inventory.json.sig",
+      "id": 633054589,
+      "size": 96,
+      "sha256": "0e972420eed6ca832cf747a4861e516fa9627ad1409827d5b20292630b464dcd"
+    }
+  ],
+  "commands": [
+    {
+      "argv": [
+        "gh",
+        "release",
+        "download",
+        "rust-collector-v0.1.0-rc.8",
+        "--repo",
+        "musutrade/GateProbes",
+        "--dir",
+        "/mnt/dev-ssd/dev-tmp/native-public-verification-mxbaoim3"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "/tmp/rc8-cosign/cosign-linux-amd64",
+        "verify-blob",
+        "--signature",
+        "/mnt/dev-ssd/dev-tmp/native-public-verification-mxbaoim3/SHA256SUMS.sig",
+        "--certificate",
+        "/mnt/dev-ssd/dev-tmp/native-public-verification-mxbaoim3/SHA256SUMS.crt",
+        "--certificate-oidc-issuer",
+        "https://token.actions.githubusercontent.com",
+        "--certificate-identity",
+        "https://github.com/musutrade/GateProbes/.github/workflows/native-collector-release.yml@refs/tags/rust-collector-v0.1.0-rc.8",
+        "/mnt/dev-ssd/dev-tmp/native-public-verification-mxbaoim3/SHA256SUMS"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "attestation",
+        "verify",
+        "/mnt/dev-ssd/dev-tmp/native-public-verification-mxbaoim3/SHA256SUMS",
+        "--repo",
+        "musutrade/GateProbes",
+        "--cert-identity",
+        "https://github.com/musutrade/GateProbes/.github/workflows/native-collector-release.yml@refs/tags/rust-collector-v0.1.0-rc.8",
+        "--source-ref",
+        "refs/tags/rust-collector-v0.1.0-rc.8",
+        "--source-digest",
+        "155b233fb2f525f520b4fcc0ed73e017154345e0",
+        "--signer-digest",
+        "155b233fb2f525f520b4fcc0ed73e017154345e0"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "/tmp/rc8-cosign/cosign-linux-amd64",
+        "verify-blob",
+        "--signature",
+        "/mnt/dev-ssd/dev-tmp/native-public-verification-mxbaoim3/harness-gate-rust-collector-linux-amd64.sig",
+        "--certificate",
+        "/mnt/dev-ssd/dev-tmp/native-public-verification-mxbaoim3/harness-gate-rust-collector-linux-amd64.crt",
+        "--certificate-oidc-issuer",
+        "https://token.actions.githubusercontent.com",
+        "--certificate-identity",
+        "https://github.com/musutrade/GateProbes/.github/workflows/native-collector-release.yml@refs/tags/rust-collector-v0.1.0-rc.8",
+        "/mnt/dev-ssd/dev-tmp/native-public-verification-mxbaoim3/harness-gate-rust-collector-linux-amd64"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "attestation",
+        "verify",
+        "/mnt/dev-ssd/dev-tmp/native-public-verification-mxbaoim3/harness-gate-rust-collector-linux-amd64",
+        "--repo",
+        "musutrade/GateProbes",
+        "--cert-identity",
+        "https://github.com/musutrade/GateProbes/.github/workflows/native-collector-release.yml@refs/tags/rust-collector-v0.1.0-rc.8",
+        "--source-ref",
+        "refs/tags/rust-collector-v0.1.0-rc.8",
+        "--source-digest",
+        "155b233fb2f525f520b4fcc0ed73e017154345e0",
+        "--signer-digest",
+        "155b233fb2f525f520b4fcc0ed73e017154345e0"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "/tmp/rc8-cosign/cosign-linux-amd64",
+        "verify-blob",
+        "--signature",
+        "/mnt/dev-ssd/dev-tmp/native-public-verification-mxbaoim3/harness-gate-rust-collector-linux-amd64.sbom.cdx.json.sig",
+        "--certificate",
+        "/mnt/dev-ssd/dev-tmp/native-public-verification-mxbaoim3/harness-gate-rust-collector-linux-amd64.sbom.cdx.json.crt",
+        "--certificate-oidc-issuer",
+        "https://token.actions.githubusercontent.com",
+        "--certificate-identity",
+        "https://github.com/musutrade/GateProbes/.github/workflows/native-collector-release.yml@refs/tags/rust-collector-v0.1.0-rc.8",
+        "/mnt/dev-ssd/dev-tmp/native-public-verification-mxbaoim3/harness-gate-rust-collector-linux-amd64.sbom.cdx.json"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "attestation",
+        "verify",
+        "/mnt/dev-ssd/dev-tmp/native-public-verification-mxbaoim3/harness-gate-rust-collector-linux-amd64.sbom.cdx.json",
+        "--repo",
+        "musutrade/GateProbes",
+        "--cert-identity",
+        "https://github.com/musutrade/GateProbes/.github/workflows/native-collector-release.yml@refs/tags/rust-collector-v0.1.0-rc.8",
+        "--source-ref",
+        "refs/tags/rust-collector-v0.1.0-rc.8",
+        "--source-digest",
+        "155b233fb2f525f520b4fcc0ed73e017154345e0",
+        "--signer-digest",
+        "155b233fb2f525f520b4fcc0ed73e017154345e0"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "/tmp/rc8-cosign/cosign-linux-amd64",
+        "verify-blob",
+        "--signature",
+        "/mnt/dev-ssd/dev-tmp/native-public-verification-mxbaoim3/harness-gate-rust-collector-macos-amd64.sig",
+        "--certificate",
+        "/mnt/dev-ssd/dev-tmp/native-public-verification-mxbaoim3/harness-gate-rust-collector-macos-amd64.crt",
+        "--certificate-oidc-issuer",
+        "https://token.actions.githubusercontent.com",
+        "--certificate-identity",
+        "https://github.com/musutrade/GateProbes/.github/workflows/native-collector-release.yml@refs/tags/rust-collector-v0.1.0-rc.8",
+        "/mnt/dev-ssd/dev-tmp/native-public-verification-mxbaoim3/harness-gate-rust-collector-macos-amd64"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "attestation",
+        "verify",
+        "/mnt/dev-ssd/dev-tmp/native-public-verification-mxbaoim3/harness-gate-rust-collector-macos-amd64",
+        "--repo",
+        "musutrade/GateProbes",
+        "--cert-identity",
+        "https://github.com/musutrade/GateProbes/.github/workflows/native-collector-release.yml@refs/tags/rust-collector-v0.1.0-rc.8",
+        "--source-ref",
+        "refs/tags/rust-collector-v0.1.0-rc.8",
+        "--source-digest",
+        "155b233fb2f525f520b4fcc0ed73e017154345e0",
+        "--signer-digest",
+        "155b233fb2f525f520b4fcc0ed73e017154345e0"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "/tmp/rc8-cosign/cosign-linux-amd64",
+        "verify-blob",
+        "--signature",
+        "/mnt/dev-ssd/dev-tmp/native-public-verification-mxbaoim3/harness-gate-rust-collector-macos-amd64.sbom.cdx.json.sig",
+        "--certificate",
+        "/mnt/dev-ssd/dev-tmp/native-public-verification-mxbaoim3/harness-gate-rust-collector-macos-amd64.sbom.cdx.json.crt",
+        "--certificate-oidc-issuer",
+        "https://token.actions.githubusercontent.com",
+        "--certificate-identity",
+        "https://github.com/musutrade/GateProbes/.github/workflows/native-collector-release.yml@refs/tags/rust-collector-v0.1.0-rc.8",
+        "/mnt/dev-ssd/dev-tmp/native-public-verification-mxbaoim3/harness-gate-rust-collector-macos-amd64.sbom.cdx.json"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "attestation",
+        "verify",
+        "/mnt/dev-ssd/dev-tmp/native-public-verification-mxbaoim3/harness-gate-rust-collector-macos-amd64.sbom.cdx.json",
+        "--repo",
+        "musutrade/GateProbes",
+        "--cert-identity",
+        "https://github.com/musutrade/GateProbes/.github/workflows/native-collector-release.yml@refs/tags/rust-collector-v0.1.0-rc.8",
+        "--source-ref",
+        "refs/tags/rust-collector-v0.1.0-rc.8",
+        "--source-digest",
+        "155b233fb2f525f520b4fcc0ed73e017154345e0",
+        "--signer-digest",
+        "155b233fb2f525f520b4fcc0ed73e017154345e0"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "/tmp/rc8-cosign/cosign-linux-amd64",
+        "verify-blob",
+        "--signature",
+        "/mnt/dev-ssd/dev-tmp/native-public-verification-mxbaoim3/harness-gate-rust-collector-macos-arm64.sig",
+        "--certificate",
+        "/mnt/dev-ssd/dev-tmp/native-public-verification-mxbaoim3/harness-gate-rust-collector-macos-arm64.crt",
+        "--certificate-oidc-issuer",
+        "https://token.actions.githubusercontent.com",
+        "--certificate-identity",
+        "https://github.com/musutrade/GateProbes/.github/workflows/native-collector-release.yml@refs/tags/rust-collector-v0.1.0-rc.8",
+        "/mnt/dev-ssd/dev-tmp/native-public-verification-mxbaoim3/harness-gate-rust-collector-macos-arm64"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "attestation",
+        "verify",
+        "/mnt/dev-ssd/dev-tmp/native-public-verification-mxbaoim3/harness-gate-rust-collector-macos-arm64",
+        "--repo",
+        "musutrade/GateProbes",
+        "--cert-identity",
+        "https://github.com/musutrade/GateProbes/.github/workflows/native-collector-release.yml@refs/tags/rust-collector-v0.1.0-rc.8",
+        "--source-ref",
+        "refs/tags/rust-collector-v0.1.0-rc.8",
+        "--source-digest",
+        "155b233fb2f525f520b4fcc0ed73e017154345e0",
+        "--signer-digest",
+        "155b233fb2f525f520b4fcc0ed73e017154345e0"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "/tmp/rc8-cosign/cosign-linux-amd64",
+        "verify-blob",
+        "--signature",
+        "/mnt/dev-ssd/dev-tmp/native-public-verification-mxbaoim3/harness-gate-rust-collector-macos-arm64.sbom.cdx.json.sig",
+        "--certificate",
+        "/mnt/dev-ssd/dev-tmp/native-public-verification-mxbaoim3/harness-gate-rust-collector-macos-arm64.sbom.cdx.json.crt",
+        "--certificate-oidc-issuer",
+        "https://token.actions.githubusercontent.com",
+        "--certificate-identity",
+        "https://github.com/musutrade/GateProbes/.github/workflows/native-collector-release.yml@refs/tags/rust-collector-v0.1.0-rc.8",
+        "/mnt/dev-ssd/dev-tmp/native-public-verification-mxbaoim3/harness-gate-rust-collector-macos-arm64.sbom.cdx.json"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "attestation",
+        "verify",
+        "/mnt/dev-ssd/dev-tmp/native-public-verification-mxbaoim3/harness-gate-rust-collector-macos-arm64.sbom.cdx.json",
+        "--repo",
+        "musutrade/GateProbes",
+        "--cert-identity",
+        "https://github.com/musutrade/GateProbes/.github/workflows/native-collector-release.yml@refs/tags/rust-collector-v0.1.0-rc.8",
+        "--source-ref",
+        "refs/tags/rust-collector-v0.1.0-rc.8",
+        "--source-digest",
+        "155b233fb2f525f520b4fcc0ed73e017154345e0",
+        "--signer-digest",
+        "155b233fb2f525f520b4fcc0ed73e017154345e0"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "/tmp/rc8-cosign/cosign-linux-amd64",
+        "verify-blob",
+        "--signature",
+        "/mnt/dev-ssd/dev-tmp/native-public-verification-mxbaoim3/harness-gate-rust-collector-windows-amd64.exe.sig",
+        "--certificate",
+        "/mnt/dev-ssd/dev-tmp/native-public-verification-mxbaoim3/harness-gate-rust-collector-windows-amd64.exe.crt",
+        "--certificate-oidc-issuer",
+        "https://token.actions.githubusercontent.com",
+        "--certificate-identity",
+        "https://github.com/musutrade/GateProbes/.github/workflows/native-collector-release.yml@refs/tags/rust-collector-v0.1.0-rc.8",
+        "/mnt/dev-ssd/dev-tmp/native-public-verification-mxbaoim3/harness-gate-rust-collector-windows-amd64.exe"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "attestation",
+        "verify",
+        "/mnt/dev-ssd/dev-tmp/native-public-verification-mxbaoim3/harness-gate-rust-collector-windows-amd64.exe",
+        "--repo",
+        "musutrade/GateProbes",
+        "--cert-identity",
+        "https://github.com/musutrade/GateProbes/.github/workflows/native-collector-release.yml@refs/tags/rust-collector-v0.1.0-rc.8",
+        "--source-ref",
+        "refs/tags/rust-collector-v0.1.0-rc.8",
+        "--source-digest",
+        "155b233fb2f525f520b4fcc0ed73e017154345e0",
+        "--signer-digest",
+        "155b233fb2f525f520b4fcc0ed73e017154345e0"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "/tmp/rc8-cosign/cosign-linux-amd64",
+        "verify-blob",
+        "--signature",
+        "/mnt/dev-ssd/dev-tmp/native-public-verification-mxbaoim3/harness-gate-rust-collector-windows-amd64.sbom.cdx.json.sig",
+        "--certificate",
+        "/mnt/dev-ssd/dev-tmp/native-public-verification-mxbaoim3/harness-gate-rust-collector-windows-amd64.sbom.cdx.json.crt",
+        "--certificate-oidc-issuer",
+        "https://token.actions.githubusercontent.com",
+        "--certificate-identity",
+        "https://github.com/musutrade/GateProbes/.github/workflows/native-collector-release.yml@refs/tags/rust-collector-v0.1.0-rc.8",
+        "/mnt/dev-ssd/dev-tmp/native-public-verification-mxbaoim3/harness-gate-rust-collector-windows-amd64.sbom.cdx.json"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "attestation",
+        "verify",
+        "/mnt/dev-ssd/dev-tmp/native-public-verification-mxbaoim3/harness-gate-rust-collector-windows-amd64.sbom.cdx.json",
+        "--repo",
+        "musutrade/GateProbes",
+        "--cert-identity",
+        "https://github.com/musutrade/GateProbes/.github/workflows/native-collector-release.yml@refs/tags/rust-collector-v0.1.0-rc.8",
+        "--source-ref",
+        "refs/tags/rust-collector-v0.1.0-rc.8",
+        "--source-digest",
+        "155b233fb2f525f520b4fcc0ed73e017154345e0",
+        "--signer-digest",
+        "155b233fb2f525f520b4fcc0ed73e017154345e0"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "/tmp/rc8-cosign/cosign-linux-amd64",
+        "verify-blob",
+        "--signature",
+        "/mnt/dev-ssd/dev-tmp/native-public-verification-mxbaoim3/release-inventory.json.sig",
+        "--certificate",
+        "/mnt/dev-ssd/dev-tmp/native-public-verification-mxbaoim3/release-inventory.json.crt",
+        "--certificate-oidc-issuer",
+        "https://token.actions.githubusercontent.com",
+        "--certificate-identity",
+        "https://github.com/musutrade/GateProbes/.github/workflows/native-collector-release.yml@refs/tags/rust-collector-v0.1.0-rc.8",
+        "/mnt/dev-ssd/dev-tmp/native-public-verification-mxbaoim3/release-inventory.json"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "attestation",
+        "verify",
+        "/mnt/dev-ssd/dev-tmp/native-public-verification-mxbaoim3/release-inventory.json",
+        "--repo",
+        "musutrade/GateProbes",
+        "--cert-identity",
+        "https://github.com/musutrade/GateProbes/.github/workflows/native-collector-release.yml@refs/tags/rust-collector-v0.1.0-rc.8",
+        "--source-ref",
+        "refs/tags/rust-collector-v0.1.0-rc.8",
+        "--source-digest",
+        "155b233fb2f525f520b4fcc0ed73e017154345e0",
+        "--signer-digest",
+        "155b233fb2f525f520b4fcc0ed73e017154345e0"
+      ],
+      "exit_code": 0
+    }
+  ]
+}
