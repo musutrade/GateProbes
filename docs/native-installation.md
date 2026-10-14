@@ -52,9 +52,10 @@ Supported asset dispatch is Linux x86_64, macOS Intel/ARM and Windows x86_64.
 There is no ABI/platform fallback. Verification finishes before activation.
 Private absolute directories and regular files are required; symlink paths,
 traversal and group/other-writable destinations are rejected. Replacement uses
-a temporary file in the destination directory and atomic rename. Download,
-verification, copy, chmod, rename and HUP/INT/TERM failures retain the previous
-executable and clean the operation's own temporary files.
+a temporary file in the destination directory and atomic rename. Failures or
+HUP/INT/TERM interruptions before successful rename retain the previous executable
+and clean the operation's own temporary files. Rename is the commit point:
+a later interruption can leave the complete new executable installed.
 
 ## Upgrade and rollback
 
