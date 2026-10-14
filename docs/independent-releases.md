@@ -139,3 +139,15 @@ of all five collector tag prefixes, with no bypass actors. Historical RC8 retain
 its original `immutable=false` state; this migration does not rewrite it. The
 workflow also refetches tag/main references and repeats exact-commit eligibility
 immediately before publication, with the release target bound to `GITHUB_SHA`.
+
+
+## Postgres candidate (2026-10-14)
+
+`postgres-service-v0.1.0` is a configured future tag with archive
+`gateprobes-postgres-0.1.0-linux-amd64.tar.gz`, not an existing release receipt.
+It uses the same eligibility, installed package acceptance, complete signed
+inventory, exact-tag Sigstore/provenance and immutable publication gates.
+Core v0.4.9 is incompatible with `service_checks`; packaging checks the pinned
+binary's schema and fails explicitly until a compatible verified released Core
+is selected. Ordinary CI does not substitute candidate Core or skip this contract.
+Local candidate installed acceptance is separate. See the [plugin guide](../plugins/postgres-service/README.md).

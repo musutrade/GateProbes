@@ -186,6 +186,30 @@ class PackagingBoundaryTests(unittest.TestCase):
                 self.assertIn(str(source / "node_modules/istanbul-lib-instrument"), copied)
 
 
+class PostgresPackagingTests(unittest.TestCase):
+    def test_incompatible_schema_blocks_before_plugin_build(self):
+        def export(*args, **kwargs):
+            (kwargs["cwd"] / "flow.schema.json").write_text('{"properties": {}}')
+            return ""
+        with patch.object(package_plugin, "run", side_effect=export) as run, \
+                self.assertRaisesRegex(RuntimeError, "pinned released Core lacks"):
+            package_plugin.postgres_package(Path("/unused/output"), Path("/unused/core"), Path("/pinned/core"))
+        self.assertEqual(run.call_count, 1)
+        self.assertEqual(run.call_args.args[0], "/pinned/core")
+
+    def test_incomplete_archive_blocks_before_contract_execution(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            archive = root / "gateprobes-postgres-0.1.0-linux-amd64.tar.gz"
+            with tarfile.open(archive, "w:gz"):
+                pass
+            with patch.object(package_plugin, "run") as run, \
+                    self.assertRaisesRegex(RuntimeError, "incomplete Postgres archive"):
+                package_plugin.accept_postgres_archive(archive, ROOT / "plugins/postgres-service",
+                    root / "consumer", Path("/pinned/core"), root / "report.json")
+            run.assert_not_called()
+
+
 class IndependentWorkflowTests(unittest.TestCase):
     def test_publication_is_tag_only_and_uses_the_complete_trust_chain(self):
         text = (ROOT / ".github/workflows/collector-release.yml").read_text()

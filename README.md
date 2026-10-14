@@ -14,6 +14,7 @@ protocol validation, budgets, thresholds, baselines and the final decision.
 | `plugins/http-json-contract/` | TypeScript plugin: HTTP/JSON contract and Angular client-drift measurement |
 | `plugins/rust-source-risk/` | Python-entry plugin with a Rust AST inventory: Rust source complexity, coverage and CRAP |
 | `plugins/rust-native-plugin/`, `plugins/rust-native-driver/` | External-toolchain native plugin: compiler-private MIR driver plus the unpackaged plugin builder (Linux acceptance) |
+| `plugins/postgres-service/` | Candidate Postgres isolation/health, recipes and migration; compatible released Core pending |
 | `plugins/registry.json` | Plugin registry: directory, language, platforms, entries and shared protocols |
 | `plugins/releases.json` | Independent plugin tag prefixes and package identities |
 | `protocol/collector-protocol.schema.json` | Generated copy of the Core host contract; Core is the editable source |
@@ -68,3 +69,7 @@ workflow declaration alone does not establish release or platform acceptance.
 ## License
 
 MIT. See [LICENSE](LICENSE).
+
+Postgres service checks are described in the [plugin guide](plugins/postgres-service/README.md).
+The v0.4.9 Core pin remains immutable and incompatible; a compatible verified
+released Core and package acceptance are required before publication.

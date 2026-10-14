@@ -232,7 +232,7 @@ jobs:
         run: ${{ matrix.entries.package }}
 
       - name: Fetch pinned Core consumer (rust)
-        if: matrix.language == 'rust'
+        if: matrix.language == 'rust' && matrix.plugin != 'postgres-service'
         env:
           SOURCE_COMMIT: ${{ steps.core.outputs.source_commit }}
         run: |

@@ -96,6 +96,24 @@
       ],
       "authority": "measurement-only",
       "contract_test": "plugins/rust-native-plugin/accept.py"
+    },
+    "postgres-service": {
+      "paths": [
+        "plugins/postgres-service"
+      ],
+      "authority": "check-facts-only; Core decides requiredness and blocking",
+      "contract_test": "plugins/postgres-service/contract.py",
+      "source_repository": "https://github.com/musutrade/GateHouse",
+      "source_commit": "3e6c91eef385aa375fbeea896cf75f9fb1212793",
+      "source_paths": [
+        "tools/harness-gate/src/recipes/postgres.rs",
+        "tools/harness-gate/src/config/migration.rs"
+      ],
+      "core_compatibility": {
+        "protocol": "gate-service-check/v1",
+        "status": "candidate; existing release pin v0.4.9 must fail contract acceptance",
+        "exit_condition": "review and publish compatible Core, pin verified released artifact, rerun installed package acceptance"
+      }
     }
   },
   "inputs": [
@@ -108,7 +126,10 @@
     "plugins/rust-measure/Cargo.lock",
     "plugins/http-json-contract/npm-shrinkwrap.json",
     "plugins/rust-source-risk/ast/Cargo.lock",
-    "plugins/rust-native-driver/Cargo.lock"
+    "plugins/rust-native-driver/Cargo.lock",
+    "plugins/postgres-service/plugin.json",
+    "plugins/postgres-service/Cargo.lock",
+    "protocol/service-check.schema.json"
   ],
   "companions": [
     "plugins/rust-native-driver"
