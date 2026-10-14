@@ -75,7 +75,9 @@ def verify(tag: str, commit: str, cosign: str, historical: bool = False) -> dict
     certificate = identity(tag, commit)
     if historical and tag != HISTORICAL_TAG:
         raise ValueError("historical exception is restricted to original RC8")
-    settings = preflight()
+    # Settings API requires Administration:read, unavailable to GITHUB_TOKEN.
+    # Ordinary publication instead enforces the actual immutable release state.
+    settings = preflight() if historical else None
     before = api("releases/tags/" + tag)
     check_state(before, tag, historical)
     commands = []

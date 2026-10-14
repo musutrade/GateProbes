@@ -28,17 +28,25 @@ resigned or overwritten to acquire an immutable label.
 
 ## Future publication enforcement
 
-`tools/release/verify_native_release.py preflight` requires the repository's
-actual immutable setting before staging/signing/publication. After publication,
-`verify` downloads the public assets into a fresh temporary directory and checks
+The standalone `tools/release/verify_native_release.py preflight` audits the
+actual repository setting using the operator's existing admin-read authentication.
+[The settings API](https://docs.github.com/en/rest/repos/repos) requires
+Administration:read, which is unavailable to a normal Actions `GITHUB_TOKEN`.
+This operation is not called by the workflow; no administrative credential or
+new permission is introduced. The checked settings receipt above is the dated
+operator evidence. Ordinary postpublication verification does not query this
+privileged endpoint and explicitly records settings as null; actual release
+protection is determined from the public release's `immutable` state.
+
+After publication, `verify` downloads the public assets into a fresh temporary directory and checks
 the exact signed inventory, source/tag, every API digest/size, signatures and
 provenance. Actual release `draft`, `prerelease` and `immutable` states are mandatory;
 missing or false immutability fails. A prerelease tag requires `prerelease=true`;
 a stable tag requires false. Existing releases are still refused by the workflow.
 
 The protected native publication job keeps policy/build dependencies, environment
-approval and keyless signing. A bounded 90-day artifact retains preflight and
-publication receipts, including failure receipts; an unprotected publication
+approval and keyless signing. A bounded 90-day artifact retains publication
+receipts, including failure receipts; an unprotected publication
 fails the job and never produces a successful protection receipt. It is not
 silently recreated or rolled back after failure.
 
@@ -51,10 +59,11 @@ in both modes. The exception is not a waiver for future tags.
 ## Validation and rollback
 
 The local governance suite passes 73 tests. Regressions reject missing/disabled
-settings, draft or wrong RC/stable state, mutable future releases, wrong source
+manual-audit settings, draft or wrong RC/stable state, mutable future releases, wrong source
 or identity inputs, duplicate/extra/missing assets, bad sizes/digests and changed
 release identity during verification. They verify exact cryptographic source/tag
-arguments and that the workflow cannot use the historical exception. YAML parsing,
+arguments, strict verification without an admin API call, and that the workflow
+cannot use the historical exception. YAML parsing,
 documentation consistency and diff checks pass. Hosted PR acceptance is separate.
 
 The original tagged RC8 workflow and release remain unchanged. Reverting these

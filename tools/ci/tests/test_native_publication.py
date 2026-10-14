@@ -91,6 +91,13 @@ class NativePublicationTests(unittest.TestCase):
                                     ('--source-ref', 'refs/tags/' + tag),
                                     ('--cert-identity', publication.identity(tag, commit))]:
                     self.assertEqual(arguments[arguments.index(flag) + 1], value)
+            publication.api.return_value = {**state, 'immutable': True}
+            publication.preflight.reset_mock()
+            strict = publication.verify(tag, commit, 'cosign')
+            self.assertEqual(strict['protection_status'], 'complete')
+            self.assertIsNone(strict['immutability_settings'])
+            publication.preflight.assert_not_called()
+            publication.api.return_value = state
             run.side_effect = RuntimeError('signature failure')
             with self.assertRaises(RuntimeError):
                 publication.verify(tag, commit, 'cosign', True)
@@ -100,9 +107,9 @@ class NativePublicationTests(unittest.TestCase):
                 with self.subTest(changed=changed), self.assertRaises(ValueError):
                     publication.verify(tag, commit, 'cosign', True)
 
-    def test_workflow_preflight_and_postcheck_are_mandatory(self):
+    def test_workflow_postcheck_is_mandatory_without_admin_permission(self):
         text = (ROOT / '.github/workflows/native-collector-release.yml').read_text()
-        self.assertLess(text.index('verify_native_release.py preflight'), text.index('name: Download release assets'))
+        self.assertNotIn('verify_native_release.py preflight', text)
         self.assertGreater(text.index('verify_native_release.py verify'), text.index('gh release create'))
         self.assertNotIn('--historical-rc8', text)
         self.assertIn('path: receipts/*.json', text)
