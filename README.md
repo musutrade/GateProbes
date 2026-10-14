@@ -76,3 +76,5 @@ The verified [Core v0.5.0 pin](docs/core-0.5.0-verification.json) supports the
 required-check protocol. Historical v0.4.9 remains immutable and incompatible.
 Postgres 0.1.1 publication and public fixed-pair acceptance have passed; see the
 [delivery receipt](docs/postgres-service-0.1.1-verification.md).
+
+Native Rust plugin installation, upgrade and rollback use the [fixed public installer](docs/native-installation.md) ([中文](docs/native-installation.zh-CN.md)); GateHouse installs Core separately.
