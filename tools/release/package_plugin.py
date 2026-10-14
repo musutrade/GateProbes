@@ -149,6 +149,94 @@ def rust_measure_package(output: Path, core: Path) -> None:
             "--output", str(output / (measurer_archive_name(version) + ".sbom.cdx.json")))
 
 
+def require_service_contract(core_binary: Path) -> None:
+    """Probe the already verified Core artifact; never compile a substitute."""
+    with tempfile.TemporaryDirectory(prefix="postgres-core-schema-") as tmp:
+        directory = Path(tmp)
+        run(str(core_binary), "--project-root", str(directory), "schema", "export",
+            "--output", "flow.schema.json", cwd=directory)
+        schema = json.loads((directory / "flow.schema.json").read_text())
+        if "service_checks" not in schema.get("properties", {}):
+            raise RuntimeError("pinned released Core lacks gate-service-check/v1; "
+                               "publish and explicitly pin a compatible Core before packaging Postgres")
+
+
+def stage_postgres(binary: Path, source: Path, package: Path) -> None:
+    package.mkdir()
+    identity = measurer_identity(source)
+    for filename in ("plugin.json", "Cargo.toml", "Cargo.lock", "README.md", "LICENSE",
+                     "prepare-preset.py"):
+        shutil.copy2(source / filename, package / filename)
+    shutil.copy2(binary, package / identity["executable"])
+    shutil.copy2(ROOT / "protocol/service-check.schema.json", package / "service-check.schema.json")
+    shutil.copytree(ROOT / "presets", package / "presets")
+
+
+def accept_postgres_archive(archive: Path, source: Path, consumer: Path,
+                            core_binary: Path, report: Path) -> None:
+    consumer.mkdir()
+    with tarfile.open(archive) as stream:
+        stream.extractall(consumer, filter="data")
+    installed = consumer / archive.name.removesuffix(".tar.gz")
+    identity = measurer_identity(source)
+    required = ("plugin.json", "Cargo.toml", "Cargo.lock", "README.md", "LICENSE",
+                "prepare-preset.py", "service-check.schema.json", "presets/catalog.json",
+                identity["executable"])
+    for filename in required:
+        if not (installed / filename).is_file():
+            raise RuntimeError("incomplete Postgres archive: " + filename)
+    if run(str(installed / identity["executable"]), "--version", cwd=consumer).strip() != (
+            identity["name"] + " " + identity["version"]):
+        raise RuntimeError("installed Postgres identity mismatch")
+    run("python3", str(source / "contract.py"), "--binary", str(installed / identity["executable"]),
+        "--core-binary", str(core_binary), "--output", str(report), cwd=consumer)
+    # Installed setup resources must preserve the original execution/quality gates.
+    catalog = consumer / "prepared-presets"
+    run("python3", str(installed / "prepare-preset.py"), "--binary",
+        str(installed / identity["executable"]), "--output", str(catalog), cwd=consumer)
+    project = consumer / "project"
+    project.mkdir()
+    run(str(core_binary), "--project-root", str(project), "--presets-dir", str(catalog),
+        "init", "--preset", "angular-rust-postgres", cwd=consumer)
+    run(str(core_binary), "--project-root", str(project), "config", "check", cwd=consumer)
+    spec = importlib.util.spec_from_file_location("preset_accept", ROOT / "tools/presets/accept.py")
+    parity = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(parity)
+    declaration = json.loads((catalog / "catalog.json").read_text())
+    parity.verify_generated(catalog, declaration,
+                            declaration["presets"]["angular-rust-postgres"], project)
+
+
+def postgres_package(output: Path, core: Path, core_binary: Path) -> None:
+    require_service_contract(core_binary)
+    source = ROOT / "plugins/postgres-service"
+    identity = measurer_identity(source)
+    name = "gateprobes-postgres-" + identity["version"] + "-linux-amd64"
+    with tempfile.TemporaryDirectory(prefix="postgres-package-") as tmp:
+        stage = Path(tmp)
+        manifest = source / "Cargo.toml"
+        env = dict(os.environ, CARGO_TARGET_DIR=str(stage / "target"))
+        run("cargo", "test", "--locked", "--manifest-path", str(manifest), env=env)
+        run("cargo", "build", "--locked", "--release", "--manifest-path", str(manifest), env=env)
+        stage_postgres(stage / "target/release" / identity["executable"], source, stage / name)
+        archive = output / (name + ".tar.gz")
+        with tarfile.open(archive, "w:gz") as stream:
+            stream.add(stage / name, arcname=name)
+        evidence = Path(os.environ.get("HARNESS_GATE_POSTGRES_ACCEPTANCE", str(stage / "acceptance")))
+        evidence.mkdir(parents=True, exist_ok=True)
+        accept_postgres_archive(archive, source, stage / "consumer", core_binary,
+                                evidence / "installed-contract.json")
+        metadata = stage / "cargo-metadata.json"
+        metadata.write_text(run("cargo", "metadata", "--locked", "--format-version", "1",
+                                "--manifest-path", str(manifest), env=env, echo=False))
+        sbom = core / "tools/release/generate-sbom.py"
+        if not sbom.is_file():
+            # Ordinary CI fetches this same pinned source resource at the root.
+            sbom = core / "generate-sbom.py"
+        run("python3", str(sbom), "--metadata", str(metadata), "--lockfile", str(source / "Cargo.lock"),
+            "--output", str(output / (archive.name + ".sbom.cdx.json")))
+
+
 def node_package(directory: str, output: Path, core: Path) -> None:
     # npm's dependency tree is a packaging input, never a checkout artifact.
     with tempfile.TemporaryDirectory(prefix="node-package-") as tmp:
@@ -305,6 +393,8 @@ def main() -> None:
         node_package(args.plugin, output, core)
     elif args.plugin == "rust-source-risk":
         rust_package(output, core)
+    elif args.plugin == "postgres-service":
+        postgres_package(output, core, Path(os.environ["HARNESS_GATE_BINARY"]))
     else:
         rust_measure_package(output, core)
     expected = {row["archive"], row["archive"] + ".sbom.cdx.json"}

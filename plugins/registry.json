@@ -114,6 +114,30 @@
       "companions": [
         "plugins/rust-native-driver"
       ]
+    },
+    "postgres-service": {
+      "path": "plugins/postgres-service",
+      "language": "rust",
+      "platforms": [
+        "linux"
+      ],
+      "toolchain": "rust stable + Python test harness + external pg_isready",
+      "toolchains": [
+        "rust",
+        "python"
+      ],
+      "rust_toolchain": "stable",
+      "rust_components": "rustfmt, clippy",
+      "cargo_checks": true,
+      "entries": {
+        "install": "cargo build --locked --release",
+        "test": "cargo test --locked",
+        "contract": "python3 contract.py --binary target/release/gateprobes-postgres --core-binary \"$RUNNER_TEMP/core/bin/$CORE_ASSET\"",
+        "package": "HARNESS_GATE_POSTGRES_ACCEPTANCE=\"$RUNNER_TEMP/postgres-acceptance\" python3 ../../tools/release/package_plugin.py --plugin postgres-service --core-root \"$RUNNER_TEMP/core\" --output \"$RUNNER_TEMP/postgres-package\""
+      },
+      "protocols": [
+        "protocol/service-check.schema.json"
+      ]
     }
   },
   "runners": {

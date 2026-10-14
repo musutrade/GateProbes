@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gate-service-check/v1",
+  "title": "Required service check result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocol",
+    "plugin",
+    "version",
+    "mode",
+    "success"
+  ],
+  "properties": {
+    "protocol": {
+      "const": "gate-service-check/v1"
+    },
+    "plugin": {
+      "type": "string",
+      "minLength": 1
+    },
+    "version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "mode": {
+      "enum": [
+        "external",
+        "managed"
+      ]
+    },
+    "success": {
+      "type": "boolean"
+    }
+  }
+}

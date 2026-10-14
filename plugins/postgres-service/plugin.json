@@ -1,0 +1,17 @@
+{
+  "schema": "gateprobes-service-plugin/v1",
+  "name": "gateprobes-postgres",
+  "version": "0.1.0",
+  "executable": "gateprobes-postgres",
+  "protocol": "gate-service-check/v1",
+  "authority": "check-facts-only",
+  "platforms": [
+    "linux"
+  ],
+  "core_compatibility": {
+    "status": "released-core-verified",
+    "requires": "gate-service-check/v1 with service_checks",
+    "released_core": "v0.5.0",
+    "minimum_core": "0.5.0"
+  }
+}

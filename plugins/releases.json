@@ -4,22 +4,43 @@
     "typescript-risk": {
       "tag_prefix": "typescript-risk-v",
       "archive": "harness-gate-typescript-collector-{version}.tgz",
-      "manifests": ["plugin.json", "package.json", "npm-shrinkwrap.json"]
+      "manifests": [
+        "plugin.json",
+        "package.json",
+        "npm-shrinkwrap.json"
+      ]
     },
     "http-json-contract": {
       "tag_prefix": "http-json-contract-v",
       "archive": "harness-gate-http-json-contract-collector-{version}.tgz",
-      "manifests": ["plugin.json", "package.json", "npm-shrinkwrap.json"]
+      "manifests": [
+        "plugin.json",
+        "package.json",
+        "npm-shrinkwrap.json"
+      ]
     },
     "rust-source-risk": {
       "tag_prefix": "rust-source-risk-v",
       "archive": "harness-gate-rust-source-risk-{version}-linux-amd64.tar.gz",
-      "manifests": ["plugin.json"]
+      "manifests": [
+        "plugin.json"
+      ]
     },
     "rust-measure": {
       "tag_prefix": "rust-measure-v",
       "archive": "harness-gate-rust-measure-{version}-linux-amd64.tar.gz",
-      "manifests": ["plugin.json", "Cargo.toml"]
+      "manifests": [
+        "plugin.json",
+        "Cargo.toml"
+      ]
+    },
+    "postgres-service": {
+      "tag_prefix": "postgres-service-v",
+      "archive": "gateprobes-postgres-{version}-linux-amd64.tar.gz",
+      "manifests": [
+        "plugin.json",
+        "Cargo.toml"
+      ]
     }
   }
 }

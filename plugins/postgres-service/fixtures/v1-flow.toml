@@ -1,0 +1,36 @@
+version = 1
+
+[paths]
+backend = "backend"
+frontend = "frontend"
+reports = ".harness-gate/reports"
+tool_manifest = "tools/harness-gate/Cargo.toml"
+audit_config = ".harness-gate/audit.toml"
+
+[doctor]
+required_commands = ["git"]
+node_version_file = ".node-version"
+hooks_path = "hooks"
+
+[database]
+image = "postgres:16-alpine"
+startup_timeout_secs = 30
+container_port = 5432
+user = "test"
+password = "test"
+name = "quality_test"
+
+[[scope.rules]]
+patterns = ["src/**"]
+components = ["app"]
+
+[[steps]]
+id = "app.check"
+label = "app check"
+component = "app"
+profiles = ["full", "hook"]
+program = "git"
+args = ["diff", "--check"]
+cwd = "{root}"
+log = "app_check.log"
+timeout_secs = 60

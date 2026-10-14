@@ -59,9 +59,32 @@ def matches(actual, expected):
         return False
 
 
-def accept(binary, external):
+def verify_generated(directory, catalog, entry, root):
+    expected_flow = tomllib.loads((directory / entry['flow']).read_text())
+    actual_flow = tomllib.loads((root / '.harness-gate/flow.toml').read_text())
+    expected_flow['project']['name'] = actual_flow['project']['name']
+    contains(actual_flow, expected_flow)
+    actual_quality = tomllib.loads((root / '.harness-gate/quality.toml').read_text())
+    expected_collectors, expected_policies = set(), set()
+    for selection in json.loads((directory / entry['recipe']).read_text()):
+        pack = expand(json.loads((directory / catalog['packs'][selection['pack']]).read_text()), selection['bindings'])
+        contains(actual_quality, pack['quality'])
+        expected_collectors.update(pack['quality']['collectors'])
+        expected_policies.update(pack['quality']['policies'])
+        for path, value in pack['files'].items():
+            if json.loads((root / path).read_text()) != value:
+                raise ValueError('generated preset changed pack file: ' + path)
+    if set(actual_quality['collectors']) != expected_collectors or set(actual_quality['policies']) != expected_policies:
+        raise ValueError('generated preset changed collector or policy membership')
+    for profile in ('full', 'ci'):
+        if (set(actual_quality['profiles'][profile]['collectors']) != expected_collectors or
+                set(actual_quality['profiles'][profile]['policies']) != expected_policies):
+            raise ValueError('generated preset changed required quality profile: ' + profile)
+
+
+def accept(binary, external, directory=None):
     source_parity()
-    directory = ROOT / 'presets'
+    directory = directory or ROOT / 'presets'
     catalog = json.loads((directory / 'catalog.json').read_text())
     assert catalog['schema'] == 'harness-preset-catalog/v1'
     for name, entry in catalog['presets'].items():
@@ -72,24 +95,7 @@ def accept(binary, external):
                 command += ['--presets-dir', str(directory)]
             subprocess.run(command + ['init', '--preset', name], check=True)
             subprocess.run(command + ['config', 'check'], check=True)
-            expected_flow = tomllib.loads((directory / entry['flow']).read_text())
-            actual_flow = tomllib.loads((root / '.harness-gate/flow.toml').read_text())
-            expected_flow['project']['name'] = actual_flow['project']['name']
-            contains(actual_flow, expected_flow)
-            actual_quality = tomllib.loads((root / '.harness-gate/quality.toml').read_text())
-            expected_collectors, expected_policies = set(), set()
-            for selection in json.loads((directory / entry['recipe']).read_text()):
-                pack = expand(json.loads((directory / catalog['packs'][selection['pack']]).read_text()), selection['bindings'])
-                contains(actual_quality, pack['quality'])
-                expected_collectors.update(pack['quality']['collectors'])
-                expected_policies.update(pack['quality']['policies'])
-                for path, value in pack['files'].items():
-                    assert json.loads((root / path).read_text()) == value, path
-            assert set(actual_quality['collectors']) == expected_collectors
-            assert set(actual_quality['policies']) == expected_policies
-            for profile in ('full', 'ci'):
-                assert set(actual_quality['profiles'][profile]['collectors']) == expected_collectors
-                assert set(actual_quality['profiles'][profile]['policies']) == expected_policies
+            verify_generated(directory, catalog, entry, root)
             print(name, 'external loader PASS' if external else 'Core 0.4.8 embedded parity PASS', flush=True)
 
 
@@ -97,5 +103,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--core', required=True, type=Path)
     parser.add_argument('--external', action='store_true')
+    parser.add_argument('--presets-dir', type=Path, help='explicit generated catalog; requires --external')
     args = parser.parse_args()
-    accept(args.core.resolve(strict=True), args.external)
+    if args.presets_dir and not args.external:
+        parser.error('--presets-dir requires --external')
+    accept(args.core.resolve(strict=True), args.external,
+           args.presets_dir.resolve(strict=True) if args.presets_dir else None)
