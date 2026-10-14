@@ -144,8 +144,8 @@ immediately before publication, with the release target bound to `GITHUB_SHA`.
 
 ## Postgres release line (2026-10-14)
 
-`postgres-service-v0.1.0` is a configured future tag with archive
-`gateprobes-postgres-0.1.0-linux-amd64.tar.gz`, not an existing release receipt.
+`postgres-service-v0.1.1` is the next publication tag with archive
+`gateprobes-postgres-0.1.1-linux-amd64.tar.gz`, not an existing release receipt.
 It uses the same eligibility, installed package acceptance, complete signed
 inventory, exact-tag Sigstore/provenance and immutable publication gates.
 Core v0.4.9 is incompatible with `service_checks`. The independently verified
@@ -157,3 +157,13 @@ On 2026-10-14 the active release-tags ruleset was extended to
 `refs/tags/postgres-service-v*`. Existing matches, update/deletion prohibitions
 and the empty bypass list were preserved. The new plugin follows the same
 immutable release flow.
+
+The `postgres-service-v0.1.0` tag remains unchanged at
+`a5e321ec67de2fad04fd8bdc45bbf8cb564439cb`. Its [release run](https://github.com/musutrade/GateProbes/actions/runs/38545979584)
+passed eligibility and installed package acceptance, then failed before publication:
+checkout had a peeled local tag and `git fetch --tags` rejected the annotated
+remote object as clobbering that ref. No 0.1.0 release was published. The new
+publication refresh fetches the exact remote tag to a separate ref and checks its
+commit before the unchanged exact-main eligibility check. A mismatched remote
+commit still blocks. Existing tags/assets are never force-updated. Version 0.1.1
+contains this workflow correction; Postgres check semantics and Core pin are unchanged.

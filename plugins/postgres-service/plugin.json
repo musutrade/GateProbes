@@ -1,7 +1,7 @@
 {
   "schema": "gateprobes-service-plugin/v1",
   "name": "gateprobes-postgres",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "executable": "gateprobes-postgres",
   "protocol": "gate-service-check/v1",
   "authority": "check-facts-only",

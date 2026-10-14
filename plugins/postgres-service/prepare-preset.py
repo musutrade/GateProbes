@@ -20,7 +20,7 @@ def prepare(binary: Path, source: Path, output: Path) -> dict:
         raise ValueError('output must be a new directory; retain the old catalog')
     identity = subprocess.run([str(binary), '--version'], check=True, capture_output=True,
                               text=True).stdout.strip()
-    if identity != 'gateprobes-postgres 0.1.0':
+    if identity != 'gateprobes-postgres 0.1.1':
         raise ValueError('unsupported installed plugin identity')
     before = hashlib.sha256(binary.read_bytes()).hexdigest()
     catalog = json.loads((source / 'catalog.json').read_text())

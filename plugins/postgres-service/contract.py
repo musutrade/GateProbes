@@ -34,7 +34,7 @@ def run(argv, cwd, env, success=True):
 def accept(binary, core, *, health_program=None):
     binary, core = binary.resolve(), core.resolve()
     identity = run([binary, '--version'], HERE, os.environ).stdout.strip()
-    assert identity == 'gateprobes-postgres 0.1.0', identity
+    assert identity == 'gateprobes-postgres 0.1.1', identity
     before = digest(core)
     rows = []
     with tempfile.TemporaryDirectory(prefix='postgres-contract-') as directory:
@@ -160,7 +160,7 @@ remove_env = ["DATABASE_URL"]
         migrate()
         check_case('explicit-upgrade-rebind', True)
         installed.write_bytes(saved)
-        config.write_text(original.replace('version = "0.1.0"', 'version = "9.9.9"'))
+        config.write_text(original.replace('version = "0.1.1"', 'version = "9.9.9"'))
         check_case('result-version-mismatch', False)
         config.write_text(original.replace('gate-service-check/v1', 'gate-service-check/v2'))
         check_case('protocol-incompatible', False)
