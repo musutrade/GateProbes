@@ -19,9 +19,16 @@ fn check() -> Result<()> {
                 production.as_deref(),
                 allow_remote,
             )?;
-            // libpq reads PGDATABASE. Credentials never appear in argv or output.
+            let (host, port, database) = gateprobes_postgres::health_target(&value)?;
+            // PGDATABASE does not expand a URI into host/port defaults. Pin the
+            // selected server explicitly and remove alternative routing inputs.
             let status = Command::new("pg_isready")
-                .env("PGDATABASE", value)
+                .env("PGHOST", host)
+                .env("PGPORT", port.to_string())
+                .env("PGDATABASE", database)
+                .env_remove("PGHOSTADDR")
+                .env_remove("PGSERVICE")
+                .env_remove("PGSERVICEFILE")
                 .args(["-t", "5"])
                 .stdin(Stdio::null())
                 .stdout(Stdio::null())

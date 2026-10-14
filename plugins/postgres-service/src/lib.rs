@@ -84,9 +84,28 @@ pub fn validate_isolated_postgres_url(
     Ok(())
 }
 
+/// Explicit libpq address fields; a URI in PGDATABASE is only a database default.
+/// Readiness concerns the selected server, not authentication or SQL execution.
+pub fn health_target(value: &str) -> Result<(String, u16, String)> {
+    let target = parse_postgres_target(value)?;
+    Ok((target.host, target.port, target.database))
+}
+
 #[cfg(test)]
 mod tests {
     use super::{validate_isolated_postgres_url, ALLOW_REMOTE_TEST_DATABASE_ENV};
+
+    #[test]
+    fn health_target_keeps_the_explicit_address_and_default_port() {
+        assert_eq!(
+            super::health_target("postgres://test:private@127.0.0.1:1/app_test").unwrap(),
+            ("127.0.0.1".into(), 1, "app_test".into())
+        );
+        assert_eq!(
+            super::health_target("postgres://test:private@[::1]/app_test").unwrap(),
+            ("::1".into(), 5432, "app_test".into())
+        );
+    }
 
     #[test]
     fn accepts_an_isolated_loopback_database() {

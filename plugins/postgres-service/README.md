@@ -56,7 +56,11 @@ The binding forwards only `DATABASE_URL`, `HARNESS_GATE_ALLOW_REMOTE_TEST_DATABA
 No URL/password appears in argv or emitted diagnostics. External URLs require
 postgres/postgresql, `_test` or `-test` database suffix, loopback unless explicitly
 opted into remote test use, and a target distinct from production `DATABASE_URL`.
-`pg_isready` receives the URL through `PGDATABASE`; failure/missing tool blocks.
+`pg_isready` receives parsed `PGHOST`, `PGPORT` and `PGDATABASE` fields; a full
+URI in `PGDATABASE` does not select its host/port. Alternative `PGHOSTADDR` and
+service-file routing inputs are removed. Failure or a missing tool blocks. This
+is [server readiness](https://www.postgresql.org/docs/16/app-pg-isready.html),
+not authentication or SQL execution acceptance.
 The JSON result pins protocol/plugin/version/mode and success. Managed mode
 acknowledges plugin identity while Core executes the recipe's container healthcheck.
 
@@ -103,12 +107,27 @@ required checks and every step while runtime authority remains blocked. The
 package entry exercises this contract after extracting the archive and generates
 an SBOM through the pinned Core tooling.
 
-Local candidate acceptance on 2026-10-14 additionally passed the 43 service case
-records with real `pg_isready` in an isolated `postgres:16-alpine` container
-(`sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea`),
-using `docker exec` with no published ports and removing the container afterward.
-The release-profile candidate archive, extracted setup resources and all original
-execution/quality pack gates passed local acceptance; its CycloneDX 1.5 SBOM
-contains 62 components. The final installed contract has 44 records including
-offline import. These are Linux candidate results. Hosted quality, compatible
-released Core, signed publication and other client/platform paths remain pending.
+Local candidate acceptance on 2026-10-14 passed 47 records with real
+`pg_isready` in a TCP-ready isolated `postgres:16-alpine` container
+(`sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea`).
+The closed-target-port cases block doctor, step and verify while that same server
+accepts TCP on 5432. The prior URI-only candidate fails this regression by
+mistakenly accepting the default socket; its earlier 43-record wiring evidence
+is retained and does not certify target routing. The corrected program passes.
+Containers use no published ports and are removed after acceptance.
+
+Run this optional repository acceptance against fixed installed binaries and an
+already available local image; it neither builds Core/plugins nor pulls images:
+
+```bash
+python3 plugins/postgres-service/live-contract.py \
+  --binary /opt/gateprobes/gateprobes-postgres \
+  --core-binary /opt/gatehouse/harness-gate \
+  --output /tmp/postgres-live-contract.json
+```
+
+The extracted release-profile package acceptance also checks every original
+execution step, collector, policy, full/ci membership and policy file. SBOM
+output uses the pinned Core tooling. These are Linux candidate results. Hosted
+quality, compatible released Core, signed publication and other client/platform
+paths remain separate gates.

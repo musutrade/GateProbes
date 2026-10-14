@@ -31,7 +31,7 @@ def run(argv, cwd, env, success=True):
     return result
 
 
-def accept(binary, core):
+def accept(binary, core, *, health_program=None):
     binary, core = binary.resolve(), core.resolve()
     identity = run([binary, '--version'], HERE, os.environ).stdout.strip()
     assert identity == 'gateprobes-postgres 0.1.0', identity
@@ -105,7 +105,7 @@ remove_env = ["DATABASE_URL"]
             assert parsed['doctor']['checks'][0]['required'] is True
             assert parsed['service_checks']['database'][0]['sha256'] == digest(installed)
             return config.read_text()
-        healthy = '#!/bin/sh\n[ "$1" = -t ] || exit 3\ncase "$PGDATABASE" in postgres://*/app_test) exit 0;; *) exit 4;; esac\n'
+        healthy = health_program or '#!/bin/sh\n[ "$1" = -t ] || exit 3\n[ "$PGHOST" = 127.0.0.1 ] || exit 4\n[ "$PGPORT" = 5432 ] || exit 5\n[ "$PGDATABASE" = app_test ] || exit 6\n'
         health.write_text(healthy)
         health.chmod(0o700)
         original = migrate()
@@ -132,7 +132,8 @@ remove_env = ["DATABASE_URL"]
         for name, value in [('production-name', 'postgres://test:PRIVATE_TEST_PASSWORD@localhost/app'),
                             ('remote-without-opt-in', 'postgres://test:PRIVATE_TEST_PASSWORD@remote.invalid/app_test'),
                             ('query-override', 'postgres://test:PRIVATE_TEST_PASSWORD@localhost/app_test?dbname=production'),
-                            ('wrong-scheme', 'https://localhost/app_test')]:
+                            ('wrong-scheme', 'https://localhost/app_test'),
+                            ('closed-target-port', 'postgres://test:PRIVATE_TEST_PASSWORD@127.0.0.1:1/app_test')]:
             env['TEST_DATABASE_URL'] = value
             check_case(name, False)
         env['TEST_DATABASE_URL'] = 'postgres://test:PRIVATE_TEST_PASSWORD@127.0.0.1/app_test'
