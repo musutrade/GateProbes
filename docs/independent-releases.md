@@ -170,3 +170,5 @@ publication refresh fetches the exact remote tag to a separate ref and checks it
 commit before the unchanged exact-main eligibility check. A mismatched remote
 commit still blocks. Existing tags/assets are never force-updated. Version 0.1.1
 contains this workflow correction; Postgres check semantics and Core pin are unchanged.
+
+Native installation is owned here; use the [fixed, verified standalone entry](native-installation.md) for install/upgrade/rollback. The Core installer has retired plugin execution.

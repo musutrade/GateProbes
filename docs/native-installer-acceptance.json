@@ -1,0 +1,62 @@
+{
+  "schema": "gateprobes-native-installer-acceptance/v1",
+  "verified_at": "2026-10-14T14:57:40.643325+00:00",
+  "installer": {
+    "repository": "musutrade/GateProbes",
+    "commit": "1507805205944229950e0fe57d4fe1f17fc3e130",
+    "path": "tools/install/install-native.sh",
+    "sha256": "317e7f98e3863d44d32640106091596e227be0795463dd81adcd26ef6797bce6",
+    "public_download_checksum": "pass"
+  },
+  "public_install": {
+    "platform": "linux-amd64",
+    "version": "0.1.0-rc.8",
+    "tag": "rust-collector-v0.1.0-rc.8",
+    "repository": "musutrade/GateProbes",
+    "binary_sha256": "da9b52b7097d5b824db44af80b82a7a9f03f0e9ed8c90801cf8ba2e65ab69744",
+    "cosign_version": "3.1.3",
+    "real_sigstore_verifications": 2,
+    "legacy_rc8_manifest_pin": "d8f2302dc56108b6db8d971bed18c7d3bf0265506768663de8fb91d27011444b",
+    "status": "pass"
+  },
+  "offline_contracts": {
+    "command": "bash tools/install/tests/test_install.sh",
+    "status": "pass",
+    "platform_dispatch": [
+      "linux-amd64",
+      "macos-amd64",
+      "macos-arm64",
+      "windows-amd64"
+    ],
+    "upgrade_rollback": "two distinct signed-fixture versions; not two public native releases",
+    "atomic_failures": [
+      "download",
+      "checksum",
+      "signature",
+      "copy",
+      "chmod",
+      "rename",
+      "HUP",
+      "INT",
+      "TERM"
+    ],
+    "other_rejections": [
+      "wrong repository",
+      "wrong tag",
+      "wrong workflow",
+      "missing verifier",
+      "missing manifest signature",
+      "missing binary signature",
+      "changed/duplicate manifest",
+      "symlink path/target",
+      "unsafe permissions",
+      "invalid version"
+    ],
+    "environment_pollution": "script-owned version/repository/workflow/manifest pin preserved"
+  },
+  "limitations": [
+    "Public installation verified on Linux x86_64 only; fixture platform dispatch is not fresh native runtime acceptance.",
+    "RC8 remains prerelease and legacy mutable; original signed manifest is additionally pinned.",
+    "No config/evidence/baseline adoption, toolchain provisioning or new release publication."
+  ]
+}

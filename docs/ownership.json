@@ -134,5 +134,21 @@
   ],
   "companions": [
     "plugins/rust-native-driver"
-  ]
+  ],
+  "native_installation": {
+    "owner": "GateProbes",
+    "entry": "tools/install/install-native.sh",
+    "version_selection": "explicit exact SemVer; no default/environment override",
+    "repository": "musutrade/GateProbes",
+    "workflow": "native-collector-release.yml",
+    "oidc_issuer": "https://token.actions.githubusercontent.com",
+    "certificate_identity": "https://github.com/musutrade/GateProbes/.github/workflows/native-collector-release.yml@refs/tags/rust-collector-v<version>",
+    "core_compatibility": "diagnostic stubs only; no plugin execution; historical tagged installers frozen",
+    "tests": "tools/install/tests/test_install.sh",
+    "public_installer_commit": "1507805205944229950e0fe57d4fe1f17fc3e130",
+    "public_installer_sha256": "317e7f98e3863d44d32640106091596e227be0795463dd81adcd26ef6797bce6",
+    "legacy_rc8_manifest_sha256": "d8f2302dc56108b6db8d971bed18c7d3bf0265506768663de8fb91d27011444b",
+    "system_dependencies": "diagnose only; no provisioning",
+    "policy_authority": "Core retains requiredness, thresholds, baseline/debt/ratchet, final decision and release authority"
+  }
 }
