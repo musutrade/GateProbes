@@ -129,6 +129,8 @@ python3 plugins/postgres-service/live-contract.py \
 
 The extracted release-profile package acceptance also checks every original
 execution step, collector, policy, full/ci membership and policy file. SBOM
-output uses the pinned Core tooling. These are Linux candidate results. Hosted
-quality, compatible released Core, signed publication and other client/platform
-paths remain separate gates.
+output uses the pinned Core tooling. The candidate records above are preserved.
+The published 0.1.1 package and Core 0.5.0 have now passed independent signature/
+provenance verification, 47 real service/doctor/verify records and all three
+installed presets; see the [final receipt](../../docs/postgres-service-0.1.1-verification.md).
+Runtime acceptance remains Linux x86_64.

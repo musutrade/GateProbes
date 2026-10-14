@@ -144,8 +144,11 @@ immediately before publication, with the release target bound to `GITHUB_SHA`.
 
 ## Postgres release line (2026-10-14)
 
-`postgres-service-v0.1.1` is the next publication tag with archive
-`gateprobes-postgres-0.1.1-linux-amd64.tar.gz`, not an existing release receipt.
+`postgres-service-v0.1.1` is published as an immutable release with archive
+`gateprobes-postgres-0.1.1-linux-amd64.tar.gz`. Independent public verification
+passed all 12 files and four integrity subjects; the exact public pair passes
+47 real service/doctor/verify records and all three installed presets. See the
+[final receipt](postgres-service-0.1.1-verification.md).
 It uses the same eligibility, installed package acceptance, complete signed
 inventory, exact-tag Sigstore/provenance and immutable publication gates.
 Core v0.4.9 is incompatible with `service_checks`. The independently verified
