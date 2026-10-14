@@ -19,6 +19,7 @@ protocol validation, budgets, thresholds, baselines and the final decision.
 | `plugins/releases.json` | Independent plugin tag prefixes and package identities |
 | `protocol/collector-protocol.schema.json` | Generated copy of the Core host contract; Core is the editable source |
 | `docs/ownership.json` | Migration provenance, path mapping and the pinned Core contract identity |
+| `runners/`, `tools/runners/` | Cargo runner v2 declarations, explicit migration and candidate-Core acceptance; see [runner guide](docs/runners.md) |
 | `tools/ci/` | Change classifier, lightweight checks, aggregate and their tests |
 
 ## Migration provenance

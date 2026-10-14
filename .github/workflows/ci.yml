@@ -33,6 +33,8 @@ jobs:
           fetch-depth: 0
       - name: Classifier self-tests
         run: python3 -m unittest discover -s tools/ci/tests -v
+      - name: Runner migration self-tests
+        run: python3 -m unittest discover -s tools/runners -p 'test_*.py' -v
       - name: Classify changed paths
         id: classify
         env:
