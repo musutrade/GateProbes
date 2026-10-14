@@ -105,7 +105,9 @@ def verify(tag: str, commit: str, cosign: str, historical: bool = False) -> dict
         inventory.verify(dist, dist / inventory.INVENTORY_FILE, subjects)
         after = api("releases/tags/" + tag)
         check_state(after, tag, historical)
-        if after.get("id") != before.get("id") or check_assets(after, dist, manifest) != assets:
+        if (after.get("id") != before.get("id")
+                or after.get("immutable") is not before.get("immutable")
+                or check_assets(after, dist, manifest) != assets):
             raise ValueError("release changed during verification")
     return {"schema": "gateprobes-native-publication/v1", "verified_at": datetime.now(timezone.utc).isoformat(),
             "repository": REPOSITORY, "tag": tag, "source_commit": commit,

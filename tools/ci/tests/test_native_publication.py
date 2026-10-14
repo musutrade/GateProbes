@@ -95,9 +95,10 @@ class NativePublicationTests(unittest.TestCase):
             with self.assertRaises(RuntimeError):
                 publication.verify(tag, commit, 'cosign', True)
             run.side_effect = None
-            publication.api.side_effect = [state, {**state, 'id': 3}]
-            with self.assertRaises(ValueError):
-                publication.verify(tag, commit, 'cosign', True)
+            for changed in ({**state, 'id': 3}, {**state, 'immutable': True}):
+                publication.api.side_effect = [state, changed]
+                with self.subTest(changed=changed), self.assertRaises(ValueError):
+                    publication.verify(tag, commit, 'cosign', True)
 
     def test_workflow_preflight_and_postcheck_are_mandatory(self):
         text = (ROOT / '.github/workflows/native-collector-release.yml').read_text()
