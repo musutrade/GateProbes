@@ -200,7 +200,7 @@ class PostgresPackagingTests(unittest.TestCase):
     def test_incomplete_archive_blocks_before_contract_execution(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            archive = root / "gateprobes-postgres-0.1.0-linux-amd64.tar.gz"
+            archive = root / "gateprobes-postgres-0.1.1-linux-amd64.tar.gz"
             with tarfile.open(archive, "w:gz"):
                 pass
             with patch.object(package_plugin, "run") as run, \
@@ -219,7 +219,8 @@ class IndependentWorkflowTests(unittest.TestCase):
         self.assertNotIn("branches:", text)
         self.assertIn("needs: [policy, package]", text)
         self.assertEqual(text.count("plugin_release.py verify"), 2)
-        self.assertIn('git fetch --tags origin main:refs/remotes/origin/main', text)
+        self.assertIn('git fetch --no-tags origin main:refs/remotes/origin/main \"refs/tags/$TAG:$remote_tag_ref\"', text)
+        self.assertIn('remote release tag does not match expected commit', text)
         self.assertIn('--target "$GITHUB_SHA"', text)
         for boundary in ("environment: release", "id-token: write", "attestations: write",
                          "plugin_release.py verify", "plugin_release.py inventory",

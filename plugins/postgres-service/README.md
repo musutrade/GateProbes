@@ -1,6 +1,6 @@
 # Postgres service plugin
 
-`gateprobes-postgres` 0.1.0; MIT (see [LICENSE](LICENSE)). GateProbes owns
+`gateprobes-postgres` 0.1.1; MIT (see [LICENSE](LICENSE)). GateProbes owns
 Postgres URL parsing, test-database isolation, external health, container recipes,
 ecosystem templates and legacy conversion. Core owns execution, requiredness,
 service lifecycle/cleanup and final blocking. Engineering Policy thresholds,
@@ -9,7 +9,7 @@ baseline/debt/ratchet, measurement series and release authority are unchanged.
 ## Installation and compatibility
 
 Linux x86_64 is the packaged acceptance scope. The independent archive is
-`gateprobes-postgres-0.1.0-linux-amd64.tar.gz`, tag `postgres-service-v0.1.0`.
+`gateprobes-postgres-0.1.1-linux-amd64.tar.gz`, tag `postgres-service-v0.1.1`.
 Verify its exact-tag GateProbes `collector-release.yml` Sigstore identity,
 checksums and provenance using the [shared release procedure](../../docs/independent-releases.md)
 before extracting. Keep the executable at an absolute stable path. The archive
@@ -108,7 +108,7 @@ required checks and every step while runtime authority remains blocked. The
 package entry exercises this contract after extracting the archive and generates
 an SBOM through the pinned Core tooling.
 
-Local candidate acceptance on 2026-10-14 passed 47 records with real
+Local 0.1.0 candidate acceptance on 2026-10-14 passed 47 records with real
 `pg_isready` in a TCP-ready isolated `postgres:16-alpine` container
 (`sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea`).
 The closed-target-port cases block doctor, step and verify while that same server

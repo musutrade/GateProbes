@@ -223,7 +223,14 @@ jobs:
           COMMIT: ${{ github.sha }}
         run: |
           set -euo pipefail
-          git fetch --tags origin main:refs/remotes/origin/main
+          # checkout may materialize an annotated event tag as a peeled local
+          # ref. Fetch the remote object separately; never clobber immutable tags.
+          remote_tag_ref=refs/release-verification/tag
+          git fetch --no-tags origin main:refs/remotes/origin/main "refs/tags/$TAG:$remote_tag_ref"
+          if [[ "$(git rev-parse "$remote_tag_ref^{commit}")" != "$COMMIT" ]]; then
+            echo "remote release tag does not match expected commit" >&2
+            exit 1
+          fi
           python3 tools/release/plugin_release.py verify \
             --tag "$TAG" --commit "$COMMIT" --repository "$GITHUB_REPOSITORY" \
             --output target/release-policy-publish.json
