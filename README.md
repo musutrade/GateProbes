@@ -73,4 +73,5 @@ MIT. See [LICENSE](LICENSE).
 Postgres service checks are described in the [plugin guide](plugins/postgres-service/README.md).
 The verified [Core v0.5.0 pin](docs/core-0.5.0-verification.json) supports the
 required-check protocol. Historical v0.4.9 remains immutable and incompatible.
-Independent plugin publication still requires installed package acceptance.
+Postgres 0.1.1 publication and public fixed-pair acceptance have passed; see the
+[delivery receipt](docs/postgres-service-0.1.1-verification.md).
