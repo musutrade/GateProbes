@@ -9,8 +9,9 @@
     "linux"
   ],
   "core_compatibility": {
-    "status": "candidate",
+    "status": "released-core-verified",
     "requires": "gate-service-check/v1 with service_checks",
-    "released_core": "pending; v0.4.9 is incompatible"
+    "released_core": "v0.5.0",
+    "minimum_core": "0.5.0"
   }
 }

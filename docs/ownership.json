@@ -36,28 +36,28 @@
     "node_modules"
   ],
   "core_contract": {
-    "release": "v0.4.9",
+    "release": "v0.5.0",
     "repository": "musutrade/GateHouse",
     "binary": "harness-gate-linux-amd64",
-    "sha256": "e4fbaa92990e6b669217771eb92e884eb39fceda054d831074a1a00420d72a0c",
-    "version": "0.4.9",
-    "source_commit": "4d5b15a24c91a17b4823ec1626048cdfb20834da",
+    "sha256": "198597ff623ce006d6f19261a352ca7a6d82a7c58af7bbba75de3c4076cd26a7",
+    "version": "0.5.0",
+    "source_commit": "b178d3fe4f35018cd000dd291b324ff13ecc1c76",
     "platforms": {
       "linux": {
         "binary": "harness-gate-linux-amd64",
-        "sha256": "e4fbaa92990e6b669217771eb92e884eb39fceda054d831074a1a00420d72a0c"
+        "sha256": "198597ff623ce006d6f19261a352ca7a6d82a7c58af7bbba75de3c4076cd26a7"
       },
       "macos-amd64": {
         "binary": "harness-gate-macos-amd64",
-        "sha256": "6fa49b852380cd773d8a1e8ead52d2ff1d54492282a6f6f2293ea1c3ba242f37"
+        "sha256": "2f985330ef59082285795314c3f19279f3646be6db13f1df802f34a949ef5226"
       },
       "macos-arm64": {
         "binary": "harness-gate-macos-arm64",
-        "sha256": "644931adb0c82df24e2fb327844a94cb9e610edada4fa83eff39cc841de305e5"
+        "sha256": "348d79efe07c3e11d00c5112f622e452f5875c67f8493e9d73dfbbd31a3a7be5"
       },
       "windows-amd64": {
         "binary": "harness-gate-windows-amd64.exe",
-        "sha256": "ff8debf9b8d2454a8048010e1b05718997296b6dc56df4d3ca50a134925a3492"
+        "sha256": "5751355eb93f48bea0fa61803b265b3db97a4cb89d0242ff56f70a96e72f6a9a"
       }
     }
   },
@@ -111,8 +111,9 @@
       ],
       "core_compatibility": {
         "protocol": "gate-service-check/v1",
-        "status": "candidate; existing release pin v0.4.9 must fail contract acceptance",
-        "exit_condition": "review and publish compatible Core, pin verified released artifact, rerun installed package acceptance"
+        "status": "verified released Core v0.5.0; installed plugin package acceptance required",
+        "exit_condition": "active configs use explicit required checks and independently verified released Core/plugin pair",
+        "released_core": "v0.5.0"
       }
     }
   },

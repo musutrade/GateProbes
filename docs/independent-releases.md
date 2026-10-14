@@ -67,8 +67,9 @@ change classification; it does not run a second complete packaging matrix.
 
 The packaging job fetches the Core release, Linux binary SHA-256, version and
 separate Python consumer/schema source pin specified by
-`docs/ownership.json`'s `core_contract`. The consumer pin is not the released
-binary's source commit; the binary is identified by its release tag and digest.
+`docs/ownership.json`'s `core_contract`. The consumer source is explicitly pinned independently; the current pin
+matches the Core v0.5.0 release source. The binary is identified by its release
+tag and digest.
 Acceptance executes that released binary and its pinned Python consumers.
 It never compiles Core or substitutes a locally built Core executable.
 The pinned Core's SBOM generator remains a temporary build input.
@@ -141,13 +142,18 @@ workflow also refetches tag/main references and repeats exact-commit eligibility
 immediately before publication, with the release target bound to `GITHUB_SHA`.
 
 
-## Postgres candidate (2026-10-14)
+## Postgres release line (2026-10-14)
 
 `postgres-service-v0.1.0` is a configured future tag with archive
 `gateprobes-postgres-0.1.0-linux-amd64.tar.gz`, not an existing release receipt.
 It uses the same eligibility, installed package acceptance, complete signed
 inventory, exact-tag Sigstore/provenance and immutable publication gates.
-Core v0.4.9 is incompatible with `service_checks`; packaging checks the pinned
-binary's schema and fails explicitly until a compatible verified released Core
-is selected. Ordinary CI does not substitute candidate Core or skip this contract.
+Core v0.4.9 is incompatible with `service_checks`. The independently verified
+[Core v0.5.0](core-0.5.0-verification.json) is now pinned; packaging checks the
+actual released binary's schema and fails for incompatible Core. Ordinary CI does not substitute candidate Core or skip this contract.
 Local candidate installed acceptance is separate. See the [plugin guide](../plugins/postgres-service/README.md).
+
+On 2026-10-14 the active release-tags ruleset was extended to
+`refs/tags/postgres-service-v*`. Existing matches, update/deletion prohibitions
+and the empty bypass list were preserved. The new plugin follows the same
+immutable release flow.

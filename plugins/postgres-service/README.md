@@ -1,6 +1,6 @@
 # Postgres service plugin
 
-Candidate `gateprobes-postgres` 0.1.0; MIT (see [LICENSE](LICENSE)). GateProbes owns
+`gateprobes-postgres` 0.1.0; MIT (see [LICENSE](LICENSE)). GateProbes owns
 Postgres URL parsing, test-database isolation, external health, container recipes,
 ecosystem templates and legacy conversion. Core owns execution, requiredness,
 service lifecycle/cleanup and final blocking. Engineering Policy thresholds,
@@ -8,8 +8,7 @@ baseline/debt/ratchet, measurement series and release authority are unchanged.
 
 ## Installation and compatibility
 
-Linux x86_64 is the current acceptance scope. This candidate is not published.
-The future independently verified archive is
+Linux x86_64 is the packaged acceptance scope. The independent archive is
 `gateprobes-postgres-0.1.0-linux-amd64.tar.gz`, tag `postgres-service-v0.1.0`.
 Verify its exact-tag GateProbes `collector-release.yml` Sigstore identity,
 checksums and provenance using the [shared release procedure](../../docs/independent-releases.md)
@@ -18,10 +17,12 @@ includes license, identity, protocol, catalog/setup resources and precompiled
 program; it does not bundle Rust, Python, Docker or Postgres client tools.
 
 Requires a compatible Core exposing `service_checks` / `gate-service-check/v1`.
-Released v0.4.9 is incompatible and its pin remains unchanged. Hosted contract
-and package acceptance must fail until an independently verified compatible
-released Core is explicitly pinned; no locally compiled Core is substituted by
-release tooling. Local candidate evidence is separate from released compatibility.
+The verified released Core v0.5.0 is explicitly pinned; see the
+[Core verification receipt](../../docs/core-0.5.0-verification.json). Historical
+v0.4.9 is immutable and incompatible. Hosted contract and package acceptance
+execute the pinned released Core; release tooling never substitutes a locally
+compiled Core. Plugin publication and public installation acceptance remain
+separate from local candidate evidence.
 
 For source development: Rust >=1.88, `cargo build --locked --release` and
 `cargo test --locked`. External URL health requires `pg_isready` on PATH. Managed

@@ -1,0 +1,52 @@
+{
+  "status": "pass",
+  "repository": "musutrade/GateHouse",
+  "tag": "v0.5.0",
+  "commit": "b178d3fe4f35018cd000dd291b324ff13ecc1c76",
+  "certificate_identity": "https://github.com/musutrade/GateHouse/.github/workflows/release.yml@refs/tags/v0.5.0",
+  "release": "https://github.com/musutrade/GateHouse/releases/tag/v0.5.0",
+  "published_at": "2026-10-14T09:38:47Z",
+  "files": 21,
+  "signed_attested_subjects": [
+    "SHA256SUMS",
+    "harness-gate-linux-amd64",
+    "harness-gate-macos-amd64",
+    "harness-gate-macos-arm64",
+    "harness-gate-windows-amd64.exe",
+    "harness-gate.sbom.cdx.json",
+    "release-inventory.json"
+  ],
+  "assets": [
+    {
+      "kind": "binary",
+      "name": "harness-gate-linux-amd64",
+      "sha256": "198597ff623ce006d6f19261a352ca7a6d82a7c58af7bbba75de3c4076cd26a7",
+      "size_bytes": 10302000
+    },
+    {
+      "kind": "binary",
+      "name": "harness-gate-macos-amd64",
+      "sha256": "2f985330ef59082285795314c3f19279f3646be6db13f1df802f34a949ef5226",
+      "size_bytes": 8198240
+    },
+    {
+      "kind": "binary",
+      "name": "harness-gate-macos-arm64",
+      "sha256": "348d79efe07c3e11d00c5112f622e452f5875c67f8493e9d73dfbbd31a3a7be5",
+      "size_bytes": 6749376
+    },
+    {
+      "kind": "binary",
+      "name": "harness-gate-windows-amd64.exe",
+      "sha256": "5751355eb93f48bea0fa61803b265b3db97a4cb89d0242ff56f70a96e72f6a9a",
+      "size_bytes": 8364032
+    },
+    {
+      "kind": "sbom",
+      "name": "harness-gate.sbom.cdx.json",
+      "sha256": "102959eb154de2f9769aac9fb10200aacd28815664c7028195b69bb3b29cc390",
+      "size_bytes": 73296
+    }
+  ],
+  "scope": "exact inventory, API digests, checksums, exact-tag Sigstore and exact-source/signer GitHub attestations"
+}
