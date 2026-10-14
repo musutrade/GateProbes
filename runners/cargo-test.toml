@@ -1,0 +1,6 @@
+# Cargo/libtest invocation rules, consumed as data by tools/runners/migrate.py.
+version = 2
+kind = "cargo-test"
+required_program = "cargo"
+threads_args = ["--test-threads", "{threads}"]
+threads_args_after = "--"

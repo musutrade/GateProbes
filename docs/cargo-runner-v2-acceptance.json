@@ -1,0 +1,96 @@
+{
+  "core_sha256": "ab8b9d75ad1d8b9eae280b90a15f2e5c0beba39a80774ba7fa4c9ff6d19fcc8a",
+  "definition_sha256": "1c282accfb72f12b226e547b95ee9c07638f93581d99d11fa212e3ac1272d783",
+  "cases": [
+    {
+      "case": "append-separator",
+      "args": [
+        "test",
+        "--offline",
+        "--lib",
+        "--",
+        "--test-threads",
+        "1"
+      ],
+      "passed": true
+    },
+    {
+      "case": "existing-separator",
+      "args": [
+        "test",
+        "--offline",
+        "--lib",
+        "--",
+        "--test-threads",
+        "1",
+        "--nocapture"
+      ],
+      "passed": true
+    },
+    {
+      "case": "positioned-args",
+      "args": [
+        "test",
+        "--offline",
+        "--lib",
+        "--",
+        "--test-threads",
+        "1",
+        "--nocapture"
+      ],
+      "passed": true
+    },
+    {
+      "case": "user-conflict",
+      "args": [
+        "test",
+        "--offline",
+        "--lib",
+        "--",
+        "--test-threads",
+        "1",
+        "--test-threads=7"
+      ],
+      "passed": false
+    },
+    {
+      "case": "changed-definition-unknown-id",
+      "args": [
+        "test",
+        "--offline",
+        "--lib",
+        "--",
+        "--test-threads",
+        "4",
+        "--nocapture"
+      ],
+      "passed": true
+    },
+    {
+      "case": "legacy-version",
+      "rejected": true
+    },
+    {
+      "case": "wrong-program",
+      "rejected": true
+    },
+    {
+      "case": "zero-threads",
+      "rejected": true
+    },
+    {
+      "case": "over-budget",
+      "rejected": true
+    },
+    {
+      "case": "shared-multiple-workers",
+      "rejected": true
+    },
+    {
+      "case": "missing-injection",
+      "rejected": true
+    }
+  ],
+  "schema": "cargo-runner-acceptance/v1",
+  "scope": "Candidate Core on Linux; no release or hosted CI claim."
+}
