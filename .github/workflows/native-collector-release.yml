@@ -458,3 +458,21 @@ jobs:
             notes_args=(--notes-file "$notes_file")
           fi
           gh release create "$TAG" --verify-tag "${notes_args[@]}" "${release_options[@]}" "${upload_paths[@]}"
+
+      - name: Verify public native release and actual protection
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+          COMMIT: ${{ github.sha }}
+        run: |
+          python3 tools/release/verify_native_release.py verify \
+            --tag "$TAG" --commit "$COMMIT" --output receipts/publication.json
+
+      - name: Retain publication protection receipt
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: native-publication-${{ github.run_id }}-${{ github.run_attempt }}
+          path: receipts/*.json
+          if-no-files-found: error
+          retention-days: 90
