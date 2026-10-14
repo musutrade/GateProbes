@@ -82,9 +82,9 @@ def verify_generated(directory, catalog, entry, root):
             raise ValueError('generated preset changed required quality profile: ' + profile)
 
 
-def accept(binary, external):
+def accept(binary, external, directory=None):
     source_parity()
-    directory = ROOT / 'presets'
+    directory = directory or ROOT / 'presets'
     catalog = json.loads((directory / 'catalog.json').read_text())
     assert catalog['schema'] == 'harness-preset-catalog/v1'
     for name, entry in catalog['presets'].items():
@@ -103,5 +103,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--core', required=True, type=Path)
     parser.add_argument('--external', action='store_true')
+    parser.add_argument('--presets-dir', type=Path, help='explicit generated catalog; requires --external')
     args = parser.parse_args()
-    accept(args.core.resolve(strict=True), args.external)
+    if args.presets_dir and not args.external:
+        parser.error('--presets-dir requires --external')
+    accept(args.core.resolve(strict=True), args.external,
+           args.presets_dir.resolve(strict=True) if args.presets_dir else None)
