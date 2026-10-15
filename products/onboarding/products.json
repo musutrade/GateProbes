@@ -1,0 +1,55 @@
+{
+  "schema": "gateprobes-products/v1",
+  "products": {
+    "rust-minimal": {
+      "version": "1.0.0",
+      "source": "https://github.com/musutrade/GateProbes",
+      "core_versions": [
+        "0.5.0"
+      ],
+      "protocol": "harness-preset-catalog/v1",
+      "platforms": [
+        "linux-x86_64",
+        "linux-aarch64",
+        "macos-x86_64",
+        "macos-aarch64",
+        "windows-x86_64"
+      ],
+      "presets": "products/onboarding/presets/rust",
+      "programs": [
+        "git",
+        "cargo"
+      ],
+      "dependencies": {},
+      "files": [
+        "products/onboarding/presets/rust/catalog.json",
+        "products/onboarding/presets/rust/flow.toml"
+      ]
+    },
+    "python-minimal": {
+      "version": "1.0.0",
+      "source": "https://github.com/musutrade/GateProbes",
+      "core_versions": [
+        "0.5.0"
+      ],
+      "protocol": "harness-preset-catalog/v1",
+      "platforms": [
+        "linux-x86_64",
+        "linux-aarch64",
+        "macos-x86_64",
+        "macos-aarch64",
+        "windows-x86_64"
+      ],
+      "presets": "products/onboarding/presets/python",
+      "programs": [
+        "git",
+        "python3"
+      ],
+      "dependencies": {},
+      "files": [
+        "products/onboarding/presets/python/catalog.json",
+        "products/onboarding/presets/python/flow.toml"
+      ]
+    }
+  }
+}

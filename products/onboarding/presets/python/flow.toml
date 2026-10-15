@@ -1,0 +1,36 @@
+version = 2
+
+[project]
+name = "python-minimal"
+default_profile = "full"
+hook_profile = "hook"
+
+[paths]
+reports = ".harness-gate/reports"
+audit_config = ".harness-gate/audit.toml"
+secrets_config = ".harness-gate/secrets.toml"
+
+[policy]
+required_steps = ["python.tests"]
+
+[scope]
+unmatched = "all"
+rules = [{ patterns = ["**"], components = ["app"] }]
+
+[[doctor.checks]]
+id = "tool.python3"
+label = "python3"
+kind = "command"
+program = "python3"
+args = ["--version"]
+
+[[steps]]
+id = "python.tests"
+label = "python minimal tests"
+component = "app"
+profiles = ["full", "ci", "hook"]
+program = "python3"
+args = ["-m", "unittest", "discover", "-s", "tests", "-v"]
+cwd = "{root}"
+log = "python_tests.log"
+timeout_secs = 120

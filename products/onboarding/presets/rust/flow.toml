@@ -1,0 +1,36 @@
+version = 2
+
+[project]
+name = "rust-minimal"
+default_profile = "full"
+hook_profile = "hook"
+
+[paths]
+reports = ".harness-gate/reports"
+audit_config = ".harness-gate/audit.toml"
+secrets_config = ".harness-gate/secrets.toml"
+
+[policy]
+required_steps = ["rust.compile"]
+
+[scope]
+unmatched = "all"
+rules = [{ patterns = ["**"], components = ["app"] }]
+
+[[doctor.checks]]
+id = "tool.cargo"
+label = "cargo"
+kind = "command"
+program = "cargo"
+args = ["--version"]
+
+[[steps]]
+id = "rust.compile"
+label = "rust minimal compile"
+component = "app"
+profiles = ["full", "ci", "hook"]
+program = "cargo"
+args = ["check", "--offline", "--locked"]
+cwd = "{root}"
+log = "rust_compile.log"
+timeout_secs = 120
