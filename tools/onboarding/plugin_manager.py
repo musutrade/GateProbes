@@ -54,7 +54,7 @@ def safe(path):
 
 
 def relative(root, name):
-    if not name or "\\" in name or ":" in name or any(p in ("..", ".") for p in name.split("/")):
+    if not name or Path(name).is_absolute() or "\\" in name or ":" in name or any(p in ("..", ".") for p in name.split("/")):
         raise ValueError("unsafe product path: " + name)
     path = safe(root / name)
     if not path.is_relative_to(root) or not path.is_file():

@@ -115,6 +115,8 @@ class Lifecycle(unittest.TestCase):
             with self.assertRaises(ValueError):
                 m.relative(m.ROOT, path)
         with self.assertRaises(ValueError):
+            m.relative(self.root, str(self.plan))
+        with self.assertRaises(ValueError):
             m.pins(b'{"schema":"harness-plugin-lock/v1","plugins":[{"name":"../outside","version":"1.0.0"}]}')
         with self.assertRaises(ValueError):
             m.decode('{"schema":"a","schema":"b"}')
