@@ -1,0 +1,10 @@
+{
+  "schema": "harness-preset-catalog/v1",
+  "presets": {
+    "python-minimal": {
+      "description": "python execution-only minimal onboarding (no quality collectors)",
+      "flow": "flow.toml"
+    }
+  },
+  "packs": {}
+}
