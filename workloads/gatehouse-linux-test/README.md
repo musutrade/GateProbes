@@ -2,7 +2,8 @@
 
 Tracking: [GateProbes #26](https://github.com/musutrade/GateProbes/issues/26),
 [GateHouse #140](https://github.com/musutrade/GateHouse/issues/140).
-This is the implementation scope record, not a released or validated workload.
+The data-only preset is implemented; independent package/real-Core acceptance
+and release are pending. No successful workload run is claimed yet.
 
 The comparison source is GateHouse
 `e65514947e7d4f5e9c65cab91ff3765e102fdb44`, `.github/workflows/ci.yml`.
@@ -14,7 +15,7 @@ silently losing coverage. The pinned nextest version is `0.9.143` in
 that floating selector is not a tool identity. Actual executable digests and
 versions must be recorded and independently approved for a workload run.
 
-The minimal implementation will reuse ordinary Core flow/runner declarations.
+The minimal implementation reuses ordinary Core flow declarations.
 It will not parse project policy, select required checks, evaluate thresholds,
 run a Python quality engine, or emit a project PASS. Core owns those decisions.
 Measurement/execution outputs and the fixed artifact will remain here, outside
@@ -38,6 +39,44 @@ coverage needs actual commands, tool identities, inventory and retained executio
 evidence. Linux test coverage is also distinct from the separate quality/risk
 coverage stages in that workflow. No CI jobs will be migrated, removed or triggered
 by implementing the workload.
+
+## Fixed package preparation
+
+`products.json` uses the existing `gateprobes-products/v1` catalog, and
+`preset/catalog.json` uses Core's existing `harness-preset-catalog/v1`. No new
+loader, runtime or protocol is required. The signed package includes the exact
+flow, toolchain declaration and this coverage description. The explicit Core
+version is compatibility metadata, not a claim of validation before acceptance.
+
+Prepare with an operator-owned Ed25519 key using the existing package manager:
+
+```sh
+python3 tools/onboarding/plugin_manager.py prepare \
+  --catalog workloads/gatehouse-linux-test/products.json \
+  --product gatehouse-linux-test \
+  --signing-key /protected/operator.pem --key-id reviewed-operator \
+  --output /new/prepared --lock-output /new/workload.lock.json
+```
+
+The emitted lock pins exact version, source, manifest digest and signer. Use the
+existing `plan`/`apply` commands and Core's explicit trusted-key input to install
+that artifact. Copying the prepared package/lock to a separate consumer host
+does not require a GateProbes source checkout. Core verifies the signed manifest
+and file hashes before using the preset; do not substitute `latest` or repin
+modified bytes merely to make acceptance pass.
+
+Preset adoption is explicit: the project owner reviews the resulting workflow
+and its required checks/quality policy. Installation alone does not alter those
+files. The preset adds no quality policy or collector and cannot stand in for
+full-quality verification. Do not overwrite an existing project flow to adopt it.
+
+The host must provide the toolchain in `toolchain.json`, verify protected tool
+bytes and configure native Cargo state, pinned test data and any required
+acceptance-output environment before invocation. `doctor` prints selected tool
+versions but does not enforce the nextest pin or prove host isolation. The
+workload does not install tools, fetch source, change caches or create credentials.
+Its command runs all Rust nextest tests, including the two special CI tests,
+without partition/filter exclusions. Other rows above remain separate coverage.
 
 Package publication, fixed artifact SHA, real execution evidence and Core
 compatibility acceptance are still pending. Native caches remain controlled by

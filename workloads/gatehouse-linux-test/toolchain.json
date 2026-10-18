@@ -1,0 +1,10 @@
+{
+  "platforms": ["linux-x86_64", "linux-aarch64"],
+  "cargo_toolchain": "1.99.1",
+  "rustc_commit": "58cf8f9c35b355199727627d07ae34a4e2846d67",
+  "cargo_nextest_version": "0.9.143",
+  "cargo_nextest_commit": "60fa45f638ffc3f35e74afa65737f45fcd32db2a",
+  "host_requirement": "Before execution, independently verify executable bytes and these version/commit identities; protect selected tools/config from workload writes. Doctor output alone is not verification or attestation.",
+  "comparison_source": "musutrade/GateHouse@e65514947e7d4f5e9c65cab91ff3765e102fdb44",
+  "coverage": "All nextest Rust tests without CI partition exclusions. Does not include Node action tests, standalone schema/onboarding checks, hosted transport or quality/risk measurement stages."
+}

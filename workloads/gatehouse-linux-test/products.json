@@ -1,0 +1,28 @@
+{
+  "schema": "gateprobes-products/v1",
+  "products": {
+    "gatehouse-linux-test": {
+      "version": "1.0.0",
+      "source": "https://github.com/musutrade/GateProbes",
+      "core_versions": [
+        "0.5.0"
+      ],
+      "protocol": "harness-preset-catalog/v1",
+      "platforms": [
+        "linux-x86_64",
+        "linux-aarch64"
+      ],
+      "presets": "workloads/gatehouse-linux-test/preset",
+      "programs": [
+        "cargo"
+      ],
+      "dependencies": {},
+      "files": [
+        "workloads/gatehouse-linux-test/preset/catalog.json",
+        "workloads/gatehouse-linux-test/preset/flow.toml",
+        "workloads/gatehouse-linux-test/toolchain.json",
+        "workloads/gatehouse-linux-test/README.md"
+      ]
+    }
+  }
+}

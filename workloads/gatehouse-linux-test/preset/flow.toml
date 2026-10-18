@@ -1,0 +1,42 @@
+version = 2
+
+[project]
+name = "gatehouse-linux-tests"
+default_profile = "full"
+hook_profile = "full"
+
+[paths]
+reports = ".harness-gate/reports"
+audit_config = ".harness-gate/audit.toml"
+secrets_config = ".harness-gate/secrets.toml"
+
+[scope]
+unmatched = "all"
+rules = [{ patterns = ["**"], components = ["core-tests"] }]
+
+[[doctor.checks]]
+id = "tool.cargo"
+label = "Selected Cargo toolchain"
+kind = "command"
+program = "cargo"
+args = ["+1.99.1", "--version"]
+
+[[doctor.checks]]
+id = "tool.nextest"
+label = "Installed nextest identity"
+kind = "command"
+program = "cargo"
+args = ["+1.99.1", "nextest", "--version"]
+
+# The adopting project's Core policy decides requiredness and quality.
+# No partition/filter excludes the special acceptance/export tests.
+[[steps]]
+id = "linux.rust-tests"
+label = "Linux Rust test inventory (unpartitioned)"
+component = "core-tests"
+profiles = ["full", "ci"]
+program = "cargo"
+args = ["+1.99.1", "nextest", "run", "--manifest-path", "{root}/tools/harness-gate/Cargo.toml", "--locked", "--no-fail-fast"]
+cwd = "{root}"
+log = "linux_rust_tests.log"
+timeout_secs = 1800
