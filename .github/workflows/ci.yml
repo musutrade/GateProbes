@@ -155,39 +155,6 @@ jobs:
       - name: Require an implemented executor
         run: python3 tools/ci/executor.py --language "${{ matrix.language }}"
 
-      # Extract Core contract info for caching
-      - name: Extract Core contract info
-        id: core-info
-        run: |
-          set -euo pipefail
-          python3 - <<'PY' >> "$GITHUB_OUTPUT"
-          import json
-          contract = json.load(open('docs/ownership.json'))['core_contract']
-          source_commit = json.load(open('docs/ownership.json'))['source_commit']
-          cache_key = f"core-v1-${{ runner.os }}-{contract['release']}-{source_commit}"
-          print(f"cache-key={cache_key}")
-          PY
-
-      # Try to restore cached Core runtime (OS-specific)
-      - name: Cache Core runtime
-        id: cache-core
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
-        with:
-          path: ${{ runner.temp }}/core-dist
-          key: ${{ steps.core-info.outputs.cache-key }}
-      
-      # Download Core if cache miss
-      - name: Fetch and prepare Core (cache miss)
-        if: steps.cache-core.outputs.cache-hit != 'true'
-        run: |
-          set -euo pipefail
-          python3 tools/release/pinned_core.py --output "$RUNNER_TEMP/core-dist"
-      
-      - name: Link Core runtime to standard location
-        run: |
-          set -euo pipefail
-          ln -s "$RUNNER_TEMP/core-dist" "$RUNNER_TEMP/core"
-
       # Toolchains are selected by language from plugins/registry.json. Python
       # steps are added here when a Python plugin is migrated; the executor
       # guard and the pinned-Core acceptance stay shared.
@@ -214,6 +181,56 @@ jobs:
           print("version=" + contract["version"])
           print("source_commit=" + value["source_commit"])
           PY
+
+      # Cache Core runtime by platform, release, and source commit
+      - name: Cache Core runtime
+        id: cache-core
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
+        with:
+          path: ${{ runner.temp }}/core
+          key: core-v2-${{ matrix.platform }}-${{ steps.core.outputs.release }}-${{ steps.core.outputs.source_commit }}
+
+      - name: Fetch pinned Core binary and modules
+        if: steps.cache-core.outputs.cache-hit != 'true'
+        env:
+          CORE_REPOSITORY: ${{ steps.core.outputs.repository }}
+          CORE_RELEASE: ${{ steps.core.outputs.release }}
+          CORE_BINARY: ${{ steps.core.outputs.binary }}
+          CORE_BINARY_SHA256: ${{ steps.core.outputs.sha256 }}
+          SOURCE_COMMIT: ${{ steps.core.outputs.source_commit }}
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/core"
+          mkdir -p "$root/bin" "$root/tools/quality/schema"
+          curl --fail --show-error --location --proto '=https' --tlsv1.2 \
+            -o "$root/bin/$CORE_BINARY" \
+            "https://github.com/${CORE_REPOSITORY}/releases/download/${CORE_RELEASE}/${CORE_BINARY}"
+          actual=$(python3 -c "import hashlib,sys;print(hashlib.sha256(open(sys.argv[1],'rb').read()).hexdigest())" "$root/bin/$CORE_BINARY")
+          if [ "$actual" != "$CORE_BINARY_SHA256" ]; then
+            echo "pinned Core digest mismatch for $CORE_BINARY" >&2
+            exit 1
+          fi
+          chmod +x "$root/bin/$CORE_BINARY"
+          base="https://raw.githubusercontent.com/musutrade/Harness-Gate/${SOURCE_COMMIT}"
+          for name in collector_runner harness_evidence project_model quality_evidence; do
+            curl --fail --show-error --location "$base/tools/quality/${name}.py" \
+              -o "$root/tools/quality/${name}.py"
+          done
+          for name in capability-requirements harness-evidence policy-exceptions policy project-model subject-mappings; do
+            curl --fail --show-error --location "$base/tools/quality/schema/${name}.schema.json" \
+              -o "$root/tools/quality/schema/${name}.schema.json"
+          done
+          curl --fail --show-error --location "$base/schema/collector-protocol.schema.json" \
+            -o "$root/tools/quality/schema/collector-protocol.schema.json"
+          mkdir -p "$root/presets"
+          for name in rust-api.flow.toml empty.audit.toml default.secrets.toml; do
+            curl --fail --show-error --location "$base/tools/harness-gate/presets/${name}" \
+              -o "$root/presets/${name}"
+            test -s "$root/presets/${name}"
+          done
+          curl --fail --show-error --location "$base/tools/release/generate-sbom.py" \
+            -o "$root/generate-sbom.py"
+          test -s "$root/generate-sbom.py"
 
       - name: Select OpenSSL 3 (macOS, native plugin)
         if: runner.os == 'macOS' && matrix.plugin == 'rust-native-plugin'
@@ -393,29 +410,29 @@ jobs:
             --binary "$GITHUB_WORKSPACE/plugins/postgres-service/target/release/gateprobes-postgres" \
             --output "$RUNNER_TEMP/postgres-presets"
       
-      # Extract Core contract info for caching
-      - name: Extract Core contract info
-        id: core-info
+      # Read Core contract for cache key
+      - name: Read Core contract
+        id: core
         run: |
           set -euo pipefail
           python3 - <<'PY' >> "$GITHUB_OUTPUT"
           import json
-          contract = json.load(open('docs/ownership.json'))['core_contract']
-          source_commit = json.load(open('docs/ownership.json'))['source_commit']
-          cache_key = f"core-v1-${{ runner.os }}-{contract['release']}-{source_commit}"
-          print(f"cache-key={cache_key}")
+          value = json.load(open('docs/ownership.json'))
+          contract = value['core_contract']
+          print(f"release={contract['release']}")
+          print(f"source_commit={value['source_commit']}")
           PY
 
-      # Try to restore cached Core runtime (OS-specific)
+      # Cache Core runtime (Linux only for presets job)
       - name: Cache Core runtime
         id: cache-core
         uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
         with:
           path: ${{ runner.temp }}/core-dist
-          key: ${{ steps.core-info.outputs.cache-key }}
+          key: core-v2-linux-${{ steps.core.outputs.release }}-${{ steps.core.outputs.source_commit }}
       
-      # Download Core if cache miss
-      - name: Fetch and prepare Core (cache miss)
+      # Download Core if cache miss (Linux binary only)
+      - name: Fetch and prepare Core
         if: steps.cache-core.outputs.cache-hit != 'true'
         run: |
           set -euo pipefail
