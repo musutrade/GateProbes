@@ -365,7 +365,7 @@ test("incompatible collector protocol version fails closed with an explicit diag
     request.collector = { ...COLLECTOR, version: "9.9.9" };
     assert.throws(
       () => collect(request),
-      /incompatible collector version: expected typescript-risk@0\.1\.0-rc\.4, received/,
+      /incompatible collector version: expected typescript-risk@0\.1\.0, received/,
     );
   }));
 
@@ -377,7 +377,7 @@ test("subprocess supports version/inventory and strict one-response error semant
       { encoding: "utf8" },
     );
     assert.equal(version.status, 0);
-    assert.match(version.stdout, /0.1.0-rc.4/);
+    assert.equal(version.stdout.trim(), "harness-gate-typescript-collector 0.1.0");
     const result = spawnSync(
       process.execPath,
       [path.join(__dirname, "cli.cjs")],
