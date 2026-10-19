@@ -2,7 +2,7 @@
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict'),{createHash}=require('node:crypto');
 const {canonical,measure,consumerInventory,generate}=require('./measure.cjs'),parse=require('./strict-json.cjs');
 const sha=bytes=>createHash('sha256').update(bytes).digest('hex');
-const COLLECTOR={name:'http-json-contract',version:'0.1.0-rc.5'};
+const COLLECTOR={name:'http-json-contract',version:'0.1.0'};
 const TYPES={'contract.breaking_changes':'count','contract.client_drift':'boolean','contract.compatible':'boolean'};
 function file(root,name) {
  assert(typeof name==='string'&&name&&!path.isAbsolute(name)&&!name.includes('\\')&&!name.split('/').some(p=>['','.','..'].includes(p)),'unsafe input path');

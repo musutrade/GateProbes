@@ -1,4 +1,4 @@
-# HTTP JSON contract collector — 0.1.0-rc.5 candidate
+# HTTP JSON contract collector — 0.1.0 release candidate
 
 Independent Harness-Gate adapter-v2 plugin. Core owns policy and signature checks.
 It measures `contract.breaking_changes`, `contract.client_drift`, and
@@ -86,3 +86,7 @@ GH-282 strengthens those existing inventory and generated-type checks. The rule
 identity includes the collector implementation hash and therefore changes with
 this repair. New collection requires the matching approved series; previous
 evidence must retain its original identity.
+
+## Stable acceptance boundary
+
+Version 0.1.0 changes collector identity only; capabilities and dependencies are unchanged. Publication requires fresh exact-head/main CI and installed-package contract acceptance against pinned released Core v0.6.0. Independent download acceptance must verify the actual published bytes, dependency isolation, inventory and provenance. Linux x86_64/Node24 acceptance does not claim a production deployment or additional platforms. Previous RC artifacts and historical acceptance remain unchanged.
