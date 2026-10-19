@@ -10,6 +10,7 @@ on:
       - 'rust-source-risk-v*'
       - 'rust-measure-v*'
       - 'postgres-service-v*'
+      - 'gatehouse-linux-test-v*'
 
 permissions:
   contents: read

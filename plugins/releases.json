@@ -41,6 +41,11 @@
         "plugin.json",
         "Cargo.toml"
       ]
+    },
+    "gatehouse-linux-test": {
+      "tag_prefix": "gatehouse-linux-test-v",
+      "archive": "gateprobes-gatehouse-linux-test-{version}.tar.gz",
+      "product_catalog": "workloads/gatehouse-linux-test/products.json"
     }
   }
 }
