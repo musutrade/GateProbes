@@ -136,11 +136,11 @@
     },
     "onboarding-presets": {
       "paths": [
-        "plugins/onboarding-presets",
-        "products/onboarding"
+        "plugins/onboarding-presets"
       ],
       "authority": "execution-presets-only; Core decides requiredness and quality",
-      "contract_test": "tools/onboarding/acceptance.py"
+      "contract_test": "tools/onboarding/acceptance.py",
+      "product_catalog": "products/onboarding/products.json"
     }
   },
   "inputs": [
