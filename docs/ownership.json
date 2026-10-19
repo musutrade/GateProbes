@@ -141,6 +141,13 @@
       "authority": "execution-presets-only; Core decides requiredness and quality",
       "contract_test": "tools/onboarding/acceptance.py",
       "product_catalog": "products/onboarding/products.json"
+    },
+    "github-actions": {
+      "paths": [
+        "plugins/github-actions"
+      ],
+      "authority": "advisory-feedback-and-artifact-transport-only",
+      "contract_test": "plugins/github-actions/actions/findings-feedback/feedback.test.cjs"
     }
   },
   "inputs": [

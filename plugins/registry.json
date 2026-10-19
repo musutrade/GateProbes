@@ -177,6 +177,25 @@
         "package": "python3 ../../tools/release/package_plugin.py --plugin onboarding-presets --core-root \"$RUNNER_TEMP/core\" --output \"$RUNNER_TEMP/onboarding-package\""
       },
       "protocols": []
+    },
+    "github-actions": {
+      "path": "plugins/github-actions",
+      "language": "python",
+      "platforms": [
+        "linux"
+      ],
+      "toolchain": "Node24 + Python3.11 packaging",
+      "toolchains": [
+        "python",
+        "typescript"
+      ],
+      "entries": {
+        "install": "node --version",
+        "test": "node --test actions/findings-feedback/feedback.test.cjs actions/report-artifact/prepare.test.cjs && python3 -m unittest discover -s tests_package -p \"test_*.py\" -v",
+        "contract": "node --test actions/findings-feedback/feedback.test.cjs actions/report-artifact/prepare.test.cjs",
+        "package": "python3 ../../tools/release/package_plugin.py --plugin github-actions --core-root \"$RUNNER_TEMP/core\" --output \"$RUNNER_TEMP/github-actions-package\""
+      },
+      "protocols": []
     }
   },
   "runners": {

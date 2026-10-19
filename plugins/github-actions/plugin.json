@@ -1,0 +1,11 @@
+{
+  "schema": "gateprobes-platform-actions/v1",
+  "name": "github-actions",
+  "version": "1.0.0",
+  "entrypoint": "actions",
+  "authority": "advisory-feedback-and-artifact-transport-only",
+  "runtime": "node24",
+  "platforms": [
+    "linux-x86_64"
+  ]
+}

@@ -1,0 +1,48 @@
+name: GateHouse HTML report artifact
+description: Validate an explicitly pinned HTML export and optionally upload only its two display files
+inputs:
+  directory:
+    description: Directory produced by harness-gate report-export from a trusted completed report
+    required: true
+  provenance-sha256:
+    description: Independently trusted SHA-256 of the exact exported provenance.json bytes
+    required: true
+  commit:
+    description: Independently expected full source commit, preserved as artifact identity
+    required: true
+  upload:
+    description: Explicitly authorize artifact upload; false only validates locally
+    default: 'false'
+  retention-days:
+    description: Requested artifact retention, 1 to 30 days subject to repository policy
+    default: '7'
+outputs:
+  artifact-id:
+    description: Uploaded artifact ID, empty when upload is false
+    value: ${{ steps.upload.outputs.artifact-id }}
+  artifact-url:
+    description: Authenticated Actions download URL, empty when upload is false
+    value: ${{ steps.upload.outputs.artifact-url }}
+runs:
+  using: composite
+  steps:
+    - id: prepare
+      shell: bash
+      env:
+        REPORT_DIRECTORY: ${{ inputs.directory }}
+        REPORT_PROVENANCE_SHA256: ${{ inputs.provenance-sha256 }}
+        REPORT_COMMIT: ${{ inputs.commit }}
+        REPORT_UPLOAD: ${{ inputs.upload }}
+        REPORT_RETENTION_DAYS: ${{ inputs.retention-days }}
+        REPORT_SCRIPT: ${{ github.action_path }}/prepare.cjs
+      run: node "$REPORT_SCRIPT"
+    - id: upload
+      if: ${{ inputs.upload == 'true' }}
+      uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+      with:
+        name: ${{ steps.prepare.outputs.name }}
+        path: ${{ steps.prepare.outputs.directory }}
+        retention-days: ${{ inputs.retention-days }}
+        if-no-files-found: error
+        overwrite: false
+        include-hidden-files: false
