@@ -22,6 +22,7 @@ import plugin_release
 import package_workload
 import package_consumer
 import package_actions
+import package_operator
 import package_onboarding
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -397,6 +398,8 @@ def main() -> None:
         package_workload.package(ROOT, output, Path(os.environ["HARNESS_GATE_BINARY"]))
     elif args.plugin == "onboarding-presets":
         package_onboarding.package(ROOT, output, Path(os.environ["HARNESS_GATE_BINARY"]))
+    elif args.plugin == "operator-lifecycle":
+        package_operator.package(ROOT, output, core)
     elif args.plugin == "github-actions":
         package_actions.package(ROOT, output)
     elif args.plugin == "github-check":
