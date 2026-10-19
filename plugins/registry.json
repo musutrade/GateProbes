@@ -156,6 +156,27 @@
         "package": "python3 ../../tools/release/package_plugin.py --plugin github-check --core-root \"$RUNNER_TEMP/core\" --output \"$RUNNER_TEMP/github-check-package\""
       },
       "protocols": []
+    },
+    "onboarding-presets": {
+      "path": "plugins/onboarding-presets",
+      "language": "python",
+      "platforms": [
+        "linux"
+      ],
+      "toolchain": "Python 3.11+, OpenSSL, Git, Rust stable",
+      "toolchains": [
+        "python",
+        "rust"
+      ],
+      "rust_toolchain": "stable",
+      "rust_components": "rustfmt, clippy",
+      "entries": {
+        "install": "python3 ../../tools/onboarding/plugin_manager.py --help",
+        "test": "python3 -m unittest discover -s ../../tools/onboarding -p \"test_*.py\" -v && GATEHOUSE_CORE=\"$RUNNER_TEMP/core/bin/harness-gate-linux-amd64\" python3 -m unittest discover -s tests_package -p \"test_*.py\" -v",
+        "contract": "python3 ../../tools/onboarding/acceptance.py --core \"$RUNNER_TEMP/core/bin/harness-gate-linux-amd64\" --work-dir \"$RUNNER_TEMP/onboarding-contract\"",
+        "package": "python3 ../../tools/release/package_plugin.py --plugin onboarding-presets --core-root \"$RUNNER_TEMP/core\" --output \"$RUNNER_TEMP/onboarding-package\""
+      },
+      "protocols": []
     }
   },
   "runners": {

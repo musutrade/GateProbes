@@ -133,6 +133,14 @@
         "exit_condition": "operators pin the released consumer archive and released Core digest explicitly",
         "released_core": "v0.6.0"
       }
+    },
+    "onboarding-presets": {
+      "paths": [
+        "plugins/onboarding-presets"
+      ],
+      "authority": "execution-presets-only; Core decides requiredness and quality",
+      "contract_test": "tools/onboarding/acceptance.py",
+      "product_catalog": "products/onboarding/products.json"
     }
   },
   "inputs": [

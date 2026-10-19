@@ -53,6 +53,13 @@
       "manifests": [
         "plugin.json"
       ]
+    },
+    "onboarding-presets": {
+      "tag_prefix": "onboarding-presets-v",
+      "archive": "gateprobes-onboarding-presets-{version}.tar.gz",
+      "manifests": [
+        "plugin.json"
+      ]
     }
   }
 }
