@@ -1,0 +1,103 @@
+version = 2
+
+[project]
+name = "rust-api"
+default_profile = "full"
+hook_profile = "hook"
+
+[paths]
+reports = ".harness-gate/reports"
+audit_config = ".harness-gate/audit.toml"
+secrets_config = ".harness-gate/secrets.toml"
+
+[paths.aliases.app]
+path = "."
+
+[policy]
+required_steps = ["rust.format", "rust.clippy", "rust.compile", "rust.tests"]
+
+[[doctor.checks]]
+id = "tool.git"
+label = "git"
+kind = "command"
+program = "git"
+args = ["--version"]
+
+[[doctor.checks]]
+id = "tool.cargo"
+label = "cargo"
+kind = "command"
+program = "cargo"
+args = ["--version"]
+
+[[doctor.checks]]
+id = "tool.rustc"
+label = "rustc"
+kind = "command"
+program = "rustc"
+args = ["--version"]
+
+[[doctor.checks]]
+id = "project.manifest"
+label = "Cargo manifest"
+kind = "path"
+path = "{app}/Cargo.toml"
+path_type = "file"
+
+[parsers.rust]
+kind = "regex"
+patterns = ['(?m)^running ([0-9]+) tests?$']
+capture = 1
+minimum = 1
+
+[scope]
+unmatched = "all"
+
+[[scope.rules]]
+patterns = ["src/**", "tests/**", "Cargo.toml", "Cargo.lock", "rust-toolchain*", ".harness-gate/**"]
+components = ["app"]
+
+[[steps]]
+id = "rust.format"
+label = "Rust format"
+component = "app"
+profiles = ["full", "ci", "hook"]
+program = "cargo"
+args = ["fmt", "--manifest-path", "{app}/Cargo.toml", "--", "--check"]
+cwd = "{root}"
+log = "rust_fmt.log"
+timeout_secs = 120
+
+[[steps]]
+id = "rust.clippy"
+label = "Rust Clippy"
+component = "app"
+profiles = ["full", "ci", "hook"]
+program = "cargo"
+args = ["clippy", "--manifest-path", "{app}/Cargo.toml", "--all-targets", "--all-features", "--", "-D", "warnings"]
+cwd = "{root}"
+log = "rust_clippy.log"
+timeout_secs = 300
+
+[[steps]]
+id = "rust.compile"
+label = "Rust compile"
+component = "app"
+profiles = ["full", "ci"]
+program = "cargo"
+args = ["check", "--manifest-path", "{app}/Cargo.toml", "--all-targets"]
+cwd = "{root}"
+log = "rust_check.log"
+timeout_secs = 300
+
+[[steps]]
+id = "rust.tests"
+label = "Rust tests"
+component = "app"
+profiles = ["full", "ci"]
+program = "cargo"
+args = ["test", "--manifest-path", "{app}/Cargo.toml", "--", "--nocapture"]
+cwd = "{root}"
+log = "rust_tests.log"
+timeout_secs = 300
+parser = "rust"

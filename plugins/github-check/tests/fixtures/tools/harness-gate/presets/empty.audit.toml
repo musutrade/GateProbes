@@ -1,0 +1,87 @@
+version = 2
+
+[engine]
+ignore_filename = ".auditignore"
+json_report_filename = "review_context.json"
+markdown_report_filename = "review_context.md"
+markdown_max_bytes = 4096
+markdown_occurrences_per_rule = 3
+
+[engine.comment_syntax.rs]
+line = ["//"]
+block = [{ start = "/*", end = "*/", nested = true }]
+strings = [
+  { start = 'r###"', end = '"###' },
+  { start = 'r##"', end = '"##' },
+  { start = 'r#"', end = '"#' },
+  { start = 'r"', end = '"' },
+  { start = '"', end = '"', escape = '\' },
+]
+
+[engine.comment_syntax.sql]
+line = ["--"]
+block = [{ start = "/*", end = "*/" }]
+strings = [
+  { start = "'", end = "'" },
+  { start = '"', end = '"' },
+]
+
+[engine.comment_syntax.ts]
+line = ["//"]
+block = [{ start = "/*", end = "*/" }]
+strings = [
+  { start = "'", end = "'", escape = '\' },
+  { start = '"', end = '"', escape = '\' },
+  { start = "`", end = "`", escape = '\' },
+]
+
+[engine.comment_syntax.tsx]
+line = ["//"]
+block = [{ start = "/*", end = "*/" }]
+strings = [
+  { start = "'", end = "'", escape = '\' },
+  { start = '"', end = '"', escape = '\' },
+  { start = "`", end = "`", escape = '\' },
+]
+
+[engine.comment_syntax.js]
+line = ["//"]
+block = [{ start = "/*", end = "*/" }]
+strings = [
+  { start = "'", end = "'", escape = '\' },
+  { start = '"', end = '"', escape = '\' },
+  { start = "`", end = "`", escape = '\' },
+]
+
+[engine.comment_syntax.jsx]
+line = ["//"]
+block = [{ start = "/*", end = "*/" }]
+strings = [
+  { start = "'", end = "'", escape = '\' },
+  { start = '"', end = '"', escape = '\' },
+  { start = "`", end = "`", escape = '\' },
+]
+
+[engine.comment_syntax.toml]
+line = ["#"]
+strings = [
+  { start = "'", end = "'" },
+  { start = '"', end = '"', escape = '\' },
+]
+
+[engine.comment_syntax.yaml]
+line = ["#"]
+strings = [
+  { start = "'", end = "'" },
+  { start = '"', end = '"', escape = '\' },
+]
+
+[engine.comment_syntax.yml]
+line = ["#"]
+strings = [
+  { start = "'", end = "'" },
+  { start = '"', end = '"', escape = '\' },
+]
+
+[paths]
+exclude = ["target", "node_modules", "dist", ".git", ".harness-gate/reports"]

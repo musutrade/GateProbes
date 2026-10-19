@@ -1,0 +1,45 @@
+version = 1
+
+[project]
+id = "example"
+name = "rust-api"
+
+[components.app]
+flow_components = ["app"]
+source_roots = ["src"]
+artifact_root = "target/evidence"
+
+[subjects.module]
+component = "app"
+kind = "module"
+selection = { kind = "explicit", paths = ["src/lib.rs"] }
+
+[collectors.coverage]
+protocol = "harness-collector-request/v1"
+request = ".harness-gate/coverage-request.json"
+[[collectors.coverage.produces]]
+target = { kind = "component", id = "app" }
+capability = "coverage.line"
+series = "measurement-series/v1:0bad3101fc0641a5850eb0934d41912f3beb264f656a621de53942efa1f38e21"
+
+[policies.coverage]
+policy_file = ".harness-gate/policy.json"
+rule = "app.coverage"
+expectation = { target = { kind = "component", id = "app" }, capability = "coverage.line", series = "measurement-series/v1:0bad3101fc0641a5850eb0934d41912f3beb264f656a621de53942efa1f38e21" }
+
+[profiles.full]
+collectors = ["coverage"]
+policies = ["coverage"]
+
+[profiles.hook]
+assurance = "partial"
+collectors = []
+policies = []
+
+[baseline]
+required = false
+provider = { kind = "none" }
+
+[reporting]
+output = "target/quality"
+formats = ["human", "json"]

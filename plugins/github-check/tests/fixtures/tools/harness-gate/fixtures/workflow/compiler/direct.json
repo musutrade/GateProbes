@@ -1,0 +1,192 @@
+{
+  "expected": {
+    "base_commit": "0000000000000000000000000000000000000000",
+    "commit": "1111111111111111111111111111111111111111",
+    "run": "compiler-fixture",
+    "target": "default"
+  },
+  "policy": {
+    "rules": [
+      {
+        "id": "app.coverage",
+        "limit": {
+          "covered": 4,
+          "total": 5,
+          "type": "ratio"
+        },
+        "metric": "coverage.line",
+        "on_violation": "fail",
+        "operator": "ge",
+        "remediation_classes": [
+          "increase_meaningful_coverage"
+        ],
+        "required": true,
+        "scope": {
+          "component": "app",
+          "kind": "component"
+        }
+      }
+    ],
+    "schema": "harness-policy/v1"
+  },
+  "project": {
+    "components": [
+      {
+        "id": "app",
+        "metadata": {
+          "ecosystem": "rust",
+          "language": "rust"
+        },
+        "path": ".",
+        "source_boundaries": [
+          {
+            "id": "source",
+            "metadata": {},
+            "path": "src",
+            "role": "production"
+          }
+        ],
+        "targets": [
+          {
+            "boundaries": [
+              "source"
+            ],
+            "id": "default",
+            "metadata": {}
+          }
+        ]
+      }
+    ],
+    "id": "example",
+    "metadata": {},
+    "relationships": [],
+    "schema": "harness-project/v1",
+    "subjects": [
+      {
+        "boundary": "source",
+        "component": "app",
+        "discriminator": "module",
+        "id": "subject-identity/v1:070fec48ac7866f74365b57215dfc47b0395a77165d7b075f6a18a3997a64ae4",
+        "identity_version": "subject-identity/v1",
+        "kind": "file/v1",
+        "metadata": {},
+        "path": "src/lib.rs",
+        "source_sha256": "5e0a6af76181b77032ef291474aab99538433cb86eb2b8ad88f3c0cfb2577a51",
+        "target": "default"
+      }
+    ]
+  },
+  "records": [
+    {
+      "artifacts": [
+        {
+          "bytes": 27,
+          "context": {
+            "base_commit": "0000000000000000000000000000000000000000",
+            "commit": "1111111111111111111111111111111111111111",
+            "run": "compiler-fixture",
+            "target": "default"
+          },
+          "id": "raw",
+          "kind": "raw",
+          "media_type": "application/json",
+          "path": "raw.json",
+          "sha256": "ee13b97dd259ba41d4e7d6adbb7f63756a81d4f5adf361bdbaad5b74ff8f6451",
+          "source": {
+            "path": "src/lib.rs",
+            "sha256": "5e0a6af76181b77032ef291474aab99538433cb86eb2b8ad88f3c0cfb2577a51"
+          }
+        }
+      ],
+      "capabilities": [
+        {
+          "artifacts": [
+            "raw"
+          ],
+          "metric": "coverage.line",
+          "reason": "fixture",
+          "state": "supported"
+        }
+      ],
+      "collector": {
+        "name": "rust-fixture",
+        "version": "1"
+      },
+      "component": "app",
+      "context": {
+        "base_commit": "0000000000000000000000000000000000000000",
+        "commit": "1111111111111111111111111111111111111111",
+        "run": "compiler-fixture",
+        "target": "default"
+      },
+      "id": "coverage",
+      "metrics": [
+        {
+          "artifacts": [
+            "raw"
+          ],
+          "name": "coverage.line",
+          "value": {
+            "covered": 5,
+            "total": 5,
+            "type": "ratio"
+          }
+        }
+      ],
+      "project": "example",
+      "schema": "harness-evidence/v1",
+      "series": {
+        "collector": {
+          "name": "rust-fixture",
+          "version": "1"
+        },
+        "id": "measurement-series/v1:0bad3101fc0641a5850eb0934d41912f3beb264f656a621de53942efa1f38e21",
+        "metrics": [
+          {
+            "name": "coverage.line",
+            "type": "ratio"
+          }
+        ],
+        "name": "rust-fixture-coverage",
+        "normalization": {
+          "name": "fixture",
+          "version": "1"
+        },
+        "rule": {
+          "name": "line-coverage",
+          "version": "1"
+        },
+        "runtime": {
+          "name": "rust",
+          "version": "1"
+        },
+        "source_identity": {
+          "name": "subject-identity",
+          "version": "1"
+        },
+        "target": "default",
+        "tool": {
+          "name": "llvm-cov",
+          "version": "18"
+        }
+      },
+      "source": {
+        "path": "src/lib.rs",
+        "sha256": "5e0a6af76181b77032ef291474aab99538433cb86eb2b8ad88f3c0cfb2577a51"
+      },
+      "status": "measured",
+      "subject": {
+        "boundary": "source",
+        "component": "app",
+        "discriminator": "module",
+        "id": "subject-identity/v1:070fec48ac7866f74365b57215dfc47b0395a77165d7b075f6a18a3997a64ae4",
+        "identity_version": "subject-identity/v1",
+        "kind": "file/v1",
+        "metadata": {},
+        "path": "src/lib.rs",
+        "source_sha256": "5e0a6af76181b77032ef291474aab99538433cb86eb2b8ad88f3c0cfb2577a51",
+        "target": "default"
+      }
+    }
+  ]
+}
