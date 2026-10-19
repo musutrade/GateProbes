@@ -69,9 +69,56 @@ jobs:
       - name: Check links, declarations and forbidden artifacts
         run: python3 tools/ci/check_docs.py
 
+  # Separate job to prepare and cache Core binary/modules once for all plugins
+  prepare-core:
+    name: Prepare Core runtime
+    needs: classify
+    if: needs.classify.outputs.run_plugins == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      cache-key: ${{ steps.core-info.outputs.cache-key }}
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: '3.14'
+      
+      - name: Extract Core contract info
+        id: core-info
+        run: |
+          set -euo pipefail
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, hashlib
+          contract = json.load(open('docs/ownership.json'))['core_contract']
+          source_commit = json.load(open('docs/ownership.json'))['source_commit']
+          cache_key = f"core-v1-{contract['release']}-{source_commit}"
+          print(f"cache-key={cache_key}")
+          print(f"release={contract['release']}")
+          print(f"source-commit={source_commit}")
+          print(f"repository={contract['repository']}")
+          PY
+      
+      - name: Cache Core runtime
+        id: cache-core
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
+        with:
+          path: ${{ runner.temp }}/core-dist
+          key: ${{ steps.core-info.outputs.cache-key }}
+      
+      - name: Fetch and prepare Core (cache miss)
+        if: steps.cache-core.outputs.cache-hit != 'true'
+        env:
+          SOURCE_COMMIT: ${{ steps.core-info.outputs.source-commit }}
+          CORE_REPOSITORY: ${{ steps.core-info.outputs.repository }}
+          CORE_RELEASE: ${{ steps.core-info.outputs.release }}
+        run: |
+          set -euo pipefail
+          python3 tools/release/pinned_core.py --output "$RUNNER_TEMP/core-dist"
+
   plugins:
     name: Plugin checks (${{ matrix.plugin }})
-    needs: classify
+    needs: [classify, prepare-core]
     if: needs.classify.outputs.run_plugins == 'true'
     runs-on: ${{ matrix.runs_on }}
     timeout-minutes: 30
@@ -97,6 +144,42 @@ jobs:
           toolchain: ${{ matrix.rust_toolchain }}
           components: ${{ matrix.rust_components }}
 
+      # Cargo cache for Rust plugins
+      - name: Cache Cargo registry and git
+        if: contains(matrix.toolchains, 'rust')
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+          key: ${{ runner.os }}-cargo-${{ matrix.rust_toolchain }}-${{ hashFiles(format('{0}/**/Cargo.lock', matrix.path)) }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-${{ matrix.rust_toolchain }}-
+            ${{ runner.os }}-cargo-
+
+      # Cargo build cache
+      - name: Cache Cargo build
+        if: contains(matrix.toolchains, 'rust')
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
+        with:
+          path: ${{ matrix.path }}/target
+          key: ${{ runner.os }}-cargo-build-${{ matrix.plugin }}-${{ matrix.rust_toolchain }}-${{ hashFiles(format('{0}/**/Cargo.lock', matrix.path)) }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-build-${{ matrix.plugin }}-${{ matrix.rust_toolchain }}-
+            ${{ runner.os }}-cargo-build-${{ matrix.plugin }}-
+
+      # TypeScript/Node.js cache
+      - name: Cache npm dependencies
+        if: contains(matrix.toolchains, 'typescript')
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-24-${{ hashFiles(format('{0}/**/package-lock.json', matrix.path)) }}
+          restore-keys: |
+            ${{ runner.os }}-node-24-
+            ${{ runner.os }}-node-
+
       - name: Record platform toolchain versions
         run: |
           set -euo pipefail
@@ -118,6 +201,19 @@ jobs:
 
       - name: Require an implemented executor
         run: python3 tools/ci/executor.py --language "${{ matrix.language }}"
+
+      # Restore cached Core runtime
+      - name: Restore Core from cache
+        uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
+        with:
+          path: ${{ runner.temp }}/core-dist
+          key: ${{ needs.prepare-core.outputs.cache-key }}
+          fail-on-cache-miss: true
+      
+      - name: Link Core runtime to standard location
+        run: |
+          set -euo pipefail
+          ln -s "$RUNNER_TEMP/core-dist" "$RUNNER_TEMP/core"
 
       # Toolchains are selected by language from plugins/registry.json. Python
       # steps are added here when a Python plugin is migrated; the executor
@@ -145,47 +241,6 @@ jobs:
           print("version=" + contract["version"])
           print("source_commit=" + value["source_commit"])
           PY
-
-      - name: Fetch pinned Core binary and modules
-        env:
-          CORE_REPOSITORY: ${{ steps.core.outputs.repository }}
-          CORE_RELEASE: ${{ steps.core.outputs.release }}
-          CORE_BINARY: ${{ steps.core.outputs.binary }}
-          CORE_BINARY_SHA256: ${{ steps.core.outputs.sha256 }}
-          SOURCE_COMMIT: ${{ steps.core.outputs.source_commit }}
-        run: |
-          set -euo pipefail
-          root="$RUNNER_TEMP/core"
-          mkdir -p "$root/bin" "$root/tools/quality/schema"
-          curl --fail --show-error --location --proto '=https' --tlsv1.2 \
-            -o "$root/bin/$CORE_BINARY" \
-            "https://github.com/${CORE_REPOSITORY}/releases/download/${CORE_RELEASE}/${CORE_BINARY}"
-          actual=$(python3 -c "import hashlib,sys;print(hashlib.sha256(open(sys.argv[1],'rb').read()).hexdigest())" "$root/bin/$CORE_BINARY")
-          if [ "$actual" != "$CORE_BINARY_SHA256" ]; then
-            echo "pinned Core digest mismatch for $CORE_BINARY" >&2
-            exit 1
-          fi
-          chmod +x "$root/bin/$CORE_BINARY"
-          base="https://raw.githubusercontent.com/musutrade/Harness-Gate/${SOURCE_COMMIT}"
-          for name in collector_runner harness_evidence project_model quality_evidence; do
-            curl --fail --show-error --location "$base/tools/quality/${name}.py" \
-              -o "$root/tools/quality/${name}.py"
-          done
-          for name in capability-requirements harness-evidence policy-exceptions policy project-model subject-mappings; do
-            curl --fail --show-error --location "$base/tools/quality/schema/${name}.schema.json" \
-              -o "$root/tools/quality/schema/${name}.schema.json"
-          done
-          curl --fail --show-error --location "$base/schema/collector-protocol.schema.json" \
-            -o "$root/tools/quality/schema/collector-protocol.schema.json"
-          mkdir -p "$root/presets"
-          for name in rust-api.flow.toml empty.audit.toml default.secrets.toml; do
-            curl --fail --show-error --location "$base/tools/harness-gate/presets/${name}" \
-              -o "$root/presets/${name}"
-            test -s "$root/presets/${name}"
-          done
-          curl --fail --show-error --location "$base/tools/release/generate-sbom.py" \
-            -o "$root/generate-sbom.py"
-          test -s "$root/generate-sbom.py"
 
       - name: Select OpenSSL 3 (macOS, native plugin)
         if: runner.os == 'macOS' && matrix.plugin == 'rust-native-plugin'
@@ -323,7 +378,7 @@ jobs:
 
   presets:
     name: External preset compatibility
-    needs: classify
+    needs: [classify, prepare-core]
     if: needs.classify.outputs.run_plugins == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -332,6 +387,28 @@ jobs:
       - uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c
         with:
           toolchain: '1.97.1'
+      
+      # Cache Cargo for postgres-service build
+      - name: Cache Cargo registry
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+          key: ${{ runner.os }}-cargo-1.97.1-${{ hashFiles('plugins/postgres-service/**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-1.97.1-
+            ${{ runner.os }}-cargo-
+      
+      - name: Cache postgres-service build
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
+        with:
+          path: plugins/postgres-service/target
+          key: ${{ runner.os }}-postgres-service-${{ hashFiles('plugins/postgres-service/**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-postgres-service-
+      
       - name: Prepare the installed Postgres binding without changing frozen seeds
         run: |
           set -euo pipefail
@@ -339,23 +416,20 @@ jobs:
           python3 plugins/postgres-service/prepare-preset.py \
             --binary "$GITHUB_WORKSPACE/plugins/postgres-service/target/release/gateprobes-postgres" \
             --output "$RUNNER_TEMP/postgres-presets"
+      
+      # Restore cached Core runtime
+      - name: Restore Core from cache
+        uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
+        with:
+          path: ${{ runner.temp }}/core-dist
+          key: ${{ needs.prepare-core.outputs.cache-key }}
+          fail-on-cache-miss: true
+      
       - name: Verify migrated templates against the fixed released Core
         run: |
           set -euo pipefail
-          python3 - <<'PYCORE'
-          import hashlib, json, os, pathlib, urllib.request
-          contract = json.load(open('docs/ownership.json'))['core_contract']
-          pinned = contract['platforms']['linux']
-          path = pathlib.Path(os.environ['RUNNER_TEMP']) / 'preset-core'
-          url = f"https://github.com/{contract['repository']}/releases/download/{contract['release']}/{pinned['binary']}"
-          with urllib.request.urlopen(url, timeout=60) as response:
-              payload = response.read()
-          if hashlib.sha256(payload).hexdigest() != pinned['sha256']:
-              raise SystemExit('pinned Core digest mismatch')
-          path.write_bytes(payload)
-          path.chmod(0o755)
-          PYCORE
-          python3 tools/presets/accept.py --core "$RUNNER_TEMP/preset-core" --external \
+          chmod +x "$RUNNER_TEMP/core-dist/bin/"*
+          python3 tools/presets/accept.py --core "$RUNNER_TEMP/core-dist/bin/$(ls $RUNNER_TEMP/core-dist/bin/)" --external \
             --presets-dir "$RUNNER_TEMP/postgres-presets"
 
   compatibility:
@@ -377,6 +451,20 @@ jobs:
         with:
           toolchain: '1.97.1'
           components: llvm-tools-preview
+      
+      # Cache Cargo for compatibility tests
+      - name: Cache Cargo registry
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+          key: ${{ runner.os }}-cargo-1.97.1-compat-${{ hashFiles('compatibility/**/**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-1.97.1-compat-
+            ${{ runner.os }}-cargo-1.97.1-
+      
       - name: Restore verified historical replay data
         run: python3 compatibility/legacy-core/snapshot/tools/maintenance/test_data.py --group quality-history --group regression-corpus
       - name: Preserve original tests and prove Core fixture parity
