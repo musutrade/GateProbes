@@ -1,0 +1,10 @@
+{
+  "schema": "gateprobes-operator-tool/v1",
+  "name": "operator-lifecycle",
+  "version": "0.1.0",
+  "executable": "gateprobes-operator",
+  "authority": "explicit-host-integration-only",
+  "platforms": [
+    "linux-x86_64"
+  ]
+}

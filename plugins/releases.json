@@ -67,6 +67,14 @@
       "manifests": [
         "plugin.json"
       ]
+    },
+    "operator-lifecycle": {
+      "tag_prefix": "operator-lifecycle-v",
+      "archive": "gateprobes-operator-lifecycle-{version}-linux-amd64.tar.gz",
+      "manifests": [
+        "plugin.json",
+        "Cargo.toml"
+      ]
     }
   }
 }

@@ -148,6 +148,13 @@
       ],
       "authority": "advisory-feedback-and-artifact-transport-only",
       "contract_test": "plugins/github-actions/actions/findings-feedback/feedback.test.cjs"
+    },
+    "operator-lifecycle": {
+      "paths": [
+        "plugins/operator-lifecycle"
+      ],
+      "authority": "explicit-host-integration-only",
+      "contract_test": "plugins/operator-lifecycle/accept.py"
     }
   },
   "inputs": [

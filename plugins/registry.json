@@ -196,6 +196,28 @@
         "package": "python3 ../../tools/release/package_plugin.py --plugin github-actions --core-root \"$RUNNER_TEMP/core\" --output \"$RUNNER_TEMP/github-actions-package\""
       },
       "protocols": []
+    },
+    "operator-lifecycle": {
+      "path": "plugins/operator-lifecycle",
+      "language": "rust",
+      "platforms": [
+        "linux"
+      ],
+      "toolchain": "Rust stable + Python3 + Git",
+      "toolchains": [
+        "rust",
+        "python"
+      ],
+      "rust_toolchain": "stable",
+      "rust_components": "rustfmt, clippy",
+      "cargo_checks": true,
+      "entries": {
+        "install": "cargo build --locked --release",
+        "test": "cargo test --locked",
+        "contract": "python3 accept.py --binary target/release/gateprobes-operator --core \"$RUNNER_TEMP/core/bin/harness-gate-linux-amd64\"",
+        "package": "python3 ../../tools/release/package_plugin.py --plugin operator-lifecycle --core-root \"$RUNNER_TEMP/core\" --output \"$RUNNER_TEMP/operator-package\""
+      },
+      "protocols": []
     }
   },
   "runners": {
