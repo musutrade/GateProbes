@@ -1,7 +1,7 @@
 {
   "schema": "typescript-collector-plugin/v1",
   "name": "typescript-risk",
-  "version": "0.1.0-rc.4",
+  "version": "0.1.0",
   "executable": "harness-gate-typescript-collector",
   "request": "harness-collector-request/v1",
   "response": "harness-collector-response/v1",
@@ -24,6 +24,6 @@
     "complexity.cognitive"
   ],
   "authority": "measurement-only",
-  "acceptance": "local original TypeScript and CodexSymphony Angular/Core acceptance; production deployment pending",
+  "acceptance": "Linux x86_64 original-source instrumentation; release requires pinned Core v0.6.0 contract and independent extracted-package acceptance; no production deployment or additional platform claim",
   "project_request": "harness-project-collector-request/v1 via signed adapter v2"
 }
