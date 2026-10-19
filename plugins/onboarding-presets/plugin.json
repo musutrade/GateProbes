@@ -9,5 +9,6 @@
   "authority": "execution-presets-only",
   "tested_platforms": [
     "linux-x86_64"
-  ]
+  ],
+  "entrypoint": "tools/onboarding/plugin_manager.py"
 }

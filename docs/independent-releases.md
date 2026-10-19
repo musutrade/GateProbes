@@ -178,3 +178,7 @@ commit still blocks. Existing tags/assets are never force-updated. Version 0.1.1
 contains this workflow correction; Postgres check semantics and Core pin are unchanged.
 
 Native installation is owned here; use the [fixed, verified standalone entry](native-installation.md) for install/upgrade/rollback. The Core installer has retired plugin execution.
+
+## Onboarding preset distribution
+
+`onboarding-presets-v1.0.0` packages both existing rust-minimal and python-minimal products, installer, and acceptance CLI. Publication is pending the normal release gates; a source declaration is not a published artifact. The extracted bundle runs the 29-step onboarding acceptance against fixed released Core v0.6.0. Linux x86_64 is the acceptance platform; declarations for other targets are not new certification. Distribution provenance and operator installation signing remain separate.
