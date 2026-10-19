@@ -1,0 +1,54 @@
+name: Harness-Gate findings feedback
+description: Consume a completed, pinned findings report as advisory commit-bound PR annotations
+inputs:
+  report:
+    description: Path to normalized harness-findings/1 JSON from a trusted completed run
+    required: true
+  report-sha256:
+    description: Independently trusted SHA-256 of the exact normalized report bytes
+    required: true
+  commit:
+    description: Exact analyzed PR head commit SHA, never a merge-ref substitution
+    required: true
+  pull-request:
+    description: Explicit PR number in this repository
+    required: true
+  publish:
+    description: Explicitly authorize GitHub API writes; false performs local validation only
+    default: 'false'
+  max-annotations:
+    description: Maximum total annotations (1..1000); overflow fails before any write
+    default: '1000'
+  previous-sha256:
+    description: Independently stored latest history digest; must match report.previous_sha256 for publishing
+    default: ''
+  initialize-history:
+    description: Explicit first enrollment only; cannot be combined with a previous history pin
+    default: 'false'
+  token:
+    description: GitHub App token with checks write and contents/pull-requests read; needed only for publishing
+    default: ${{ github.token }}
+outputs:
+  published:
+    description: Whether annotations were published or an identical completed delivery was reused
+    value: ${{ steps.feedback.outputs.published }}
+  count:
+    description: Deduplicated annotation count
+    value: ${{ steps.feedback.outputs.count }}
+runs:
+  using: composite
+  steps:
+    - id: feedback
+      shell: bash
+      env:
+        FEEDBACK_REPORT: ${{ inputs.report }}
+        FEEDBACK_DIGEST: ${{ inputs.report-sha256 }}
+        FEEDBACK_COMMIT: ${{ inputs.commit }}
+        FEEDBACK_PR: ${{ inputs.pull-request }}
+        FEEDBACK_PUBLISH: ${{ inputs.publish }}
+        FEEDBACK_LIMIT: ${{ inputs.max-annotations }}
+        FEEDBACK_PREVIOUS: ${{ inputs.previous-sha256 }}
+        FEEDBACK_INITIALIZE: ${{ inputs.initialize-history }}
+        FEEDBACK_TOKEN: ${{ inputs.token }}
+        FEEDBACK_SCRIPT: ${{ github.action_path }}/feedback.cjs
+      run: node "$FEEDBACK_SCRIPT"

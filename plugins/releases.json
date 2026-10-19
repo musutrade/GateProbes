@@ -60,6 +60,13 @@
       "manifests": [
         "plugin.json"
       ]
+    },
+    "github-actions": {
+      "tag_prefix": "github-actions-v",
+      "archive": "gateprobes-github-actions-{version}.tar.gz",
+      "manifests": [
+        "plugin.json"
+      ]
     }
   }
 }
