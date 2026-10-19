@@ -181,8 +181,8 @@ jobs:
           print("binary=" + pinned["binary"])
           print("sha256=" + pinned["sha256"])
           print("version=" + contract["version"])
-          print("source_commit=" + value["source_commit"])
-          cache_key = f"core-native-{contract['release']}-{value['source_commit']}-{platform}"
+          print("source_commit=" + contract["source_commit"])
+          cache_key = f"core-native-{contract['release']}-{contract['source_commit']}-{platform}"
           print(f"cache-key={cache_key}")
           PY
 
@@ -215,7 +215,7 @@ jobs:
             exit 1
           fi
           chmod +x "$root/bin/$CORE_BINARY"
-          base="https://raw.githubusercontent.com/musutrade/Harness-Gate/${SOURCE_COMMIT}"
+          base="https://raw.githubusercontent.com/${CORE_REPOSITORY}/${SOURCE_COMMIT}"
           for name in collector_runner harness_evidence project_model quality_evidence; do
             curl --fail --show-error --location "$base/tools/quality/${name}.py" \
               -o "$root/tools/quality/${name}.py"

@@ -179,7 +179,7 @@ jobs:
           print("binary=" + pinned["binary"])
           print("sha256=" + pinned["sha256"])
           print("version=" + contract["version"])
-          print("source_commit=" + value["source_commit"])
+          print("source_commit=" + contract["source_commit"])
           PY
 
       # Cache Core runtime by platform, release, and source commit
@@ -211,7 +211,7 @@ jobs:
             exit 1
           fi
           chmod +x "$root/bin/$CORE_BINARY"
-          base="https://raw.githubusercontent.com/musutrade/Harness-Gate/${SOURCE_COMMIT}"
+          base="https://raw.githubusercontent.com/${CORE_REPOSITORY}/${SOURCE_COMMIT}"
           for name in collector_runner harness_evidence project_model quality_evidence; do
             curl --fail --show-error --location "$base/tools/quality/${name}.py" \
               -o "$root/tools/quality/${name}.py"
@@ -294,7 +294,7 @@ jobs:
           set -euo pipefail
           root="$RUNNER_TEMP/core"
           mkdir -p "$root/tools/quality"
-          base="https://raw.githubusercontent.com/musutrade/Harness-Gate/${SOURCE_COMMIT}"
+          base="https://raw.githubusercontent.com/${CORE_REPOSITORY}/${SOURCE_COMMIT}"
           for name in source_measure function_risk production_coverage complexity_analyzer quality_evidence quality_common; do
             curl --fail --show-error --location "$base/tools/quality/${name}.py" \
               -o "$root/tools/quality/${name}.py"
@@ -424,7 +424,7 @@ jobs:
           value = json.load(open('docs/ownership.json'))
           contract = value['core_contract']
           print(f"release={contract['release']}")
-          print(f"source_commit={value['source_commit']}")
+          print(f"source_commit={contract['source_commit']}")
           PY
 
       # Cache Core runtime (Linux only for presets job)
