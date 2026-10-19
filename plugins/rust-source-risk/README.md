@@ -1,4 +1,4 @@
-# Rust source-risk collector (candidate 0.1.0-rc.7)
+# Rust source-risk collector (0.1.0 release candidate)
 
 This is an independent Harness-Gate collector plugin. It does not modify Core,
 change a policy threshold, sign its own requests, or replace the MIR measurement
@@ -195,3 +195,7 @@ native identities still stop immediately because continuing cannot be trusted.
 This change does not broaden accepted Rust syntax, change coverage/CRAP formulas,
 or lower thresholds. The new version and implementation digest require an
 explicit host binding update; existing signed captures retain their old identity.
+
+## Stable distribution boundary
+
+The 0.1.0 identity does not change measurement algorithms or toolchain pins. `coverage.region` retains its documented exact source-region meaning; it is not branch coverage or MIR cleanup coverage. Publication requires fresh source and unsupported-input tests, installed-package compatibility against released Core v0.6.0, and independent downloaded-archive acceptance. `release-gated` identifies this release-controlled distribution, not a production isolation/signing service. Linux x86_64 is the accepted distribution scope; previous RC evidence remains historical.
