@@ -21,6 +21,7 @@ import pinned_core
 import plugin_release
 import package_workload
 import package_consumer
+import package_onboarding
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -393,6 +394,8 @@ def main() -> None:
     output.mkdir(parents=True, exist_ok=False)
     if args.plugin == "gatehouse-linux-test":
         package_workload.package(ROOT, output, Path(os.environ["HARNESS_GATE_BINARY"]))
+    elif args.plugin == "onboarding-presets":
+        package_onboarding.package(ROOT, output, Path(os.environ["HARNESS_GATE_BINARY"]))
     elif args.plugin == "github-check":
         package_consumer.package(ROOT, output, Path(os.environ["HARNESS_GATE_BINARY"]))
     elif args.plugin in ("typescript-risk", "http-json-contract"):

@@ -12,6 +12,7 @@ on:
       - 'postgres-service-v*'
       - 'gatehouse-linux-test-v*'
       - 'github-check-v*'
+      - 'onboarding-presets-v*'
 
 permissions:
   contents: read

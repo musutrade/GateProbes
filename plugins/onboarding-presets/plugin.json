@@ -1,0 +1,13 @@
+{
+  "schema": "gateprobes-preset-distribution/v1",
+  "name": "onboarding-presets",
+  "version": "1.0.0",
+  "products": [
+    "rust-minimal",
+    "python-minimal"
+  ],
+  "authority": "execution-presets-only",
+  "tested_platforms": [
+    "linux-x86_64"
+  ]
+}
