@@ -1,0 +1,10 @@
+{
+  "schema": "harness-preset-catalog/v1",
+  "presets": {
+    "gatehouse-linux-test": {
+      "description": "Unpartitioned Linux Rust test execution; project Core policy and separate quality collectors retain authority",
+      "flow": "flow.toml"
+    }
+  },
+  "packs": {}
+}
