@@ -289,6 +289,7 @@ jobs:
       - name: Fetch pinned Core consumer (rust)
         if: matrix.language == 'rust' && matrix.plugin != 'postgres-service'
         env:
+          CORE_REPOSITORY: ${{ steps.core.outputs.repository }}
           SOURCE_COMMIT: ${{ steps.core.outputs.source_commit }}
         run: |
           set -euo pipefail
