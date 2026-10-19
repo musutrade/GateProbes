@@ -101,7 +101,12 @@ def package(root: Path, output: Path, core: Path):
             str(extracted / 'gateprobes-operator'),
             '--core', str(core / 'bin/harness-gate-linux-amd64'))
         sbom_path = output / (archive.name + '.sbom.cdx.json')
-        run('python3', str(core / 'tools/release/generate-sbom.py'), '--metadata', str(metadata),
+        # CI fetches only the symlink-free helper at the Core root; local release
+        # roots retain the historical tools/release path.
+        generator = core / 'tools/release/generate-sbom.py'
+        if not generator.is_file():
+            generator = core / 'generate-sbom.py'
+        run('python3', str(generator), '--metadata', str(metadata),
             '--lockfile', str(source / 'Cargo.lock'), '--output', str(sbom_path))
         sbom = json.loads(sbom_path.read_text())
         component = sbom['metadata']['component']
