@@ -181,8 +181,8 @@ Native installation is owned here; use the [fixed, verified standalone entry](na
 
 ## Onboarding preset distribution
 
-`onboarding-presets-v1.0.0` packages both existing rust-minimal and python-minimal products, installer, and acceptance CLI. Publication is pending the normal release gates; a source declaration is not a published artifact. The extracted bundle runs the 29-step onboarding acceptance against fixed released Core v0.6.0. Linux x86_64 is the acceptance platform; declarations for other targets are not new certification. Distribution provenance and operator installation signing remain separate.
+`onboarding-presets-v1.0.0` packages both existing rust-minimal and python-minimal products, installer, and acceptance CLI. Published through the normal release gates as run [39225207743](https://github.com/musutrade/GateProbes/actions/runs/39225207743); the downloaded bundle ran the 29-step onboarding acceptance against fixed released Core v0.6.0. Linux x86_64 is the acceptance platform; declarations for other targets are not new certification. Distribution provenance and operator installation signing remain separate.
 
 ## GitHub platform actions
 
-The pending `github-actions-v1.0.0` distribution moves advisory findings-feedback and optional report-artifact upload implementations and tests to GateProbes. Both retain explicit opt-in transport; neither participates in Core quality decisions. Use a full reviewed source commit for Actions references or a verified fixed archive. Publication and public-download acceptance must complete before removing the Core copies.
+`github-actions-v1.0.0` moved the advisory findings-feedback and optional report-artifact upload implementations and tests to GateProbes; published as run [39236644757](https://github.com/musutrade/GateProbes/actions/runs/39236644757) and verified from the downloaded archive. Both retain explicit opt-in transport; neither participates in Core quality decisions. Use a full reviewed source commit for Actions references or a verified fixed archive. The duplicated Core copies were removed after that verified download acceptance.
