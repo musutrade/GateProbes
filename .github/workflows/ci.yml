@@ -223,11 +223,17 @@ jobs:
           curl --fail --show-error --location "$base/schema/collector-protocol.schema.json" \
             -o "$root/tools/quality/schema/collector-protocol.schema.json"
           mkdir -p "$root/presets"
-          for name in rust-api.flow.toml empty.audit.toml default.secrets.toml; do
+          for name in empty.audit.toml default.secrets.toml; do
             curl --fail --show-error --location "$base/tools/harness-gate/presets/${name}" \
               -o "$root/presets/${name}"
             test -s "$root/presets/${name}"
           done
+          # rust-api.flow.toml is an externalized reviewed preset owned by this
+          # repository; it is fetched from the workflow commit, not Core source.
+          curl --fail --show-error --location \
+            "https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${GITHUB_SHA}/presets/rust-api.flow.toml" \
+            -o "$root/presets/rust-api.flow.toml"
+          test -s "$root/presets/rust-api.flow.toml"
           curl --fail --show-error --location "$base/tools/release/generate-sbom.py" \
             -o "$root/generate-sbom.py"
           test -s "$root/generate-sbom.py"
