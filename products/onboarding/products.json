@@ -5,7 +5,8 @@
       "version": "1.0.0",
       "source": "https://github.com/musutrade/GateProbes",
       "core_versions": [
-        "0.5.0"
+        "0.5.0",
+        "0.6.0"
       ],
       "protocol": "harness-preset-catalog/v1",
       "platforms": [
@@ -30,7 +31,8 @@
       "version": "1.0.0",
       "source": "https://github.com/musutrade/GateProbes",
       "core_versions": [
-        "0.5.0"
+        "0.5.0",
+        "0.6.0"
       ],
       "protocol": "harness-preset-catalog/v1",
       "platforms": [
