@@ -19,6 +19,7 @@ import tomllib
 
 import pinned_core
 import plugin_release
+import package_workload
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -389,7 +390,9 @@ def main() -> None:
     os.environ["PYTHONPATH"] = str(core / "tools/quality")
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=False)
-    if args.plugin in ("typescript-risk", "http-json-contract"):
+    if args.plugin == "gatehouse-linux-test":
+        package_workload.package(ROOT, output, Path(os.environ["HARNESS_GATE_BINARY"]))
+    elif args.plugin in ("typescript-risk", "http-json-contract"):
         node_package(args.plugin, output, core)
     elif args.plugin == "rust-source-risk":
         rust_package(output, core)

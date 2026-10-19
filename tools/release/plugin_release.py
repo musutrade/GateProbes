@@ -32,6 +32,11 @@ def releases(root: Path = ROOT) -> dict:
             raise policy.PolicyError("unsafe plugin tag prefix")
         prefixes.append(prefix)
         inventory._safe_name(row["archive"].format(version="0.0.0"))
+        if "product_catalog" in row:
+            catalog = row["product_catalog"]
+            if catalog != f"workloads/{name}/products.json" or "manifests" in row:
+                raise policy.PolicyError("unsafe or ambiguous workload catalog")
+            continue
         manifests = row["manifests"]
         if not isinstance(manifests, list) or "plugin.json" not in manifests:
             raise policy.PolicyError("plugin identity manifest is required")
@@ -48,7 +53,14 @@ def resolve(plugin: str, root: Path = ROOT) -> dict:
         raise policy.PolicyError(f"plugin has no independent release configuration: {plugin}")
     row = rows[plugin]
     versions = []
-    for filename in row["manifests"]:
+    if "product_catalog" in row:
+        catalog = json.loads((root / row["product_catalog"]).read_text())
+        if catalog.get("schema") != "gateprobes-products/v1":
+            raise policy.PolicyError("unknown workload product catalog")
+        version = catalog["products"][plugin]["version"]
+        policy.version_from_tag("v" + version)
+        versions.append(version)
+    for filename in row.get("manifests", []):
         path = root / "plugins" / plugin / filename
         if path.suffix == ".toml":
             document = tomllib.loads(path.read_text())["package"]

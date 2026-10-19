@@ -81,3 +81,34 @@ without partition/filter exclusions. Other rows above remain separate coverage.
 Package publication, fixed artifact SHA, real execution evidence and Core
 compatibility acceptance are still pending. Native caches remain controlled by
 the execution account; no workload cache key, GC service or volume is introduced.
+
+## Release distribution and installation trust
+
+The fixed distribution is `gateprobes-gatehouse-linux-test-1.0.0.tar.gz`,
+selected by `gatehouse-linux-test-v1.0.0`. Release eligibility, immutable tag,
+exact successful main CI, protected `release` environment, inventory/checksums,
+Sigstore workflow identity and GitHub provenance reuse the existing
+`.github/workflows/collector-release.yml` process. Verify the release inventory,
+asset digest and expected repository/workflow identity before extracting or
+executing any bundled installer. A checksum downloaded from an unauthenticated
+source alone is insufficient.
+
+There are two distinct trust decisions. The repository workflow authenticates
+the distribution archive. An operator then reviews the fixed data and uses their
+own approved Ed25519 key to prepare a Core installation manifest and lock. Core
+continues to verify that operator signature against explicitly trusted keys;
+Sigstore provenance is not converted into a Core `plugin.sig`. No operator
+private key, disposable acceptance signature or generated install lock is shipped.
+
+After verifying and extracting the release, run the preparation example above
+from the extracted top-level directory. The archive includes the declared
+workload files, product catalog, existing `tools/onboarding/plugin_manager.py`
+and LICENSE, so `--source` may point to that directory without any GateProbes
+checkout. Python 3.11+ and OpenSSL are host prerequisites for preparation; the
+pinned Rust/nextest tools remain prerequisites for actual workload execution.
+
+The release packager checks extraction and installation/plan compatibility with
+the pinned released Core using a disposable key in a temporary directory. This
+is package compatibility evidence, not another execution of the real 749-test
+workload or proof of either platform's host isolation. A declared release name
+here does not imply the tag or its assets have already been published.
