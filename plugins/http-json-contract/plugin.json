@@ -1,7 +1,7 @@
 {
   "schema": "http-json-contract-plugin/v1",
   "name": "http-json-contract",
-  "version": "0.1.0-rc.5",
+  "version": "0.1.0",
   "executable": "harness-gate-http-contract-collector",
   "request": "harness-collector-request/v1",
   "response": "harness-collector-response/v1",
