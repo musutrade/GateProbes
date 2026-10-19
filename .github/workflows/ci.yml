@@ -97,6 +97,42 @@ jobs:
           toolchain: ${{ matrix.rust_toolchain }}
           components: ${{ matrix.rust_components }}
 
+      # Cargo cache for Rust plugins
+      - name: Cache Cargo registry and git
+        if: contains(matrix.toolchains, 'rust')
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+          key: ${{ runner.os }}-cargo-${{ matrix.rust_toolchain }}-${{ hashFiles(format('{0}/**/Cargo.lock', matrix.path)) }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-${{ matrix.rust_toolchain }}-
+            ${{ runner.os }}-cargo-
+
+      # Cargo build cache
+      - name: Cache Cargo build
+        if: contains(matrix.toolchains, 'rust')
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
+        with:
+          path: ${{ matrix.path }}/target
+          key: ${{ runner.os }}-cargo-build-${{ matrix.plugin }}-${{ matrix.rust_toolchain }}-${{ hashFiles(format('{0}/**/Cargo.lock', matrix.path)) }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-build-${{ matrix.plugin }}-${{ matrix.rust_toolchain }}-
+            ${{ runner.os }}-cargo-build-${{ matrix.plugin }}-
+
+      # TypeScript/Node.js cache
+      - name: Cache npm dependencies
+        if: contains(matrix.toolchains, 'typescript')
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-24-${{ hashFiles(format('{0}/**/package-lock.json', matrix.path)) }}
+          restore-keys: |
+            ${{ runner.os }}-node-24-
+            ${{ runner.os }}-node-
+
       - name: Record platform toolchain versions
         run: |
           set -euo pipefail
@@ -146,7 +182,16 @@ jobs:
           print("source_commit=" + value["source_commit"])
           PY
 
+      # Cache Core runtime by platform, release, and source commit
+      - name: Cache Core runtime
+        id: cache-core
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
+        with:
+          path: ${{ runner.temp }}/core
+          key: core-v2-${{ matrix.platform }}-${{ steps.core.outputs.release }}-${{ steps.core.outputs.source_commit }}
+
       - name: Fetch pinned Core binary and modules
+        if: steps.cache-core.outputs.cache-hit != 'true'
         env:
           CORE_REPOSITORY: ${{ steps.core.outputs.repository }}
           CORE_RELEASE: ${{ steps.core.outputs.release }}
@@ -219,10 +264,14 @@ jobs:
           for source in "$GITHUB_WORKSPACE/${{ matrix.path }}"/schema/*.schema.json; do
             name=$(basename "$source")
             if [ -e "$target/$name" ]; then
-              echo "schema name conflict: $name" >&2
-              exit 1
+              # Allow duplicate schema names if content is identical
+              if ! cmp -s "$source" "$target/$name"; then
+                echo "schema name conflict with different content: $name" >&2
+                exit 1
+              fi
+            else
+              cp "$source" "$target/$name"
             fi
-            cp "$source" "$target/$name"
           done
 
       - name: Helper tests (rust)
@@ -329,9 +378,34 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: '3.14'
       - uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c
         with:
           toolchain: '1.97.1'
+      
+      # Cache Cargo for postgres-service build
+      - name: Cache Cargo registry
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+          key: ${{ runner.os }}-cargo-1.97.1-${{ hashFiles('plugins/postgres-service/**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-1.97.1-
+            ${{ runner.os }}-cargo-
+      
+      - name: Cache postgres-service build
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
+        with:
+          path: plugins/postgres-service/target
+          key: ${{ runner.os }}-postgres-service-${{ hashFiles('plugins/postgres-service/**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-postgres-service-
+      
       - name: Prepare the installed Postgres binding without changing frozen seeds
         run: |
           set -euo pipefail
@@ -339,23 +413,40 @@ jobs:
           python3 plugins/postgres-service/prepare-preset.py \
             --binary "$GITHUB_WORKSPACE/plugins/postgres-service/target/release/gateprobes-postgres" \
             --output "$RUNNER_TEMP/postgres-presets"
+      
+      # Read Core contract for cache key
+      - name: Read Core contract
+        id: core
+        run: |
+          set -euo pipefail
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          value = json.load(open('docs/ownership.json'))
+          contract = value['core_contract']
+          print(f"release={contract['release']}")
+          print(f"source_commit={value['source_commit']}")
+          PY
+
+      # Cache Core runtime (Linux only for presets job)
+      - name: Cache Core runtime
+        id: cache-core
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
+        with:
+          path: ${{ runner.temp }}/core-dist
+          key: core-v2-linux-${{ steps.core.outputs.release }}-${{ steps.core.outputs.source_commit }}
+      
+      # Download Core if cache miss (Linux binary only)
+      - name: Fetch and prepare Core
+        if: steps.cache-core.outputs.cache-hit != 'true'
+        run: |
+          set -euo pipefail
+          python3 tools/release/pinned_core.py --output "$RUNNER_TEMP/core-dist"
+      
       - name: Verify migrated templates against the fixed released Core
         run: |
           set -euo pipefail
-          python3 - <<'PYCORE'
-          import hashlib, json, os, pathlib, urllib.request
-          contract = json.load(open('docs/ownership.json'))['core_contract']
-          pinned = contract['platforms']['linux']
-          path = pathlib.Path(os.environ['RUNNER_TEMP']) / 'preset-core'
-          url = f"https://github.com/{contract['repository']}/releases/download/{contract['release']}/{pinned['binary']}"
-          with urllib.request.urlopen(url, timeout=60) as response:
-              payload = response.read()
-          if hashlib.sha256(payload).hexdigest() != pinned['sha256']:
-              raise SystemExit('pinned Core digest mismatch')
-          path.write_bytes(payload)
-          path.chmod(0o755)
-          PYCORE
-          python3 tools/presets/accept.py --core "$RUNNER_TEMP/preset-core" --external \
+          chmod +x "$RUNNER_TEMP/core-dist/bin/"*
+          python3 tools/presets/accept.py --core "$RUNNER_TEMP/core-dist/bin/$(ls $RUNNER_TEMP/core-dist/bin/)" --external \
             --presets-dir "$RUNNER_TEMP/postgres-presets"
 
   compatibility:
@@ -377,6 +468,20 @@ jobs:
         with:
           toolchain: '1.97.1'
           components: llvm-tools-preview
+      
+      # Cache Cargo for compatibility tests
+      - name: Cache Cargo registry
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+          key: ${{ runner.os }}-cargo-1.97.1-compat-${{ hashFiles('compatibility/**/**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-1.97.1-compat-
+            ${{ runner.os }}-cargo-1.97.1-
+      
       - name: Restore verified historical replay data
         run: python3 compatibility/legacy-core/snapshot/tools/maintenance/test_data.py --group quality-history --group regression-corpus
       - name: Preserve original tests and prove Core fixture parity

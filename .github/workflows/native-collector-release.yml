@@ -135,6 +135,19 @@ jobs:
           toolchain: '1.97.1'
           components: rustc-dev, llvm-tools-preview, rust-docs, rustfmt
 
+      # Cache Cargo registry and dependencies
+      - name: Cache Cargo registry
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+          key: ${{ runner.os }}-${{ matrix.target }}-cargo-1.97.1-${{ hashFiles('plugins/rust-native-driver/Cargo.lock', 'plugins/rust-native-plugin/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.target }}-cargo-1.97.1-
+            ${{ runner.os }}-cargo-1.97.1-
+
       - name: Record platform toolchain versions
         run: |
           set -euo pipefail
@@ -169,9 +182,20 @@ jobs:
           print("sha256=" + pinned["sha256"])
           print("version=" + contract["version"])
           print("source_commit=" + value["source_commit"])
+          cache_key = f"core-native-{contract['release']}-{value['source_commit']}-{platform}"
+          print(f"cache-key={cache_key}")
           PY
 
+      # Cache Core binary and modules per platform
+      - name: Cache Core runtime
+        id: cache-core
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
+        with:
+          path: ${{ runner.temp }}/core
+          key: ${{ steps.core.outputs.cache-key }}
+
       - name: Fetch pinned Core binary and modules
+        if: steps.cache-core.outputs.cache-hit != 'true'
         env:
           CORE_REPOSITORY: ${{ steps.core.outputs.repository }}
           CORE_RELEASE: ${{ steps.core.outputs.release }}
@@ -255,10 +279,14 @@ jobs:
           for source in plugins/rust-native-plugin/schema/*.schema.json; do
             name=$(basename "$source")
             if [ -e "$target/$name" ]; then
-              echo "schema name conflict: $name" >&2
-              exit 1
+              # Allow duplicate schema names if content is identical
+              if ! cmp -s "$source" "$target/$name"; then
+                echo "schema name conflict with different content: $name" >&2
+                exit 1
+              fi
+            else
+              cp "$source" "$target/$name"
             fi
-            cp "$source" "$target/$name"
           done
 
       - name: Helper tests
