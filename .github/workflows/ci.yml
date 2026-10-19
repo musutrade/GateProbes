@@ -264,10 +264,14 @@ jobs:
           for source in "$GITHUB_WORKSPACE/${{ matrix.path }}"/schema/*.schema.json; do
             name=$(basename "$source")
             if [ -e "$target/$name" ]; then
-              echo "schema name conflict: $name" >&2
-              exit 1
+              # Allow duplicate schema names if content is identical
+              if ! cmp -s "$source" "$target/$name"; then
+                echo "schema name conflict with different content: $name" >&2
+                exit 1
+              fi
+            else
+              cp "$source" "$target/$name"
             fi
-            cp "$source" "$target/$name"
           done
 
       - name: Helper tests (rust)
