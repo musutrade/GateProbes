@@ -179,7 +179,7 @@ jobs:
           print("binary=" + pinned["binary"])
           print("sha256=" + pinned["sha256"])
           print("version=" + contract["version"])
-          print("source_commit=" + value["source_commit"])
+          print("source_commit=" + contract["source_commit"])
           PY
 
       # Cache Core runtime by platform, release, and source commit
@@ -211,7 +211,7 @@ jobs:
             exit 1
           fi
           chmod +x "$root/bin/$CORE_BINARY"
-          base="https://raw.githubusercontent.com/musutrade/Harness-Gate/${SOURCE_COMMIT}"
+          base="https://raw.githubusercontent.com/${CORE_REPOSITORY}/${SOURCE_COMMIT}"
           for name in collector_runner harness_evidence project_model quality_evidence; do
             curl --fail --show-error --location "$base/tools/quality/${name}.py" \
               -o "$root/tools/quality/${name}.py"
@@ -223,11 +223,17 @@ jobs:
           curl --fail --show-error --location "$base/schema/collector-protocol.schema.json" \
             -o "$root/tools/quality/schema/collector-protocol.schema.json"
           mkdir -p "$root/presets"
-          for name in rust-api.flow.toml empty.audit.toml default.secrets.toml; do
+          for name in empty.audit.toml default.secrets.toml; do
             curl --fail --show-error --location "$base/tools/harness-gate/presets/${name}" \
               -o "$root/presets/${name}"
             test -s "$root/presets/${name}"
           done
+          # rust-api.flow.toml is an externalized reviewed preset owned by this
+          # repository; it is fetched from the workflow commit, not Core source.
+          curl --fail --show-error --location \
+            "https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${GITHUB_SHA}/presets/rust-api.flow.toml" \
+            -o "$root/presets/rust-api.flow.toml"
+          test -s "$root/presets/rust-api.flow.toml"
           curl --fail --show-error --location "$base/tools/release/generate-sbom.py" \
             -o "$root/generate-sbom.py"
           test -s "$root/generate-sbom.py"
@@ -289,12 +295,13 @@ jobs:
       - name: Fetch pinned Core consumer (rust)
         if: matrix.language == 'rust' && matrix.plugin != 'postgres-service'
         env:
+          CORE_REPOSITORY: ${{ steps.core.outputs.repository }}
           SOURCE_COMMIT: ${{ steps.core.outputs.source_commit }}
         run: |
           set -euo pipefail
           root="$RUNNER_TEMP/core"
           mkdir -p "$root/tools/quality"
-          base="https://raw.githubusercontent.com/musutrade/Harness-Gate/${SOURCE_COMMIT}"
+          base="https://raw.githubusercontent.com/${CORE_REPOSITORY}/${SOURCE_COMMIT}"
           for name in source_measure function_risk production_coverage complexity_analyzer quality_evidence quality_common; do
             curl --fail --show-error --location "$base/tools/quality/${name}.py" \
               -o "$root/tools/quality/${name}.py"
@@ -424,7 +431,7 @@ jobs:
           value = json.load(open('docs/ownership.json'))
           contract = value['core_contract']
           print(f"release={contract['release']}")
-          print(f"source_commit={value['source_commit']}")
+          print(f"source_commit={contract['source_commit']}")
           PY
 
       # Cache Core runtime (Linux only for presets job)

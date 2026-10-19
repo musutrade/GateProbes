@@ -1,7 +1,7 @@
 {
   "schema": "rust-native-plugin/v1",
   "name": "rust-native-external",
-  "version": "0.1.0-rc.8",
+  "version": "0.1.0",
   "executable": "harness-gate-rust-collector-linux-amd64",
   "request": "harness-project-collector-request/v1",
   "authority": "measurement-only",

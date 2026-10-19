@@ -60,3 +60,18 @@ version; the std-only launcher is compiled by `build.py`, not Cargo. The driver
 has its own unchanged Cargo manifest/lockfile. An arbitrary `--driver` supplied
 to a local build is not release provenance: the hosted release always builds it
 from the selected commit before packaging and testing those exact bytes.
+
+## Version 0.1.0 release acceptance
+
+This source prepares stable 0.1.0; it is not published until the existing release
+gates and independent downloaded-binary acceptance pass. Collector capabilities,
+compiler-private driver toolchain and runtime measurement semantics are unchanged.
+The Core binary and compatibility modules must both use the v0.6.0 contract's
+repository/source commit; historical extraction provenance is not a runtime pin.
+
+Use the GateProbes installer, which requires an exact version and trusts only
+GateProbes/native-collector-release.yml at that tag. Its existing RC8 manifest
+pin and wrong-repository/signer rejection stay intact. A stable version does not
+certify a production deployment or host isolation. Platform acceptance must be
+recorded separately for each published binary; no Linux-only test certifies all
+four targets. Existing RC artifacts remain immutable historical evidence.
