@@ -4,7 +4,7 @@ const path = require("node:path");
 const assert = require("node:assert/strict");
 const { inventory, measure, sha } = require("./measure.cjs");
 const parse = require("./strict-json.cjs");
-const COLLECTOR = { name: "typescript-risk", version: "0.1.0-rc.4" };
+const COLLECTOR = { name: "typescript-risk", version: "0.1.0" };
 const REQUEST_SCHEMA = "harness-collector-request/v1";
 const TYPES = {
   "complexity.cyclomatic": "count",

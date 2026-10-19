@@ -1,4 +1,4 @@
-# TypeScript risk collector plugin (candidate 0.1.0-rc.4)
+# TypeScript risk collector plugin (0.1.0 release candidate)
 
 An independently installed Node measurement plugin. Core owns thresholds,
 requiredness, ratchets and final decisions. Existing reference presets and Core
@@ -11,7 +11,7 @@ npm ci --ignore-scripts
 npm test
 HARNESS_GATE_BINARY=/absolute/core-0.4.5 npm run test:core
 npm pack
-npm install --prefix /private/plugin-root ./harness-gate-typescript-collector-0.1.0-rc.4.tgz
+npm install --prefix /private/plugin-root ./harness-gate-typescript-collector-0.1.0.tgz
 /private/plugin-root/node_modules/.bin/harness-gate-typescript-collector --version
 ```
 
@@ -115,3 +115,7 @@ replay and changed artifacts. See the repository's retained acceptance record.
 Local frontend acceptance does not certify whole-project Rust/API-contract gates,
 production host isolation, hosted CI protection, templates or all Angular projects.
 The package remains a candidate until reviewed release and deployment acceptance.
+
+## Stable release acceptance
+
+The 0.1.0 version changes collector identity, not measurement semantics or supported coverage. Publication requires fresh exact-head/main CI, pinned released Core v0.6.0 compatibility, and independent installation from the published package. Until those complete this source is only a release candidate. Stable distribution does not certify a production deployment or expand Linux x86_64/Node24 acceptance. Old RC artifacts and evidence remain unchanged.
