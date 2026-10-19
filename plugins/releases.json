@@ -46,6 +46,13 @@
       "tag_prefix": "gatehouse-linux-test-v",
       "archive": "gateprobes-gatehouse-linux-test-{version}.tar.gz",
       "product_catalog": "workloads/gatehouse-linux-test/products.json"
+    },
+    "github-check": {
+      "tag_prefix": "github-check-v",
+      "archive": "gateprobes-github-check-{version}.tar.gz",
+      "manifests": [
+        "plugin.json"
+      ]
     }
   }
 }

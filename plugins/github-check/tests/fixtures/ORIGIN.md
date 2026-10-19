@@ -1,0 +1,1 @@
+Test-only fixtures copied from GateHouse source bbf65b4244236df217cf0ed145ccd0f60a18ac25; consumer acceptance helpers/tests from PR149 head6b8035bfb38752a9304777cf5a125adaf51037c1. No Core implementation or quality evaluator is vendored.

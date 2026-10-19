@@ -11,6 +11,7 @@ on:
       - 'rust-measure-v*'
       - 'postgres-service-v*'
       - 'gatehouse-linux-test-v*'
+      - 'github-check-v*'
 
 permissions:
   contents: read

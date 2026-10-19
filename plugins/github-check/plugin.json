@@ -1,0 +1,14 @@
+{
+  "schema": "gateprobes-result-consumer/v1",
+  "name": "github-check",
+  "version": "1.0.0",
+  "entry": "github_check.py",
+  "runtime": "python>=3.11",
+  "core_versions": [
+    "0.6.0"
+  ],
+  "authority": "result-mapping-only",
+  "platforms": [
+    "linux-x86_64"
+  ]
+}

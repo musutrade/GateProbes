@@ -138,6 +138,24 @@
       "protocols": [
         "protocol/service-check.schema.json"
       ]
+    },
+    "github-check": {
+      "path": "plugins/github-check",
+      "language": "python",
+      "platforms": [
+        "linux"
+      ],
+      "toolchain": "Python 3.11+ and OpenSSL (acceptance only)",
+      "toolchains": [
+        "python"
+      ],
+      "entries": {
+        "install": "python3 github_check.py --help",
+        "test": "GATEHOUSE_CORE=\"$RUNNER_TEMP/core/bin/harness-gate-linux-amd64\" python3 accept.py",
+        "contract": "GATEHOUSE_CORE=\"$RUNNER_TEMP/core/bin/harness-gate-linux-amd64\" python3 accept.py",
+        "package": "python3 ../../tools/release/package_plugin.py --plugin github-check --core-root \"$RUNNER_TEMP/core\" --output \"$RUNNER_TEMP/github-check-package\""
+      },
+      "protocols": []
     }
   },
   "runners": {
