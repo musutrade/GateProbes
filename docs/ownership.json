@@ -36,28 +36,28 @@
     "node_modules"
   ],
   "core_contract": {
-    "release": "v0.5.0",
+    "release": "v0.6.0",
     "repository": "musutrade/GateHouse",
     "binary": "harness-gate-linux-amd64",
-    "sha256": "198597ff623ce006d6f19261a352ca7a6d82a7c58af7bbba75de3c4076cd26a7",
-    "version": "0.5.0",
-    "source_commit": "b178d3fe4f35018cd000dd291b324ff13ecc1c76",
+    "sha256": "cc14c94a42eeb272772a8605a3ff524300bfc9922fc5b195a792dc54a2d769cb",
+    "version": "0.6.0",
+    "source_commit": "bbf65b4244236df217cf0ed145ccd0f60a18ac25",
     "platforms": {
       "linux": {
         "binary": "harness-gate-linux-amd64",
-        "sha256": "198597ff623ce006d6f19261a352ca7a6d82a7c58af7bbba75de3c4076cd26a7"
+        "sha256": "cc14c94a42eeb272772a8605a3ff524300bfc9922fc5b195a792dc54a2d769cb"
       },
       "macos-amd64": {
         "binary": "harness-gate-macos-amd64",
-        "sha256": "2f985330ef59082285795314c3f19279f3646be6db13f1df802f34a949ef5226"
+        "sha256": "218f5d8ef10db6bba5551a8383fc67059951c7216034e31970a7c58abc960a00"
       },
       "macos-arm64": {
         "binary": "harness-gate-macos-arm64",
-        "sha256": "348d79efe07c3e11d00c5112f622e452f5875c67f8493e9d73dfbbd31a3a7be5"
+        "sha256": "5398bc6cfc5174abca149d7c48e0c5c42cb13f39e374e99a54cba270388f174e"
       },
       "windows-amd64": {
         "binary": "harness-gate-windows-amd64.exe",
-        "sha256": "5751355eb93f48bea0fa61803b265b3db97a4cb89d0242ff56f70a96e72f6a9a"
+        "sha256": "e455b01808d1d97a3db6a2276a824c6367f6dc04b4ed4fb1b09543b3a2895342"
       }
     }
   },
