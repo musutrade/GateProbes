@@ -3,6 +3,7 @@
   "name": "github-check",
   "version": "1.0.0",
   "entry": "github_check.py",
+  "executable": "github_check.py",
   "runtime": "python>=3.11",
   "core_versions": [
     "0.6.0"

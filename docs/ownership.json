@@ -115,6 +115,24 @@
         "exit_condition": "active configs use explicit required checks and independently verified released Core/plugin pair",
         "released_core": "v0.5.0"
       }
+    },
+    "github-check": {
+      "paths": [
+        "plugins/github-check"
+      ],
+      "authority": "result-mapping-only",
+      "contract_test": "plugins/github-check/accept.py",
+      "source_repository": "https://github.com/musutrade/GateHouse",
+      "source_commit": "6b8035bfb38752a9304777cf5a125adaf51037c1",
+      "source_paths": [
+        "tools/consumers/github_check.py"
+      ],
+      "core_compatibility": {
+        "protocol": "harness-saved-result consumer",
+        "status": "verified with released Core v0.6.0 before independent release",
+        "exit_condition": "operators pin the released consumer archive and released Core digest explicitly",
+        "released_core": "v0.6.0"
+      }
     }
   },
   "inputs": [
@@ -130,6 +148,7 @@
     "plugins/rust-native-driver/Cargo.lock",
     "plugins/postgres-service/plugin.json",
     "plugins/postgres-service/Cargo.lock",
+    "plugins/github-check/plugin.json",
     "protocol/service-check.schema.json"
   ],
   "companions": [

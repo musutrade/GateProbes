@@ -13,8 +13,14 @@ publication does not certify new measurement capabilities or reset a series.
 | HTTP/JSON contract | `http-json-contract-v0.1.0-rc.5` | `harness-gate-http-json-contract-collector-0.1.0-rc.5.tgz` |
 | Rust source risk | `rust-source-risk-v0.1.0-rc.7` | `harness-gate-rust-source-risk-0.1.0-rc.7-linux-amd64.tar.gz` |
 | Rust measurer | `rust-measure-v0.3.1` | `harness-gate-rust-measure-0.3.1-linux-amd64.tar.gz` |
+| GitHub result consumer | `github-check-v1.0.0` | `gateprobes-github-check-1.0.0.tar.gz` |
 
-All four tags were published as immutable releases on 2026-10-13 from
+The GitHub result consumer is not a measurement collector: it maps an
+operator-pinned saved Core result to an already provisioned Check and never
+recomputes quality. It uses the same release workflow, signed inventory and
+eligibility gates as the collectors.
+
+All four collector tags were published as immutable releases on 2026-10-13 from
 `f9834a988e9e55ec99b7ebe81fb67a9ca16b2928`, after exact-commit main CI passed.
 Independent public download and installation acceptance passed; see the
 [Core handoff receipt](https://github.com/musutrade/Harness-Gate/blob/796556875e362d8c5035c53860fc32718052309d/docs/quality/independent-plugin-release-acceptance.json). Source-risk and measurer
