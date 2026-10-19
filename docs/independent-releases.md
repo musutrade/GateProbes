@@ -28,7 +28,7 @@ archives retain their Linux x86-64 scope; npm packages retain Node 24 and their
 existing Linux acceptance. Other operating systems are not newly certified.
 Consumers must select an explicit plugin tag. The four workflows pass
 `--latest=false`; GitHub currently resolves this repository's latest stable
-release to `rust-measure-v0.3.1`, so `/releases/latest` is not a plugin selector.
+release to `rust-collector-v0.1.0`, so `/releases/latest` remains not a plugin selector.
 
 ## Published acceptance
 
@@ -52,6 +52,20 @@ measurement identities remain intact.
 four-plugin packaging dependency after this acceptance. Core's existing
 measurer consumption pin remains unchanged; source cleanup and ordinary CI
 migration remain separate work.
+
+## Stable identity publications
+
+| Plugin | Stable tag | Release run |
+| --- | --- | --- |
+| TypeScript risk | `typescript-risk-v0.1.0` | [39241085432](https://github.com/musutrade/GateProbes/actions/runs/39241085432) |
+| HTTP/JSON contract | `http-json-contract-v0.1.0` | [39242780489](https://github.com/musutrade/GateProbes/actions/runs/39242780489) |
+| Rust source risk | `rust-source-risk-v0.1.0` | [39245030106](https://github.com/musutrade/GateProbes/actions/runs/39245030106) |
+| Native collector | `rust-collector-v0.1.0` | [39261930009](https://github.com/musutrade/GateProbes/actions/runs/39261930009) |
+
+Each stable publication kept its predecessor capability/toolchain semantics and
+was verified from the downloaded artifacts against the pinned released Core
+v0.6.0 before any Core-side cleanup. No stable release claims production
+deployment or additional platform certification.
 
 ## Version and eligibility contract
 
