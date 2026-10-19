@@ -106,8 +106,11 @@ def build(driver, output, rustc, target=None):
     for directory in (FROZEN_MODULES / 'schema', QUALITY / 'schema'):
         for path in sorted(directory.glob('*.json')):
             if path.name in schemas:
-                raise ValueError('schema name conflict: ' + path.name)
-            schemas[path.name] = path
+                # Allow duplicate schema names if content is identical
+                if path.read_bytes() != schemas[path.name].read_bytes():
+                    raise ValueError('schema name conflict with different content: ' + path.name)
+            else:
+                schemas[path.name] = path
     payload.update({'app/schema/' + name: (path, 0o644) for name, path in schemas.items()})
     payload['LICENSE'] = (notice, 0o644)
     inventory = {name: {'sha256': hashlib.sha256(path.read_bytes()).hexdigest(), 'bytes': path.stat().st_size, 'mode': mode}
