@@ -13,7 +13,7 @@ import tempfile
 from measure import measure, strict_json
 
 HERE = Path(__file__).resolve().parent
-COLLECTOR = {'name': 'rust-source-risk', 'version': '0.1.0-rc.7'}
+COLLECTOR = {'name': 'rust-source-risk', 'version': '0.1.0'}
 TYPES = {'complexity.cyclomatic': 'count', 'coverage.function': 'ratio',
          'coverage.line': 'ratio', 'coverage.region': 'ratio', 'risk.crap': 'rational'}
 
