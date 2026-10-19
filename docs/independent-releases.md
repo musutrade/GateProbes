@@ -61,11 +61,33 @@ migration remain separate work.
 | HTTP/JSON contract | `http-json-contract-v0.1.0` | [39242780489](https://github.com/musutrade/GateProbes/actions/runs/39242780489) |
 | Rust source risk | `rust-source-risk-v0.1.0` | [39245030106](https://github.com/musutrade/GateProbes/actions/runs/39245030106) |
 | Native collector | `rust-collector-v0.1.0` | [39261930009](https://github.com/musutrade/GateProbes/actions/runs/39261930009) |
+| GitHub actions | `github-actions-v1.0.0` | [39236644757](https://github.com/musutrade/GateProbes/actions/runs/39236644757) |
+| Operator lifecycle | `operator-lifecycle-v0.1.0` | [39276038756](https://github.com/musutrade/GateProbes/actions/runs/39276038756) |
 
-Each stable publication kept its predecessor capability/toolchain semantics and
-was verified from the downloaded artifacts against the pinned released Core
-v0.6.0 before any Core-side cleanup. No stable release claims production
-deployment or additional platform certification.
+The four collector promotions kept their predecessor capability/toolchain
+semantics and were verified from downloaded artifacts against pinned released
+Core v0.6.0. GitHub actions were checked from the extracted archive with 16 Node
+tests and byte parity against the migrated actions; this is not a Core binary
+compatibility test. Operator lifecycle acceptance used the downloaded binary
+with pinned Core v0.6.0 in disposable projects. These verifications preceded the
+corresponding Core copy removals. No stable release claims production deployment
+or additional platform certification.
+
+## Remaining runtime boundary
+
+All currently registered plugins have published releases. This does not mean
+that every externalizable Core implementation has moved: Docker/Podman service
+lifecycle remains in Core. The Core #62 design and fake-runtime experiment are
+not a released runtime adapter. `operator-lifecycle` manages Git hooks and canary
+markers; it does not implement container lifecycle. The Postgres recipe checks
+service readiness; its managed-mode result does not certify container creation,
+removal or recovery.
+
+The Postgres v0.1.1 archive retains its release-time README. The subsequent
+repository README links the completed verification receipt; this documentation
+update does not change the released binary or require replacing immutable
+assets. Use the [verification receipt](postgres-service-0.1.1-verification.md)
+for that later evidence.
 
 ## Version and eligibility contract
 
