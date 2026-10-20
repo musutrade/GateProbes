@@ -6,3 +6,6 @@ pub mod bootstrap;
 
 #[cfg(unix)]
 pub mod socket_identity;
+
+#[cfg(target_os = "linux")]
+pub mod http;

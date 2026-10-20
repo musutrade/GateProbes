@@ -4,7 +4,13 @@ This crate is under development and is not registered or released. It currently
 contains adapter-side typed input validation and Linux sealed-fd bootstrap. It
 also checks canonical protected socket paths, socket owner and client euid, with
 pre/post identity revalidation. These checks do not connect or authenticate a
-daemon. It has no executable entry, HTTP implementation or host hookup.
+daemon. Linux HTTP transport now supports only GET /version, versioned /info
+and full-ID /containers inspection. It uses nonblocking sockets and one deadline,
+16 KiB/64-field headers, Content-Length-only bodies up to 1 MiB, and pre/post
+socket revalidation. Chunked/compressed/redirect behavior is refused. A raw 404
+is not absence. Filesystem checks are not hard-time-bounded; delayed trailing
+bytes after a complete body are not waited for. No real Docker compatibility
+has been established. There is no executable entry or host hookup yet.
 Bootstrap requires only fd3/fd4 plus stdio, bounded sealed euid-owned memfds and
 no application arguments. It does not authenticate its launching host.
 
