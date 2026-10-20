@@ -429,7 +429,7 @@ class ConfigTest(unittest.TestCase):
                 names.add(node.id)
             elif isinstance(node, ast.Attribute):
                 names.add(node.attr)
-        self.assertLessEqual(imports, {'dataclasses', 'hashlib', 'json', 'os', 'pathlib', 're', 'stat'})
+        self.assertLessEqual(imports, {'dataclasses', 'fcntl', 'hashlib', 'json', 'os', 'pathlib', 're', 'stat'})
         for forbidden in ('socket', 'http', 'subprocess', 'requests', 'urllib', 'connect', 'Popen', 'system', 'environ', 'getenv'):
             self.assertNotIn(forbidden, imports | names)
         self.assertIn('os.geteuid', source)

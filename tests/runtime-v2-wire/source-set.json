@@ -1,0 +1,12 @@
+{
+  "schema": "gateprobes-runtime-v2-source-set/v1",
+  "files": [
+    "config.py",
+    "fixture_wire.py",
+    "observation.py",
+    "unix_http.py"
+  ],
+  "digest_algorithm": "sha256('gateprobes-runtime-v2-source-set/v1\\0' || for each sorted name: name || 0x00 || decimal byte length || 0x00 || bytes)",
+  "host_version": "gateprobes-docker-runtime-fixture/1",
+  "note": "Hashes are computed from the current clean checkout at test time; no candidate head or source digest is committed here."
+}

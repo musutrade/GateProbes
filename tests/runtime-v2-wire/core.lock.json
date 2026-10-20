@@ -1,0 +1,22 @@
+{
+  "schema": "gateprobes-runtime-v2-core-lock/v1",
+  "repository": "https://github.com/musutrade/GateHouse",
+  "commit": "1d066cc624b8bf706c7973e2c91d81c75489ad1f",
+  "crate_package": "gatehouse-runtime-protocol",
+  "crate_path": "tools/harness-gate/runtime-protocol",
+  "crate_files": {
+    "tools/harness-gate/runtime-protocol/Cargo.toml": "a1a34855ef6bef8a614d0d1b9e67ca1eb2d644488dc8fae6682f8780fb6456ef",
+    "tools/harness-gate/runtime-protocol/README.md": "111744c3140874de3ff286a493a5633ad6ea2ec1274ee0ecfc457f5440d725a4",
+    "tools/harness-gate/runtime-protocol/src/contract.rs": "30bead95cf15657ba699c845c9b34143af12c544a5e107bf8fd2484612765c45",
+    "tools/harness-gate/runtime-protocol/src/intent.rs": "4794dc6b48bb6c7ebe662c62ad640eab4ee43715d7b741338754b143ceccf406",
+    "tools/harness-gate/runtime-protocol/src/lib.rs": "30c9d732018126170d5dabc1cd0feef9529b2fdb31adb78835948a4e8f76b468",
+    "tools/harness-gate/runtime-protocol/src/store.rs": "c0edcb8a6d0f2d238d46b4808a1619b162804239adda173b6dac522845d4bd3a",
+    "tools/harness-gate/runtime-protocol/src/v2.rs": "5017e4a09520a87c0037cb01ff80e15b82a17438e55762cdb2798451417c4eca",
+    "tools/harness-gate/runtime-protocol/src/wire.rs": "5e28904935ec702aa293f8ab7ffea80673f7c232467fdc3538adb59d53d5fe07"
+  },
+  "v2_parser_file": "tools/harness-gate/runtime-protocol/src/v2.rs",
+  "v2_parser_sha256": "5017e4a09520a87c0037cb01ff80e15b82a17438e55762cdb2798451417c4eca",
+  "acceptance_symbol": "gatehouse_runtime_protocol::v2::parse_response",
+  "checkout": "tests/runtime-v2-wire/core-pin",
+  "note": "prepare-core.sh verifies the exact commit, a clean tracked checkout, and every crate file digest before cargo test --locked."
+}

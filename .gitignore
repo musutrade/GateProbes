@@ -4,3 +4,5 @@ dist/
 *.tgz
 __pycache__/
 *.py[cod]
+
+tests/runtime-v2-wire/core-pin/
