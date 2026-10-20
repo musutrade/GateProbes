@@ -18,8 +18,9 @@ and verifies the patched hash before the test.
 `--locked --release`, derives the binary SHA-256 after the build and the version
 from `Cargo.toml`, applies the Core seam, runs exactly the named ignored test,
 and asserts `1 passed / 0 failed / 0 ignored`. The fake server has bounded
-read/write timeouts and the script has an outer timeout. The Core checkout is
-restored on exit.
+read/write timeouts and the script has an outer timeout. On exit the Core
+checkout is restored only if it still matches the verified patched hash;
+unexpected changes are preserved for review.
 
 Run locally:
 
@@ -29,4 +30,13 @@ GATEHOUSE_REPO=/path/to/GateHouse ./scripts/run-acceptance.sh
 
 `GATEHOUSE_REPO` is an optional local mirror; the committed lock uses the public
 repository. Set `PROXY_ENV` for network access if needed. `core-pin/` and
-`target/` are ignored. No CI wiring or publication is included.
+`target/` are ignored.
+
+## CI
+
+The required Linux `runtime-wire` job runs the existing 51 Python adapter tests
+and 24-test wire acceptance, then native `fmt`/`clippy`, exactly 33 native tests
+with zero skips, and the exact-count actual-host acceptance above. Every count
+is asserted and an empty or skipped result fails the job. The native binary is
+built from the PR checkout with `--locked`; Core remains the fixed `b6ef961`
+test-only pin. No CI step publishes, registers, or contacts a real daemon.
