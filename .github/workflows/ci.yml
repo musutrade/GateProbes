@@ -69,7 +69,7 @@ jobs:
       - name: Check links, declarations and forbidden artifacts
         run: python3 tools/ci/check_docs.py
 
-      - name: Runtime adapter config and Unix HTTP tests
+      - name: Runtime adapter config, Unix HTTP and observation tests
         run: |
           set -euo pipefail
           python3 -B - <<'PY'
@@ -78,8 +78,8 @@ jobs:
           suite = unittest.defaultTestLoader.discover(
               'plugins/docker-runtime/tests', pattern='test_*.py')
           count = suite.countTestCases()
-          if count != 41:
-              raise SystemExit(f'expected 41 runtime adapter tests, discovered {count}')
+          if count != 51:
+              raise SystemExit(f'expected 51 runtime adapter tests, discovered {count}')
           result = unittest.TextTestRunner(verbosity=2).run(suite)
           raise SystemExit(0 if result.wasSuccessful() else 1)
           PY
