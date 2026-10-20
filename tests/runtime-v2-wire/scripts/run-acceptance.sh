@@ -38,16 +38,16 @@ if [ "$STATUS" -ne 0 ]; then
     echo "Rust acceptance failed with status $STATUS" >&2
     exit "$STATUS"
 fi
-grep -Eq '^running 21 tests$' "$LOG" || {
-    echo "expected exactly 21 Rust acceptance tests" >&2
+grep -Eq '^running 24 tests$' "$LOG" || {
+    echo "expected exactly 24 Rust acceptance tests" >&2
     exit 1
 }
-grep -Eq '^test result: ok\. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out' "$LOG" || {
-    echo "Rust acceptance did not report 21 passed, 0 failed, 0 ignored" >&2
+grep -Eq '^test result: ok\. 24 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out' "$LOG" || {
+    echo "Rust acceptance did not report 24 passed, 0 failed, 0 ignored" >&2
     exit 1
 }
 if grep -Eq '^test result: .* [1-9][0-9]* ignored' "$LOG"; then
     echo "ignored tests are not allowed in acceptance" >&2
     exit 1
 fi
-echo "Rust acceptance: 21 passed, 0 failed, 0 ignored"
+echo "Rust acceptance: 24 passed, 0 failed, 0 ignored"

@@ -41,10 +41,10 @@ script with an isolated `CARGO_TARGET_DIR`.
 
 `prepare-core.sh` creates/updates `core-pin` (ignored by Git) and fails on any
 tracked modification or crate-file drift. `run-acceptance.sh` runs the matrix and
-requires exactly `21 passed; 0 failed; 0 ignored` (non-vacuous count and zero
+requires exactly `24 passed; 0 failed; 0 ignored` (non-vacuous count and zero
 skips).
 
-## Matrix (21 tests)
+## Matrix (24 tests)
 
 - host spawns with `env_clear`, no application arguments beyond the script path,
   inert cwd `/`, bounded stdin, sealed memfd fd3=config and fd4=expected;

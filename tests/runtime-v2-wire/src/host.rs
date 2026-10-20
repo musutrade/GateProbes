@@ -1,9 +1,10 @@
 //! Host-side spawn pinning: env_clear, no additional arguments, stdin actual,
 //! fd3 config and fd4 expected request as sealed memfds.
 
+use std::collections::BTreeSet;
 use std::ffi::OsString;
 use std::io::{self, Write};
-use std::os::fd::{AsRawFd, OwnedFd, RawFd};
+use std::os::fd::{AsRawFd, FromRawFd, OwnedFd, RawFd};
 use std::os::unix::process::CommandExt;
 use std::path::PathBuf;
 use std::process::{Command, ExitStatus, Stdio};
@@ -49,30 +50,77 @@ pub fn run(spec: SpawnSpec) -> io::Result<HostOutput> {
         .stdout(Stdio::piped())
         .stderr(Stdio::piped());
 
-    let mut duplicates = Vec::new();
+    const MAX_TARGET_FD: RawFd = 512;
+    let mut requested = Vec::new();
     if let Some(fd) = &spec.fd3 {
-        duplicates.push((fd.as_raw_fd(), 3));
+        requested.push((fd.as_raw_fd(), 3));
     }
     if let Some(fd) = &spec.fd4 {
-        duplicates.push((fd.as_raw_fd(), 4));
+        requested.push((fd.as_raw_fd(), 4));
     }
     for (target, fd) in &spec.extras {
-        duplicates.push((fd.as_raw_fd(), *target));
+        requested.push((fd.as_raw_fd(), *target));
     }
-    let mut reserved: Vec<RawFd> = duplicates.iter().map(|(_, target)| *target).collect();
-    reserved.sort_unstable();
-    reserved.dedup();
-    let duplicates_for_child = duplicates.clone();
+
+    let mut reserved = BTreeSet::new();
+    for (source, target) in &requested {
+        if *source < 3 {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                format!("source descriptor out of range: {source}"),
+            ));
+        }
+        let flags = unsafe { libc::fcntl(*source, libc::F_GETFD) };
+        if flags < 0 {
+            return Err(io::Error::last_os_error());
+        }
+        if flags & libc::FD_CLOEXEC == 0
+            && unsafe { libc::fcntl(*source, libc::F_SETFD, flags | libc::FD_CLOEXEC) } < 0
+        {
+            return Err(io::Error::last_os_error());
+        }
+        if *target < 3 || *target > MAX_TARGET_FD {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                format!("target descriptor out of range: {target}"),
+            ));
+        }
+        if !reserved.insert(*target) {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                format!("duplicate target descriptor: {target}"),
+            ));
+        }
+    }
+
+    // Stage every source before any dup2. Without this, a source that equals a
+    // later target (or a swap) is clobbered by sequential child remapping.
+    let stage_min = reserved
+        .iter()
+        .next_back()
+        .map_or(64, |target| (*target + 1).max(64));
+    let mut staged = Vec::new();
+    let mut remap = Vec::new();
+    for (source, target) in requested {
+        let copy = unsafe { libc::fcntl(source, libc::F_DUPFD_CLOEXEC, stage_min) };
+        if copy < 0 {
+            return Err(io::Error::last_os_error());
+        }
+        let copy = unsafe { OwnedFd::from_raw_fd(copy) };
+        remap.push((copy.as_raw_fd(), target));
+        staged.push(copy);
+    }
+    let reserved_for_child: Vec<RawFd> = reserved.into_iter().collect();
 
     unsafe {
         command.pre_exec(move || {
-            for (source, target) in &duplicates_for_child {
+            for (source, target) in &remap {
                 if libc::dup2(*source, *target) < 0 {
                     return Err(io::Error::last_os_error());
                 }
             }
-            for fd in 3..1024 {
-                if !reserved.contains(&fd) {
+            for fd in 3..2048 {
+                if !reserved_for_child.contains(&fd) {
                     libc::close(fd);
                 }
             }
@@ -81,6 +129,7 @@ pub fn run(spec: SpawnSpec) -> io::Result<HostOutput> {
     }
 
     let mut child = command.spawn()?;
+    drop(staged);
     if let Some(mut stdin) = child.stdin.take() {
         stdin.write_all(&spec.stdin)?;
     }

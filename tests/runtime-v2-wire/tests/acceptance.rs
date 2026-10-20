@@ -13,6 +13,7 @@ use gateprobes_runtime_v2_wire_acceptance::{
 };
 use serde_json::json;
 use sha2::{Digest, Sha256};
+use std::ffi::OsString;
 use std::fmt::Write as _;
 use std::fs;
 use std::io;
@@ -208,6 +209,88 @@ fn sealed_memfd_helper_is_private_and_fully_sealed() {
     assert_eq!(info.uid(), fixture::euid());
     assert_eq!(memfd::seals(fd.as_raw_fd()).unwrap(), memfd::REQUIRED_SEALS);
     assert_eq!(memfd::read_sealed(&fd).unwrap(), b"hello");
+}
+
+fn duplicate_high(fd: &OwnedFd, minimum: RawFd) -> OwnedFd {
+    let copy = unsafe { libc::fcntl(fd.as_raw_fd(), libc::F_DUPFD_CLOEXEC, minimum) };
+    assert!(copy >= 0, "fcntl: {}", io::Error::last_os_error());
+    unsafe { OwnedFd::from_raw_fd(copy) }
+}
+
+fn run_fd_helper(extras: Vec<(RawFd, OwnedFd)>, script: &str) -> HostOutput {
+    host::run(SpawnSpec {
+        executable: PathBuf::from("/bin/bash"),
+        args: vec![OsString::from("-c"), OsString::from(script)],
+        cwd: PathBuf::from("/"),
+        stdin: Vec::new(),
+        fd3: None,
+        fd4: None,
+        extras,
+    })
+    .expect("spawn descriptor helper")
+}
+
+#[test]
+fn host_preserves_swapped_descriptor_sources() {
+    let first = duplicate_high(&memfd::sealed("first", b"AAA").unwrap(), 200);
+    let second = duplicate_high(&memfd::sealed("second", b"BBB").unwrap(), 201);
+    assert_ne!(first.as_raw_fd(), second.as_raw_fd());
+    let first_target = first.as_raw_fd();
+    let second_target = second.as_raw_fd();
+    let script = format!("/bin/cat <&{first_target}; printf '|'; /bin/cat <&{second_target}");
+    let output = run_fd_helper(
+        vec![(first_target, second), (second_target, first)],
+        &script,
+    );
+    assert!(
+        output.succeeded(),
+        "stderr={}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    assert_eq!(output.stdout, b"BBB|AAA");
+}
+
+#[test]
+fn host_keeps_same_source_target_descriptor_live_after_exec() {
+    let source = duplicate_high(&memfd::sealed("same", b"SAME").unwrap(), 300);
+    let target = source.as_raw_fd();
+    let script = format!("/bin/cat <&{target}");
+    let output = run_fd_helper(vec![(target, source)], &script);
+    assert!(
+        output.succeeded(),
+        "stderr={}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    assert_eq!(output.stdout, b"SAME");
+}
+
+#[test]
+fn host_rejects_duplicate_or_invalid_target_descriptors() {
+    let first = memfd::sealed("first", b"first").unwrap();
+    let second = memfd::sealed("second", b"second").unwrap();
+    let duplicate = host::run(SpawnSpec {
+        executable: PathBuf::from("/bin/bash"),
+        args: vec![OsString::from("-c"), OsString::from("true")],
+        cwd: PathBuf::from("/"),
+        stdin: Vec::new(),
+        fd3: None,
+        fd4: None,
+        extras: vec![(400, first), (400, second)],
+    });
+    assert!(duplicate.is_err());
+    for target in [0, 2] {
+        let fd = memfd::sealed("invalid", b"invalid").unwrap();
+        let invalid = host::run(SpawnSpec {
+            executable: PathBuf::from("/bin/bash"),
+            args: vec![OsString::from("-c"), OsString::from("true")],
+            cwd: PathBuf::from("/"),
+            stdin: Vec::new(),
+            fd3: None,
+            fd4: None,
+            extras: vec![(target, fd)],
+        });
+        assert!(invalid.is_err(), "target {target} was accepted");
+    }
 }
 
 #[test]
