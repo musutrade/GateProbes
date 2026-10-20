@@ -1,0 +1,367 @@
+diff --git a/tools/harness-gate/src/process/runtime_host_v2.rs b/tools/harness-gate/src/process/runtime_host_v2.rs
+index cda2c87..4e0ae87 100644
+--- a/tools/harness-gate/src/process/runtime_host_v2.rs
++++ b/tools/harness-gate/src/process/runtime_host_v2.rs
+@@ -792,4 +792,362 @@ int main(int argc, char **argv) {
+         assert!(output.status.success());
+         assert_eq!(output.stdout.bytes, b"v1-ok");
+     }
++    struct NativeServer {
++        path: PathBuf,
++        count: Arc<AtomicUsize>,
++        stop: Arc<AtomicBool>,
++        thread: Option<thread::JoinHandle<()>>,
++    }
++
++    impl NativeServer {
++        fn start(root: &Path, mode: &str) -> Self {
++            let path = root.join("docker.sock");
++            let _ = fs::remove_file(&path);
++            let listener = std::os::unix::net::UnixListener::bind(&path).unwrap();
++            listener.set_nonblocking(true).unwrap();
++            let count = Arc::new(AtomicUsize::new(0));
++            let stop = Arc::new(AtomicBool::new(false));
++            let thread_count = Arc::clone(&count);
++            let thread_stop = Arc::clone(&stop);
++            let mode = mode.to_owned();
++            let thread = thread::spawn(move || {
++                while !thread_stop.load(Ordering::SeqCst) {
++                    match listener.accept() {
++                        Ok((mut stream, _)) => {
++                            stream
++                                .set_read_timeout(Some(Duration::from_secs(2)))
++                                .expect("read timeout");
++                            stream
++                                .set_write_timeout(Some(Duration::from_secs(2)))
++                                .expect("write timeout");
++                            thread_count.fetch_add(1, Ordering::SeqCst);
++                            let mut request = Vec::new();
++                            let mut buffer = [0u8; 1024];
++                            let request_deadline = Instant::now() + Duration::from_secs(5);
++                            loop {
++                                use std::io::Read;
++                                if thread_stop.load(Ordering::SeqCst)
++                                    || Instant::now() >= request_deadline
++                                {
++                                    break;
++                                }
++                                let n = stream.read(&mut buffer).unwrap_or(0);
++                                if n == 0 {
++                                    break;
++                                }
++                                request.extend_from_slice(&buffer[..n]);
++                                if request.windows(4).any(|w| w == b"\r\n\r\n") {
++                                    break;
++                                }
++                                if request.len() > 16_384 {
++                                    break;
++                                }
++                            }
++                            let text = String::from_utf8_lossy(&request);
++                            let path = text
++                                .lines()
++                                .next()
++                                .and_then(|l| l.split_whitespace().nth(1))
++                                .unwrap_or("");
++                            let (status, body) = if path == "/version" {
++                                (200, serde_json::to_vec(&json!({"Version":"27.0.1","ApiVersion":"1.47","MinAPIVersion":"1.24"})).unwrap())
++                            } else if path == "/v1.47/info" {
++                                (200, serde_json::to_vec(&json!({"ID":"daemon-1"})).unwrap())
++                            } else if path
++                                == format!("/v1.47/containers/{}", "d".repeat(64)) + "/json"
++                            {
++                                if mode == "404" {
++                                    (404, b"{}".to_vec())
++                                } else if mode == "oversize" {
++                                    (200, serde_json::to_vec(&json!({"Id":"d".repeat(64),"Config":{"Labels":{"a":"x".repeat(70_000)}}})).unwrap())
++                                } else {
++                                    (200, serde_json::to_vec(&json!({"Id":"d".repeat(64),"Config":{"Labels":{"b":"2","a":"1"}}})).unwrap())
++                                }
++                            } else {
++                                (404, b"{}".to_vec())
++                            };
++                            use std::io::Write;
++                            let head = format!(
++                                "HTTP/1.1 {status} OK\r\nContent-Length: {}\r\n\r\n",
++                                body.len()
++                            );
++                            let _ = stream.write_all(head.as_bytes());
++                            let _ = stream.write_all(&body);
++                        }
++                        Err(e) if e.kind() == std::io::ErrorKind::WouldBlock => {
++                            thread::sleep(Duration::from_millis(1));
++                        }
++                        Err(_) => break,
++                    }
++                }
++            });
++            Self {
++                path,
++                count,
++                stop,
++                thread: Some(thread),
++            }
++        }
++        fn connections(&self) -> usize {
++            self.count.load(Ordering::SeqCst)
++        }
++    }
++
++    impl Drop for NativeServer {
++        fn drop(&mut self) {
++            self.stop.store(true, Ordering::SeqCst);
++            if let Some(thread) = self.thread.take() {
++                let _ = thread.join();
++            }
++            let _ = fs::remove_file(&self.path);
++        }
++    }
++
++    fn bind_native_listener(root: &Path) -> std::os::unix::net::UnixListener {
++        let path = root.join("docker.sock");
++        let _ = fs::remove_file(&path);
++        std::os::unix::net::UnixListener::bind(path).unwrap()
++    }
++
++    fn assert_no_native_connection(listener: &std::os::unix::net::UnixListener) {
++        listener.set_nonblocking(true).unwrap();
++        assert!(
++            matches!(listener.accept(), Err(ref e) if e.kind() == std::io::ErrorKind::WouldBlock)
++        );
++    }
++
++    fn native_config(socket_path: &str) -> Vec<u8> {
++        serde_json::to_vec(&json!({
++            "schema":"gate-runtime-engine-config/v2","engine":"docker","transport":"unix-http",
++            "socket_path":socket_path,"socket_uid":unsafe{libc::geteuid()},"principal_uid":unsafe{libc::geteuid()},
++            "rootless":false,"api_version":"1.47","server_version":"27.0.1","daemon_id":"daemon-1","scope":"scope-1"
++        })).unwrap()
++    }
++
++    fn native_expected(
++        config: &[u8],
++        executable_digest: &str,
++        operation: serde_json::Value,
++    ) -> v2::Request {
++        let binding = json!({
++            "protocol":"gate-runtime/v2","adapter_sha256":executable_digest,"adapter_version":std::env::var("GATEPROBES_NATIVE_ADAPTER_VERSION").expect("native adapter version"),
++            "invocation":"inv-1","operation_key":"op-1","generation":"gen-1",
++            "adapter_config_sha256":format!("{:x}", Sha256::digest(config)),
++            "engine":"docker","transport":"unix-http","socket_path":"/run/docker.sock",
++            "socket_uid":unsafe{libc::geteuid()},"principal_uid":unsafe{libc::geteuid()},"rootless":false,
++            "api_version":"1.47","server_version":"27.0.1","daemon_id":"daemon-1","scope":"scope-1"
++        });
++        v2::parse_request(
++            &serde_json::to_vec(&json!({"binding":binding,"operation":operation})).unwrap(),
++        )
++        .unwrap()
++    }
++
++    #[test]
++    #[ignore = "requires GATEPROBES_NATIVE_ADAPTER env"]
++    fn native_acceptance_through_actual_core_host() {
++        let adapter = std::env::var_os("GATEPROBES_NATIVE_ADAPTER").expect("native adapter path");
++        let adapter = PathBuf::from(adapter);
++        let digest =
++            std::env::var("GATEPROBES_NATIVE_ADAPTER_SHA256").expect("native adapter digest");
++        let version =
++            std::env::var("GATEPROBES_NATIVE_ADAPTER_VERSION").expect("native adapter version");
++        let home = std::env::var_os("HOME").expect("HOME");
++        let base = PathBuf::from(home).join(".cache");
++        fs::create_dir_all(&base).unwrap();
++        fs::set_permissions(&base, fs::Permissions::from_mode(0o700)).unwrap();
++        let root = tempfile::Builder::new()
++            .prefix("gatehouse-native-accept-")
++            .tempdir_in(&base)
++            .unwrap();
++        fs::set_permissions(root.path(), fs::Permissions::from_mode(0o700)).unwrap();
++        let socket_path = root.path().join("docker.sock");
++        let socket_path_string = socket_path.to_string_lossy().into_owned();
++        let config = native_config(&socket_path_string);
++        let cwd = fs::canonicalize(root.path()).unwrap();
++
++        let capabilities = native_expected(&config, &digest, json!("capabilities"));
++        // Rewrite configured socket path into the expected request binding.
++        let mut capability_json: Value =
++            serde_json::from_slice(&serde_json::to_vec(&capabilities).unwrap()).unwrap();
++        capability_json["binding"]["socket_path"] = json!(socket_path_string);
++        let capabilities =
++            v2::parse_request(&serde_json::to_vec(&capability_json).unwrap()).unwrap();
++        let listener = std::os::unix::net::UnixListener::bind(&socket_path).unwrap();
++        let input = ReadonlyHostInput {
++            expected: capabilities.clone(),
++            config: config.clone(),
++            actual: serde_json::to_vec(&capabilities).unwrap(),
++            executable: adapter.clone(),
++            executable_sha256: digest.clone(),
++            executable_version: version.clone(),
++            cwd: cwd.clone(),
++            timeout_ms: 5_000,
++        };
++        let response = run_readonly(input, || false).unwrap();
++        assert!(
++            matches!(response.outcome, Outcome::Capabilities { ref supported } if supported == &[Capability::Inspect])
++        );
++        listener.set_nonblocking(true).unwrap();
++        assert!(
++            matches!(listener.accept(), Err(ref e) if e.kind() == std::io::ErrorKind::WouldBlock)
++        );
++
++        drop(listener);
++        for (operation, mode, present) in [
++            (
++                json!({"inspect":{"object_id":"d".repeat(64)}}),
++                "present",
++                true,
++            ),
++            (
++                json!({"inspect":{"object_id":"d".repeat(64)}}),
++                "404",
++                false,
++            ),
++        ] {
++            let expected = native_expected(&config, &digest, operation);
++            let mut json: Value =
++                serde_json::from_slice(&serde_json::to_vec(&expected).unwrap()).unwrap();
++            json["binding"]["socket_path"] = json!(socket_path_string);
++            let expected = v2::parse_request(&serde_json::to_vec(&json).unwrap()).unwrap();
++            let server = NativeServer::start(root.path(), mode);
++            let input = ReadonlyHostInput {
++                expected: expected.clone(),
++                config: config.clone(),
++                actual: serde_json::to_vec(&expected).unwrap(),
++                executable: adapter.clone(),
++                executable_sha256: digest.clone(),
++                executable_version: version.clone(),
++                cwd: cwd.clone(),
++                timeout_ms: 5_000,
++            };
++            let response = run_readonly(input, || false).unwrap();
++            if present {
++                assert!(matches!(response.outcome, Outcome::Present { .. }));
++                assert_eq!(server.connections(), 5);
++            } else {
++                assert_eq!(response.outcome, Outcome::Unavailable);
++                assert_eq!(server.connections(), 3);
++            }
++            drop(server);
++        }
++
++        let remove = native_expected(
++            &config,
++            &digest,
++            json!({"remove":{"object_id":"d".repeat(64)}}),
++        );
++        let input = ReadonlyHostInput {
++            expected: remove.clone(),
++            config: config.clone(),
++            actual: serde_json::to_vec(&remove).unwrap(),
++            executable: adapter.clone(),
++            executable_sha256: digest.clone(),
++            executable_version: version.clone(),
++            cwd: cwd.clone(),
++            timeout_ms: 5_000,
++        };
++        let listener = bind_native_listener(root.path());
++        assert!(run_readonly(input, || false).is_err());
++        assert_no_native_connection(&listener);
++        drop(listener);
++
++        let mut bad_config: Value = serde_json::from_slice(&config).unwrap();
++        bad_config["scope"] = json!("scope-2");
++        let input = ReadonlyHostInput {
++            expected: capabilities.clone(),
++            config: serde_json::to_vec(&bad_config).unwrap(),
++            actual: serde_json::to_vec(&capabilities).unwrap(),
++            executable: adapter.clone(),
++            executable_sha256: digest.clone(),
++            executable_version: version.clone(),
++            cwd: cwd.clone(),
++            timeout_ms: 5_000,
++        };
++        let listener = bind_native_listener(root.path());
++        assert!(run_readonly(input, || false).is_err());
++        assert_no_native_connection(&listener);
++        drop(listener);
++
++        let mut changed = capabilities.clone();
++        changed.binding.operation_key = "different".into();
++        let input = ReadonlyHostInput {
++            expected: capabilities.clone(),
++            config: config.clone(),
++            actual: serde_json::to_vec(&changed).unwrap(),
++            executable: adapter.clone(),
++            executable_sha256: digest.clone(),
++            executable_version: version.clone(),
++            cwd: cwd.clone(),
++            timeout_ms: 5_000,
++        };
++        let listener = bind_native_listener(root.path());
++        assert!(run_readonly(input, || false).is_err());
++        assert_no_native_connection(&listener);
++        drop(listener);
++
++        let input = ReadonlyHostInput {
++            expected: capabilities.clone(),
++            config: config.clone(),
++            actual: serde_json::to_vec(&capabilities).unwrap(),
++            executable: adapter.clone(),
++            executable_sha256: "b".repeat(64),
++            executable_version: version.clone(),
++            cwd: cwd.clone(),
++            timeout_ms: 5_000,
++        };
++        let listener = bind_native_listener(root.path());
++        assert!(run_readonly(input, || false).is_err());
++        assert_no_native_connection(&listener);
++        drop(listener);
++
++        let script = root.path().join("adapter.sh");
++        fs::write(&script, b"#!/bin/sh\nexit 0\n").unwrap();
++        fs::set_permissions(&script, fs::Permissions::from_mode(0o755)).unwrap();
++        let script_digest = format!("{:x}", Sha256::digest(fs::read(&script).unwrap()));
++        let script_expected = native_expected(&config, &script_digest, json!("capabilities"));
++        let mut script_json: Value =
++            serde_json::from_slice(&serde_json::to_vec(&script_expected).unwrap()).unwrap();
++        script_json["binding"]["socket_path"] = json!(socket_path_string);
++        let script_expected =
++            v2::parse_request(&serde_json::to_vec(&script_json).unwrap()).unwrap();
++        let input = ReadonlyHostInput {
++            expected: script_expected.clone(),
++            config: config.clone(),
++            actual: serde_json::to_vec(&script_expected).unwrap(),
++            executable: script,
++            executable_sha256: script_digest,
++            executable_version: version.clone(),
++            cwd: cwd.clone(),
++            timeout_ms: 5_000,
++        };
++        let listener = bind_native_listener(root.path());
++        assert!(run_readonly(input, || false).is_err());
++        assert_no_native_connection(&listener);
++        drop(listener);
++
++        let expected = native_expected(
++            &config,
++            &digest,
++            json!({"inspect":{"object_id":"d".repeat(64)}}),
++        );
++        let mut expected_json: Value =
++            serde_json::from_slice(&serde_json::to_vec(&expected).unwrap()).unwrap();
++        expected_json["binding"]["socket_path"] = json!(socket_path_string);
++        let expected = v2::parse_request(&serde_json::to_vec(&expected_json).unwrap()).unwrap();
++        let server = NativeServer::start(root.path(), "oversize");
++        let input = ReadonlyHostInput {
++            expected: expected.clone(),
++            config: config.clone(),
++            actual: serde_json::to_vec(&expected).unwrap(),
++            executable: adapter,
++            executable_sha256: digest,
++            executable_version: version,
++            cwd,
++            timeout_ms: 5_000,
++        };
++        assert!(run_readonly(input, || false).is_err());
++        assert!(server.connections() > 0);
++    }
+ }

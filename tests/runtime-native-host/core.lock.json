@@ -1,0 +1,22 @@
+{
+  "schema": "gateprobes-runtime-native-host-core-lock/v1",
+  "repository": "https://github.com/musutrade/GateHouse",
+  "commit": "b6ef96182f64f75f3fc89319767d021c370b5528",
+  "release_note": "main/PR169 merge after b6ef961; NOT v0.6.0 (released commit bbf65b4244236df217cf0ed145ccd0f60a18ac25)",
+  "core_crate_manifest": "tools/harness-gate/Cargo.toml",
+  "core_lock_file": "tools/harness-gate/Cargo.lock",
+  "core_lock_sha256": "49196695c7fe536a1bcce62016a1c9f75be36e874a59ec44fd5a100f2b72a534",
+  "runtime_host_file": "tools/harness-gate/src/process/runtime_host_v2.rs",
+  "runtime_host_sha256": "e67154aec25c254ff92785fde0922ec1a726a3bc63e3a80ad8b60549ab5807e0",
+  "patched_runtime_host_sha256": "9882bda501a7b46c2584c37f16e58dfbe0b8bdfd92a70de25131a055f98cd131",
+  "patch": "native_acceptance.patch",
+  "patch_stats": {
+    "additions": 358,
+    "deletions": 0,
+    "files": 1
+  },
+  "test_name": "process::runtime_host_v2::tests::native_acceptance_through_actual_core_host",
+  "checkout": "tests/runtime-native-host/core-pin",
+  "source": "test-only inline seam; no production statements or Core dependency changes",
+  "patch_sha256": "2d3e27b09f490acfd0345dce3d93f1f2e32a4dc6606c15710c3f646741709e39"
+}
