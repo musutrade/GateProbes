@@ -52,7 +52,7 @@ def protected_parents(path):
         require(info.st_uid in (0, os.geteuid()) and info.st_mode & 0o022 == 0)
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, init=False)
 class Config:
     path: Path
     sha256: str
@@ -66,6 +66,9 @@ class Config:
     server_version: str
     daemon_id: str
     scope: str
+
+    def __init__(self, *args, **kwargs):
+        raise InvalidConfig('runtime configuration requires validated loading')
 
     def revalidate(self):
         """Recheck pins before/after future I/O; never establishes daemon identity."""
@@ -117,5 +120,12 @@ def _load(path, expected_sha256):
     protected_parents(socket_path)
     socket_info = socket_path.lstat()
     require(stat.S_ISSOCK(socket_info.st_mode) and socket_info.st_uid == value['socket_uid'])
-    return Config(path, expected_sha256, identity(before), identity(socket_info),
-                  **{key: value[key] for key in FIELDS - {'schema', 'engine', 'transport'}})
+    # The supported construction path exists only after every check succeeds.
+    # This is API discipline, not a sandbox against hostile in-process Python.
+    config = object.__new__(Config)
+    fields = {key: value[key] for key in FIELDS - {'schema', 'engine', 'transport'}}
+    fields.update(path=path, sha256=expected_sha256, file_identity=identity(before),
+                  socket_identity=identity(socket_info))
+    for name, item in fields.items():
+        object.__setattr__(config, name, item)
+    return config

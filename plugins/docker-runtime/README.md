@@ -25,3 +25,10 @@ isolation or authenticated daemon evidence. Path checks do not eliminate all
 races with privileged actors. Server/API observations, strict bounded HTTP,
 correct-route absence, v2 request/response handling, packaging and real-engine
 acceptance remain unfinished. Podman, TCP/TLS and CLI transport are unsupported.
+
+Direct `Config(...)` construction is disabled. Only successful `load` creates a
+validated frozen instance; revalidation is still required before/after future
+I/O. This guards normal API use, not hostile Python code in the same process
+(which can bypass language-level object protections). Root-owned socket positive
+acceptance has not been exercised by the unprivileged test account; this must not
+be claimed from the current-user fixtures or foreign-owned config rejection.
