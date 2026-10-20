@@ -146,6 +146,8 @@ def plugin_declaration_failures(root: Path) -> list[str]:
     for directory in sorted((root / "plugins").iterdir()):
         if not directory.is_dir():
             continue
+        if (directory / "UNRELEASED").is_file():
+            continue
         relative = directory.relative_to(root).as_posix()
         if relative in companions:
             continue
@@ -220,6 +222,8 @@ def registry_failures(root: Path) -> list[str]:
                   for name in row.get("companions", []) if isinstance(row, dict)}
     for directory in sorted((root / "plugins").iterdir()):
         relative = directory.relative_to(root).as_posix()
+        if (directory / "UNRELEASED").is_file():
+            continue
         if directory.is_dir() and directory.name not in plugins and relative not in companions:
             failures.append(f"plugins/{directory.name}: not registered in plugins/registry.json")
     return failures
