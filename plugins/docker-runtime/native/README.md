@@ -1,8 +1,10 @@
 # Unreleased native Docker runtime adapter
 
 This crate is under development and is not registered or released. It currently
-contains adapter-side typed input validation only. It has no executable entry,
-sealed-fd bootstrap, socket access, HTTP implementation or production host hookup.
+contains adapter-side typed input validation and Linux sealed-fd bootstrap. It
+has no executable entry, socket access, HTTP implementation or host hookup.
+Bootstrap requires only fd3/fd4 plus stdio, bounded sealed euid-owned memfds and
+no application arguments. It does not authenticate its launching host.
 
 The production dependency list does not contain Core or a Python launcher. Core's
 own parser remains the independent authority in future integration acceptance.
