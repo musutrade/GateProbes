@@ -1,24 +1,33 @@
 # Unreleased native Docker runtime adapter
 
-This crate is under development and is not registered or released. It currently
-contains adapter-side typed input validation and Linux sealed-fd bootstrap. It
-also checks canonical protected socket paths, socket owner and client euid, with
-pre/post identity revalidation. These checks do not connect or authenticate a
-daemon. Linux HTTP transport now supports only GET /version, versioned /info
-and full-ID /containers inspection. It uses nonblocking sockets and one deadline,
-16 KiB/64-field headers, Content-Length-only bodies up to 1 MiB, and pre/post
-socket revalidation. Chunked/compressed/redirect behavior is refused. A raw 404
-is not absence. Filesystem checks are not hard-time-bounded; delayed trailing
-bytes after a complete body are not waited for. No real Docker compatibility
-has been established. There is no executable entry or host hookup yet.
-Bootstrap requires only fd3/fd4 plus stdio, bounded sealed euid-owned memfds and
-no application arguments. It does not authenticate its launching host.
+This crate is under development, unregistered and unpublished. Its single native
+executable has no Core production dependency and does not launch Python. The
+launching host supplies executable identity, trusted expected inputs and process
+supervision; this does not establish installed artifact or loader/library trust.
 
-The production dependency list does not contain Core or a Python launcher. Core's
-own parser remains the independent authority in future integration acceptance.
-Input checks reject mutation requests and accept only capability discovery and
-full-ID inspection. SHA-256 binds original config bytes, not a normalized object.
-All errors are static. This module performs no filesystem or identity observation.
+On Linux, the entry accepts no arguments, reads config/expected from sealed
+host-owned fd3/fd4 and actual request from bounded stdin, and refuses extra live
+fds. It strictly validates requests, original config-byte SHA-256 and every pin.
+It checks canonical protected socket paths, socket owner and client euid without
+claiming daemon authentication. Capabilities returns Inspect only without connect.
+Remove requests are rejected. No other platform is supported by the entry.
 
-Do not treat this building block as a published adapter or claim real Docker,
-rootless, daemon, loader/library or installed-artifact authentication.
+Inspect uses GET /version, versioned /info, full-ID /containers inspection, then
+/version and /info again under one five-second budget. Only exact Present facts
+with matching before/after identities are emitted; errors and every non-200,
+including 404, are Unavailable. Absent is never emitted. JSON duplicate keys and
+malformed identities/labels are refused. Labels remain facts for Core comparison.
+Responses are fully encoded and size-checked before stdout is written; protocol
+errors have static diagnostics. Caller-owned Core cancellation and supervision
+are still required; the native entry has no graceful signal/cancel protocol.
+
+Transport uses nonblocking Unix sockets, 16 KiB/64-field headers and Content-Length
+bodies up to 1 MiB. Chunked/compressed/redirect behavior is refused. Filesystem
+checks are not hard-time-bounded; delayed trailing bytes after a complete body are
+not waited for. Local socket identity is rechecked before/after I/O. These checks
+do not prove rootless mode, user namespaces, daemon restarts or adversarial OS
+isolation. No real Docker compatibility has been established.
+
+Independent fake-socket tests and actual unreleased Core host/parser acceptance
+are required before delivery. Released Core v0.6.0 does not contain that v2 host.
+No registration, tag, release, service integration or lease migration is included.
