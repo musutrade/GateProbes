@@ -3,3 +3,6 @@
 pub mod input;
 
 pub mod bootstrap;
+
+#[cfg(unix)]
+pub mod socket_identity;

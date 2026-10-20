@@ -2,7 +2,9 @@
 
 This crate is under development and is not registered or released. It currently
 contains adapter-side typed input validation and Linux sealed-fd bootstrap. It
-has no executable entry, socket access, HTTP implementation or host hookup.
+also checks canonical protected socket paths, socket owner and client euid, with
+pre/post identity revalidation. These checks do not connect or authenticate a
+daemon. It has no executable entry, HTTP implementation or host hookup.
 Bootstrap requires only fd3/fd4 plus stdio, bounded sealed euid-owned memfds and
 no application arguments. It does not authenticate its launching host.
 
