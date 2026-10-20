@@ -209,6 +209,14 @@ class UnixHttpTest(unittest.TestCase):
                 self.assertEqual(reply.status, status)
                 self.assertEqual(reply.body, body)
 
+    def test_info_route_is_exact(self):
+        endpoint = self.endpoint(chunks=[response(200, b'ok')]).start()
+        cfg, _, _ = self.loaded(endpoint)
+        reply = http.get(cfg, '/v1.47/info', timeout=1)
+        endpoint.join()
+        self.assertEqual(reply.status, 200)
+        self.assertIn(b'GET /v1.47/info HTTP/1.1\r\n', endpoint.request)
+
     def test_inspect_route_is_exact(self):
         object_id = 'a' * 64
         endpoint = self.endpoint(chunks=[response(200, b'ok')]).start()
