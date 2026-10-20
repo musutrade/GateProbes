@@ -103,6 +103,49 @@ class CheckDocsTests(unittest.TestCase):
         (other / "UNRELEASED").write_text("This directory is not a published plugin.\n")
         self.assertEqual(check_docs.check(self.root), [])
 
+    def test_registered_plugin_marker_does_not_hide_missing_manifest(self):
+        plugin = self.root / "plugins" / "demo"
+        (plugin / "UNRELEASED").write_text("candidate marker\n")
+        (plugin / "plugin.json").unlink()
+        failures = check_docs.check(self.root)
+        self.assertTrue(any("plugins/demo: missing plugin.json" in failure for failure in failures), failures)
+
+    def test_registered_plugin_marker_does_not_hide_bad_manifest(self):
+        plugin = self.root / "plugins" / "demo"
+        (plugin / "UNRELEASED").write_text("candidate marker\n")
+        (plugin / "plugin.json").write_text("{bad json")
+        failures = check_docs.check(self.root)
+        self.assertTrue(any("plugins/demo/plugin.json" in failure for failure in failures), failures)
+
+    def test_declared_only_candidate_marker_is_not_exempt(self):
+        candidate = self.root / "plugins" / "candidate"
+        candidate.mkdir()
+        (candidate / "UNRELEASED").write_text("candidate marker\n")
+        ownership = json.loads((self.root / "docs" / "ownership.json").read_text())
+        ownership["plugins"]["candidate"] = {
+            "paths": ["plugins/candidate"],
+            "contract_test": "plugins/candidate/plugin.json",
+        }
+        (self.root / "docs" / "ownership.json").write_text(json.dumps(ownership))
+        failures = check_docs.check(self.root)
+        self.assertTrue(any("plugins/candidate: missing plugin.json" in failure for failure in failures), failures)
+
+    def test_unregistered_manifest_candidate_marker_is_not_exempt(self):
+        candidate = self.root / "plugins" / "candidate"
+        candidate.mkdir()
+        (candidate / "UNRELEASED").write_text("candidate marker\n")
+        (candidate / "plugin.json").write_text(
+            json.dumps({"name": "candidate", "version": "1", "executable": "candidate"}))
+        failures = check_docs.check(self.root)
+        self.assertTrue(any("plugins/candidate: not declared" in failure for failure in failures), failures)
+        self.assertTrue(any("plugins/candidate: not registered" in failure for failure in failures), failures)
+
+    def test_empty_unreleased_directory_is_allowed(self):
+        candidate = self.root / "plugins" / "candidate"
+        candidate.mkdir()
+        (candidate / "UNRELEASED").write_text("candidate marker\n")
+        self.assertEqual(check_docs.check(self.root), [])
+
     def test_undeclared_plugin_fails(self):
         (self.root / "plugins" / "other").mkdir()
         (self.root / "plugins" / "other" / "plugin.json").write_text(
