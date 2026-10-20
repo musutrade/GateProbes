@@ -77,7 +77,8 @@ def main():
         config_before[ecosystem] = (project / ".harness-gate/flow.toml").read_bytes()
         run([core, "--project-root", project, "--plugin-store", store, "config", "check", "--format", "json"], expected="HGPLUGIN-SIGNATURE")
     # Corruption is diagnosed, never silently repaired or repinned.
-    artifact = store / "rust-minimal/1.0.0/products/onboarding/presets/rust/flow.toml"
+    product_version = json.loads((ROOT / "products/onboarding/products.json").read_text())["products"]["rust-minimal"]["version"]
+    artifact = store / f"rust-minimal/{product_version}/products/onboarding/presets/rust/flow.toml"
     original = artifact.read_bytes()
     artifact.write_bytes(b"corrupt")
     rust = work / "rust-project"
@@ -90,7 +91,8 @@ def main():
     shutil.copytree(ROOT / "products/onboarding", source / "products/onboarding")
     catalog = source / "products/onboarding/products.json"
     value = json.loads(catalog.read_text())
-    value["products"]["rust-minimal"]["version"] = "1.0.1"
+    major, minor, patch = (int(part) for part in product_version.split("."))
+    value["products"]["rust-minimal"]["version"] = f"{major}.{minor}.{patch + 1}"
     catalog.write_text(json.dumps(value))
     prepared2, lock2 = work / "prepared-v2", work / "lock-v2.json"
     run([*tool, "prepare", "--source", source, "--product", "rust-minimal", "--product", "python-minimal",

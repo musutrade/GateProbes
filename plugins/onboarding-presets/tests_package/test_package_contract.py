@@ -24,7 +24,7 @@ sys.path.insert(0, str(ROOT / "tools/release"))
 import package_onboarding  # noqa: E402
 
 CORE = Path(os.environ.get("GATEHOUSE_CORE", ""))
-ARCHIVE = "gateprobes-onboarding-presets-1.0.0.tar.gz"
+ARCHIVE = "gateprobes-onboarding-presets-1.0.1.tar.gz"
 SCAFFOLD = ("plugins/releases.json",)
 MEMBERS = (
     "LICENSE",
@@ -94,7 +94,7 @@ class PackageContract(unittest.TestCase):
                 self.assertEqual(stream.extractfile(member).read(), expected[member.name])
         sbom = json.loads((first / (ARCHIVE + ".sbom.cdx.json")).read_bytes())
         self.assertEqual(sbom["metadata"]["component"],
-                         {"type": "application", "name": "onboarding-presets", "version": "1.0.0"})
+                         {"type": "application", "name": "onboarding-presets", "version": "1.0.1"})
         self.assertEqual({c["name"]: c["hashes"][0]["content"] for c in sbom["components"]},
                          {name: hashlib.sha256(expected[f"{prefix}/{name}"]).hexdigest()
                           for name in MEMBERS})
@@ -118,7 +118,7 @@ class PackageContract(unittest.TestCase):
 
         def bump(path: Path):
             document = json.loads(path.read_text())
-            document["products"]["rust-minimal"]["version"] = "1.0.1"
+            document["products"]["rust-minimal"]["version"] = "1.0.2"
             path.write_text(json.dumps(document))
         self.assert_rejected(self.mutate(catalog, bump), "versions differ")
 
