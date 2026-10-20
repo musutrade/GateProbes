@@ -54,3 +54,19 @@ established. Reply status/body are transport data only: even HTTP 404 does not
 establish absence here. JSON identity/error normalization and pre/post engine
 observations remain future work. No mutation requests are supported, and tests
 must use only disposable fake Unix sockets, never a daemon socket.
+
+## Staged identity and Present normalization
+
+`observation.inspect` performs `/version` and versioned `/info` before and after
+an exact-ID container inspection, sharing one socket time budget. It checks the
+selected API against `MinAPIVersion`/`ApiVersion`, exact `Version`, and `/info` ID.
+Successful Present requires the exact `Id` and nonempty string ownership labels
+from `Config.Labels`. UTF-8 JSON rejects duplicate keys and non-JSON constants;
+unknown engine fields are ignored rather than copied into results.
+
+All errors, mismatches, cancellations and non-200 statuses (including 404) yield
+Unavailable. This stage does not yet emit Absent: route-specific absence proof
+still needs implementation and acceptance. Results are normalized local facts,
+not full v2 response envelopes or authentication. Request binding, rootless proof,
+real-daemon compatibility, restart detection and mutation remain unimplemented.
+Ownership labels are facts; Core must compare its independent required labels.
