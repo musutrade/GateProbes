@@ -110,7 +110,7 @@ change classification; it does not run a second complete packaging matrix.
 The packaging job fetches the Core release, Linux binary SHA-256, version and
 separate Python consumer/schema source pin specified by
 `docs/ownership.json`'s `core_contract`. The consumer source is explicitly pinned independently; the current pin
-matches the Core v0.6.0 release source. The binary is identified by its release
+matches the Core v0.7.1 release source. The binary is identified by its release
 tag and digest.
 Acceptance executes that released binary and its pinned Python consumers.
 It never compiles Core or substitutes a locally built Core executable.
@@ -222,3 +222,13 @@ Native installation is owned here; use the [fixed, verified standalone entry](na
 ## GitHub platform actions
 
 `github-actions-v1.0.0` moved the advisory findings-feedback and optional report-artifact upload implementations and tests to GateProbes; published as run [39236644757](https://github.com/musutrade/GateProbes/actions/runs/39236644757) and verified from the downloaded archive. Both retain explicit opt-in transport; neither participates in Core quality decisions. Use a full reviewed source commit for Actions references or a verified fixed archive. The duplicated Core copies were removed after that verified download acceptance.
+
+## Core 0.7.1 compatibility update in progress
+
+The active Core contract pins the four downloaded v0.7.1 assets from
+`26734c7055870c1c9c4014bf75039d55b8c91ad8`. Onboarding presets 1.0.2 is already
+published and has downloaded-Core Linux acceptance. Linux workload 1.0.1 and
+GitHub Check 1.0.1 are new compatibility candidates; their manifests do not
+constitute publication or multi-platform acceptance. Existing release artifacts
+and their historical Core evidence remain unchanged. Native Docker runtime
+remains unregistered and unreleased; fake-socket checks are not daemon acceptance.
