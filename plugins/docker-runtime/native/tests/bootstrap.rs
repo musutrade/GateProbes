@@ -210,7 +210,7 @@ fn bootstrap_matrix() {
     let (config, expected, actual) = fixtures();
 
     let run = run_case(
-        &root.path(),
+        root.path(),
         Some(create_fd("config", &config, true, 0o600)),
         Some(create_fd("expected", &expected, true, 0o600)),
         None,
@@ -222,7 +222,7 @@ fn bootstrap_matrix() {
     assert_eq!(run.output, "ok scope-1 scope-1", "valid sealed inputs");
 
     let run = run_case(
-        &root.path(),
+        root.path(),
         None,
         Some(create_fd("expected", &expected, true, 0o600)),
         None,
@@ -232,7 +232,7 @@ fn bootstrap_matrix() {
     );
     assert!(run.output.starts_with("err "), "missing fd3");
     let run = run_case(
-        &root.path(),
+        root.path(),
         Some(create_fd("config", &config, true, 0o600)),
         None,
         None,
@@ -242,7 +242,7 @@ fn bootstrap_matrix() {
     );
     assert!(run.output.starts_with("err "), "missing fd4");
     let run = run_case(
-        &root.path(),
+        root.path(),
         Some(create_fd("config", &config, false, 0o600)),
         Some(create_fd("expected", &expected, true, 0o600)),
         None,
@@ -252,7 +252,7 @@ fn bootstrap_matrix() {
     );
     assert!(run.output.starts_with("err "), "unsealed fd3");
     let run = run_case(
-        &root.path(),
+        root.path(),
         Some(create_fd("config", &config, true, 0o644)),
         Some(create_fd("expected", &expected, true, 0o600)),
         None,
@@ -262,7 +262,7 @@ fn bootstrap_matrix() {
     );
     assert!(run.output.starts_with("err "), "wrong mode");
     let run = run_case(
-        &root.path(),
+        root.path(),
         Some(create_fd("config", &config, true, 0o600)),
         Some(create_fd("expected", &expected, false, 0o600)),
         None,
@@ -273,7 +273,7 @@ fn bootstrap_matrix() {
     assert!(run.output.starts_with("err "), "unsealed fd4");
 
     let run = run_case(
-        &root.path(),
+        root.path(),
         Some(create_fd("config", &config, true, 0o600)),
         Some(create_fd("expected", &vec![b'x'; LIMIT + 1], true, 0o600)),
         None,
@@ -284,7 +284,7 @@ fn bootstrap_matrix() {
     assert!(run.output.starts_with("err "), "oversize fd4");
 
     let run = run_case(
-        &root.path(),
+        root.path(),
         Some(create_fd("config", &config, true, 0o600)),
         Some(create_fd("expected", &expected, true, 0o600)),
         Some(create_fd("extra", b"extra", true, 0o600)),
@@ -304,7 +304,7 @@ fn bootstrap_matrix() {
     regular.write_all(&config).unwrap();
     let regular = duplicate_high(&regular, 10);
     let run = run_case(
-        &root.path(),
+        root.path(),
         Some(regular),
         Some(create_fd("expected", &expected, true, 0o600)),
         None,
@@ -316,7 +316,7 @@ fn bootstrap_matrix() {
 
     let oversized = vec![b'x'; LIMIT + 1];
     let run = run_case(
-        &root.path(),
+        root.path(),
         Some(create_fd("oversize", &oversized, true, 0o600)),
         Some(create_fd("expected", &expected, true, 0o600)),
         None,
@@ -327,7 +327,7 @@ fn bootstrap_matrix() {
     assert!(run.output.starts_with("err "), "oversize fd3");
 
     let run = run_case(
-        &root.path(),
+        root.path(),
         Some(create_fd("config", &config, true, 0o600)),
         Some(create_fd("expected", &expected, true, 0o600)),
         None,
@@ -338,7 +338,7 @@ fn bootstrap_matrix() {
     assert!(run.output.starts_with("err "), "arguments rejected");
 
     let run = run_case(
-        &root.path(),
+        root.path(),
         Some(create_fd("config", &config, true, 0o600)),
         Some(create_fd("expected", &expected, true, 0o600)),
         None,
@@ -351,7 +351,7 @@ fn bootstrap_matrix() {
     let mut changed = expected.clone();
     changed[0] = b' ';
     let run = run_case(
-        &root.path(),
+        root.path(),
         Some(create_fd("config", &config, true, 0o600)),
         Some(create_fd("expected", &expected, true, 0o600)),
         None,
@@ -362,7 +362,7 @@ fn bootstrap_matrix() {
     assert!(run.output.starts_with("err "), "actual mismatch");
 
     let run = run_case(
-        &root.path(),
+        root.path(),
         Some(create_fd("config", &config, true, 0o600)),
         Some(create_fd("expected", &expected, true, 0o600)),
         None,
