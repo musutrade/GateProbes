@@ -96,6 +96,27 @@ class ConfigTest(unittest.TestCase):
             self.assertNotIn(sentinel, str(caught.exception))
         return caught.exception
 
+    def test_public_constructor_is_rejected(self):
+        sock = self.mk_socket()
+        path, payload = self.write(self.data(sock))
+        loaded = config.load(str(path), digest(payload))
+        fields = vars(loaded).copy()
+        attempts = [
+            ((), {}),
+            ((str(path), digest(payload)), {}),
+            ((), fields),
+            ((), {'path': Path('/tmp/forged'), 'sha256': 'x', 'file_identity': (1,),
+                  'socket_identity': (2,), 'socket_path': '/tmp/s', 'socket_uid': 0,
+                  'principal_uid': 0, 'rootless': True, 'api_version': 'x',
+                  'server_version': 'x', 'daemon_id': 'x', 'scope': 'x'}),
+        ]
+        for args, kwargs in attempts:
+            with self.subTest(args=args, kwargs=tuple(kwargs)):
+                with self.assertRaises(config.InvalidConfig):
+                    config.Config(*args, **kwargs)
+        self.assertEqual(loaded, config.load(str(path), digest(payload)))
+        loaded.revalidate()
+
     def test_valid_current_uid_config_and_revalidate(self):
         sock = self.mk_socket()
         path, payload = self.write(self.data(sock))
