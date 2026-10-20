@@ -14,3 +14,8 @@ Version 1.0.1 retains the declared Core 0.5.0 and 0.6.0 compatibility and adds
 candidate is candidate evidence only; downloaded-release acceptance must be
 recorded separately after Core 0.7.0 is published. Existing 1.0.0 artifacts
 remain immutable.
+
+Version 1.0.2 additionally declares Core 0.7.1 compatibility for the registry
+packaging repair. Acceptance against source-built 0.7.1 is candidate evidence;
+released 0.7.0 acceptance remains separately attributed. This declaration does
+not update the repository's released Core contract pin.
