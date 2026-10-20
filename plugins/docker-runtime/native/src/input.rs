@@ -78,7 +78,7 @@ fn require(ok: bool) -> Result<()> {
     }
 }
 fn text(s: &str) -> bool {
-    !s.is_empty() && !s.chars().any(char::is_control)
+    !s.trim().is_empty() && !s.chars().any(char::is_control)
 }
 fn digest(s: &str) -> bool {
     s.len() == 64
