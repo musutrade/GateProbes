@@ -66,6 +66,7 @@ class Config:
     server_version: str
     daemon_id: str
     scope: str
+    source_fd: int | None = None
 
     def __init__(self, *args, **kwargs):
         raise InvalidConfig('runtime configuration requires validated loading')
@@ -73,7 +74,9 @@ class Config:
     def revalidate(self):
         """Recheck pins before/after future I/O; never establishes daemon identity."""
         try:
-            require(load(str(self.path), self.sha256) == self)
+            current = (load_sealed(self.source_fd, self.sha256) if self.source_fd is not None
+                       else load(str(self.path), self.sha256))
+            require(current == self)
         except (OSError, ValueError, TypeError, RecursionError):
             raise InvalidConfig('runtime configuration or local identity rejected') from None
 
@@ -102,7 +105,13 @@ def _load(path, expected_sha256):
         require(hashlib.sha256(data).hexdigest() == expected_sha256)
         require(identity(before) == identity(os.fstat(stream.fileno())))
         require(identity(before) == identity(path.lstat()))
-    value = json.loads(data, object_pairs_hook=pairs)
+    value, socket_info = _values(data, expected_sha256)
+    return _build(path, expected_sha256, identity(before), socket_info, value)
+
+
+def _values(data, expected_sha256):
+    require(hashlib.sha256(data).hexdigest() == expected_sha256)
+    value = json.loads(data.decode('utf-8'), object_pairs_hook=pairs)
     require(type(value) is dict and set(value) == FIELDS)
     require(value['schema'] == 'gate-runtime-engine-config/v2')
     require(value['engine'] == 'docker' and value['transport'] == 'unix-http')
@@ -120,12 +129,42 @@ def _load(path, expected_sha256):
     protected_parents(socket_path)
     socket_info = socket_path.lstat()
     require(stat.S_ISSOCK(socket_info.st_mode) and socket_info.st_uid == value['socket_uid'])
+    return value, socket_info
+
+
+def _build(path, expected_sha256, file_identity, socket_info, value, source_fd=None):
     # The supported construction path exists only after every check succeeds.
     # This is API discipline, not a sandbox against hostile in-process Python.
     config = object.__new__(Config)
     fields = {key: value[key] for key in FIELDS - {'schema', 'engine', 'transport'}}
-    fields.update(path=path, sha256=expected_sha256, file_identity=identity(before),
-                  socket_identity=identity(socket_info))
+    fields.update(path=path, sha256=expected_sha256, file_identity=file_identity,
+                  socket_identity=identity(socket_info), source_fd=source_fd)
     for name, item in fields.items():
         object.__setattr__(config, name, item)
     return config
+
+
+def sealed_bytes(fd):
+    """Linux fixture-only immutable descriptors; no path reopening/fallback."""
+    import fcntl
+    require(type(fd) is int and fd >= 3)
+    seals = fcntl.F_SEAL_SEAL | fcntl.F_SEAL_SHRINK | fcntl.F_SEAL_GROW | fcntl.F_SEAL_WRITE
+    before = os.fstat(fd)
+    require(stat.S_ISREG(before.st_mode) and before.st_uid == os.geteuid())
+    require(before.st_nlink == 0 and stat.S_IMODE(before.st_mode) == 0o600)
+    require(fcntl.fcntl(fd, fcntl.F_GET_SEALS) & seals == seals)
+    data = os.pread(fd, LIMIT + 1, 0)
+    require(len(data) <= LIMIT and before.st_size == len(data))
+    require(identity(before) == identity(os.fstat(fd)))
+    return data, identity(before)
+
+
+def load_sealed(fd, expected_sha256):
+    try:
+        require(type(expected_sha256) is str and
+                re.fullmatch('[0-9a-f]{64}', expected_sha256) is not None)
+        data, file_identity = sealed_bytes(fd)
+        value, socket_info = _values(data, expected_sha256)
+        return _build(None, expected_sha256, file_identity, socket_info, value, fd)
+    except (OSError, ValueError, TypeError, AttributeError, RecursionError):
+        raise InvalidConfig('runtime configuration or local identity rejected') from None

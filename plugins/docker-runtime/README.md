@@ -70,3 +70,29 @@ still needs implementation and acceptance. Results are normalized local facts,
 not full v2 response envelopes or authentication. Request binding, rootless proof,
 real-daemon compatibility, restart detection and mutation remain unimplemented.
 Ownership labels are facts; Core must compare its independent required labels.
+
+## Linux fixture-only v2 descriptor entry
+
+`fixture_wire.py` is an acceptance entry, not an installed plugin executable.
+The independent launching harness authenticates the candidate executable/source
+and version, constructs the full expected request and supplies sealed memfds:
+fd3 contains exact config bytes; fd4 contains the expected v2 Request; stdin
+contains the actual request. The two requests must pass strict typed validation
+and compare equal. Config digest and every config-derived pin must match before
+any connection. There is no environment, argument, cwd or pathname bootstrap.
+
+Only Linux sealed memfds are currently supported: regular anonymous files owned
+by euid, mode0600, all WRITE/GROW/SHRINK/SEAL seals, at most65536 bytes, read by
+pread without reopening paths. Ordinary regular files are intentionally refused.
+Unexpected live descriptors are rejected. The harness must clear environment,
+pass no arguments, use inert cwd, and close stdin after its bounded message.
+The Core v1 host is unchanged; this entry does not authenticate a self-declared
+stdin digest, and cannot establish launch authority without the trusted harness.
+
+Capabilities returns Inspect only with null observations and no connection.
+Remove fails with static stderr and empty stdout. Inspect wraps Present or
+Unavailable (including404) in the full expected v2 binding/operation envelope.
+A complete output is buffered and bounded before writing; oversized results fail
+without partial protocol output. Real Rust v2 parser acceptance is required.
+The entry relies on the harness for process/stdin deadlines; installed-artifact
+bootstrap, production host integration, Absent and mutation remain unsupported.
