@@ -69,6 +69,21 @@ jobs:
       - name: Check links, declarations and forbidden artifacts
         run: python3 tools/ci/check_docs.py
 
+      - name: Runtime adapter configuration tests
+        run: |
+          set -euo pipefail
+          python3 -B - <<'PY'
+          import unittest
+
+          suite = unittest.defaultTestLoader.discover(
+              'plugins/docker-runtime/tests', pattern='test_*.py')
+          count = suite.countTestCases()
+          if count != 24:
+              raise SystemExit(f'expected 24 runtime configuration tests, discovered {count}')
+          result = unittest.TextTestRunner(verbosity=2).run(suite)
+          raise SystemExit(0 if result.wasSuccessful() else 1)
+          PY
+
   plugins:
     name: Plugin checks (${{ matrix.plugin }})
     needs: classify

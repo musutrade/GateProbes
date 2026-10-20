@@ -97,6 +97,12 @@ class CheckDocsTests(unittest.TestCase):
             json.dumps({"name": "demo", "version": "1", "entrypoint": "plugin.py"}))
         self.assertEqual(check_docs.check(self.root), [])
 
+    def test_unreleased_plugin_directory_is_not_registration(self):
+        other = self.root / "plugins" / "other"
+        other.mkdir()
+        (other / "UNRELEASED").write_text("This directory is not a published plugin.\n")
+        self.assertEqual(check_docs.check(self.root), [])
+
     def test_undeclared_plugin_fails(self):
         (self.root / "plugins" / "other").mkdir()
         (self.root / "plugins" / "other" / "plugin.json").write_text(
