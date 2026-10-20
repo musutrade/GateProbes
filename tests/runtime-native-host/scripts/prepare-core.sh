@@ -36,21 +36,18 @@ if [ -e "$CORE" ] && [ ! -e "$CORE/.git" ]; then
 fi
 if [ ! -e "$CORE/.git" ]; then
     mkdir -p "$(dirname "$CORE")"
-    git clone --no-checkout "$SOURCE_REPO" "$CORE"
+    git clone "$SOURCE_REPO" "$CORE"
 fi
 if ! git -C "$CORE" cat-file -e "${PIN}^{commit}" 2>/dev/null; then
     git -C "$CORE" fetch --no-tags origin "$PIN"
 fi
-git -C "$CORE" checkout --detach "$PIN" >/dev/null
-test "$(git -C "$CORE" rev-parse HEAD)" = "$PIN"
-
-# Restore the fixed checkout to its committed original before any verification.
-git -C "$CORE" checkout -- "$HOST_REL"
 if [ -n "$(git -C "$CORE" status --porcelain --untracked-files=all)" ]; then
     echo "core-pin is not clean before patch" >&2
     git -C "$CORE" status --porcelain --untracked-files=all >&2
     exit 1
 fi
+git -C "$CORE" checkout --detach "$PIN" >/dev/null
+test "$(git -C "$CORE" rev-parse HEAD)" = "$PIN"
 test "$(sha256sum "$CORE/$HOST_REL" | cut -d' ' -f1)" = "$ORIGINAL_SHA"
 test "$(sha256sum "$CORE/$CORE_LOCK_REL" | cut -d' ' -f1)" = "$CORE_LOCK_SHA"
 test "$(sha256sum "$PATCH" | cut -d' ' -f1)" = "$PATCH_SHA"

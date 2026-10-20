@@ -31,12 +31,18 @@ PY
 )"
 
 restore() {
-    if [ -e "$CORE/.git" ]; then
-        git -C "$CORE" checkout -- "$HOST_REL" 2>/dev/null || true
+    local expected actual
+    expected="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["patched_runtime_host_sha256"])' "$ROOT/core.lock.json")"
+    actual="$(sha256sum "$CORE/$HOST_REL" | cut -d' ' -f1)"
+    if [ "$actual" = "$expected" ]; then
+        git -C "$CORE" checkout -- "$HOST_REL"
+    else
+        echo "Core seam changed during acceptance; preserving it for review" >&2
+        return 1
     fi
 }
-trap restore EXIT
 "$ROOT/scripts/prepare-core.sh"
+trap restore EXIT
 
 export GATEPROBES_NATIVE_ADAPTER="$BINARY"
 export GATEPROBES_NATIVE_ADAPTER_SHA256="$SHA256"
