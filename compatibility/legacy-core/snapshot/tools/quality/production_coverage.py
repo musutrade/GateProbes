@@ -93,8 +93,8 @@ def load_inventory(path: Path, crate: Path) -> tuple[dict, dict, dict]:
     inventory = read_json(path)
     require(inventory["schema_version"] == 1 and inventory["version"] == "production-source-2",
             "unsupported production inventory version")
-    require(inventory["source_roots"] == ["src", "quality-core"] and inventory["threshold"] == 80,
-            "production policy requires src and quality-core inventory and 80% threshold")
+    require(inventory["source_roots"] == ["src", "quality-core", "runtime-protocol/src"] and inventory["threshold"] == 80,
+            "production policy requires src, quality-core and runtime-protocol inventory and 80% threshold")
     require(inventory["metrics_version"] == "production-location-1", "unknown metrics version")
     require(inventory["inline_exclusions"]["rule"] == "cfg-test-items-1",
             "unknown inline exclusion rule")

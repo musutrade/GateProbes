@@ -837,8 +837,10 @@
       "owner": "frozen Core reference input"
     },
     "tools/quality/production_coverage.py": {
-      "sha256": "170d7d7470161a25380fdfaf1d0ca62c453e988202ad23dd54ac7b4c548683f1",
-      "owner": "frozen Core reference input"
+      "sha256": "50f8548080adb8730b75fe51bbe647979868b72fd00d0b8ca4729a2d47e6437d",
+      "owner": "frozen Core reference input",
+      "source_commit": "10ae6f29fe1accd29ffdce8c58fba612a1f397f4",
+      "note": "Renewed production root classification for runtime-protocol linked into Core; thresholds and legacy test ownership unchanged."
     },
     "tools/quality/project_model.py": {
       "sha256": "d1d493bbd4566b8aaf469d0f28fdee89a3c3a3e3ebfe3e1068b9d93e90d1b196",
