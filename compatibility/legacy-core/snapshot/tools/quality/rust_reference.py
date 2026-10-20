@@ -254,8 +254,7 @@ def project_risk(root, sources, context, report, previous, *, label):
             evidence.require(source in rust.SOURCE_FILES, 'unknown Rust production source')
         else:
             evidence.require(source in hotspots, 'unknown historical Rust source')
-        path = ('tools/harness-gate/' + source.removeprefix('../') if source.startswith('../quality-core/')
-                else 'tools/harness-gate/src/' + source)
+        path = source_path(source)
         record = projection.add(f'function-{index}', path,
                                 row['source_sha256'], 'function/v1', row, values, states, group)
         identities.append({'subject': record['subject']['id'], 'source': row['source'], 'name': row['name'],
@@ -283,11 +282,29 @@ def project_risk(root, sources, context, report, previous, *, label):
     return projection, result, identities
 
 
+SOURCE_ROOTS = (
+    'tools/harness-gate/src/',
+    'tools/harness-gate/quality-core/',
+    'tools/harness-gate/runtime-protocol/src/',
+)
+
+
+def source_path(source):
+    # Only these two reviewed sibling roots may escape the primary src root.
+    if source.startswith(('../quality-core/', '../runtime-protocol/src/')):
+        path = 'tools/harness-gate/' + source.removeprefix('../')
+    else:
+        path = 'tools/harness-gate/src/' + source
+    model.canonical_path(path)
+    evidence.require(path.startswith(SOURCE_ROOTS), 'unsupported Rust source root')
+    return path
+
+
 def sources_from_archive(archive, destination):
     with tarfile.open(archive) as bundle:
         seen = set()
         for member in bundle:
-            if not member.name.startswith(('tools/harness-gate/src/', 'tools/harness-gate/quality-core/')) or member.isdir():
+            if not member.name.startswith(SOURCE_ROOTS) or member.isdir():
                 continue
             model.canonical_path(member.name)
             evidence.require(member.isfile() and member.name not in seen, 'unsafe/duplicate source archive member')
