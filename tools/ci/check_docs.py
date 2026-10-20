@@ -16,7 +16,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-SKIP_DIRECTORY_NAMES = {".git", "node_modules", "target"}
+SKIP_DIRECTORY_NAMES = {".git", "core-pin", "node_modules", "target"}
 FORBIDDEN_DIRECTORY_NAMES = {"node_modules", "target", "dist"}
 FORBIDDEN_FILE_SUFFIXES = (".tgz", ".tar.gz", ".tar")
 LINK = re.compile(r"\]\(([^)\s]+)")

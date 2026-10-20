@@ -39,6 +39,7 @@ never passes. Unknown scope runs the conservative full set.
 | Change | Routed checks |
 | --- | --- |
 | Any | Lightweight declaration, link and forbidden-artifact checks (stdlib, no language toolchain) |
+| Any (Linux) | `tests/runtime-v2-wire`: 51 Python runtime adapter tests and 21 Rust sealed-fd acceptance tests against the clean pinned Core `1d066cc` checkout; both assert exact counts and zero skips |
 | `plugins/<name>/**` | That plugin's language checks and the pinned-Core protocol acceptance |
 | A registered shared protocol | Only the plugins that declare that protocol in `plugins/registry.json` |
 | Other shared paths (`tools/**`, `.github/**`, root manifests, `docs/ownership.json`, `LICENSE`) | All registered plugins (conservative) |

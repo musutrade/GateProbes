@@ -3,7 +3,7 @@
 
 Selection values must be present and exactly `true` or `false`. A missing or
 invalid selection is a failure, never a silent skip. Classification must have
-succeeded. Lightweight checks always run.
+succeeded. Lightweight checks and the Linux runtime wire acceptance always run.
 """
 from __future__ import annotations
 
@@ -18,7 +18,8 @@ def selection(value: str, name: str) -> bool:
 
 
 def evaluate(classify_result: str, run_light: str, run_plugins: str,
-             light_result: str, plugins_result: str, presets_result: str) -> list[str]:
+             light_result: str, runtime_wire_result: str,
+             plugins_result: str, presets_result: str) -> list[str]:
     failures = []
     if classify_result != "success":
         return [f"classification did not succeed: {classify_result}"]
@@ -31,6 +32,13 @@ def evaluate(classify_result: str, run_light: str, run_plugins: str,
         failures.append("run_light must always be true")
     elif light_result != "success":
         failures.append(f"lightweight checks selected but {light_result}")
+    if light:
+        if runtime_wire_result != "success":
+            failures.append(
+                f"runtime wire acceptance selected but {runtime_wire_result}")
+    elif runtime_wire_result not in ("skipped", "success"):
+        failures.append(
+            f"runtime wire acceptance not selected but {runtime_wire_result}")
     for label, result in (("plugin", plugins_result), ("preset", presets_result)):
         if plugins:
             if result != "success":
@@ -46,11 +54,13 @@ def main() -> int:
     parser.add_argument("--run-light", required=True)
     parser.add_argument("--run-plugins", required=True)
     parser.add_argument("--light-result", required=True)
+    parser.add_argument("--runtime-wire-result", required=True)
     parser.add_argument("--plugins-result", required=True)
     parser.add_argument("--presets-result", required=True)
     args = parser.parse_args()
     failures = evaluate(args.classify_result, args.run_light, args.run_plugins,
-                        args.light_result, args.plugins_result, args.presets_result)
+                        args.light_result, args.runtime_wire_result,
+                        args.plugins_result, args.presets_result)
     if failures:
         print("aggregate failed:", file=sys.stderr)
         for failure in failures:
