@@ -62,7 +62,7 @@ class PackageContract(unittest.TestCase):
     def test_deterministic_archive_sbom_and_member_set(self):
         first = self.build(name="first")
         second = self.build(name="second")
-        archive_name = "gateprobes-github-check-1.0.0.tar.gz"
+        archive_name = "gateprobes-github-check-1.0.1.tar.gz"
         self.assertEqual(sorted(p.name for p in first.iterdir()),
                          [archive_name, archive_name + ".sbom.cdx.json"])
         data = (first / archive_name).read_bytes()
@@ -84,14 +84,14 @@ class PackageContract(unittest.TestCase):
                 self.assertEqual(stream.extractfile(member).read(), expected[member.name])
         sbom = json.loads(sbom_bytes)
         self.assertEqual(sbom["metadata"]["component"], {"type": "application", "name": PRODUCT,
-                                                         "version": "1.0.0"})
+                                                         "version": "1.0.1"})
         components = {c["name"]: c["hashes"][0]["content"] for c in sbom["components"]}
         self.assertEqual(components, {name: hashlib.sha256(expected[f"{prefix}/{name}"]).hexdigest()
                                       for name in MEMBERS})
 
     def test_archive_stays_inside_output_and_excludes_acceptance_files(self):
         output = self.build(name="layout")
-        archive = output / "gateprobes-github-check-1.0.0.tar.gz"
+        archive = output / "gateprobes-github-check-1.0.1.tar.gz"
         self.assertEqual(archive.parent, output)
         with tarfile.open(archive) as stream:
             names = [m.name for m in stream.getmembers()]
@@ -101,9 +101,9 @@ class PackageContract(unittest.TestCase):
         output = self.build(name="extract")
         extract = Path(tempfile.mkdtemp(prefix="consumer-extract-"))
         self.addCleanup(shutil.rmtree, extract, True)
-        with tarfile.open(output / "gateprobes-github-check-1.0.0.tar.gz") as stream:
+        with tarfile.open(output / "gateprobes-github-check-1.0.1.tar.gz") as stream:
             stream.extractall(extract, filter="data")
-        consumer = extract / "gateprobes-github-check-1.0.0" / "github_check.py"
+        consumer = extract / "gateprobes-github-check-1.0.1" / "github_check.py"
         env = {k: v for k, v in os.environ.items()
                if k not in ("GH_TOKEN", "GITHUB_TOKEN", "GATEHOUSE_CHECK_TOKEN")}
         env["GATEHOUSE_CORE"] = str(self.core.resolve())
