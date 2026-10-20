@@ -1,15 +1,18 @@
 # Docker runtime adapter (unreleased implementation)
 
-This directory currently contains only the protected local configuration reader.
-It is not a registered or released plugin, does not implement the runtime wire
-protocol, and never connects to a daemon or runs a command.
+This directory contains a protected local configuration reader and a bounded,
+read-only Unix HTTP transport. It is not a registered or released plugin and
+does not implement the runtime wire protocol. The transport connects to the
+configured Unix socket; current acceptance uses disposable fake sockets only.
+No real daemon acceptance or command execution is provided.
 
 `config.load(path, expected_sha256)` requires an independent SHA-256 pin for the
 exact configuration bytes. The private regular single-link config is owned by
 the current uid. Config and Unix socket paths must be canonical absolute paths,
 with no symlink components; ancestors must belong to root/current uid and have
 no group/world write bits. Socket ownership and client principal are separate.
-The socket must exist and be a Unix socket, but no connection is made. A frozen
+The config reader checks that the socket exists and is a Unix socket without
+connecting; the separate HTTP transport performs connections. A frozen
 Config records file/socket identities and revalidates by rereading the pins.
 Tests must provision private roots under a protected parent, not shared /tmp.
 
@@ -22,8 +25,9 @@ adapter_config_sha256; this reader alone does not validate request bindings.
 
 This is a cooperative protected-filesystem boundary, not hostile same-account
 isolation or authenticated daemon evidence. Path checks do not eliminate all
-races with privileged actors. Server/API observations, strict bounded HTTP,
-correct-route absence, v2 request/response handling, packaging and real-engine
+races with privileged actors. The bounded HTTP framing subset is described below.
+Server/API observations, correct-route absence, v2 request/response handling,
+packaging and real-engine
 acceptance remain unfinished. Podman, TCP/TLS and CLI transport are unsupported.
 
 Direct `Config(...)` construction is disabled. Only successful `load` creates a
