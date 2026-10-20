@@ -919,8 +919,10 @@
       "owner": "GateProbes legacy compatibility"
     },
     "tools/quality/rust_reference.py": {
-      "sha256": "73a76252eebbd1534cfae8d395c70c03a862de3c17908c721eee4d6c5a179a75",
-      "owner": "frozen Core reference input"
+      "sha256": "815013865e6b90662b9bfd81a33ede6999fc1dd5d3e37727f58be2b162fbf260",
+      "owner": "frozen Core reference input",
+      "source_commit": "3ef6d40e653cce31538b9cda3107da453f89c7c1",
+      "note": "Explicit runtime-protocol sibling source projection/archive roots; no risk threshold or source exclusion changes."
     },
     "tools/quality/schema/capability-requirements.schema.json": {
       "sha256": "763da8a3a15cde9c338e8ca076e52488f5d0795ff61e05f8018b61cdc63c40ea",
