@@ -26,9 +26,8 @@ adapter_config_sha256; this reader alone does not validate request bindings.
 This is a cooperative protected-filesystem boundary, not hostile same-account
 isolation or authenticated daemon evidence. Path checks do not eliminate all
 races with privileged actors. The bounded HTTP framing subset is described below.
-Server/API observations, correct-route absence, v2 request/response handling,
-packaging and real-engine
-acceptance remain unfinished. Podman, TCP/TLS and CLI transport are unsupported.
+Full v2 request/response handling, correct-route absence, packaging and
+real-engine acceptance remain unfinished. Podman, TCP/TLS and CLI transport are unsupported.
 
 Direct `Config(...)` construction is disabled. Only successful `load` creates a
 validated frozen instance; revalidation is still required before/after future
@@ -51,9 +50,10 @@ encoding, missing length, truncation and oversized payloads reject.
 This first framing subset requires Content-Length. Chunked and EOF-delimited
 responses are unsupported and fail closed; real Docker compatibility is not yet
 established. Reply status/body are transport data only: even HTTP 404 does not
-establish absence here. JSON identity/error normalization and pre/post engine
-observations remain future work. No mutation requests are supported, and tests
-must use only disposable fake Unix sockets, never a daemon socket.
+establish absence here. Identity and Present normalization is described below;
+JSON error-envelope normalization and full v2 response handling remain future
+work. No mutation requests are supported, and tests must use only disposable
+fake Unix sockets, never a daemon socket.
 
 ## Staged identity and Present normalization
 
