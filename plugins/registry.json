@@ -240,6 +240,25 @@
         "package": "python3 ../../../tools/release/package_plugin.py --plugin docker-runtime --core-root \"$RUNNER_TEMP/core\" --output \"$RUNNER_TEMP/docker-runtime-package\""
       },
       "protocols": []
+    },
+    "runtime-importer": {
+      "path": "plugins/runtime-importer",
+      "language": "python",
+      "platforms": [
+        "linux"
+      ],
+      "toolchain": "Python 3.11+; package-local released Core0.8.0",
+      "toolchains": [
+        "python"
+      ],
+      "dedicated_ci": "runtime-importer",
+      "entries": {
+        "install": "python3 -I -B ../../tools/runtime_import/install.py --help",
+        "test": "python3 -m unittest discover -s tests_package -v",
+        "contract": "python3 ../../tools/release/accept_importer.py --help",
+        "package": "python3 ../../tools/release/package_plugin.py --plugin runtime-importer --core-root \"$RUNNER_TEMP/importer-core\" --output \"$RUNNER_TEMP/importer-dist\""
+      },
+      "protocols": []
     }
   },
   "runners": {

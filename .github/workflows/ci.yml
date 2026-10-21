@@ -92,6 +92,35 @@ jobs:
               raise SystemExit('required runtime import tests failed or skipped')
           PYIMPORT
 
+  runtime-importer:
+    name: Standalone runtime importer acceptance
+    needs: classify
+    if: needs.classify.outputs.run_light == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - name: Fetch independently pinned released inputs
+        run: python3 tools/release/importer_core.py --output "$RUNNER_TEMP/importer-core"
+      - name: Distribution tests (30, no skips)
+        env:
+          GATEHOUSE_CORE: ${{ runner.temp }}/importer-core/bin/harness-gate-linux-amd64
+          RUNTIME_IMPORT_ASSETS: ${{ runner.temp }}/importer-core/runtime-assets
+        run: |
+          python3 - <<'PYIMPORTER'
+          import unittest
+          suite = unittest.defaultTestLoader.discover('plugins/runtime-importer/tests_package')
+          assert suite.countTestCases() == 30
+          result = unittest.TextTestRunner(verbosity=2).run(suite)
+          assert result.testsRun == 30 and not result.skipped and not result.expectedFailures and result.wasSuccessful()
+          PYIMPORTER
+      - name: Package and accept extracted importer
+        run: |
+          set -euo pipefail
+          mkdir -m 700 "$RUNNER_TEMP/importer-home"
+          export HOME="$RUNNER_TEMP/importer-home"
+          python3 tools/release/package_plugin.py --plugin runtime-importer --core-root "$RUNNER_TEMP/importer-core" --output "$RUNNER_TEMP/importer-dist"
+
   runtime-import-joint:
     name: Installed runtime joint acceptance
     needs: classify
@@ -710,7 +739,7 @@ jobs:
   required_aggregate:
     name: Required Quality Aggregate
     if: ${{ always() }}
-    needs: [ classify, lightweight, runtime-wire, runtime-repro, runtime-import-joint, plugins, presets, compatibility ]
+    needs: [ classify, lightweight, runtime-wire, runtime-repro, runtime-import-joint, runtime-importer, plugins, presets, compatibility ]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -748,6 +777,17 @@ jobs:
           if selected not in ('true', 'false') or (selected == 'true' and result != 'success') or (selected == 'false' and result not in ('success', 'skipped')):
               raise SystemExit('installed runtime acceptance missing or failed')
           PYJOINT
+      - name: Require standalone importer acceptance
+        env:
+          SELECTED: ${{ needs.classify.outputs.run_light }}
+          RESULT: ${{ needs.runtime-importer.result }}
+        run: |
+          python3 - <<'PYIMPORTER'
+          import os
+          selected, result = os.environ['SELECTED'], os.environ['RESULT']
+          if selected not in ('true', 'false') or (selected == 'true' and result != 'success') or (selected == 'false' and result not in ('success', 'skipped')):
+              raise SystemExit('standalone importer acceptance missing or failed')
+          PYIMPORTER
       - name: Require every selected task to succeed
         run: |
           set -euo pipefail

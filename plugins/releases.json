@@ -82,6 +82,13 @@
       "manifests": [
         "plugin.json"
       ]
+    },
+    "runtime-importer": {
+      "tag_prefix": "runtime-importer-v",
+      "archive": "gateprobes-runtime-importer-{version}.tar.gz",
+      "manifests": [
+        "plugin.json"
+      ]
     }
   }
 }
