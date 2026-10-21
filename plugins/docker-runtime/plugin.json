@@ -1,7 +1,7 @@
 {
   "schema": "gateprobes-runtime-adapter/v1",
   "name": "docker-runtime",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "executable": "gateprobes-docker-runtime",
   "protocol": "gate-runtime/v2",
   "authority": "read-only-runtime-facts",

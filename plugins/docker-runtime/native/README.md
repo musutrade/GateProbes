@@ -1,4 +1,4 @@
-# Native Docker runtime adapter 0.1.0 candidate
+# Native Docker runtime adapter 0.1.1 candidate
 
 This crate is an unpublished release candidate. Its single native
 executable has no Core production dependency and does not launch Python. The
@@ -34,7 +34,7 @@ No tag, release, service integration or lease migration is claimed by this sourc
 The package build pins Rust 1.99.1; reproducibility requires independent clean
 build comparison and is not implied by the version declaration.
 
-## Musl reproducibility repair under validation
+## Musl build identity
 
 The packaging candidate uses the Rust 1.99.1 musl target with its absolute
 `rust-lld` and self-contained CRT. `build-inputs.json` pins compiler, linker,
@@ -43,5 +43,10 @@ shipped CRT is not evidence of invoking the host GCC. The resulting ELF must
 be PIE with RELRO and a non-executable stack, without INTERP or NEEDED entries.
 Static linking embeds musl: security fixes require rebuilding and shipping a
 new artifact. This does not establish kernel portability or daemon compatibility.
-Cross-environment identity still requires an independent runner comparison.
+The preceding repair was byte-identical on Ubuntu 22.04, Ubuntu 24.04 and the
+local Ubuntu 26.04 host (GateProbes CI run 39535862193). This 0.1.1 version
+changes the artifact identity and must independently pass the same comparison
+before publication. Ubuntu 22.04 checks build identity only: released Core 0.7.1
+emits a GLIBC_2.39 loader warning there. Strict released-Core acceptance runs
+on Ubuntu 24.04 and still requires empty stderr.
 The published 0.1.0 artifact is immutable; this candidate must not replace it.

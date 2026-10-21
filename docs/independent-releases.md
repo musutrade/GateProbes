@@ -241,6 +241,6 @@ strict extracted-package acceptance against downloaded Core 0.7.1. That Core
 binary emits a weak `GLIBC_2.39` loader warning on Ubuntu 22.04, so this matrix
 does not certify Core compatibility there. Successful acceptance still requires
 empty stderr. The release packaging entry always runs Core acceptance; the
-build-only function is not a release acceptance substitute. Cross-runner equality
-remains pending until the required comparison job succeeds. The published
+build-only function is not a release acceptance substitute. The pre-version-bump repair passed cross-runner equality in CI run
+39535862193; each new artifact version must pass that comparison again. The published
 `docker-runtime-v0.1.0` assets remain immutable.
