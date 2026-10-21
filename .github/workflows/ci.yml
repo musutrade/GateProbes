@@ -68,6 +68,29 @@ jobs:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
       - name: Check links, declarations and forbidden artifacts
         run: python3 tools/ci/check_docs.py
+      - name: Offline runtime import (15 required tests; 2 local-only acceptances excluded)
+        run: |
+          python3 -B - <<'PYIMPORT'
+          import unittest
+          def flatten(suite):
+              for item in suite:
+                  if isinstance(item, unittest.TestSuite):
+                      yield from flatten(item)
+                  else:
+                      yield item
+          tests = list(flatten(unittest.defaultTestLoader.discover(
+              'tools/runtime_import/tests', pattern='test_*.py')))
+          local_only = {'test_joint_core_main_capabilities_with_published_assets',
+                        'test_published_assets_smoke_if_supplied'}
+          excluded = [test for test in tests if test._testMethodName in local_only]
+          required = [test for test in tests if test._testMethodName not in local_only]
+          if len(tests) != 17 or len(required) != 15 or {test._testMethodName for test in excluded} != local_only or len(excluded) != 2:
+              raise SystemExit('runtime import test inventory changed')
+          print('Local-only, not CI evidence:', ', '.join(sorted(local_only)))
+          result = unittest.TextTestRunner(verbosity=2).run(unittest.TestSuite(required))
+          if result.testsRun != 15 or result.skipped or result.expectedFailures or not result.wasSuccessful():
+              raise SystemExit('required runtime import tests failed or skipped')
+          PYIMPORT
 
   runtime-wire:
     name: Runtime v2 wire acceptance (${{ matrix.runner }})
