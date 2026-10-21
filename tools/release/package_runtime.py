@@ -117,13 +117,15 @@ def package(root: Path, output: Path, core: Path):
         except subprocess.CalledProcessError:
             # This harness uses only disposable fake-socket inputs. Preserve its
             # bounded stderr diagnostics before the temporary stage is removed.
-            if report.is_file():
-                for case in json.loads(report.read_text()).get('cases', []):
+            try:
+                for case in json.loads(report.read_text())['cases']:
                     if not case.get('ok'):
                         print('runtime acceptance diagnostic: ' + json.dumps({
                             'case': case.get('case'), 'exit': case.get('exit'),
                             'errors': case.get('errors'), 'stderr': case.get('stderr'),
                         }), file=sys.stderr)
+            except (OSError, ValueError, KeyError, TypeError, AttributeError):
+                print('runtime acceptance report unavailable or malformed', file=sys.stderr)
             raise
         sbom = {'bomFormat': 'CycloneDX', 'specVersion': '1.5', 'version': 1,
                 'metadata': {'component': {'type': 'application', 'name': 'docker-runtime', 'version': identity['version']}},
