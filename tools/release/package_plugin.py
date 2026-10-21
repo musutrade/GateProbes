@@ -25,6 +25,8 @@ import package_actions
 import package_operator
 import package_onboarding
 import package_runtime
+import package_importer
+import importer_core
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -389,6 +391,16 @@ def main() -> None:
     args = parser.parse_args()
     row = plugin_release.resolve(args.plugin)
     core = args.core_root.resolve()
+    if args.plugin == "runtime-importer":
+        importer_core.verify(core)
+        output = args.output.resolve()
+        output.mkdir(parents=True, exist_ok=False)
+        assets = core / "runtime-assets"
+        package_importer.package(ROOT, output, core, assets)
+        expected = {row["archive"], row["archive"] + ".sbom.cdx.json"}
+        if {path.name for path in output.iterdir()} != expected:
+            raise RuntimeError("importer packaged assets differ")
+        return
     contract = pinned_core.verify(core)
     os.environ["HARNESS_GATE_BINARY"] = str(core / "bin" / contract["platforms"]["linux"]["binary"])
     os.environ["HARNESS_GATE_EXPECTED_VERSION"] = contract["version"]

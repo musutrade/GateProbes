@@ -163,6 +163,15 @@
       "authority": "read-only-runtime-facts",
       "contract_test": "plugins/docker-runtime/accept.py",
       "status": "unpublished-candidate"
+    },
+    "runtime-importer": {
+      "paths": [
+        "plugins/runtime-importer"
+      ],
+      "authority": "offline-installation-only",
+      "contract_test": "tools/release/accept_importer.py",
+      "core_pin": "plugins/runtime-importer/core-pin.json",
+      "status": "unpublished-candidate"
     }
   },
   "inputs": [

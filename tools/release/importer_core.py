@@ -47,6 +47,19 @@ def prepare(directory, root=ROOT):
     binary.write_bytes(data)
     binary.chmod(0o500)
     verify(directory, root)
+    assets = directory / 'runtime-assets'
+    assets.mkdir()
+    runtime = json.loads((root / 'tools/runtime_import/release-pin.json').read_text())
+    names = {'gateprobes-docker-runtime-0.1.1-linux-amd64.tar.gz': 'archive_sha256',
+             'gateprobes-docker-runtime-0.1.1-linux-amd64.tar.gz.sbom.cdx.json': 'sbom_sha256',
+             'release-inventory.json': 'inventory_sha256', 'SHA256SUMS': 'checksums_sha256'}
+    for name, field in names.items():
+        url = f"https://github.com/musutrade/GateProbes/releases/download/docker-runtime-v0.1.1/{name}"
+        with urllib.request.urlopen(url, timeout=60) as response:
+            payload = response.read(16 * 1024 * 1024 + 1)
+        if len(payload) > 16 * 1024 * 1024 or hashlib.sha256(payload).hexdigest() != runtime[field]:
+            raise ValueError('importer runtime input digest mismatch')
+        (assets / name).write_bytes(payload)
     (directory / 'contract.json').write_text(json.dumps(pin, indent=2) + '\n')
 
 

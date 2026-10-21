@@ -15,6 +15,7 @@ on:
       - 'github-actions-v*'
       - 'operator-lifecycle-v*'
       - 'onboarding-presets-v*'
+      - 'runtime-importer-v*'
       - 'docker-runtime-v*'
 
 permissions:
@@ -94,7 +95,11 @@ jobs:
         with:
           toolchain: '1.97.1'
           components: llvm-tools-preview, rust-docs
+      - name: Fetch and verify importer-specific released inputs
+        if: needs.policy.outputs.plugin == 'runtime-importer'
+        run: python3 tools/release/importer_core.py --output "$RUNNER_TEMP/core"
       - name: Fetch and verify the pinned released Core contract
+        if: needs.policy.outputs.plugin != 'runtime-importer'
         run: python3 tools/release/pinned_core.py --output "$RUNNER_TEMP/core"
       - name: Test, package and accept the clean installed runtime
         env:

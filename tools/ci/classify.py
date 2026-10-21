@@ -152,6 +152,10 @@ def classify(paths: list[str], registry: dict) -> dict:
     matrix = {"include": []}
     for name in sorted(affected):
         row = plugins[name]
+        if row.get("dedicated_ci"):
+            if name != "runtime-importer" or row["dedicated_ci"] != "runtime-importer":
+                raise ValueError("unknown dedicated plugin CI route")
+            continue
         for platform in row["platforms"]:
             runner = runners[platform]
             matrix["include"].append({
@@ -165,7 +169,7 @@ def classify(paths: list[str], registry: dict) -> dict:
                    ("rust_toolchain", "rust_components", "cargo_checks", "merges_schemas")
                    if key in row},
             })
-    selection = {"run_light": True, "run_plugins": bool(affected)}
+    selection = {"run_light": True, "run_plugins": bool(matrix["include"])}
     return {"classes": classes, "plugins": sorted(affected), "matrix": matrix, "selection": selection}
 
 
