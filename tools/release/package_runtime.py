@@ -4,6 +4,8 @@ import hashlib
 import importlib.util
 import io
 import json
+import subprocess
+import sys
 from pathlib import Path
 import tarfile
 import tempfile
@@ -107,9 +109,22 @@ def package(root: Path, output: Path, core: Path):
         for name, expected in files.items():
             if (directory / name).read_bytes() != expected:
                 raise RuntimeError('extracted runtime member differs')
-        run('python3', str(directory / 'accept.py'), '--binary', str(directory / BINARY),
-            '--core', str(core / 'bin/harness-gate-linux-amd64'), '--version', identity['version'],
-            '--report', str(stage / 'acceptance.json'))
+        report = stage / 'acceptance.json'
+        try:
+            run('python3', str(directory / 'accept.py'), '--binary', str(directory / BINARY),
+                '--core', str(core / 'bin/harness-gate-linux-amd64'), '--version', identity['version'],
+                '--report', str(report))
+        except subprocess.CalledProcessError:
+            # This harness uses only disposable fake-socket inputs. Preserve its
+            # bounded stderr diagnostics before the temporary stage is removed.
+            if report.is_file():
+                for case in json.loads(report.read_text()).get('cases', []):
+                    if not case.get('ok'):
+                        print('runtime acceptance diagnostic: ' + json.dumps({
+                            'case': case.get('case'), 'exit': case.get('exit'),
+                            'errors': case.get('errors'), 'stderr': case.get('stderr'),
+                        }), file=sys.stderr)
+            raise
         sbom = {'bomFormat': 'CycloneDX', 'specVersion': '1.5', 'version': 1,
                 'metadata': {'component': {'type': 'application', 'name': 'docker-runtime', 'version': identity['version']}},
                 'components': [{'type': 'file', 'name': name, 'hashes': [{'alg': 'SHA-256', 'content': hashlib.sha256(data).hexdigest()}]}
