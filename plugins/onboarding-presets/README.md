@@ -19,3 +19,9 @@ Version 1.0.2 additionally declares Core 0.7.1 compatibility for the registry
 packaging repair. Acceptance against source-built 0.7.1 is candidate evidence;
 released 0.7.0 acceptance remains separately attributed. This declaration does
 not update the repository's released Core contract pin.
+
+Version 1.0.3 adds Core 0.8.0 for the installed-runtime host release. Initial
+0.8.0 acceptance uses a source-built candidate and is not released-Core evidence.
+Acceptance against downloaded Core 0.7.1 remains separately attributed; after
+0.8.0 publication, repeat against the downloaded binary. The repository Core
+contract pin and all prior immutable artifacts remain unchanged.
