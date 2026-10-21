@@ -31,7 +31,7 @@ fn fetch(
     }
     document(&reply.body)
 }
-fn identity(
+pub(crate) fn identity(
     config: &Config,
     socket: &SocketIdentity,
     deadline: Instant,

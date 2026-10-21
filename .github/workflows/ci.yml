@@ -219,7 +219,7 @@ jobs:
           set -euo pipefail
           cargo fmt --check
           cargo clippy --locked --target x86_64-unknown-linux-musl --all-targets -- -D warnings
-      - name: Native runtime tests (33, no skips)
+      - name: Native runtime tests (45, no skips)
         env:
           CARGO_TARGET_DIR: ${{ runner.temp }}/runtime-native-tests-target
         run: ./tests/runtime-native-host/scripts/run-native-tests.sh

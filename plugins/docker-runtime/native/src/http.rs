@@ -21,6 +21,7 @@ pub enum Route<'a> {
     Version,
     Info,
     Inspect(&'a str),
+    Image(&'a str),
 }
 pub struct Reply {
     pub status: u16,
@@ -228,6 +229,20 @@ pub fn get(
     let path = match route {
         Route::Version => "/version".to_owned(),
         Route::Info => format!("/v{}/info", config.api_version),
+        Route::Image(image) => {
+            crate::input_v3::validate_image(image)?;
+            let encoded: String = image
+                .bytes()
+                .map(|b| {
+                    if b.is_ascii_alphanumeric() || matches!(b, b'-' | b'.' | b'_' | b'~') {
+                        (b as char).to_string()
+                    } else {
+                        format!("%{b:02X}")
+                    }
+                })
+                .collect();
+            format!("/v{}/images/{encoded}/json", config.api_version)
+        }
         Route::Inspect(id) => {
             if id.len() != 64
                 || !id

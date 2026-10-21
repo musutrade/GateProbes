@@ -35,7 +35,7 @@ repository. Set `PROXY_ENV` for network access if needed. `core-pin/` and
 ## CI
 
 The required Linux `runtime-wire` job runs the existing 51 Python adapter tests
-and 24-test wire acceptance, then native `fmt`/`clippy`, exactly 33 native tests
+and 24-test wire acceptance, then native `fmt`/`clippy`, exactly 45 native tests
 with zero skips, and the exact-count actual-host acceptance above. Every count
 is asserted and an empty or skipped result fails the job. The native binary is
 built from the PR checkout with `--locked`; Core remains the fixed `b6ef961`

@@ -50,3 +50,17 @@ before publication. Ubuntu 22.04 checks build identity only: released Core 0.7.1
 emits a GLIBC_2.39 loader warning there. Strict released-Core acceptance runs
 on Ubuntu 24.04 and still requires empty stderr.
 The published 0.1.0 artifact is immutable; this candidate must not replace it.
+
+## Unreleased v3 readiness candidate
+
+Native crate 0.2.0 additionally builds `gateprobes-docker-readiness`, a dedicated
+`gate-runtime/v3` entry with `gate-runtime-engine-config/v3`. The existing
+`gateprobes-docker-runtime` entry continues to use v2. There is no protocol
+fallback or capability-based readiness. The new entry observes identity before
+and after an exact percent-encoded image lookup, never pulls, and requires an
+exact RepoDigests entry for digest references. A valid image-route404 reports
+image_present=false; unavailable cannot establish absence of a container.
+
+This is a local source candidate. Existing runtime0.1.1 package/import/release
+metadata remains tied to immutable v2 artifacts. No 0.2.0 archive, signature,
+provenance, importer or real-daemon acceptance is claimed by these sources.
