@@ -1,0 +1,12 @@
+{
+  "schema": "gateprobes-runtime-release-pin/v1",
+  "repository": "https://github.com/musutrade/GateProbes",
+  "tag": "docker-runtime-v0.1.1",
+  "version": "0.1.1",
+  "source_commit": "29c619b603ef1656dc5901466385a879806cf104",
+  "archive_sha256": "9be496218abde930e3682170aeac2b6d450db3adb7bacf588bf5cfdb3f9fe213",
+  "sbom_sha256": "185a1b8bc0833e9cb630f6fb4a74193b871eccf89b71bebd69cf7e9fabd8a28e",
+  "executable_sha256": "44e668164d1799beba9de4ba5a8ef16951e72167fa5a36c9b500cf8a9316d9a9",
+  "inventory_sha256": "ef35b2aaf878822bd3a9eec199b05755ac14d20da8ec048a4f1d0f80b43e6a3b",
+  "checksums_sha256": "ee0a1170eb11339874b91244ee51958c8471427d47f39edd32b480e42fdc3861"
+}

@@ -219,35 +219,31 @@ class InstallCase(unittest.TestCase):
         self.assertTrue((self.destination / "installation.json").is_file())
 
     def test_joint_core_main_capabilities_with_published_assets(self):
-        core = os.environ.get("GATEHOUSE_CORE_MAIN")
-        assets_dir = os.environ.get("RUNTIME_IMPORT_ASSETS")
-        if not core or not assets_dir:
-            return
+        core = os.environ["GATEHOUSE_CORE_MAIN"]
+        source = Path(os.environ["GATEHOUSE_CORE_SOURCE"])
+        self.assertEqual(subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=source, text=True).strip(),
+                         "a4e6dba7b2d6ad06336c67e79d1132eb96a5bab7")
+        self.assertEqual(subprocess.check_output(["git", "status", "--porcelain", "--untracked-files=no"], cwd=source), b"")
         root = self.root
-        asset_path = Path(assets_dir)
-        archive_bytes = (asset_path / fixture.ARCHIVE_NAME).read_bytes()
-        sbom_bytes = (asset_path / (fixture.ARCHIVE_NAME + ".sbom.cdx.json")).read_bytes()
-        inventory_bytes = (asset_path / "release-inventory.json").read_bytes()
-        checksum_bytes = (asset_path / "SHA256SUMS").read_bytes()
-        with tarfile.open(fileobj=io.BytesIO(archive_bytes), mode="r:gz") as stream:
-            binary = stream.extractfile(f"{fixture.PREFIX}/{preflight.BINARY}").read()
-        values = json.loads(fixture.pin(archive_bytes, sbom_bytes, inventory_bytes, checksum_bytes))
-        values["executable_sha256"] = sha(binary)
-        pin_bytes = json.dumps(values, sort_keys=True).encode()
+        asset_path = Path(os.environ["RUNTIME_IMPORT_ASSETS"])
+        pin_bytes = (ROOT / "tools/runtime_import/release-pin.json").read_bytes()
+        values = json.loads(pin_bytes)
         self.pin_path.write_bytes(pin_bytes)
         os.chmod(self.pin_path, 0o600)
-        for name, data in [
-            (fixture.ARCHIVE_NAME, archive_bytes),
-            (fixture.ARCHIVE_NAME + ".sbom.cdx.json", sbom_bytes),
-            ("release-inventory.json", inventory_bytes),
-            ("SHA256SUMS", checksum_bytes),
-        ]:
-            (self.assets / name).write_bytes(data)
+        for name in (fixture.ARCHIVE_NAME, fixture.ARCHIVE_NAME + ".sbom.cdx.json", "release-inventory.json", "SHA256SUMS"):
+            (self.assets / name).write_bytes((asset_path / name).read_bytes())
         installed = self.install()
         descriptor = installed
         binary_path = descriptor.parent / preflight.BINARY
+        installed_identity = json.loads(descriptor.read_bytes())
+        self.assertEqual(installed_identity["archive_sha256"], values["archive_sha256"])
+        self.assertEqual(installed_identity["source_commit"], values["source_commit"])
+        self.assertEqual(sha(binary_path.read_bytes()), values["executable_sha256"])
+        for member in descriptor.parent.iterdir():
+            self.assertEqual(stat.S_IMODE(member.stat().st_mode), 0o500 if member == binary_path else 0o400)
         socket_path = root / "fake-docker.sock"
         listener = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        self.addCleanup(listener.close)
         listener.bind(str(socket_path))
         listener.listen(1)
         listener.setblocking(False)
@@ -258,7 +254,7 @@ class InstallCase(unittest.TestCase):
             "rootless": False, "api_version": "1.47", "server_version": "27.0.1",
             "daemon_id": "daemon-1", "scope": "scope-1",
         }, separators=(",", ":")).encode()
-        digest = sha(binary)
+        digest = values["executable_sha256"]
         request = {
             "binding": {
                 "protocol": "gate-runtime/v2", "adapter_sha256": digest, "adapter_version": "0.1.1",
@@ -284,13 +280,33 @@ class InstallCase(unittest.TestCase):
             "cwd": str(root), "timeout_ms": 5000,
         }
         host_path.write_text(json.dumps(host)); os.chmod(host_path, 0o600)
-        result = subprocess.run([core, "adapter", "runtime-probe-installed", "--request", str(actual_path), "--trusted-host", str(host_path)], capture_output=True)
+        result = subprocess.run([core, "adapter", "runtime-probe-installed", "--request", str(actual_path), "--trusted-host", str(host_path)], capture_output=True, timeout=15)
         self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stderr, b"")
         response = json.loads(result.stdout)
         self.assertEqual(response["outcome"], {"capabilities": {"supported": ["inspect"]}})
         with self.assertRaises(BlockingIOError):
             listener.accept()
-        listener.close()
+        self.assertIsNone(response["observations"])
+        command = [core, "adapter", "runtime-probe-installed", "--request", str(actual_path), "--trusted-host", str(host_path)]
+        original = descriptor.read_bytes()
+        os.chmod(descriptor, 0o600)
+        descriptor.write_bytes(original + b" ")
+        for target in ("descriptor", "executable"):
+            if target == "executable":
+                descriptor.write_bytes(original)
+                os.chmod(binary_path, 0o700)
+                binary_path.write_bytes(b"invalid executable")
+                os.chmod(binary_path, 0o500)
+            refused = subprocess.run(command, capture_output=True, timeout=15)
+            self.assertNotEqual(refused.returncode, 0)
+            self.assertEqual(refused.stdout, b"")
+            with self.assertRaises(BlockingIOError):
+                listener.accept()
+        values["archive_sha256"] = "0" * 64
+        self.pin_path.write_text(json.dumps(values))
+        self.destination = self.parent / "bad-pin"
+        self.assert_rejected()
 
 
 if __name__ == "__main__":
