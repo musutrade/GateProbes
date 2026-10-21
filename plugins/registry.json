@@ -280,7 +280,8 @@
         "contract": "python3 accept.py --core \"$RUNNER_TEMP/core/bin/harness-gate-linux-amd64\" --binary \"$RUNNER_TEMP/readiness-build/debug/gateprobes-docker-readiness\" --version 0.2.0 --report \"$RUNNER_TEMP/readiness-contract.json\"",
         "package": "python3 ../../tools/release/package_plugin.py --plugin docker-readiness --core-root \"$RUNNER_TEMP/core\" --output \"$RUNNER_TEMP/readiness-dist\""
       },
-      "protocols": []
+      "protocols": [],
+      "rust_components": "rustfmt, clippy, rust-docs"
     }
   },
   "runners": {

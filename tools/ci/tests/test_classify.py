@@ -39,6 +39,18 @@ REGISTRY = {
 
 
 class ClassifyTests(unittest.TestCase):
+    def test_readiness_real_registry_uses_required_wire_route(self):
+        root = Path(__file__).resolve().parents[3]
+        registry = classify.load_registry(root)
+        result = classify.classify(["plugins/docker-readiness/accept.py"], registry)
+        self.assertEqual(result["plugins"], ["docker-readiness"])
+        self.assertEqual(result["matrix"], {"include": []})
+        self.assertTrue(result["selection"]["run_light"])
+        registry["plugins"]["docker-readiness"]["dedicated_ci"] = "runtime-importer"
+        with self.assertRaisesRegex(ValueError, "unknown dedicated"):
+            classify.classify(["plugins/docker-readiness/accept.py"], registry)
+
+
     def test_pure_documentation_runs_light_checks_only(self):
         result = classify.classify(["docs/README.md", "README.md"], REGISTRY)
         self.assertEqual(result["classes"],
