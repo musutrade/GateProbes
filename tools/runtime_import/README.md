@@ -47,3 +47,12 @@ not hostile same-uid/root isolation, guaranteed power-loss recovery or arbitrary
 filesystem durability. Metadata checks do not hold every ancestor directory fd.
 The descriptor records local operator assertions, not publisher authentication.
 Core main has the installed entry; released Core0.7.1 does not.
+
+## Validation scope
+
+The required lightweight CI gate runs 15 offline fixture/installation tests with
+no skips. Two additional tests need explicitly supplied downloaded release assets
+and, for the joint test, a Core main binary containing the installed command.
+Those two are excluded by name from the CI inventory and printed as local-only;
+they are not counted as successful CI acceptance. Core0.7.1 cannot supply the new
+installed entry. No test connects to a real daemon.
