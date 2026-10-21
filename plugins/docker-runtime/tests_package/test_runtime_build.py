@@ -130,6 +130,7 @@ class BuildInputs(unittest.TestCase):
 class Environment(unittest.TestCase):
     def test_ambient_overrides_are_removed_and_pinned_flags_are_encoded(self):
         hostile = {
+            "CARGO_HOME": "/custom/cargo-home",
             "RUSTFLAGS": "-Copt-level=0",
             "CARGO_ENCODED_RUSTFLAGS": "-Cdebuginfo=2",
             "RUSTC": "/tmp/fake-rustc",
@@ -159,6 +160,7 @@ class Environment(unittest.TestCase):
             flags,
         )
         self.assertIn("-Clink-self-contained=yes", flags)
+        self.assertIn("--remap-path-prefix=/custom/cargo-home=/cargo", flags)
         self.assertIn("--remap-path-prefix=/repo=/gateprobes", flags)
         self.assertIn("--remap-path-prefix=/target=/target", flags)
         self.assertIn("--remap-path-prefix=/stage=/build", flags)

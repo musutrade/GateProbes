@@ -42,7 +42,8 @@ def environment(root, target, stage, sysroot):
         k.startswith(('CARGO_PROFILE_', 'CARGO_TARGET_')) or k in
         ('RUSTFLAGS', 'CARGO_ENCODED_RUSTFLAGS', 'RUSTC', 'RUSTC_WRAPPER', 'RUSTC_WORKSPACE_WRAPPER'))}
     linker = sysroot / f'lib/rustlib/{HOST}/bin/rust-lld'
-    flags = [f'-Clinker={linker}', '-Clink-self-contained=yes',
+    cargo_home = Path(os.environ.get('CARGO_HOME') or Path.home() / '.cargo').resolve()
+    flags = [f'--remap-path-prefix={cargo_home}=/cargo', f'-Clinker={linker}', '-Clink-self-contained=yes',
              f'--remap-path-prefix={root}=/gateprobes',
              f'--remap-path-prefix={target}=/target', f'--remap-path-prefix={stage}=/build']
     env.update(CARGO_TARGET_DIR=str(target), CARGO_INCREMENTAL='0', SOURCE_DATE_EPOCH='0',
