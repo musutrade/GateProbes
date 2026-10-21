@@ -70,10 +70,14 @@ jobs:
         run: python3 tools/ci/check_docs.py
 
   runtime-wire:
-    name: Runtime v2 wire acceptance (Linux)
+    name: Runtime v2 wire acceptance (${{ matrix.runner }})
     needs: classify
     if: needs.classify.outputs.run_light == 'true'
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-22.04, ubuntu-24.04]
+    runs-on: ${{ matrix.runner }}
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
@@ -143,6 +147,45 @@ jobs:
           python3 tools/release/pinned_core.py --output "$RUNNER_TEMP/runtime-package-core"
           python3 tools/release/package_plugin.py --plugin docker-runtime             --core-root "$RUNNER_TEMP/runtime-package-core"             --output "$RUNNER_TEMP/runtime-package-output"
 
+      - name: Retain exact runtime packages for independent comparison
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: runtime-package-${{ matrix.runner }}
+          path: ${{ runner.temp }}/runtime-package-output/*
+          if-no-files-found: error
+
+  runtime-repro:
+    name: Compare independent native runtime packages
+    needs: [classify, runtime-wire]
+    if: needs.classify.outputs.run_light == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6
+        with:
+          pattern: runtime-package-*
+          path: packages
+      - name: Require identical archive and SBOM from both runner images
+        run: |
+          python3 - <<'PYCOMPARE'
+          from pathlib import Path
+          import hashlib
+          root = Path('packages')
+          expected = {'runtime-package-ubuntu-22.04', 'runtime-package-ubuntu-24.04'}
+          if {p.name for p in root.iterdir()} != expected:
+              raise SystemExit('independent runtime build evidence missing')
+          inventories = []
+          for name in sorted(expected):
+              files = list((root / name).iterdir())
+              if len(files) != 2 or not all(p.is_file() and not p.is_symlink() for p in files):
+                  raise SystemExit('invalid runtime package evidence')
+              if sum(p.name.endswith('.tar.gz') for p in files) != 1 or sum(p.name.endswith('.tar.gz.sbom.cdx.json') for p in files) != 1:
+                  raise SystemExit('archive or SBOM missing')
+              inventories.append({p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in files})
+          if inventories[0] != inventories[1]:
+              raise SystemExit('independent runtime archive/SBOM differ')
+          print(inventories[0])
+          PYCOMPARE
 
   plugins:
     name: Plugin checks (${{ matrix.plugin }})
@@ -580,7 +623,7 @@ jobs:
   required_aggregate:
     name: Required Quality Aggregate
     if: ${{ always() }}
-    needs: [ classify, lightweight, runtime-wire, plugins, presets, compatibility ]
+    needs: [ classify, lightweight, runtime-wire, runtime-repro, plugins, presets, compatibility ]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -596,6 +639,17 @@ jobs:
           if selected not in ('true', 'false') or (selected == 'true' and result != 'success') or (selected == 'false' and result not in ('success', 'skipped')):
               raise SystemExit('required compatibility acceptance missing or failed')
           PY
+      - name: Require selected independent runtime comparison
+        env:
+          SELECTED: ${{ needs.classify.outputs.run_light }}
+          RESULT: ${{ needs.runtime-repro.result }}
+        run: |
+          python3 - <<'PYREQUIRED'
+          import os
+          selected, result = os.environ['SELECTED'], os.environ['RESULT']
+          if selected not in ('true', 'false') or (selected == 'true' and result != 'success') or (selected == 'false' and result not in ('success', 'skipped')):
+              raise SystemExit('independent runtime comparison missing or failed')
+          PYREQUIRED
       - name: Require every selected task to succeed
         run: |
           set -euo pipefail
