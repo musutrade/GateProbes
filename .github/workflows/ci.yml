@@ -102,7 +102,7 @@ jobs:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
       - name: Fetch independently pinned released inputs
         run: python3 tools/release/importer_core.py --output "$RUNNER_TEMP/importer-core"
-      - name: Distribution tests (21, no skips)
+      - name: Distribution tests (30, no skips)
         env:
           GATEHOUSE_CORE: ${{ runner.temp }}/importer-core/bin/harness-gate-linux-amd64
           RUNTIME_IMPORT_ASSETS: ${{ runner.temp }}/importer-core/runtime-assets
@@ -110,9 +110,9 @@ jobs:
           python3 - <<'PYIMPORTER'
           import unittest
           suite = unittest.defaultTestLoader.discover('plugins/runtime-importer/tests_package')
-          assert suite.countTestCases() == 21
+          assert suite.countTestCases() == 30
           result = unittest.TextTestRunner(verbosity=2).run(suite)
-          assert result.testsRun == 21 and not result.skipped and not result.expectedFailures and result.wasSuccessful()
+          assert result.testsRun == 30 and not result.skipped and not result.expectedFailures and result.wasSuccessful()
           PYIMPORTER
       - name: Package and accept extracted importer
         run: |
