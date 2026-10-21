@@ -121,23 +121,23 @@ jobs:
         run: |
           set -euo pipefail
           cargo fmt --check
-          cargo clippy --locked --all-targets -- -D warnings
+          cargo clippy --locked --target x86_64-unknown-linux-musl --all-targets -- -D warnings
       - name: Native runtime tests (33, no skips)
         env:
           CARGO_TARGET_DIR: ${{ runner.temp }}/runtime-native-tests-target
         run: ./tests/runtime-native-host/scripts/run-native-tests.sh
       - name: Native actual-host acceptance against fixed Core
         run: ./tests/runtime-native-host/scripts/run-acceptance.sh
-      - name: Native runtime package regressions (14, no skips)
+      - name: Native runtime package regressions (22, no skips)
         run: |
           python3 -B - <<'PYTEST'
           import unittest
           suite = unittest.defaultTestLoader.discover(
               'plugins/docker-runtime/tests_package', pattern='test_*.py')
-          if suite.countTestCases() != 14:
-              raise SystemExit('expected 14 native runtime package regressions')
+          if suite.countTestCases() != 22:
+              raise SystemExit('expected 22 native runtime package regressions')
           result = unittest.TextTestRunner(verbosity=2).run(suite)
-          if result.testsRun != 14 or result.skipped or result.expectedFailures:
+          if result.testsRun != 22 or result.skipped or result.expectedFailures:
               raise SystemExit('incomplete native runtime package regressions')
           raise SystemExit(0 if result.wasSuccessful() else 1)
           PYTEST
@@ -214,6 +214,10 @@ jobs:
         with:
           toolchain: ${{ matrix.rust_toolchain }}
           components: ${{ matrix.rust_components }}
+
+      - name: Install native runtime musl target
+        if: matrix.plugin == 'docker-runtime'
+        run: rustup target add --toolchain 1.99.1 x86_64-unknown-linux-musl
 
       # Cargo cache for Rust plugins
       - name: Cache Cargo registry and git
