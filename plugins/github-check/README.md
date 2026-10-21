@@ -92,4 +92,4 @@ given Check. Release acceptance exercises the extracted consumer against a pinne
 
 ## Distribution
 
-The independent `github-check-v1.0.0` archive contains this program, documentation, identity manifest and license. Python 3.11+ is required. Verify its checksums and repository workflow provenance before extraction; run `python3 github_check.py --help` inside the extracted directory. The Core executable is supplied separately and pinned by the operator. This is an external result consumer, not a Core measurement plugin or preset; Core never installs or invokes it.
+The independent `github-check-v1.0.1` archive contains this program, documentation, identity manifest and license. Python 3.11+ is required. Verify its checksums and repository workflow provenance before extraction; run `python3 github_check.py --help` inside the extracted directory. The Core executable is supplied separately and pinned by the operator. This is an external result consumer, not a Core measurement plugin or preset; Core never installs or invokes it.
