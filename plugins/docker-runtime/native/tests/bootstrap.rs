@@ -208,13 +208,18 @@ fn bootstrap_matrix() {
     // negatives; no root-owned positive claim is made here.
     let root = test_dir();
     let (config, expected, actual) = fixtures();
+    bootstrap_positive_cases(&root, &config, &expected, &actual);
+    bootstrap_descriptor_refusals(&root, &config, &expected, &actual);
+    bootstrap_input_refusals(&root, &config, &expected, &actual);
+}
 
+fn bootstrap_positive_cases(root: &TestDir, config: &[u8], expected: &[u8], actual: &[u8]) {
     let run = run_case(
         root.path(),
-        Some(create_fd("config", &config, true, 0o600)),
-        Some(create_fd("expected", &expected, true, 0o600)),
+        Some(create_fd("config", config, true, 0o600)),
+        Some(create_fd("expected", expected, true, 0o600)),
         None,
-        &actual,
+        actual,
         &[],
         false,
     );
@@ -223,50 +228,63 @@ fn bootstrap_matrix() {
 
     let run = run_case(
         root.path(),
+        Some(create_fd("config", config, true, 0o600)),
+        Some(create_fd("expected", expected, true, 0o600)),
         None,
-        Some(create_fd("expected", &expected, true, 0o600)),
+        actual,
+        &[],
+        true,
+    );
+    assert_eq!(run.output, "ok scope-1 scope-1", "pread ignores offsets");
+}
+
+fn bootstrap_descriptor_refusals(root: &TestDir, config: &[u8], expected: &[u8], actual: &[u8]) {
+    let run = run_case(
+        root.path(),
         None,
-        &actual,
+        Some(create_fd("expected", expected, true, 0o600)),
+        None,
+        actual,
         &[],
         false,
     );
     assert!(run.output.starts_with("err "), "missing fd3");
     let run = run_case(
         root.path(),
-        Some(create_fd("config", &config, true, 0o600)),
+        Some(create_fd("config", config, true, 0o600)),
         None,
         None,
-        &actual,
+        actual,
         &[],
         false,
     );
     assert!(run.output.starts_with("err "), "missing fd4");
     let run = run_case(
         root.path(),
-        Some(create_fd("config", &config, false, 0o600)),
-        Some(create_fd("expected", &expected, true, 0o600)),
+        Some(create_fd("config", config, false, 0o600)),
+        Some(create_fd("expected", expected, true, 0o600)),
         None,
-        &actual,
+        actual,
         &[],
         false,
     );
     assert!(run.output.starts_with("err "), "unsealed fd3");
     let run = run_case(
         root.path(),
-        Some(create_fd("config", &config, true, 0o644)),
-        Some(create_fd("expected", &expected, true, 0o600)),
+        Some(create_fd("config", config, true, 0o644)),
+        Some(create_fd("expected", expected, true, 0o600)),
         None,
-        &actual,
+        actual,
         &[],
         false,
     );
     assert!(run.output.starts_with("err "), "wrong mode");
     let run = run_case(
         root.path(),
-        Some(create_fd("config", &config, true, 0o600)),
-        Some(create_fd("expected", &expected, false, 0o600)),
+        Some(create_fd("config", config, true, 0o600)),
+        Some(create_fd("expected", expected, false, 0o600)),
         None,
-        &actual,
+        actual,
         &[],
         false,
     );
@@ -274,10 +292,10 @@ fn bootstrap_matrix() {
 
     let run = run_case(
         root.path(),
-        Some(create_fd("config", &config, true, 0o600)),
+        Some(create_fd("config", config, true, 0o600)),
         Some(create_fd("expected", &vec![b'x'; LIMIT + 1], true, 0o600)),
         None,
-        &actual,
+        actual,
         &[],
         false,
     );
@@ -285,15 +303,17 @@ fn bootstrap_matrix() {
 
     let run = run_case(
         root.path(),
-        Some(create_fd("config", &config, true, 0o600)),
-        Some(create_fd("expected", &expected, true, 0o600)),
+        Some(create_fd("config", config, true, 0o600)),
+        Some(create_fd("expected", expected, true, 0o600)),
         Some(create_fd("extra", b"extra", true, 0o600)),
-        &actual,
+        actual,
         &[],
         false,
     );
     assert!(run.output.starts_with("err "), "extra live fd");
+}
 
+fn bootstrap_input_refusals(root: &TestDir, config: &[u8], expected: &[u8], actual: &[u8]) {
     let regular_path = root.path().join("regular-config");
     let mut regular = OpenOptions::new()
         .read(true)
@@ -301,14 +321,14 @@ fn bootstrap_matrix() {
         .create_new(true)
         .open(&regular_path)
         .unwrap();
-    regular.write_all(&config).unwrap();
+    regular.write_all(config).unwrap();
     let regular = duplicate_high(&regular, 10);
     let run = run_case(
         root.path(),
         Some(regular),
-        Some(create_fd("expected", &expected, true, 0o600)),
+        Some(create_fd("expected", expected, true, 0o600)),
         None,
-        &actual,
+        actual,
         &[],
         false,
     );
@@ -318,9 +338,9 @@ fn bootstrap_matrix() {
     let run = run_case(
         root.path(),
         Some(create_fd("oversize", &oversized, true, 0o600)),
-        Some(create_fd("expected", &expected, true, 0o600)),
+        Some(create_fd("expected", expected, true, 0o600)),
         None,
-        &actual,
+        actual,
         &[],
         false,
     );
@@ -328,32 +348,21 @@ fn bootstrap_matrix() {
 
     let run = run_case(
         root.path(),
-        Some(create_fd("config", &config, true, 0o600)),
-        Some(create_fd("expected", &expected, true, 0o600)),
+        Some(create_fd("config", config, true, 0o600)),
+        Some(create_fd("expected", expected, true, 0o600)),
         None,
-        &actual,
+        actual,
         &["--exact", "bootstrap_helper"],
         false,
     );
     assert!(run.output.starts_with("err "), "arguments rejected");
 
-    let run = run_case(
-        root.path(),
-        Some(create_fd("config", &config, true, 0o600)),
-        Some(create_fd("expected", &expected, true, 0o600)),
-        None,
-        &actual,
-        &[],
-        true,
-    );
-    assert_eq!(run.output, "ok scope-1 scope-1", "pread ignores offsets");
-
-    let mut changed = expected.clone();
+    let mut changed = expected.to_vec();
     changed[0] = b' ';
     let run = run_case(
         root.path(),
-        Some(create_fd("config", &config, true, 0o600)),
-        Some(create_fd("expected", &expected, true, 0o600)),
+        Some(create_fd("config", config, true, 0o600)),
+        Some(create_fd("expected", expected, true, 0o600)),
         None,
         &changed,
         &[],
@@ -363,8 +372,8 @@ fn bootstrap_matrix() {
 
     let run = run_case(
         root.path(),
-        Some(create_fd("config", &config, true, 0o600)),
-        Some(create_fd("expected", &expected, true, 0o600)),
+        Some(create_fd("config", config, true, 0o600)),
+        Some(create_fd("expected", expected, true, 0o600)),
         None,
         &vec![b' '; LIMIT + 1],
         &[],

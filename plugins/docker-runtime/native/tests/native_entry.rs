@@ -320,15 +320,25 @@ fn present_and_unavailable_through_real_entry() {
 }
 #[test]
 fn remove_mismatch_missing_fd_argv_and_oversize_are_static() {
+    assert_remove_and_mismatch_refused();
+    assert_missing_fd_and_argv_refused();
+    assert_oversize_present_refused();
+}
+
+fn assert_refusal(output: &Output, listener: &UnixListener) {
+    assert!(!output.status.success());
+    assert!(output.stdout.is_empty());
+    assert_no_connect(listener);
+}
+
+fn assert_remove_and_mismatch_refused() {
     let root = Root::new();
     let listener = fresh_listener(&root);
     let config = config_bytes(&root);
     let remove = request(&config, json!({"remove":{"object_id":ID}}));
     let actual = serde_json::to_vec(&request_with_socket(remove.clone(), &root)).unwrap();
     let output = run(&root, Some(remove), Some(config.clone()), &actual, &[]);
-    assert!(!output.status.success());
-    assert!(output.stdout.is_empty());
-    assert_no_connect(&listener);
+    assert_refusal(&output, &listener);
 
     let root = Root::new();
     let config = config_bytes(&root);
@@ -343,18 +353,16 @@ fn remove_mismatch_missing_fd_argv_and_oversize_are_static() {
         &serde_json::to_vec(&request_with_socket(changed, &root)).unwrap(),
         &[],
     );
-    assert!(!output.status.success());
-    assert!(output.stdout.is_empty());
-    assert_no_connect(&listener);
+    assert_refusal(&output, &listener);
+}
 
+fn assert_missing_fd_and_argv_refused() {
     let root = Root::new();
     let config = config_bytes(&root);
     let listener = fresh_listener(&root);
     let expected = request(&config, json!("capabilities"));
     let output = run(&root, Some(expected), None, b"", &[]);
-    assert!(!output.status.success());
-    assert!(output.stdout.is_empty());
-    assert_no_connect(&listener);
+    assert_refusal(&output, &listener);
 
     let root = Root::new();
     let config = config_bytes(&root);
@@ -366,10 +374,10 @@ fn remove_mismatch_missing_fd_argv_and_oversize_are_static() {
         b"",
         &["--bad"],
     );
-    assert!(!output.status.success());
-    assert!(output.stdout.is_empty());
-    assert_no_connect(&listener);
+    assert_refusal(&output, &listener);
+}
 
+fn assert_oversize_present_refused() {
     let root = Root::new();
     let config = config_bytes(&root);
     let labels = "x".repeat(70_000);
