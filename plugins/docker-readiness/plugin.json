@@ -1,0 +1,23 @@
+{
+  "schema": "gateprobes-runtime-adapter/v1",
+  "name": "docker-readiness",
+  "version": "0.2.0",
+  "executable": "gateprobes-docker-readiness",
+  "protocol": "gate-runtime/v3",
+  "authority": "read-only-runtime-facts",
+  "platforms": [
+    "linux-x86_64"
+  ],
+  "core_versions": [
+    "0.9.0"
+  ],
+  "status": "release-candidate",
+  "capabilities": [
+    "readiness"
+  ],
+  "limitations": [
+    "fake-socket acceptance only; real Docker compatibility unproven",
+    "no Absent or Remove",
+    "no daemon attestation, restart detection or OS sandbox"
+  ]
+}

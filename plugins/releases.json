@@ -89,6 +89,13 @@
       "manifests": [
         "plugin.json"
       ]
+    },
+    "docker-readiness": {
+      "tag_prefix": "docker-readiness-v",
+      "archive": "gateprobes-docker-readiness-{version}-linux-amd64.tar.gz",
+      "manifests": [
+        "plugin.json"
+      ]
     }
   }
 }

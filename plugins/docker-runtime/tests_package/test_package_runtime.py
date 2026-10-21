@@ -62,6 +62,9 @@ class ReadinessProduct(unittest.TestCase):
     def test_explicit_product_and_cross_identity_rejection(self):
         manifest = self.manifest()
         package_runtime.validate_manifest(manifest, '0.2.0', 'docker-readiness')
+        self.assertEqual(manifest, json.loads((ROOT / 'plugins/docker-readiness/plugin.json').read_text()))
+        identity = package_runtime.plugin_release.resolve('docker-readiness', ROOT)
+        self.assertEqual(identity['archive'], 'gateprobes-docker-readiness-0.2.0-linux-amd64.tar.gz')
         for key, value in [('name', 'docker-runtime'), ('protocol', 'gate-runtime/v2'),
                            ('executable', package_runtime.BINARY), ('core_versions', ['0.8.0']),
                            ('capabilities', ['inspect'])]:

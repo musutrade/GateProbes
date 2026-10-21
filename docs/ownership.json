@@ -172,6 +172,14 @@
       "contract_test": "tools/release/accept_importer.py",
       "core_pin": "plugins/runtime-importer/core-pin.json",
       "status": "unpublished-candidate"
+    },
+    "docker-readiness": {
+      "paths": [
+        "plugins/docker-readiness"
+      ],
+      "authority": "read-only-runtime-facts",
+      "contract_test": "plugins/docker-readiness/accept.py",
+      "status": "unpublished-candidate"
     }
   },
   "inputs": [

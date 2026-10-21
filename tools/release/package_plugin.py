@@ -391,6 +391,8 @@ def main() -> None:
     args = parser.parse_args()
     row = plugin_release.resolve(args.plugin)
     core = args.core_root.resolve()
+    if args.plugin == "docker-readiness":
+        raise RuntimeError("readiness publication blocked: verified released Core0.9 pin and package acceptance wiring required")
     if args.plugin == "runtime-importer":
         importer_core.verify(core)
         output = args.output.resolve()
