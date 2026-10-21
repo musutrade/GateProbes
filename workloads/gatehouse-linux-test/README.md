@@ -78,14 +78,16 @@ workload does not install tools, fetch source, change caches or create credentia
 Its command runs all Rust nextest tests, including the two special CI tests,
 without partition/filter exclusions. Other rows above remain separate coverage.
 
-Package publication, fixed artifact SHA, real execution evidence and Core
-compatibility acceptance are still pending. Native caches remain controlled by
+The 1.0.1 compatibility candidate has signed install/init/config-check/plan
+acceptance against released Core 0.7.0 and 0.7.1; its publication and final
+artifact digest remain pending. This is not a new full workload execution.
+Historical 1.0.0 execution evidence retains its original Core identity. Native caches remain controlled by
 the execution account; no workload cache key, GC service or volume is introduced.
 
 ## Release distribution and installation trust
 
-The fixed distribution is `gateprobes-gatehouse-linux-test-1.0.0.tar.gz`,
-selected by `gatehouse-linux-test-v1.0.0`. Release eligibility, immutable tag,
+The fixed distribution is `gateprobes-gatehouse-linux-test-1.0.1.tar.gz`,
+selected by `gatehouse-linux-test-v1.0.1`. Release eligibility, immutable tag,
 exact successful main CI, protected `release` environment, inventory/checksums,
 Sigstore workflow identity and GitHub provenance reuse the existing
 `.github/workflows/collector-release.yml` process. Verify the release inventory,
