@@ -30,7 +30,7 @@ def sha(data: bytes) -> str:
 
 class InstallCase(unittest.TestCase):
     def setUp(self):
-        self.temporary = tempfile.TemporaryDirectory(prefix="runtime-install-test-")
+        self.temporary = tempfile.TemporaryDirectory(prefix="runtime-install-test-", dir=Path.home())
         self.root = Path(self.temporary.name)
         os.chmod(self.root, 0o700)
         self.pin, archive, sbom, inventory, checksums = fixture.valid()
