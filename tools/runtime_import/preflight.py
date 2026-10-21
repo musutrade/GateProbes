@@ -45,6 +45,22 @@ def digest(data):
     return hashlib.sha256(data).hexdigest()
 
 
+def profile(expected):
+    """Select only from an externally trusted tag; archive content cannot select."""
+    version = expected['version']
+    tag = expected['tag']
+    if tag == 'docker-runtime-v' + version:
+        return 'docker-runtime', BINARY, 'gate-runtime/v2'
+    if tag == 'docker-readiness-v' + version and version == '0.2.0':
+        return 'docker-readiness', 'gateprobes-docker-readiness', 'gate-runtime/v3'
+    raise InvalidRelease('runtime release rejected')
+
+
+def archive_name(expected):
+    _, binary, _ = profile(expected)
+    return binary + '-' + expected['version'] + '-linux-amd64.tar.gz'
+
+
 def pin(data):
     value = decode(data)
     require(type(value) is dict and set(value) == {
@@ -55,13 +71,14 @@ def pin(data):
     require(value['repository'] == 'https://github.com/musutrade/GateProbes')
     version = value['version']
     require(isinstance(version, str) and re.fullmatch(r'(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)', version))
-    require(value['tag'] == 'docker-runtime-v' + version)
+    profile(value)
     for key, size in [('source_commit', 40)] + [(k, 64) for k in value if k.endswith('_sha256')]:
         require(isinstance(value[key], str) and re.fullmatch('[0-9a-f]{' + str(size) + '}', value[key]))
     return value
 
 
-def unpack(data, prefix):
+def unpack(data, prefix, binary=BINARY):
+    members = (MEMBERS - {BINARY}) | {binary}
     require(len(data) <= MAX_ARCHIVE)
     with gzip.GzipFile(fileobj=io.BytesIO(data)) as zipped:
         raw = zipped.read(MAX_TAR + 1)
@@ -69,18 +86,18 @@ def unpack(data, prefix):
     files = {}
     with tarfile.open(fileobj=io.BytesIO(raw), mode='r:') as stream:
         for member in stream:
-            require(len(files) < len(MEMBERS))
+            require(len(files) < len(members))
             name = member.name
             require(name.startswith(prefix + '/'))
             relative = name[len(prefix) + 1:]
-            require(relative in MEMBERS and relative not in files)
+            require(relative in members and relative not in files)
             require(member.isfile() and not member.linkname and not member.pax_headers)
-            require(member.mode == (0o755 if relative == BINARY else 0o644))
+            require(member.mode == (0o755 if relative == binary else 0o644))
             require(0 < member.size <= MAX_TAR)
             content = stream.extractfile(member).read(member.size + 1)
             require(len(content) == member.size)
             files[relative] = content
-    require(set(files) == MEMBERS)
+    require(set(files) == members)
     return files
 
 
@@ -104,7 +121,7 @@ def validate_inventory(inventory, expected, assets):
 
 def validate_sbom(sbom, expected, files):
     require(sbom['bomFormat'] == 'CycloneDX' and sbom['specVersion'] == '1.5')
-    require(sbom['metadata']['component'] == {'type': 'application', 'name': 'docker-runtime', 'version': expected['version']})
+    require(sbom['metadata']['component'] == {'type': 'application', 'name': profile(expected)[0], 'version': expected['version']})
     rows = [row for row in sbom['components'] if row['type'] == 'file']
     require(len(rows) == len(files) and {row['name'] for row in rows} == set(files))
     for row in rows:
@@ -119,18 +136,19 @@ def validate(pin_bytes, archive, sbom, inventory, checksums):
             require(isinstance(data, bytes))
             require(digest(data) == expected[key + '_sha256'])
         require(len(checksums) <= 4096)
-        name = 'gateprobes-docker-runtime-' + expected['version'] + '-linux-amd64.tar.gz'
+        product, binary, protocol = profile(expected)
+        name = archive_name(expected)
         assets = {name: archive, name + '.sbom.cdx.json': sbom}
         subjects = {**assets, 'release-inventory.json': inventory}
         lines = checksums.decode('ascii').splitlines()
         require(len(lines) == len(subjects))
         require(set(lines) == {digest(data) + '  ' + name for name, data in subjects.items()})
         validate_inventory(decode(inventory), expected, assets)
-        files = unpack(archive, name.removesuffix('.tar.gz'))
-        require(digest(files[BINARY]) == expected['executable_sha256'])
+        files = unpack(archive, name.removesuffix('.tar.gz'), binary)
+        require(digest(files[binary]) == expected['executable_sha256'])
         manifest = decode(files['plugin.json'])
-        require(manifest['name'] == 'docker-runtime' and manifest['version'] == expected['version'])
-        require(manifest['executable'] == BINARY and manifest['protocol'] == 'gate-runtime/v2')
+        require(manifest['name'] == product and manifest['version'] == expected['version'])
+        require(manifest['executable'] == binary and manifest['protocol'] == protocol)
         validate_sbom(decode(sbom), expected, files)
         return files
     except (ValueError, TypeError, KeyError, AttributeError, OSError, EOFError, OverflowError, RecursionError, tarfile.TarError, zlib.error):
