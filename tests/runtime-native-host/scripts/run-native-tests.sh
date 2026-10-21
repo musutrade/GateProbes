@@ -16,7 +16,7 @@ mkdir -p "$CARGO_TARGET_DIR"
 LOG="$CARGO_TARGET_DIR/native-tests.log"
 
 set +e
-cargo test --locked --manifest-path "$NATIVE/Cargo.toml" -- --test-threads=1 2>&1 | tee "$LOG"
+cargo +1.99.1 test --locked --target x86_64-unknown-linux-musl --manifest-path "$NATIVE/Cargo.toml" -- --test-threads=1 2>&1 | tee "$LOG"
 STATUS=${PIPESTATUS[0]}
 set -e
 if [ "$STATUS" -ne 0 ]; then

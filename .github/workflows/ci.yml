@@ -70,13 +70,21 @@ jobs:
         run: python3 tools/ci/check_docs.py
 
   runtime-wire:
-    name: Runtime v2 wire acceptance (Linux)
+    name: Runtime v2 wire acceptance (${{ matrix.runner }})
     needs: classify
     if: needs.classify.outputs.run_light == 'true'
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-22.04, ubuntu-24.04]
+    runs-on: ${{ matrix.runner }}
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - name: Python runtime toolchain
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: '3.14'
       - name: Python runtime adapter tests (51, no skips)
         run: |
           set -euo pipefail
@@ -111,38 +119,92 @@ jobs:
         with:
           toolchain: '1.99.1'
           components: rustfmt, clippy, rust-docs
-          targets: x86_64-unknown-linux-gnu
+          targets: x86_64-unknown-linux-musl
       - name: Native runtime format and lint (Linux)
         working-directory: plugins/docker-runtime/native
         run: |
           set -euo pipefail
           cargo fmt --check
-          cargo clippy --locked --all-targets -- -D warnings
+          cargo clippy --locked --target x86_64-unknown-linux-musl --all-targets -- -D warnings
       - name: Native runtime tests (33, no skips)
         env:
           CARGO_TARGET_DIR: ${{ runner.temp }}/runtime-native-tests-target
         run: ./tests/runtime-native-host/scripts/run-native-tests.sh
       - name: Native actual-host acceptance against fixed Core
         run: ./tests/runtime-native-host/scripts/run-acceptance.sh
-      - name: Native runtime package regressions (14, no skips)
+      - name: Native runtime package regressions (26, no skips)
         run: |
           python3 -B - <<'PYTEST'
           import unittest
           suite = unittest.defaultTestLoader.discover(
               'plugins/docker-runtime/tests_package', pattern='test_*.py')
-          if suite.countTestCases() != 14:
-              raise SystemExit('expected 14 native runtime package regressions')
+          if suite.countTestCases() != 26:
+              raise SystemExit('expected 26 native runtime package regressions')
           result = unittest.TextTestRunner(verbosity=2).run(suite)
-          if result.testsRun != 14 or result.skipped or result.expectedFailures:
+          if result.testsRun != 26 or result.skipped or result.expectedFailures:
               raise SystemExit('incomplete native runtime package regressions')
           raise SystemExit(0 if result.wasSuccessful() else 1)
           PYTEST
+      # Released Core 0.7.1 emits a GLIBC_2.39 loader warning on Ubuntu22.
+      # Keep its strict acceptance on Ubuntu24; both builders still must agree.
+      - name: Build native runtime reproducibility evidence (no Core acceptance)
+        if: matrix.runner == 'ubuntu-22.04'
+        run: |
+          python3 - <<'PYBUILD'
+          import os, sys
+          from pathlib import Path
+          sys.path.insert(0, 'tools/release')
+          import package_runtime
+          output = Path(os.environ['RUNNER_TEMP']) / 'runtime-package-output'
+          output.mkdir()
+          package_runtime.build(Path.cwd(), output)
+          PYBUILD
       - name: Package and accept extracted native runtime with released Core
+        if: matrix.runner == 'ubuntu-24.04'
         run: |
           set -euo pipefail
           python3 tools/release/pinned_core.py --output "$RUNNER_TEMP/runtime-package-core"
           python3 tools/release/package_plugin.py --plugin docker-runtime             --core-root "$RUNNER_TEMP/runtime-package-core"             --output "$RUNNER_TEMP/runtime-package-output"
 
+      - name: Retain exact runtime packages for independent comparison
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: runtime-package-${{ matrix.runner }}
+          path: ${{ runner.temp }}/runtime-package-output/*
+          if-no-files-found: error
+
+  runtime-repro:
+    name: Compare independent native runtime packages
+    needs: [classify, runtime-wire]
+    if: needs.classify.outputs.run_light == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6
+        with:
+          pattern: runtime-package-*
+          path: packages
+      - name: Require identical archive and SBOM from both runner images
+        run: |
+          python3 - <<'PYCOMPARE'
+          from pathlib import Path
+          import hashlib
+          root = Path('packages')
+          expected = {'runtime-package-ubuntu-22.04', 'runtime-package-ubuntu-24.04'}
+          if {p.name for p in root.iterdir()} != expected:
+              raise SystemExit('independent runtime build evidence missing')
+          inventories = []
+          for name in sorted(expected):
+              files = list((root / name).iterdir())
+              if len(files) != 2 or not all(p.is_file() and not p.is_symlink() for p in files):
+                  raise SystemExit('invalid runtime package evidence')
+              if sum(p.name.endswith('.tar.gz') for p in files) != 1 or sum(p.name.endswith('.tar.gz.sbom.cdx.json') for p in files) != 1:
+                  raise SystemExit('archive or SBOM missing')
+              inventories.append({p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in files})
+          if inventories[0] != inventories[1]:
+              raise SystemExit('independent runtime archive/SBOM differ')
+          print(inventories[0])
+          PYCOMPARE
 
   plugins:
     name: Plugin checks (${{ matrix.plugin }})
@@ -171,6 +233,10 @@ jobs:
         with:
           toolchain: ${{ matrix.rust_toolchain }}
           components: ${{ matrix.rust_components }}
+
+      - name: Install native runtime musl target
+        if: matrix.plugin == 'docker-runtime'
+        run: rustup target add --toolchain 1.99.1 x86_64-unknown-linux-musl
 
       # Cargo cache for Rust plugins
       - name: Cache Cargo registry and git
@@ -580,7 +646,7 @@ jobs:
   required_aggregate:
     name: Required Quality Aggregate
     if: ${{ always() }}
-    needs: [ classify, lightweight, runtime-wire, plugins, presets, compatibility ]
+    needs: [ classify, lightweight, runtime-wire, runtime-repro, plugins, presets, compatibility ]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -596,6 +662,17 @@ jobs:
           if selected not in ('true', 'false') or (selected == 'true' and result != 'success') or (selected == 'false' and result not in ('success', 'skipped')):
               raise SystemExit('required compatibility acceptance missing or failed')
           PY
+      - name: Require selected independent runtime comparison
+        env:
+          SELECTED: ${{ needs.classify.outputs.run_light }}
+          RESULT: ${{ needs.runtime-repro.result }}
+        run: |
+          python3 - <<'PYREQUIRED'
+          import os
+          selected, result = os.environ['SELECTED'], os.environ['RESULT']
+          if selected not in ('true', 'false') or (selected == 'true' and result != 'success') or (selected == 'false' and result not in ('success', 'skipped')):
+              raise SystemExit('independent runtime comparison missing or failed')
+          PYREQUIRED
       - name: Require every selected task to succeed
         run: |
           set -euo pipefail

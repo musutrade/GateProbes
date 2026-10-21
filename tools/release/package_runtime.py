@@ -4,7 +4,8 @@ import hashlib
 import importlib.util
 import io
 import json
-import os
+import subprocess
+import sys
 from pathlib import Path
 import tarfile
 import tempfile
@@ -12,6 +13,7 @@ import tomllib
 
 import package_workload
 import plugin_release
+import runtime_build
 
 TOOLCHAIN = '1.99.1'
 BINARY = 'gateprobes-docker-runtime'
@@ -48,7 +50,8 @@ def validate_manifest(manifest, version):
         raise RuntimeError('runtime manifest identity or scope mismatch')
 
 
-def package(root: Path, output: Path, core: Path):
+def build(root: Path, output: Path):
+    """Build reproducibility evidence only; this does not establish Core acceptance."""
     from package_plugin import run
     identity = plugin_release.resolve('docker-runtime', root)
     source = root / 'plugins/docker-runtime'
@@ -60,24 +63,24 @@ def package(root: Path, output: Path, core: Path):
     validate_manifest(manifest, identity['version'])
     if tomllib.loads((native / 'rust-toolchain.toml').read_text())['toolchain']['channel'] != TOOLCHAIN:
         raise RuntimeError('runtime toolchain mismatch')
+    pinned_sysroot, _ = runtime_build.verify_inputs(root)
     with tempfile.TemporaryDirectory(prefix='runtime-package-') as temporary:
         stage = Path(temporary)
         builds = []
         for index in range(2):
             target = stage / f'target-{index}'
-            env = dict(os.environ, CARGO_TARGET_DIR=str(target), CARGO_INCREMENTAL='0',
-                       SOURCE_DATE_EPOCH='0', RUSTFLAGS=f'--remap-path-prefix={root}=/gateprobes --remap-path-prefix={target}=/target --remap-path-prefix={stage}=/build')
+            env = runtime_build.environment(root, target, stage, pinned_sysroot)
             run('cargo', '+' + TOOLCHAIN, 'build', '--locked', '--release', '--target',
-                'x86_64-unknown-linux-gnu', '--manifest-path', str(native / 'Cargo.toml'), env=env)
-            builds.append((target / 'x86_64-unknown-linux-gnu/release' / BINARY).read_bytes())
+                runtime_build.TARGET, '--manifest-path', str(native / 'Cargo.toml'), env=env)
+            builds.append((target / runtime_build.TARGET / 'release' / BINARY).read_bytes())
+        runtime_build.verify_inputs(root)
         if builds[0] != builds[1]:
             raise RuntimeError('clean runtime builds are not byte-identical')
-        if builds[0][:6] != b'\x7fELF\x02\x01' or builds[0][18:20] != b'\x3e\x00':
-            raise RuntimeError('runtime is not an x86_64 little-endian ELF')
+        runtime_build.verify_static_pie(builds[0])
         files = {BINARY: builds[0]}
         for name, relative in {'plugin.json': 'plugin.json', 'README.md': 'native/README.md',
                                'Cargo.lock': 'native/Cargo.lock', 'rust-toolchain.toml': 'native/rust-toolchain.toml',
-                               'accept.py': 'accept.py'}.items():
+                               'build-inputs.json': 'native/build-inputs.json', 'accept.py': 'accept.py'}.items():
             files[name] = package_workload.checked_file(root, 'plugins/docker-runtime/' + relative)
         files['LICENSE'] = package_workload.checked_file(root, 'LICENSE')
         metadata = json.loads(run('cargo', '+' + TOOLCHAIN, 'metadata', '--locked', '--format-version', '1',
@@ -107,9 +110,6 @@ def package(root: Path, output: Path, core: Path):
         for name, expected in files.items():
             if (directory / name).read_bytes() != expected:
                 raise RuntimeError('extracted runtime member differs')
-        run('python3', str(directory / 'accept.py'), '--binary', str(directory / BINARY),
-            '--core', str(core / 'bin/harness-gate-linux-amd64'), '--version', identity['version'],
-            '--report', str(stage / 'acceptance.json'))
         sbom = {'bomFormat': 'CycloneDX', 'specVersion': '1.5', 'version': 1,
                 'metadata': {'component': {'type': 'application', 'name': 'docker-runtime', 'version': identity['version']}},
                 'components': [{'type': 'file', 'name': name, 'hashes': [{'alg': 'SHA-256', 'content': hashlib.sha256(data).hexdigest()}]}
@@ -118,3 +118,33 @@ def package(root: Path, output: Path, core: Path):
                                'hashes': [{'alg': 'SHA-256', 'content': item['checksum']}]}
                               for item in lock.values() if item.get('checksum')]
         (output / (identity['archive'] + '.sbom.cdx.json')).write_text(json.dumps(sbom, indent=2, sort_keys=True) + '\n')
+
+
+def package(root: Path, output: Path, core: Path):
+    """Release entry: always build AND accept with the pinned Core."""
+    from package_plugin import run
+    build(root, output)
+    identity = plugin_release.resolve('docker-runtime', root)
+    with tempfile.TemporaryDirectory(prefix='runtime-accept-') as temporary:
+        stage = Path(temporary)
+        with tarfile.open(output / identity['archive']) as stream:
+            stream.extractall(stage, filter='data')
+        directory = stage / identity['archive'].removesuffix('.tar.gz')
+        report = stage / 'acceptance.json'
+        try:
+            run('python3', str(directory / 'accept.py'), '--binary', str(directory / BINARY),
+                '--core', str(core / 'bin/harness-gate-linux-amd64'), '--version', identity['version'],
+                '--report', str(report))
+        except subprocess.CalledProcessError:
+            # This harness uses only disposable fake-socket inputs. Preserve its
+            # bounded stderr diagnostics before the temporary stage is removed.
+            try:
+                for case in json.loads(report.read_text())['cases']:
+                    if not case.get('ok'):
+                        print('runtime acceptance diagnostic: ' + json.dumps({
+                            'case': case.get('case'), 'exit': case.get('exit'),
+                            'errors': case.get('errors'), 'stderr': case.get('stderr'),
+                        }), file=sys.stderr)
+            except (OSError, ValueError, KeyError, TypeError, AttributeError):
+                print('runtime acceptance report unavailable or malformed', file=sys.stderr)
+            raise

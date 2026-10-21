@@ -232,3 +232,15 @@ GitHub Check 1.0.1 are new compatibility candidates; their manifests do not
 constitute publication or multi-platform acceptance. Existing release artifacts
 and their historical Core evidence remain unchanged. Native Docker runtime
 remains unregistered and unreleased; fake-socket checks are not daemon acceptance.
+
+### Native Docker build reproducibility and Core acceptance
+
+The musl repair compares archive and SBOM bytes from Ubuntu 22.04 and 24.04.
+Ubuntu 22.04 performs build-only reproducibility checks; Ubuntu 24.04 also runs
+strict extracted-package acceptance against downloaded Core 0.7.1. That Core
+binary emits a weak `GLIBC_2.39` loader warning on Ubuntu 22.04, so this matrix
+does not certify Core compatibility there. Successful acceptance still requires
+empty stderr. The release packaging entry always runs Core acceptance; the
+build-only function is not a release acceptance substitute. Cross-runner equality
+remains pending until the required comparison job succeeds. The published
+`docker-runtime-v0.1.0` assets remain immutable.
