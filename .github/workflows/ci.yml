@@ -145,7 +145,22 @@ jobs:
               raise SystemExit('incomplete native runtime package regressions')
           raise SystemExit(0 if result.wasSuccessful() else 1)
           PYTEST
+      # Released Core 0.7.1 emits a GLIBC_2.39 loader warning on Ubuntu22.
+      # Keep its strict acceptance on Ubuntu24; both builders still must agree.
+      - name: Build native runtime reproducibility evidence (no Core acceptance)
+        if: matrix.runner == 'ubuntu-22.04'
+        run: |
+          python3 - <<'PYBUILD'
+          import os, sys
+          from pathlib import Path
+          sys.path.insert(0, 'tools/release')
+          import package_runtime
+          output = Path(os.environ['RUNNER_TEMP']) / 'runtime-package-output'
+          output.mkdir()
+          package_runtime.build(Path.cwd(), output)
+          PYBUILD
       - name: Package and accept extracted native runtime with released Core
+        if: matrix.runner == 'ubuntu-24.04'
         run: |
           set -euo pipefail
           python3 tools/release/pinned_core.py --output "$RUNNER_TEMP/runtime-package-core"

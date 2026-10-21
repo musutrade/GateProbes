@@ -50,7 +50,8 @@ def validate_manifest(manifest, version):
         raise RuntimeError('runtime manifest identity or scope mismatch')
 
 
-def package(root: Path, output: Path, core: Path):
+def build(root: Path, output: Path):
+    """Build reproducibility evidence only; this does not establish Core acceptance."""
     from package_plugin import run
     identity = plugin_release.resolve('docker-runtime', root)
     source = root / 'plugins/docker-runtime'
@@ -109,6 +110,26 @@ def package(root: Path, output: Path, core: Path):
         for name, expected in files.items():
             if (directory / name).read_bytes() != expected:
                 raise RuntimeError('extracted runtime member differs')
+        sbom = {'bomFormat': 'CycloneDX', 'specVersion': '1.5', 'version': 1,
+                'metadata': {'component': {'type': 'application', 'name': 'docker-runtime', 'version': identity['version']}},
+                'components': [{'type': 'file', 'name': name, 'hashes': [{'alg': 'SHA-256', 'content': hashlib.sha256(data).hexdigest()}]}
+                               for name, data in sorted(files.items())]}
+        sbom['components'] += [{'type': 'library', 'name': item['name'], 'version': item['version'],
+                               'hashes': [{'alg': 'SHA-256', 'content': item['checksum']}]}
+                              for item in lock.values() if item.get('checksum')]
+        (output / (identity['archive'] + '.sbom.cdx.json')).write_text(json.dumps(sbom, indent=2, sort_keys=True) + '\n')
+
+
+def package(root: Path, output: Path, core: Path):
+    """Release entry: always build AND accept with the pinned Core."""
+    from package_plugin import run
+    build(root, output)
+    identity = plugin_release.resolve('docker-runtime', root)
+    with tempfile.TemporaryDirectory(prefix='runtime-accept-') as temporary:
+        stage = Path(temporary)
+        with tarfile.open(output / identity['archive']) as stream:
+            stream.extractall(stage, filter='data')
+        directory = stage / identity['archive'].removesuffix('.tar.gz')
         report = stage / 'acceptance.json'
         try:
             run('python3', str(directory / 'accept.py'), '--binary', str(directory / BINARY),
@@ -127,11 +148,3 @@ def package(root: Path, output: Path, core: Path):
             except (OSError, ValueError, KeyError, TypeError, AttributeError):
                 print('runtime acceptance report unavailable or malformed', file=sys.stderr)
             raise
-        sbom = {'bomFormat': 'CycloneDX', 'specVersion': '1.5', 'version': 1,
-                'metadata': {'component': {'type': 'application', 'name': 'docker-runtime', 'version': identity['version']}},
-                'components': [{'type': 'file', 'name': name, 'hashes': [{'alg': 'SHA-256', 'content': hashlib.sha256(data).hexdigest()}]}
-                               for name, data in sorted(files.items())]}
-        sbom['components'] += [{'type': 'library', 'name': item['name'], 'version': item['version'],
-                               'hashes': [{'alg': 'SHA-256', 'content': item['checksum']}]}
-                              for item in lock.values() if item.get('checksum')]
-        (output / (identity['archive'] + '.sbom.cdx.json')).write_text(json.dumps(sbom, indent=2, sort_keys=True) + '\n')
