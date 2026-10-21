@@ -32,6 +32,22 @@ def archive_bytes(prefix, files):
     return result.getvalue()
 
 
+def validate_manifest(manifest, version):
+    expected = {
+        'schema': 'gateprobes-runtime-adapter/v1', 'name': 'docker-runtime',
+        'version': version, 'executable': BINARY, 'protocol': 'gate-runtime/v2',
+        'authority': 'read-only-runtime-facts', 'platforms': ['linux-x86_64'],
+        'core_versions': ['0.7.1'], 'status': 'release-candidate',
+        'capabilities': ['inspect'],
+        'limitations': [
+            'fake-socket acceptance only; real Docker compatibility unproven',
+            'no Absent or Remove',
+            'no daemon attestation, restart detection or OS sandbox'],
+    }
+    if manifest != expected:
+        raise RuntimeError('runtime manifest identity or scope mismatch')
+
+
 def package(root: Path, output: Path, core: Path):
     from package_plugin import run
     identity = plugin_release.resolve('docker-runtime', root)
@@ -41,8 +57,7 @@ def package(root: Path, output: Path, core: Path):
     cargo = tomllib.loads(package_workload.checked_file(root, 'plugins/docker-runtime/native/Cargo.toml').decode())
     if (cargo['package']['name'], cargo['package']['version']) != (BINARY, identity['version']):
         raise RuntimeError('runtime Cargo identity mismatch')
-    if (manifest['protocol'], manifest['executable'], manifest['platforms']) != ('gate-runtime/v2', BINARY, ['linux-x86_64']):
-        raise RuntimeError('unsupported runtime package identity')
+    validate_manifest(manifest, identity['version'])
     if tomllib.loads((native / 'rust-toolchain.toml').read_text())['toolchain']['channel'] != TOOLCHAIN:
         raise RuntimeError('runtime toolchain mismatch')
     with tempfile.TemporaryDirectory(prefix='runtime-package-') as temporary:
