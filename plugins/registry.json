@@ -218,6 +218,28 @@
         "package": "python3 ../../tools/release/package_plugin.py --plugin operator-lifecycle --core-root \"$RUNNER_TEMP/core\" --output \"$RUNNER_TEMP/operator-package\""
       },
       "protocols": []
+    },
+    "docker-runtime": {
+      "path": "plugins/docker-runtime/native",
+      "language": "rust",
+      "platforms": [
+        "linux"
+      ],
+      "toolchain": "Rust 1.99.1 + Python3",
+      "toolchains": [
+        "rust",
+        "python"
+      ],
+      "rust_toolchain": "1.99.1",
+      "rust_components": "rustfmt, clippy, rust-docs",
+      "cargo_checks": true,
+      "entries": {
+        "install": "CARGO_TARGET_DIR=\"$RUNNER_TEMP/docker-runtime-build\" cargo build --locked --release",
+        "test": "cargo test --locked",
+        "contract": "python3 ../accept.py --binary \"$RUNNER_TEMP/docker-runtime-build/release/gateprobes-docker-runtime\" --core \"$RUNNER_TEMP/core/bin/harness-gate-linux-amd64\" --version 0.1.0 --report \"$RUNNER_TEMP/docker-runtime-contract.json\"",
+        "package": "python3 ../../../tools/release/package_plugin.py --plugin docker-runtime --core-root \"$RUNNER_TEMP/core\" --output \"$RUNNER_TEMP/docker-runtime-package\""
+      },
+      "protocols": []
     }
   },
   "runners": {

@@ -24,6 +24,7 @@ import package_consumer
 import package_actions
 import package_operator
 import package_onboarding
+import package_runtime
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -394,7 +395,9 @@ def main() -> None:
     os.environ["PYTHONPATH"] = str(core / "tools/quality")
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=False)
-    if args.plugin == "gatehouse-linux-test":
+    if args.plugin == "docker-runtime":
+        package_runtime.package(ROOT, output, core)
+    elif args.plugin == "gatehouse-linux-test":
         package_workload.package(ROOT, output, Path(os.environ["HARNESS_GATE_BINARY"]))
     elif args.plugin == "onboarding-presets":
         package_onboarding.package(ROOT, output, Path(os.environ["HARNESS_GATE_BINARY"]))

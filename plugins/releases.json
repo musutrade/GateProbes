@@ -75,6 +75,13 @@
         "plugin.json",
         "Cargo.toml"
       ]
+    },
+    "docker-runtime": {
+      "tag_prefix": "docker-runtime-v",
+      "archive": "gateprobes-docker-runtime-{version}-linux-amd64.tar.gz",
+      "manifests": [
+        "plugin.json"
+      ]
     }
   }
 }

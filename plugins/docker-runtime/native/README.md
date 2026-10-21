@@ -1,6 +1,6 @@
-# Unreleased native Docker runtime adapter
+# Native Docker runtime adapter 0.1.0 candidate
 
-This crate is under development, unregistered and unpublished. Its single native
+This crate is an unpublished release candidate. Its single native
 executable has no Core production dependency and does not launch Python. The
 launching host supplies executable identity, trusted expected inputs and process
 supervision; this does not establish installed artifact or loader/library trust.
@@ -28,6 +28,8 @@ not waited for. Local socket identity is rechecked before/after I/O. These check
 do not prove rootless mode, user namespaces, daemon restarts or adversarial OS
 isolation. No real Docker compatibility has been established.
 
-Independent fake-socket tests and actual unreleased Core host/parser acceptance
-are required before delivery. Released Core v0.6.0 does not contain that v2 host.
-No registration, tag, release, service integration or lease migration is included.
+Packaged acceptance must use downloaded released Core v0.7.1 through its protected
+`adapter runtime-probe-v2` CLI. Core v0.6.0 does not contain that host.
+No tag, release, service integration or lease migration is claimed by this source.
+The package build pins Rust 1.99.1; reproducibility requires independent clean
+build comparison and is not implied by the version declaration.
