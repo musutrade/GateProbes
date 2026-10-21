@@ -259,6 +259,19 @@ class DistributionContract(unittest.TestCase):
         self.assertNotEqual(missing_assets.returncode, 0)
         self.assertFalse(destination.exists())
 
+    def test_package_end_to_end_with_downloaded_core_and_runtime(self):
+        temporary, core_root = self.clone_repo()
+        self.addCleanup(temporary.cleanup)
+        core_root = Path(temporary.name) / "core"
+        core_dir = core_root / "bin"
+        core_dir.mkdir(parents=True)
+        shutil.copy2(CORE, core_dir / "harness-gate-linux-amd64")
+        output = Path(temporary.name) / "package-output"
+        output.mkdir()
+        package_importer.package(ROOT, output, core_root, ASSETS)
+        self.assertEqual({path.name for path in output.iterdir()},
+                         {PREFIX + ".tar.gz", PREFIX + ".tar.gz.sbom.cdx.json"})
+
     def test_extracted_acceptance_cases_and_no_socket_connection(self):
         home = protected_home()
         self.addCleanup(home.cleanup)
