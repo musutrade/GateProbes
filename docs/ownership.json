@@ -158,7 +158,7 @@
     },
     "docker-runtime": {
       "paths": [
-        "plugins/docker-runtime"
+        "plugins/docker-runtime/native"
       ],
       "authority": "read-only-runtime-facts",
       "contract_test": "plugins/docker-runtime/accept.py",
