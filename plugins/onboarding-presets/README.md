@@ -25,3 +25,8 @@ Version 1.0.3 adds Core 0.8.0 for the installed-runtime host release. Initial
 Acceptance against downloaded Core 0.7.1 remains separately attributed; after
 0.8.0 publication, repeat against the downloaded binary. The repository Core
 contract pin and all prior immutable artifacts remain unchanged.
+
+Version 1.0.4 adds Core 0.9.0 as an onboarding compatibility prerequisite.
+Its initial Core0.9 validation uses the source-built candidate; downloaded
+Core0.9 acceptance must be repeated after release. This does not declare v3
+runtime package compatibility. Published1.0.3 and its pins remain immutable.
