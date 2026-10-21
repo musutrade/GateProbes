@@ -111,7 +111,7 @@ jobs:
         with:
           toolchain: '1.99.1'
           components: rustfmt, clippy, rust-docs
-          targets: x86_64-unknown-linux-gnu
+          targets: x86_64-unknown-linux-musl
       - name: Native runtime format and lint (Linux)
         working-directory: plugins/docker-runtime/native
         run: |

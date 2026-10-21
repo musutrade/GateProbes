@@ -4,7 +4,6 @@ import hashlib
 import importlib.util
 import io
 import json
-import os
 from pathlib import Path
 import tarfile
 import tempfile
@@ -12,6 +11,7 @@ import tomllib
 
 import package_workload
 import plugin_release
+import runtime_build
 
 TOOLCHAIN = '1.99.1'
 BINARY = 'gateprobes-docker-runtime'
@@ -60,24 +60,24 @@ def package(root: Path, output: Path, core: Path):
     validate_manifest(manifest, identity['version'])
     if tomllib.loads((native / 'rust-toolchain.toml').read_text())['toolchain']['channel'] != TOOLCHAIN:
         raise RuntimeError('runtime toolchain mismatch')
+    pinned_sysroot, _ = runtime_build.verify_inputs(root)
     with tempfile.TemporaryDirectory(prefix='runtime-package-') as temporary:
         stage = Path(temporary)
         builds = []
         for index in range(2):
             target = stage / f'target-{index}'
-            env = dict(os.environ, CARGO_TARGET_DIR=str(target), CARGO_INCREMENTAL='0',
-                       SOURCE_DATE_EPOCH='0', RUSTFLAGS=f'--remap-path-prefix={root}=/gateprobes --remap-path-prefix={target}=/target --remap-path-prefix={stage}=/build')
+            env = runtime_build.environment(root, target, stage, pinned_sysroot)
             run('cargo', '+' + TOOLCHAIN, 'build', '--locked', '--release', '--target',
-                'x86_64-unknown-linux-gnu', '--manifest-path', str(native / 'Cargo.toml'), env=env)
-            builds.append((target / 'x86_64-unknown-linux-gnu/release' / BINARY).read_bytes())
+                runtime_build.TARGET, '--manifest-path', str(native / 'Cargo.toml'), env=env)
+            builds.append((target / runtime_build.TARGET / 'release' / BINARY).read_bytes())
+        runtime_build.verify_inputs(root)
         if builds[0] != builds[1]:
             raise RuntimeError('clean runtime builds are not byte-identical')
-        if builds[0][:6] != b'\x7fELF\x02\x01' or builds[0][18:20] != b'\x3e\x00':
-            raise RuntimeError('runtime is not an x86_64 little-endian ELF')
+        runtime_build.verify_static_pie(builds[0])
         files = {BINARY: builds[0]}
         for name, relative in {'plugin.json': 'plugin.json', 'README.md': 'native/README.md',
                                'Cargo.lock': 'native/Cargo.lock', 'rust-toolchain.toml': 'native/rust-toolchain.toml',
-                               'accept.py': 'accept.py'}.items():
+                               'build-inputs.json': 'native/build-inputs.json', 'accept.py': 'accept.py'}.items():
             files[name] = package_workload.checked_file(root, 'plugins/docker-runtime/' + relative)
         files['LICENSE'] = package_workload.checked_file(root, 'LICENSE')
         metadata = json.loads(run('cargo', '+' + TOOLCHAIN, 'metadata', '--locked', '--format-version', '1',

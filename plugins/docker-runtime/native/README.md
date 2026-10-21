@@ -33,3 +33,15 @@ Packaged acceptance must use downloaded released Core v0.7.1 through its protect
 No tag, release, service integration or lease migration is claimed by this source.
 The package build pins Rust 1.99.1; reproducibility requires independent clean
 build comparison and is not implied by the version declaration.
+
+## Musl reproducibility repair under validation
+
+The packaging candidate uses the Rust 1.99.1 musl target with its absolute
+`rust-lld` and self-contained CRT. `build-inputs.json` pins compiler, linker,
+compiler libraries, target libraries/CRT and Rust notices. A GCC string in the
+shipped CRT is not evidence of invoking the host GCC. The resulting ELF must
+be PIE with RELRO and a non-executable stack, without INTERP or NEEDED entries.
+Static linking embeds musl: security fixes require rebuilding and shipping a
+new artifact. This does not establish kernel portability or daemon compatibility.
+Cross-environment identity still requires an independent runner comparison.
+The published 0.1.0 artifact is immutable; this candidate must not replace it.
