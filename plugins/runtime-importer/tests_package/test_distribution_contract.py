@@ -7,6 +7,7 @@ PYTHONPATH empty, and a hostile cwd/PYTHONPATH preflight module.
 from __future__ import annotations
 
 import hashlib
+import io
 import json
 import os
 from pathlib import Path
@@ -22,8 +23,10 @@ from unittest import mock
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / "tools/release"))
 sys.path.insert(0, str(ROOT / "tools/runtime_import"))
+sys.path.insert(0, str(ROOT / "tools/ci"))
 
 import accept_importer  # noqa: E402
+import classify as ci_classify  # noqa: E402
 import importer_core  # noqa: E402
 import package_importer  # noqa: E402
 import package_workload  # noqa: E402
@@ -32,6 +35,12 @@ import plugin_release  # noqa: E402
 CORE = Path(os.environ.get("GATEHOUSE_CORE", ""))
 ASSETS = Path(os.environ.get("RUNTIME_IMPORT_ASSETS", ""))
 PREFIX = "gateprobes-runtime-importer-0.1.0"
+RUNTIME_ASSETS = (
+    "gateprobes-docker-runtime-0.1.1-linux-amd64.tar.gz",
+    "gateprobes-docker-runtime-0.1.1-linux-amd64.tar.gz.sbom.cdx.json",
+    "release-inventory.json",
+    "SHA256SUMS",
+)
 
 
 def sha(data: bytes) -> str:
@@ -290,6 +299,86 @@ class DistributionContract(unittest.TestCase):
         self.assertIn('with_name("preflight.py")', text)
         self.assertNotIn("\nimport preflight\n", text)
 
+
+
+    def test_classifier_excludes_dedicated_importer_from_generic_matrix(self):
+        registry = ci_classify.load_registry(ROOT)
+        result = ci_classify.classify(["plugins/runtime-importer/plugin.json"], registry)
+        self.assertEqual(result["plugins"], ["runtime-importer"])
+        self.assertFalse(result["selection"]["run_plugins"])
+        self.assertEqual(result["matrix"], {"include": []})
+
+        mixed = ci_classify.classify([
+            "plugins/runtime-importer/plugin.json",
+            "plugins/github-check/plugin.json",
+        ], registry)
+        self.assertEqual([row["plugin"] for row in mixed["matrix"]["include"]], ["github-check"])
+        self.assertTrue(mixed["selection"]["run_plugins"])
+
+    def test_ci_job_orders_download_tests_package_and_required_gate(self):
+        text = (ROOT / ".github/workflows/ci.yml").read_text()
+        self.assertIn("name: Standalone runtime importer acceptance", text)
+        self.assertIn("Distribution tests (21, no skips)", text)
+        self.assertIn("assert suite.countTestCases() == 21", text)
+        self.assertIn("Require standalone importer acceptance", text)
+        self.assertIn("runtime-importer", text[text.index("needs: [ classify"):text.index("needs: [ classify") + 220])
+        self.assertLess(text.index("Fetch independently pinned released inputs"),
+                        text.index("Distribution tests (21"))
+        self.assertLess(text.index("Distribution tests (21"),
+                        text.index("Package and accept extracted importer"))
+
+    def test_collector_release_uses_conditional_importer_core(self):
+        text = (ROOT / ".github/workflows/collector-release.yml").read_text()
+        self.assertIn("'runtime-importer-v*'", text)
+        self.assertIn("Fetch and verify importer-specific released inputs", text)
+        self.assertIn("if: needs.policy.outputs.plugin == 'runtime-importer'", text)
+        self.assertIn("if: needs.policy.outputs.plugin != 'runtime-importer'", text)
+        self.assertLess(text.index("Fetch and verify importer-specific released inputs"),
+                        text.index("Fetch and verify the pinned released Core contract"))
+
+    def test_package_plugin_importer_branch_precedes_global_pin(self):
+        text = (ROOT / "tools/release/package_plugin.py").read_text()
+        self.assertIn("if args.plugin == \"runtime-importer\":", text)
+        self.assertLess(text.index("if args.plugin == \"runtime-importer\":"),
+                        text.index("contract = pinned_core.verify(core)"))
+        self.assertIn("importer_core.verify(core)", text)
+
+    def test_importer_core_prepare_uses_exact_downloads_without_source(self):
+        temporary = tempfile.TemporaryDirectory(prefix="runtime-importer-download-")
+        self.addCleanup(temporary.cleanup)
+        output = Path(temporary.name) / "core"
+        responses = [io.BytesIO(CORE.read_bytes())] + [
+            io.BytesIO((ASSETS / name).read_bytes()) for name in RUNTIME_ASSETS
+        ]
+        with mock.patch.object(importer_core.urllib.request, "urlopen", side_effect=responses) as opener:
+            importer_core.prepare(output, ROOT)
+        urls = [call.args[0] for call in opener.call_args_list]
+        self.assertEqual(urls[0], "https://github.com/musutrade/GateHouse/releases/download/v0.8.0/harness-gate-linux-amd64")
+        self.assertEqual([url.rsplit("/", 1)[-1] for url in urls[1:]], list(RUNTIME_ASSETS))
+        self.assertNotIn("raw.githubusercontent.com", " ".join(urls))
+        self.assertTrue((output / "contract.json").is_file())
+        self.assertEqual(sha((output / "bin/harness-gate-linux-amd64").read_bytes()),
+                         importer_core.contract(ROOT)["sha256"])
+
+    def test_importer_core_core_download_mismatch_fails_before_contract(self):
+        temporary = tempfile.TemporaryDirectory(prefix="runtime-importer-bad-core-")
+        self.addCleanup(temporary.cleanup)
+        output = Path(temporary.name) / "core"
+        with mock.patch.object(importer_core.urllib.request, "urlopen",
+                               return_value=io.BytesIO(b"wrong core")):
+            with self.assertRaises(ValueError):
+                importer_core.prepare(output, ROOT)
+        self.assertFalse((output / "contract.json").exists())
+
+    def test_importer_core_runtime_asset_mismatch_fails(self):
+        temporary = tempfile.TemporaryDirectory(prefix="runtime-importer-bad-runtime-")
+        self.addCleanup(temporary.cleanup)
+        output = Path(temporary.name) / "core"
+        responses = [io.BytesIO(CORE.read_bytes()), io.BytesIO(b"wrong runtime asset")]
+        with mock.patch.object(importer_core.urllib.request, "urlopen", side_effect=responses):
+            with self.assertRaises(ValueError):
+                importer_core.prepare(output, ROOT)
+        self.assertFalse((output / "contract.json").exists())
 
 if __name__ == "__main__":
     unittest.main()
