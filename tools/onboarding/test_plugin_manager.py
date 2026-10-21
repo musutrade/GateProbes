@@ -40,7 +40,7 @@ class Lifecycle(unittest.TestCase):
             self.assertEqual(preflight.call_count, 2)
             self.assertEqual(preflight.call_args_list[0].args[-1], self.apply_args.trusted_key)
             self.assertEqual(self.active.read_bytes(), self.lock.read_bytes())
-            installed = self.store / "rust-minimal/1.0.3/plugin.json"
+            installed = self.store / "rust-minimal/1.0.4/plugin.json"
             before = installed.read_bytes()
             m.rollback(argparse.Namespace(receipt=self.receipt))
             self.assertFalse(self.active.exists())
@@ -97,7 +97,7 @@ class Lifecycle(unittest.TestCase):
         self.assertEqual(self.active.read_bytes(), previous)
 
     def test_operator_signature_binds_exact_manifest_and_domain(self):
-        package = self.prepared / "rust-minimal/1.0.3"
+        package = self.prepared / "rust-minimal/1.0.4"
         payload = self.root / "payload"
         payload.write_bytes(m.DOMAIN + (package / "plugin.json").read_bytes())
         signature = m.decode((package / "plugin.sig").read_bytes())
