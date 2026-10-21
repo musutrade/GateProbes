@@ -55,10 +55,12 @@ def package(root, output, core, assets):
     pin = verify(core, root)
     archive = build(root, output)
     with tempfile.TemporaryDirectory(prefix='importer-extracted-', dir=Path.home()) as temporary:
-        work = Path(temporary)
-        with tarfile.open(archive) as stream:
-            stream.extractall(work, filter='data')
-        installed = work / archive.name.removesuffix('.tar.gz')
+        from verify_importer_archive import extract
+        data = archive.read_bytes()
+        sbom = Path(str(archive) + '.sbom.cdx.json').read_bytes()
+        # Local build identity only; downloaded releases require independently reviewed pins.
+        installed = extract(data, sbom, hashlib.sha256(data).hexdigest(),
+                            hashlib.sha256(sbom).hexdigest(), Path(temporary) / 'verified')
         if members(installed, plugin_release.resolve(PRODUCT, root)['version']) != members(root, plugin_release.resolve(PRODUCT, root)['version']):
             raise ValueError('extracted importer bytes differ')
         print(json.dumps(accept(installed, core / 'bin' / pin['binary'], assets), sort_keys=True))

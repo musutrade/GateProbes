@@ -21,3 +21,12 @@ Docker compatibility, zero-spawn, sandbox, rootless or restart proof is claimed.
 See the bundled tools/runtime_import/README.md for protected path, cooperative
 filesystem, no-overwrite and post-publication fsync failure semantics. The
 standalone artifact and downloaded fixed-pair acceptance are not published yet.
+
+Release verification must use the separately reviewed
+`tools/release/verify_importer_archive.py` from a trusted GateProbes checkout,
+with externally supplied archive and SBOM SHA256 pins. It bounds decompression,
+checks the exact eight regular members/modes and SBOM file hashes before
+extracting into a new directory. It is not loaded from the unverified archive.
+Verify signatures/provenance separately before approving those pins. This
+verifier does not authenticate the publisher or protect against hostile same-user
+filesystem races. Never extract an unverified downloaded archive first.
