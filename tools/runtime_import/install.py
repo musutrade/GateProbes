@@ -10,7 +10,12 @@ import sys
 import tempfile
 from contextlib import ExitStack
 
-import preflight
+# Isolated Python (-I) deliberately omits the script directory from sys.path.
+# Load only the adjacent shipped module, never PYTHONPATH or a global module.
+import importlib.util
+_spec = importlib.util.spec_from_file_location("runtime_import_preflight", Path(__file__).with_name("preflight.py"))
+preflight = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(preflight)
 
 
 class ImportRejected(ValueError):
