@@ -50,9 +50,19 @@ Core main has the installed entry; released Core0.7.1 does not.
 
 ## Validation scope
 
-The required lightweight CI gate runs 15 offline fixture/installation tests with
-no skips. Two additional tests need explicitly supplied downloaded release assets
-and, for the joint test, a Core main binary containing the installed command.
-Those two are excluded by name from the CI inventory and printed as local-only;
-they are not counted as successful CI acceptance. Core0.7.1 cannot supply the new
-installed entry. No test connects to a real daemon.
+The lightweight gate runs 15 offline tests with no skips. A separate required
+Ubuntu24 job runs the joint installed-host test (16 mandatory tests total), using
+Core source a4e6dba7b2d6ad06336c67e79d1132eb96a5bab7 built with --locked, and four
+immutable docker-runtime-v0.1.1 release assets. Missing inputs fail. Only the
+additional published-assets smoke remains local-only. Core0.7.1 cannot supply
+the installed entry; this is source-built Core acceptance, not a released-Core claim.
+
+release-pin.json records independently reviewed batch60 release identities
+(source29c619b, release run39538813308, archive/SBOM/inventory/binary and checksum
+file). It is checked in separately from downloads; CI does not derive authority
+from their contents or use an asset cache. Signatures/provenance were reviewed at
+release time; this job checks fixed hashes, not fresh publisher authentication.
+The build logs record Core lockfile and binary SHA256. Protected HOME fixtures
+exercise offline installation, exact capabilities and no fake-socket connections,
+plus descriptor/executable/pin tamper rejection. No real daemon is contacted;
+rejection/no output is not presented as OS-level process or network containment.
