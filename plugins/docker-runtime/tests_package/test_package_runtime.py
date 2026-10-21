@@ -23,13 +23,13 @@ class ManifestIdentity(unittest.TestCase):
         self.manifest = json.loads(MANIFEST.read_text())
 
     def test_current_candidate_manifest_is_exact(self):
-        package_runtime.validate_manifest(copy.deepcopy(self.manifest), "0.1.0")
+        package_runtime.validate_manifest(copy.deepcopy(self.manifest), "0.1.1")
 
     def test_each_identity_or_scope_field_is_strict(self):
         mutations = {
             "schema": "gateprobes-runtime-adapter/v2",
             "name": "other-runtime",
-            "version": "0.1.1",
+            "version": "0.1.2",
             "executable": "other-native",
             "protocol": "gate-runtime/v1",
             "authority": "measurement-only",
@@ -44,11 +44,11 @@ class ManifestIdentity(unittest.TestCase):
                 changed = copy.deepcopy(self.manifest)
                 changed[field] = value
                 with self.assertRaisesRegex(RuntimeError, "manifest identity"):
-                    package_runtime.validate_manifest(changed, "0.1.0")
+                    package_runtime.validate_manifest(changed, "0.1.1")
 
     def test_manifest_version_argument_must_match(self):
         with self.assertRaisesRegex(RuntimeError, "manifest identity"):
-            package_runtime.validate_manifest(copy.deepcopy(self.manifest), "0.1.1")
+            package_runtime.validate_manifest(copy.deepcopy(self.manifest), "0.1.2")
 
 
 class PackagePaths(unittest.TestCase):
