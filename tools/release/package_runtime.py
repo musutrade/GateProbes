@@ -4,6 +4,8 @@ import hashlib
 import importlib.util
 import io
 import json
+import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -134,11 +136,12 @@ def build(root: Path, output: Path, product='docker-runtime'):
         (output / (identity['archive'] + '.sbom.cdx.json')).write_text(json.dumps(sbom, indent=2, sort_keys=True) + '\n')
 
 
-def package(root: Path, output: Path, core: Path):
+def package(root: Path, output: Path, core: Path, product="docker-runtime"):
     """Release entry: always build AND accept with the pinned Core."""
     from package_plugin import run
-    build(root, output)
-    identity = plugin_release.resolve('docker-runtime', root)
+    build(root, output, product)
+    identity = plugin_release.resolve(product, root)
+    binary, _, _, _ = product_profile(product)
     with tempfile.TemporaryDirectory(prefix='runtime-accept-') as temporary:
         stage = Path(temporary)
         with tarfile.open(output / identity['archive']) as stream:
@@ -146,7 +149,7 @@ def package(root: Path, output: Path, core: Path):
         directory = stage / identity['archive'].removesuffix('.tar.gz')
         report = stage / 'acceptance.json'
         try:
-            run('python3', str(directory / 'accept.py'), '--binary', str(directory / BINARY),
+            run('python3', str(directory / 'accept.py'), '--binary', str(directory / binary),
                 '--core', str(core / 'bin/harness-gate-linux-amd64'), '--version', identity['version'],
                 '--report', str(report))
         except subprocess.CalledProcessError:
@@ -162,3 +165,20 @@ def package(root: Path, output: Path, core: Path):
             except (OSError, ValueError, KeyError, TypeError, AttributeError):
                 print('runtime acceptance report unavailable or malformed', file=sys.stderr)
             raise
+
+        finally:
+            if report.is_file():
+                evidence = Path(os.environ.get('HARNESS_GATE_RUNTIME_ACCEPTANCE',
+                                               str(output.parent / (output.name + '-acceptance'))))
+                evidence.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(report, evidence / (product + '.json'))
+        if product == 'docker-readiness':
+            result = json.loads(report.read_text())
+            expected_cases = ['present', 'missing', 'unavailable', 'changed', 'timeout', 'fixed-expected']
+            if (result.get('passed') != 6
+                    or [case.get('case') for case in result.get('cases', [])] != expected_cases
+                    or any(case.get('stderr') != '' or case.get('exit') != (0 if case['case'] == 'present' else 1)
+                           for case in result['cases'])
+                    or result.get('core_sha256') != hashlib.sha256((core / 'bin/harness-gate-linux-amd64').read_bytes()).hexdigest()
+                    or result.get('adapter_sha256') != hashlib.sha256((directory / binary).read_bytes()).hexdigest()):
+                raise RuntimeError('incomplete extracted readiness acceptance')

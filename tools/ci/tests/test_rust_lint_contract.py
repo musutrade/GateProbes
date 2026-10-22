@@ -21,6 +21,13 @@ class RustLintContractTests(unittest.TestCase):
         self.assertTrue(self.rust, "no Rust plugin is registered")
         for name, row in self.rust.items():
             directory = ROOT / row["path"]
+            if name == "docker-readiness":
+                # This product ships a second binary from the existing native crate.
+                self.assertEqual(row["dedicated_ci"], "runtime-wire")
+                self.assertIn("../docker-runtime/native/Cargo.toml", row["entries"]["install"])
+                directory = ROOT / "plugins/docker-runtime/native"
+                native = tomllib.loads((directory / "Cargo.toml").read_text())
+                self.assertIn("gateprobes-docker-readiness", [b["name"] for b in native["bin"]])
             with self.subTest(plugin=name):
                 clippy = directory / "clippy.toml"
                 self.assertTrue(clippy.is_file(), clippy)

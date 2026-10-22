@@ -166,13 +166,14 @@ timeout_secs = 1
             try:
                 run = subprocess.run([str(core), "--project-root", str(project), "--config", str(flow), "doctor", "--json"], env=env, capture_output=True, text=True, timeout=10)
                 assert (run.returncode == 0) == (case == "present"), (case, run.stdout, run.stderr)
+                assert not run.stderr, (case, run.stderr)
                 report = json.loads(run.stdout)
                 assert not marker.exists(), "readiness escaped to legacy CLI"
                 if case == "fixed-expected":
                     assert not fake.requests, fake.requests
                 elif case == "present":
                     assert fake.requests == ["/version", "/v1.47/info", "/v1.47/images/registry%3A5000%2Frepo%3Atag/json", "/version", "/v1.47/info"], fake.requests
-                results.append({"case": case, "exit": run.returncode, "requests": fake.requests, "report": report})
+                results.append({"case": case, "exit": run.returncode, "stderr": run.stderr, "requests": fake.requests, "report": report})
             finally:
                 fake.close()
                 (root / "fake.sock").unlink()

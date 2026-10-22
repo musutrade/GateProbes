@@ -266,7 +266,7 @@
       "platforms": [
         "linux"
       ],
-      "toolchain": "Rust 1.99.1 + Python3; unreleased Core0.9 target",
+      "toolchain": "Rust 1.99.1 + Python3; pinned released Core0.9",
       "toolchains": [
         "rust",
         "python"
