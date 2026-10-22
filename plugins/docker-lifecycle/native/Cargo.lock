@@ -84,7 +84,11 @@ name = "gateprobes-docker-lifecycle"
 version = "0.1.0"
 dependencies = [
  "gatehouse-runtime-protocol",
+ "libc",
+ "serde",
  "serde_json",
+ "sha2",
+ "tempfile",
 ]
 
 [[package]]

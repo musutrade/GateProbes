@@ -1,4 +1,4 @@
-//! Staged lifecycle adapter construction only. No socket, dispatch or authority.
+//! Staged lifecycle adapter. No public request grants mutation authority.
 //! The development protocol must be supplied by an explicit local Cargo patch.
 use gatehouse_runtime_protocol::lifecycle::wire::{Operation, Request};
 use serde_json::{json, Map, Value};
@@ -12,7 +12,7 @@ pub struct CreateRequest {
 /// Build the exact reviewed create policy; this does not authorize execution.
 /// A future dispatcher must validate protected inputs, daemon observations and
 /// durable Core intent before sending it, then inspect the returned exact ID.
-pub fn create_request(request: &Request) -> Result<CreateRequest, &'static str> {
+pub fn create_request(request: &Request) -> Result<CreateRequest> {
     request
         .validate()
         .map_err(|_| "invalid lifecycle request")?;
@@ -68,3 +68,14 @@ fn encode(value: &str) -> String {
 
 #[cfg(test)]
 mod tests;
+
+type Result<T> = std::result::Result<T, &'static str>;
+#[cfg(target_os = "linux")]
+mod http;
+mod json;
+#[cfg(target_os = "linux")]
+mod socket_identity;
+
+#[cfg(target_os = "linux")]
+pub mod adapter;
+mod docker;
