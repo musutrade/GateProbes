@@ -26,6 +26,10 @@ def profile(version):
             'plugins/runtime-importer/core-pin-v3.json',
             'tools/runtime_import/release-pin-v3.json'}
         return 'gateprobes-runtime-importer-0.2.0', names
+    if version == '0.3.0':
+        return 'gateprobes-runtime-importer-0.3.0', (NAMES - {
+            'plugins/runtime-importer/core-pin.json', 'tools/runtime_import/release-pin.json'}) | {
+            'plugins/runtime-importer/core-pin-lifecycle.json', 'tools/runtime_import/release-pin-lifecycle.json'}
     raise ValueError('unsupported importer distribution version')
 
 
@@ -105,7 +109,7 @@ if __name__ == '__main__':
     parser.add_argument('--archive-sha256', required=True)
     parser.add_argument('--sbom-sha256', required=True)
     parser.add_argument('--destination', required=True, type=Path)
-    parser.add_argument('--version', choices=['0.1.0', '0.2.0'], default='0.1.0')
+    parser.add_argument('--version', choices=['0.1.0', '0.2.0', '0.3.0'], default='0.1.0')
     args = parser.parse_args()
     def read(path):
         with path.open('rb') as stream:

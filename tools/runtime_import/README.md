@@ -80,3 +80,14 @@ The checked-in v2 release pin is unchanged. A v3 release pin must come from real
 independently reviewed release assets; no placeholder digests are provided.
 Released Core 0.8.0 does not contain the v3 host. Downloaded acceptance requires
 a new Core release carrying that host and a verified new compatibility pin.
+
+### Lifecycle profile (importer 0.3)
+
+The exact externally trusted tag `docker-lifecycle-v0.1.0` selects its distinct
+13-member archive and lifecycle protocol. Installation creates only protected
+artifact files and canonical `gate-runtime/lifecycle-installation-v1` metadata
+(product, version, protocol, executable path/hash, config schema and schema).
+It does not generate a config or host: operators must supply explicit protected
+`gate-runtime/lifecycle-config-v1` engine binding and `gate-runtime/lifecycle-host-v1`
+references with exact digests. Core 0.10 consumes these through a service-bound
+`verify` invocation. Runtime/readiness descriptors retain their historical formats.

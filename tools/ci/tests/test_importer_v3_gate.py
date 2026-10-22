@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[3]
 class ImporterV3Gate(unittest.TestCase):
     def test_required_job_cannot_pass_when_missing_skipped_or_failed(self):
         workflow = (ROOT / '.github/workflows/ci.yml').read_text()
-        self.assertIn('runtime-importer, runtime-import-v3, plugins', workflow)
+        self.assertIn('runtime-importer, runtime-import-v3, runtime-import-lifecycle, plugins', workflow)
         gate = workflow.split('      - name: Require v3 importer acceptance\n', 1)[1]
         self.assertIn('RESULT: ${{ needs.runtime-import-v3.result }}', gate)
         script = textwrap.dedent(gate.split("<<'PYV3'\n", 1)[1].split('          PYV3', 1)[0])
@@ -30,6 +30,6 @@ class ImporterV3Gate(unittest.TestCase):
         self.assertIn('importer-v3-dist',job)
         self.assertIn('legacy_fixture.create',ci)
         release = (ROOT / '.github/workflows/collector-release.yml').read_text()
-        self.assertIn('importer_core_v3.py --output', release)
+        self.assertIn('importer_core_lifecycle.py --output', release)
         self.assertNotIn('importer_core.py --output', release)
         self.assertIn('HARNESS_GATE_IMPORTER_ACCEPTANCE:', release)

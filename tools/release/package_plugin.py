@@ -415,7 +415,10 @@ def main() -> None:
             raise RuntimeError("readiness packaged assets differ")
         return
     if args.plugin == "runtime-importer":
-        if row['version'] == '0.2.0':
+        if row['version'] == '0.3.0':
+            from importer_core_lifecycle import verify
+            verify(core)
+        elif row['version'] == '0.2.0':
             importer_core_v3.verify(core)
         else:
             importer_core.verify(core)
