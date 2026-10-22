@@ -51,6 +51,47 @@ class ManifestIdentity(unittest.TestCase):
             package_runtime.validate_manifest(copy.deepcopy(self.manifest), "0.1.2")
 
 
+class ReadinessProduct(unittest.TestCase):
+    def manifest(self):
+        value = json.loads(MANIFEST.read_text())
+        value.update(name='docker-readiness', version='0.2.0',
+                     executable='gateprobes-docker-readiness', protocol='gate-runtime/v3',
+                     core_versions=['0.9.0'], capabilities=['readiness'])
+        return value
+
+    def test_explicit_product_and_cross_identity_rejection(self):
+        manifest = self.manifest()
+        package_runtime.validate_manifest(manifest, '0.2.0', 'docker-readiness')
+        self.assertEqual(manifest, json.loads((ROOT / 'plugins/docker-readiness/plugin.json').read_text()))
+        identity = package_runtime.plugin_release.resolve('docker-readiness', ROOT)
+        self.assertEqual(identity['archive'], 'gateprobes-docker-readiness-0.2.0-linux-amd64.tar.gz')
+        for key, value in [('name', 'docker-runtime'), ('protocol', 'gate-runtime/v2'),
+                           ('executable', package_runtime.BINARY), ('core_versions', ['0.8.0']),
+                           ('capabilities', ['inspect'])]:
+            with self.subTest(key=key), self.assertRaises(RuntimeError):
+                package_runtime.validate_manifest(dict(manifest, **{key: value}), '0.2.0', 'docker-readiness')
+        with self.assertRaises(RuntimeError):
+            package_runtime.validate_manifest(manifest, '0.2.0')
+        with self.assertRaises(RuntimeError):
+            package_runtime.product_profile('unknown')
+        with self.assertRaises(RuntimeError):
+            package_runtime.validate_manifest(dict(manifest, version='0.2.1'), '0.2.1', 'docker-readiness')
+
+    def test_selected_binary_mode_and_deterministic_archive(self):
+        binary = 'gateprobes-docker-readiness'
+        files = {binary: b'ELF-test-only', 'plugin.json': b'{}'}
+        first = package_runtime.archive_bytes('readiness', files, binary)
+        self.assertEqual(first, package_runtime.archive_bytes('readiness', dict(reversed(list(files.items()))), binary))
+        with tarfile.open(fileobj=io.BytesIO(first), mode='r:gz') as archive:
+            self.assertEqual({m.name: m.mode for m in archive.getmembers()},
+                             {'readiness/' + binary: 0o755, 'readiness/plugin.json': 0o644})
+
+    def test_current_source_cannot_rebuild_historical_runtime_identity(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            with self.assertRaisesRegex(RuntimeError, 'Cargo identity mismatch'):
+                package_runtime.build(ROOT, Path(temporary))
+
+
 class PackagePaths(unittest.TestCase):
     def test_member_names_are_normalized_and_deterministic(self):
         files = {

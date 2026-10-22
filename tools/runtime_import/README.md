@@ -50,8 +50,8 @@ Core main has the installed entry; released Core0.7.1 does not.
 
 ## Validation scope
 
-The lightweight gate runs 15 offline tests with no skips. A separate required
-Ubuntu24 job runs the joint installed-host test (16 mandatory tests total), using
+The lightweight gate runs 19 offline tests with no skips. A separate required
+Ubuntu24 job runs the joint installed-host test (20 mandatory tests total), using
 Core source a4e6dba7b2d6ad06336c67e79d1132eb96a5bab7 built with --locked, and four
 immutable docker-runtime-v0.1.1 release assets. Missing inputs fail. Only the
 additional published-assets smoke remains local-only. Core0.7.1 cannot supply
@@ -66,3 +66,17 @@ The build logs record Core lockfile and binary SHA256. Protected HOME fixtures
 exercise offline installation, exact capabilities and no fake-socket connections,
 plus descriptor/executable/pin tamper rejection. No real daemon is contacted;
 rejection/no output is not presented as OS-level process or network containment.
+
+### Staged readiness profile
+
+The offline validator and installer also recognize the explicit trusted tag
+`docker-readiness-v0.2.0`. That profile requires the dedicated
+`gateprobes-docker-readiness` member, `docker-readiness` manifest/SBOM identity,
+and `gate-runtime/v3`. The archive cannot choose its own profile. Installation
+preserves the protected destination, exact modes, and no-overwrite boundary.
+
+This is source preparation with synthetic fixtures, not importer 0.2.0 delivery.
+The checked-in v2 release pin is unchanged. A v3 release pin must come from real,
+independently reviewed release assets; no placeholder digests are provided.
+Released Core 0.8.0 does not contain the v3 host. Downloaded acceptance requires
+a new Core release carrying that host and a verified new compatibility pin.

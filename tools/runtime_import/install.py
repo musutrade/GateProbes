@@ -100,7 +100,7 @@ def descriptor(pin, destination):
     return {'schema': 'gate-runtime-installation/v1',
             'repository': pin['repository'], 'tag': pin['tag'],
             'source_commit': pin['source_commit'], 'archive_sha256': pin['archive_sha256'],
-            'executable': {'path': str(destination / preflight.BINARY),
+            'executable': {'path': str(destination / preflight.profile(pin)[1]),
                            'sha256': pin['executable_sha256'], 'version': pin['version']}}
 
 
@@ -113,7 +113,8 @@ def import_release(pin_path, assets_path, destination_path):
         pin = preflight.pin(pin_file.data)
         assets = Path(assets_path)
         require(assets.is_absolute() and assets.resolve(strict=True) == assets and assets.is_dir())
-        archive = 'gateprobes-docker-runtime-' + pin['version'] + '-linux-amd64.tar.gz'
+        archive = preflight.archive_name(pin)
+        binary = preflight.profile(pin)[1]
         inputs = {}
         for key, name, limit in [('archive', archive, preflight.MAX_ARCHIVE),
                                   ('sbom', archive + '.sbom.cdx.json', 1024 * 1024),
@@ -136,7 +137,7 @@ def import_release(pin_path, assets_path, destination_path):
         with tempfile.TemporaryDirectory(prefix='.runtime-import-', dir=parent) as temporary:
             stage = Path(temporary)
             for name, content in files.items():
-                write_file(stage / name, content, 0o500 if name == preflight.BINARY else 0o400)
+                write_file(stage / name, content, 0o500 if name == binary else 0o400)
             data = json.dumps(descriptor(pin, destination), indent=2, sort_keys=True).encode() + b'\n'
             write_file(stage / 'installation.json', data, 0o400)
             stage_fd = os.open(stage, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC)

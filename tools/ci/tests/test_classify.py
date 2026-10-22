@@ -39,6 +39,44 @@ REGISTRY = {
 
 
 class ClassifyTests(unittest.TestCase):
+    def test_readiness_real_registry_uses_required_wire_route(self):
+        root = Path(__file__).resolve().parents[3]
+        registry = classify.load_registry(root)
+        result = classify.classify(["plugins/docker-readiness/accept.py"], registry)
+        self.assertEqual(result["plugins"], ["docker-readiness"])
+        self.assertEqual(result["matrix"], {"include": []})
+        self.assertTrue(result["selection"]["run_light"])
+        registry["plugins"]["docker-readiness"]["dedicated_ci"] = "runtime-importer"
+        with self.assertRaisesRegex(ValueError, "unknown dedicated"):
+            classify.classify(["plugins/docker-readiness/accept.py"], registry)
+
+
+    def test_historical_runtime_has_no_current_source_package_dispatch(self):
+        root = Path(__file__).resolve().parents[3]
+        registry = classify.load_registry(root)
+        runtime = registry["plugins"]["docker-runtime"]
+        self.assertEqual(runtime["dedicated_ci"], "runtime-wire")
+        self.assertNotIn("package_plugin.py", runtime["entries"]["package"])
+        self.assertIn("current-source packaging is retired", runtime["entries"]["package"])
+        for paths in (["plugins/docker-runtime/native/src/main.rs"],
+                      ["tools/release/package_runtime.py"], [], ["unknown-file"]):
+            with self.subTest(paths=paths):
+                result = classify.classify(paths, registry)
+                self.assertIn("docker-runtime", result["plugins"])
+                self.assertTrue(result["selection"]["run_light"])
+                self.assertNotIn("docker-runtime", [row["plugin"] for row in result["matrix"]["include"]])
+                for row in result["matrix"]["include"]:
+                    self.assertNotIn("--plugin docker-runtime", row["entries"]["package"])
+        workflow = (root / ".github/workflows/ci.yml").read_text()
+        self.assertNotIn("package_plugin.py --plugin docker-runtime", workflow)
+        self.assertIn("package_plugin.py --plugin docker-readiness", workflow)
+        self.assertIn("working-directory: tests/runtime-v2-wire", workflow)
+        self.assertIn("./tests/runtime-native-host/scripts/run-native-tests.sh", workflow)
+        self.assertIn("./tests/runtime-native-host/scripts/run-acceptance.sh", workflow)
+        registry["plugins"]["docker-runtime"]["dedicated_ci"] = "runtime-importer"
+        with self.assertRaisesRegex(ValueError, "unknown dedicated"):
+            classify.classify(["plugins/docker-runtime/native/src/main.rs"], registry)
+
     def test_pure_documentation_runs_light_checks_only(self):
         result = classify.classify(["docs/README.md", "README.md"], REGISTRY)
         self.assertEqual(result["classes"],

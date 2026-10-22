@@ -42,7 +42,7 @@ class FullPackage(unittest.TestCase):
         self.root.mkdir()
         self.output.mkdir()
         self.build = mock.patch.object(
-            package_runtime, "build", side_effect=lambda _root, output: archive(output)
+            package_runtime, "build", side_effect=lambda _root, output, product: archive(output)
         )
         self.resolve = mock.patch.object(
             package_runtime.plugin_release, "resolve", return_value=IDENTITY

@@ -237,9 +237,10 @@
         "install": "CARGO_TARGET_DIR=\"$RUNNER_TEMP/docker-runtime-build\" cargo build --locked --release --target x86_64-unknown-linux-musl",
         "test": "cargo test --locked --target x86_64-unknown-linux-musl",
         "contract": "python3 ../accept.py --binary \"$RUNNER_TEMP/docker-runtime-build/x86_64-unknown-linux-musl/release/gateprobes-docker-runtime\" --core \"$RUNNER_TEMP/core/bin/harness-gate-linux-amd64\" --version 0.1.1 --report \"$RUNNER_TEMP/docker-runtime-contract.json\"",
-        "package": "python3 ../../../tools/release/package_plugin.py --plugin docker-runtime --core-root \"$RUNNER_TEMP/core\" --output \"$RUNNER_TEMP/docker-runtime-package\""
+        "package": "python3 -c 'raise SystemExit(\"docker-runtime 0.1.1 is immutable; current-source packaging is retired\")'"
       },
-      "protocols": []
+      "protocols": [],
+      "dedicated_ci": "runtime-wire"
     },
     "runtime-importer": {
       "path": "plugins/runtime-importer",
@@ -259,6 +260,29 @@
         "package": "python3 ../../tools/release/package_plugin.py --plugin runtime-importer --core-root \"$RUNNER_TEMP/importer-core\" --output \"$RUNNER_TEMP/importer-dist\""
       },
       "protocols": []
+    },
+    "docker-readiness": {
+      "path": "plugins/docker-readiness",
+      "language": "rust",
+      "platforms": [
+        "linux"
+      ],
+      "toolchain": "Rust 1.99.1 + Python3; pinned released Core0.9",
+      "toolchains": [
+        "rust",
+        "python"
+      ],
+      "rust_toolchain": "1.99.1",
+      "cargo_checks": false,
+      "dedicated_ci": "runtime-wire",
+      "entries": {
+        "install": "CARGO_TARGET_DIR=\"$RUNNER_TEMP/readiness-build\" cargo build --locked --manifest-path ../docker-runtime/native/Cargo.toml --bin gateprobes-docker-readiness",
+        "test": "python3 -m unittest discover -s ../docker-runtime/tests_package -v",
+        "contract": "python3 accept.py --core \"$RUNNER_TEMP/core/bin/harness-gate-linux-amd64\" --binary \"$RUNNER_TEMP/readiness-build/debug/gateprobes-docker-readiness\" --version 0.2.0 --report \"$RUNNER_TEMP/readiness-contract.json\"",
+        "package": "python3 ../../tools/release/package_plugin.py --plugin docker-readiness --core-root \"$RUNNER_TEMP/core\" --output \"$RUNNER_TEMP/readiness-dist\""
+      },
+      "protocols": [],
+      "rust_components": "rustfmt, clippy, rust-docs"
     }
   },
   "runners": {

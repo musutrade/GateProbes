@@ -1,6 +1,6 @@
 [package]
 name = "gateprobes-docker-runtime"
-version = "0.1.1"
+version = "0.2.0"
 edition = "2021"
 rust-version = "1.88"
 publish = false
@@ -14,3 +14,7 @@ libc = "0.2"
 
 [lints.clippy]
 cognitive_complexity = "warn"
+
+[[bin]]
+name = "gateprobes-docker-readiness"
+path = "src/readiness_main.rs"

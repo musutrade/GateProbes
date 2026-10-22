@@ -68,7 +68,7 @@ jobs:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
       - name: Check links, declarations and forbidden artifacts
         run: python3 tools/ci/check_docs.py
-      - name: Offline runtime import (15 offline tests; joint acceptance runs separately)
+      - name: Offline runtime import (19 offline tests; joint acceptance runs separately)
         run: |
           python3 -B - <<'PYIMPORT'
           import unittest
@@ -84,11 +84,11 @@ jobs:
                         'test_published_assets_smoke_if_supplied'}
           excluded = [test for test in tests if test._testMethodName in separate]
           required = [test for test in tests if test._testMethodName not in separate]
-          if len(tests) != 17 or len(required) != 15 or {test._testMethodName for test in excluded} != separate or len(excluded) != 2:
+          if len(tests) != 21 or len(required) != 19 or {test._testMethodName for test in excluded} != separate or len(excluded) != 2:
               raise SystemExit('runtime import test inventory changed')
           print('Separate required job: joint installed acceptance; local-only: published-assets smoke')
           result = unittest.TextTestRunner(verbosity=2).run(unittest.TestSuite(required))
-          if result.testsRun != 15 or result.skipped or result.expectedFailures or not result.wasSuccessful():
+          if result.testsRun != 19 or result.skipped or result.expectedFailures or not result.wasSuccessful():
               raise SystemExit('required runtime import tests failed or skipped')
           PYIMPORT
 
@@ -219,26 +219,26 @@ jobs:
           set -euo pipefail
           cargo fmt --check
           cargo clippy --locked --target x86_64-unknown-linux-musl --all-targets -- -D warnings
-      - name: Native runtime tests (33, no skips)
+      - name: Native runtime tests (45, no skips)
         env:
           CARGO_TARGET_DIR: ${{ runner.temp }}/runtime-native-tests-target
         run: ./tests/runtime-native-host/scripts/run-native-tests.sh
       - name: Native actual-host acceptance against fixed Core
         run: ./tests/runtime-native-host/scripts/run-acceptance.sh
-      - name: Native runtime package regressions (26, no skips)
+      - name: Native runtime package regressions (34, no skips)
         run: |
           python3 -B - <<'PYTEST'
           import unittest
           suite = unittest.defaultTestLoader.discover(
               'plugins/docker-runtime/tests_package', pattern='test_*.py')
-          if suite.countTestCases() != 26:
-              raise SystemExit('expected 26 native runtime package regressions')
+          if suite.countTestCases() != 34:
+              raise SystemExit('expected 34 native runtime package regressions')
           result = unittest.TextTestRunner(verbosity=2).run(suite)
-          if result.testsRun != 26 or result.skipped or result.expectedFailures:
+          if result.testsRun != 34 or result.skipped or result.expectedFailures:
               raise SystemExit('incomplete native runtime package regressions')
           raise SystemExit(0 if result.wasSuccessful() else 1)
           PYTEST
-      # Released Core 0.7.1 emits a GLIBC_2.39 loader warning on Ubuntu22.
+      # Released Core 0.9.0 requires the newer Ubuntu24 loader.
       # Keep its strict acceptance on Ubuntu24; both builders still must agree.
       - name: Build native runtime reproducibility evidence (no Core acceptance)
         if: matrix.runner == 'ubuntu-22.04'
@@ -250,14 +250,28 @@ jobs:
           import package_runtime
           output = Path(os.environ['RUNNER_TEMP']) / 'runtime-package-output'
           output.mkdir()
-          package_runtime.build(Path.cwd(), output)
+          package_runtime.build(Path.cwd(), output, "docker-readiness")
           PYBUILD
       - name: Package and accept extracted native runtime with released Core
+        env:
+          HARNESS_GATE_RUNTIME_ACCEPTANCE: ${{ runner.temp }}/readiness-acceptance
         if: matrix.runner == 'ubuntu-24.04'
         run: |
           set -euo pipefail
-          python3 tools/release/pinned_core.py --output "$RUNNER_TEMP/runtime-package-core"
-          python3 tools/release/package_plugin.py --plugin docker-runtime             --core-root "$RUNNER_TEMP/runtime-package-core"             --output "$RUNNER_TEMP/runtime-package-output"
+          mkdir -p "$HOME/.cache"
+          chmod 700 "$HOME" "$HOME/.cache"
+          python3 tools/release/readiness_core.py --output "$RUNNER_TEMP/runtime-package-core"
+          python3 tools/release/package_plugin.py --plugin docker-readiness             --core-root "$RUNNER_TEMP/runtime-package-core"             --output "$RUNNER_TEMP/runtime-package-output"
+
+      - name: Retain readiness Core contract and extracted acceptance
+        if: always() && matrix.runner == 'ubuntu-24.04'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: readiness-acceptance
+          path: |
+            ${{ runner.temp }}/runtime-package-core/contract.json
+            ${{ runner.temp }}/readiness-acceptance
+          if-no-files-found: error
 
       - name: Retain exact runtime packages for independent comparison
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -291,7 +305,8 @@ jobs:
               files = list((root / name).iterdir())
               if len(files) != 2 or not all(p.is_file() and not p.is_symlink() for p in files):
                   raise SystemExit('invalid runtime package evidence')
-              if sum(p.name.endswith('.tar.gz') for p in files) != 1 or sum(p.name.endswith('.tar.gz.sbom.cdx.json') for p in files) != 1:
+              archive = 'gateprobes-docker-readiness-0.2.0-linux-amd64.tar.gz'
+              if {p.name for p in files} != {archive, archive + '.sbom.cdx.json'}:
                   raise SystemExit('archive or SBOM missing')
               inventories.append({p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in files})
           if inventories[0] != inventories[1]:

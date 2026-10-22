@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 GP_ROOT="$(cd "$ROOT/../.." && pwd)"
 NATIVE="$GP_ROOT/plugins/docker-runtime/native"
-EXPECTED_TESTS=33
+EXPECTED_TESTS=45
 
 if [ -n "$(git -C "$GP_ROOT" status --porcelain -- "$NATIVE")" ]; then
     echo "native source tree is not clean; refusing stale/mixed test run" >&2

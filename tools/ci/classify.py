@@ -153,7 +153,11 @@ def classify(paths: list[str], registry: dict) -> dict:
     for name in sorted(affected):
         row = plugins[name]
         if row.get("dedicated_ci"):
-            if name != "runtime-importer" or row["dedicated_ci"] != "runtime-importer":
+            if (name, row["dedicated_ci"]) not in {
+                ("runtime-importer", "runtime-importer"),
+                ("docker-readiness", "runtime-wire"),
+                ("docker-runtime", "runtime-wire"),
+            }:
                 raise ValueError("unknown dedicated plugin CI route")
             continue
         for platform in row["platforms"]:

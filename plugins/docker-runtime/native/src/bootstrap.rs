@@ -57,7 +57,7 @@ fn sealed(fd: libc::c_int) -> Result<Vec<u8>> {
 }
 
 #[cfg(target_os = "linux")]
-pub fn read() -> Result<(Request, Config)> {
+pub(crate) fn read_bytes() -> Result<(Vec<u8>, Vec<u8>, Vec<u8>)> {
     if std::env::args_os().count() != 1 {
         return reject();
     }
@@ -84,6 +84,12 @@ pub fn read() -> Result<(Request, Config)> {
         .take((LIMIT + 1) as u64)
         .read_to_end(&mut actual)
         .map_err(|_| "runtime bootstrap rejected")?;
+    Ok((expected, actual, config))
+}
+
+#[cfg(target_os = "linux")]
+pub fn read() -> Result<(Request, Config)> {
+    let (expected, actual, config) = read_bytes()?;
     input::validate_inputs(&expected, &actual, &config)
 }
 

@@ -18,6 +18,7 @@ import tempfile
 import tomllib
 
 import pinned_core
+import readiness_core
 import plugin_release
 import package_workload
 import package_consumer
@@ -391,6 +392,15 @@ def main() -> None:
     args = parser.parse_args()
     row = plugin_release.resolve(args.plugin)
     core = args.core_root.resolve()
+    if args.plugin == "docker-readiness":
+        readiness_core.verify(core)
+        output = args.output.resolve()
+        output.mkdir(parents=True, exist_ok=False)
+        package_runtime.package(ROOT, output, core, "docker-readiness")
+        expected = {row["archive"], row["archive"] + ".sbom.cdx.json"}
+        if {path.name for path in output.iterdir()} != expected:
+            raise RuntimeError("readiness packaged assets differ")
+        return
     if args.plugin == "runtime-importer":
         importer_core.verify(core)
         output = args.output.resolve()
