@@ -321,13 +321,13 @@ class DistributionContract(unittest.TestCase):
     def test_ci_job_orders_download_tests_package_and_required_gate(self):
         text = (ROOT / ".github/workflows/ci.yml").read_text()
         self.assertIn("name: Standalone runtime importer acceptance", text)
-        self.assertIn("Distribution tests (39, no skips)", text)
-        self.assertIn("assert suite.countTestCases() == 39", text)
+        self.assertIn("Distribution tests (45, no skips)", text)
+        self.assertIn("assert suite.countTestCases() == 45", text)
         self.assertIn("Require standalone importer acceptance", text)
         self.assertIn("runtime-importer", text[text.index("needs: [ classify"):text.index("needs: [ classify") + 220])
         self.assertLess(text.index("Fetch independently pinned released inputs"),
-                        text.index("Distribution tests (39"))
-        self.assertLess(text.index("Distribution tests (39"),
+                        text.index("Distribution tests (45"))
+        self.assertLess(text.index("Distribution tests (45"),
                         text.index("Package and accept extracted importer"))
 
     def test_collector_release_uses_conditional_importer_core(self):
