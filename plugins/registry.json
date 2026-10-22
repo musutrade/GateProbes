@@ -283,6 +283,29 @@
       },
       "protocols": [],
       "rust_components": "rustfmt, clippy, rust-docs"
+    },
+    "docker-lifecycle": {
+      "path": "plugins/docker-lifecycle",
+      "language": "rust",
+      "platforms": [
+        "linux"
+      ],
+      "toolchain": "Rust1.99.1 + Python3; pinned released Core0.10.0/protocol0.3.0",
+      "toolchains": [
+        "rust",
+        "python"
+      ],
+      "rust_toolchain": "1.99.1",
+      "rust_components": "rustfmt, clippy, rust-docs",
+      "cargo_checks": false,
+      "entries": {
+        "install": "set -euo pipefail\nmkdir -p \"$HOME/.cache\"\nchmod 700 \"$HOME\" \"$HOME/.cache\"\npython3 ../../tools/release/lifecycle_core.py --output \"$RUNNER_TEMP/lifecycle-core\"\nCARGO_TARGET_DIR=\"$RUNNER_TEMP/lifecycle-build\" cargo build --locked --manifest-path native/Cargo.toml",
+        "test": "set -euo pipefail\ncargo fmt --check --manifest-path native/Cargo.toml\nCARGO_TARGET_DIR=\"$RUNNER_TEMP/lifecycle-build\" cargo clippy --locked --all-targets --manifest-path native/Cargo.toml -- -D warnings\nCARGO_TARGET_DIR=\"$RUNNER_TEMP/lifecycle-build\" cargo test --locked --manifest-path native/Cargo.toml\npython3 -m unittest discover -s tests_package -v",
+        "package": "python3 ../../tools/release/package_plugin.py --plugin docker-lifecycle --core-root \"$RUNNER_TEMP/lifecycle-core\" --output \"$RUNNER_TEMP/lifecycle-dist\"",
+        "contract": "python3 ../../tools/release/verify_lifecycle_acceptance.py --report \"$RUNNER_TEMP/lifecycle-dist-acceptance/docker-lifecycle.json\" --archive \"$RUNNER_TEMP/lifecycle-dist/gateprobes-docker-lifecycle-0.1.0-linux-amd64.tar.gz\""
+      },
+      "protocols": [],
+      "cargo_manifest": "native/Cargo.toml"
     }
   },
   "runners": {

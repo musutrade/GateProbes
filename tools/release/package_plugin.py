@@ -19,6 +19,8 @@ import tomllib
 
 import pinned_core
 import readiness_core
+import lifecycle_core
+import package_lifecycle
 import plugin_release
 import package_workload
 import package_consumer
@@ -393,6 +395,16 @@ def main() -> None:
     args = parser.parse_args()
     row = plugin_release.resolve(args.plugin)
     core = args.core_root.resolve()
+    if args.plugin == "docker-lifecycle":
+        lifecycle_core.verify(core)
+        package_lifecycle.validate(ROOT)
+        output = args.output.resolve()
+        output.mkdir(parents=True, exist_ok=False)
+        package_lifecycle.package(ROOT, output, core)
+        expected = {row["archive"], row["archive"] + ".sbom.cdx.json"}
+        if {path.name for path in output.iterdir()} != expected:
+            raise RuntimeError("lifecycle packaged assets differ")
+        return
     if args.plugin == "docker-readiness":
         readiness_core.verify(core)
         output = args.output.resolve()

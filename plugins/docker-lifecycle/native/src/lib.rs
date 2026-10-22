@@ -1,5 +1,5 @@
-//! Staged lifecycle adapter. No public request grants mutation authority.
-//! The development protocol must be supplied by an explicit local Cargo patch.
+//! Docker lifecycle adapter. No public request grants mutation authority.
+//! Uses the pinned published lifecycle protocol; Core supplies protected authority.
 use gatehouse_runtime_protocol::lifecycle::wire::{Operation, Request};
 use serde_json::{json, Map, Value};
 

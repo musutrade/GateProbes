@@ -33,7 +33,9 @@ class RustLintContractTests(unittest.TestCase):
                 self.assertTrue(clippy.is_file(), clippy)
                 self.assertIn(f"cognitive-complexity-threshold = {THRESHOLD}",
                               clippy.read_text())
-                manifest = tomllib.loads((directory / "Cargo.toml").read_text())
+                manifest_path = directory / row.get("cargo_manifest", "Cargo.toml")
+                self.assertTrue(manifest_path.resolve().is_relative_to(directory.resolve()))
+                manifest = tomllib.loads(manifest_path.read_text())
                 self.assertEqual(
                     manifest.get("lints", {}).get("clippy", {}).get("cognitive_complexity"),
                     "warn")

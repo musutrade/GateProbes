@@ -1,10 +1,10 @@
-# Docker lifecycle development
+# Docker lifecycle 0.1.0 candidate
 
 This separate, unpublished product implements protected-input Docker create,
 status, start, stop and remove. It does not extend runtime v2 or readiness v3.
-It is not registered or packaged. Paired Core now supplies service orchestration,
-protected resource slots and explicit known-ID operator recovery. Native lifecycle
-mutations have so far been exercised with fake Unix sockets. Resolve-image reads the exact encoded
+Its independent package and registry wiring are candidates, not published assets. Paired Core now supplies service orchestration,
+protected resource slots and explicit known-ID operator recovery. This candidate package uses fake Unix sockets for acceptance; earlier source-level
+rootful Docker evidence does not establish this package's real-engine acceptance. Resolve-image reads the exact encoded
 reference, verifies full image ID and unique RepoDigests, and requires an exact
 RepoDigests match for digest-pinned references. Tags remain mutable; create uses
 only the resolved image ID. Image 404 is Unknown, never container absence.
@@ -84,3 +84,16 @@ to the checked Core protocol snapshot. This is a test fixture build, not a
 released lifecycle package. No absolute patch path is committed. CI must bind
 the source commit/archive digest and resulting adapter digest, and run only
 fake-socket joint tests. Real-engine tests remain opt-in and excluded.
+
+## Candidate package acceptance
+
+The product targets published Core 0.10.0 and protocol 0.3.0. `core-pin.json`
+binds the exact downloaded Linux Core. The packager builds twice with pinned
+musl inputs, requires byte-identical static PIE outputs, records dependency
+notices and SBOM hashes, and runs the extracted `accept.py` against that Core.
+The public `verify` path exercises a service-bound step; `doctor` requires a
+separate readiness host and is not used here. Fourteen fake-socket cases cover
+normal lifecycle, retained health failure with exact-fence operator cleanup,
+and twelve pre-spawn identity refusals. Reports retain the private fixture root
+and command diagnostics. Rootless/restart and downloaded published-product
+acceptance remain unproven until separately verified. No real daemon is used.
