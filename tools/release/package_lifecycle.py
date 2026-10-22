@@ -115,7 +115,7 @@ def build(root, output):
         for name in MEMBERS - {BINARY, 'LICENSE', 'THIRD_PARTY_NOTICES.txt'}:
             location = 'native/' + name if name in {'Cargo.toml', 'Cargo.lock', 'rust-toolchain.toml', 'build-inputs.json', 'protocol-LICENSE', 'protocol-license.json'} else name
             files[name] = package_workload.checked_file(root, f'plugins/{PRODUCT}/{location}')
-        metadata = json.loads(run('cargo', '+' + runtime_build.TOOLCHAIN, 'metadata', '--locked', '--format-version', '1',
+        metadata = json.loads(run('cargo', '+' + runtime_build.TOOLCHAIN, 'metadata', '--locked', '--format-version', '1', '--filter-platform', runtime_build.TARGET,
             '--manifest-path', str(native / 'Cargo.toml'), env=env, echo=False))
         spec = importlib.util.spec_from_file_location('lifecycle_notices', root / 'plugins/rust-native-plugin/locked_notices.py')
         notices = importlib.util.module_from_spec(spec)
