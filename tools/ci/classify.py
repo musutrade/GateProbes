@@ -156,6 +156,7 @@ def classify(paths: list[str], registry: dict) -> dict:
             if (name, row["dedicated_ci"]) not in {
                 ("runtime-importer", "runtime-importer"),
                 ("docker-readiness", "runtime-wire"),
+                ("docker-runtime", "runtime-wire"),
             }:
                 raise ValueError("unknown dedicated plugin CI route")
             continue

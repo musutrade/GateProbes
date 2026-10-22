@@ -96,3 +96,12 @@ A complete output is buffered and bounded before writing; oversized results fail
 without partial protocol output. Real Rust v2 parser acceptance is required.
 The entry relies on the harness for process/stdin deadlines; installed-artifact
 bootstrap, production host integration, Absent and mutation remain unsupported.
+
+## Current-source CI
+
+The immutable docker-runtime 0.1.1 package belongs to its released source. The
+shared native crate now builds 0.2.0, so its registry package entry explicitly
+refuses current-source packaging of that historical identity. Changes route to
+`runtime-wire`, which retains v2 wire/native/installed-host regressions and builds
+the separate docker-readiness product. Historical archives and declarations are
+unchanged; the generic plugin matrix does not rebuild docker-runtime 0.1.1.
