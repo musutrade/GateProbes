@@ -175,12 +175,17 @@ timeout_secs = 1
             script.write_text(f"#!/bin/sh\nprintf called >> '{marker}'\nexit 77\n")
             script.chmod(0o700)
         env = dict(os.environ, PATH=str(fakebin) + os.pathsep + os.environ.get("PATH", ""))
-        for case in ("present", "missing", "unavailable", "changed", "timeout", "fixed-expected", "tampered-descriptor", "tampered-executable"):
+        for case in ("present", "missing", "unavailable", "changed", "timeout", "fixed-expected", "tampered-descriptor", "tampered-executable", "tampered-schema"):
             write_json(host, dict(host_value, **({"expected": "/untrusted"} if case == "fixed-expected" else {})))
             descriptor.chmod(0o600); descriptor.write_bytes(original_descriptor); descriptor.chmod(0o400)
             executable.chmod(0o700); executable.write_bytes(original_executable); executable.chmod(0o500)
             if case == 'tampered-descriptor':
                 descriptor.chmod(0o600); descriptor.write_bytes(original_descriptor + b' '); descriptor.chmod(0o400)
+            if case == 'tampered-schema':
+                invalid = dict(expected_descriptor, schema='gate-runtime-installation/v0')
+                descriptor.chmod(0o600); descriptor.write_text(json.dumps(invalid)); descriptor.chmod(0o400)
+                rebound = dict(host_value, installation=dict(installation, sha256=digest(descriptor.read_bytes())))
+                write_json(host, rebound)
             if case == 'tampered-executable':
                 executable.chmod(0o700); executable.write_bytes(b'tampered'); executable.chmod(0o500)
             fake = Fake(root / "fake.sock", case)
@@ -193,7 +198,7 @@ timeout_secs = 1
                 assert len(report['checks']) == 1
                 assert report['checks'][0]['level'] == ('pass' if case == 'present' else 'fail')
                 assert not marker.exists(), "readiness escaped to legacy CLI"
-                if case in ("fixed-expected", "tampered-descriptor", "tampered-executable"):
+                if case in ("fixed-expected", "tampered-descriptor", "tampered-executable", "tampered-schema"):
                     assert not fake.requests, fake.requests
                 elif case == "present":
                     assert fake.requests == ["/version", "/v1.47/info", "/v1.47/images/registry%3A5000%2Frepo%3Atag/json", "/version", "/v1.47/info"], fake.requests

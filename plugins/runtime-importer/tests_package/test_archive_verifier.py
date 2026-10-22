@@ -17,6 +17,7 @@ import sys
 sys.path.insert(0, str(sys_path))
 
 import package_importer  # noqa: E402
+import legacy_fixture
 import verify_importer_archive as verifier  # noqa: E402
 
 PREFIX = verifier.PREFIX
@@ -59,7 +60,8 @@ class VerifierTests(unittest.TestCase):
         cls.temporary = tempfile.TemporaryDirectory(prefix="importer-verifier-")
         output = Path(cls.temporary.name) / "out"
         output.mkdir()
-        cls.archive_path = package_importer.build(ROOT, output)
+        cls.legacy_root = legacy_fixture.create(ROOT, Path(cls.temporary.name) / "legacy-root")
+        cls.archive_path = package_importer.build(cls.legacy_root, output)
         cls.archive = cls.archive_path.read_bytes()
         cls.sbom = Path(str(cls.archive_path) + ".sbom.cdx.json").read_bytes()
         cls.files = verifier.validate(cls.archive, cls.sbom, sha(cls.archive), sha(cls.sbom))

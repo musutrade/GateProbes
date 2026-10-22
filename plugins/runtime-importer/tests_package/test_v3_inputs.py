@@ -36,3 +36,12 @@ class V3Inputs(unittest.TestCase):
             with self.assertRaises(ValueError): importer_core_v3.prepare(output, ROOT)
             run.assert_not_called()
             self.assertFalse((output / 'contract.json').exists())
+
+    def test_wrong_readiness_download_fails_without_completed_contract(self):
+        import hashlib
+        payload = b'fixture-core'
+        pin = dict(importer_core_v3.EXPECTED, sha256=hashlib.sha256(payload).hexdigest())
+        with tempfile.TemporaryDirectory() as temporary, mock.patch.object(importer_core_v3, 'contract', return_value=pin), mock.patch.object(importer_core_v3, 'verify'), mock.patch.object(importer_core_v3.urllib.request, 'urlopen', side_effect=[io.BytesIO(payload), io.BytesIO(b'wrong-readiness')]):
+            output = Path(temporary) / 'inputs'
+            with self.assertRaises(ValueError): importer_core_v3.prepare(output, ROOT)
+            self.assertFalse((output / 'contract.json').exists())

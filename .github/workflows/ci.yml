@@ -102,7 +102,7 @@ jobs:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
       - name: Fetch independently pinned released inputs
         run: python3 tools/release/importer_core.py --output "$RUNNER_TEMP/importer-core"
-      - name: Distribution tests (36, no skips)
+      - name: Distribution tests (39, no skips)
         env:
           GATEHOUSE_CORE: ${{ runner.temp }}/importer-core/bin/harness-gate-linux-amd64
           RUNTIME_IMPORT_ASSETS: ${{ runner.temp }}/importer-core/runtime-assets
@@ -110,16 +110,56 @@ jobs:
           python3 - <<'PYIMPORTER'
           import unittest
           suite = unittest.defaultTestLoader.discover('plugins/runtime-importer/tests_package')
-          assert suite.countTestCases() == 36
+          assert suite.countTestCases() == 39
           result = unittest.TextTestRunner(verbosity=2).run(suite)
-          assert result.testsRun == 36 and not result.skipped and not result.expectedFailures and result.wasSuccessful()
+          assert result.testsRun == 39 and not result.skipped and not result.expectedFailures and result.wasSuccessful()
           PYIMPORTER
       - name: Package and accept extracted importer
         run: |
           set -euo pipefail
           mkdir -m 700 "$RUNNER_TEMP/importer-home"
           export HOME="$RUNNER_TEMP/importer-home"
-          python3 tools/release/package_plugin.py --plugin runtime-importer --core-root "$RUNNER_TEMP/importer-core" --output "$RUNNER_TEMP/importer-dist"
+          python3 - <<'PYLEGACY'
+          import os, sys, tempfile
+          from pathlib import Path
+          sys.path[:0] = ['tools/release', 'plugins/runtime-importer/tests_package']
+          import legacy_fixture, package_importer
+          with tempfile.TemporaryDirectory() as temp:
+              root = legacy_fixture.create(Path.cwd(), Path(temp) / 'legacy-fixture')
+              output = Path(os.environ['RUNNER_TEMP']) / 'importer-dist'
+              output.mkdir()
+              core = Path(os.environ['RUNNER_TEMP']) / 'importer-core'
+              package_importer.package(root, output, core, core / 'runtime-assets')
+          PYLEGACY
+
+  runtime-import-v3:
+    name: V3 importer installed readiness acceptance
+    needs: classify
+    if: needs.classify.outputs.run_light == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - name: Fetch pinned Core0.9 and released readiness0.2
+        run: python3 tools/release/importer_core_v3.py --output "$RUNNER_TEMP/importer-v3-core"
+      - name: Package and externally verify candidate importer before installed readiness
+        env:
+          HARNESS_GATE_IMPORTER_ACCEPTANCE: ${{ runner.temp }}/importer-v3-evidence
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.cache"
+          chmod 700 "$HOME" "$HOME/.cache"
+          python3 tools/release/package_plugin.py --plugin runtime-importer --core-root "$RUNNER_TEMP/importer-v3-core" --output "$RUNNER_TEMP/importer-v3-dist"
+      - name: Retain importer v3 contract package and acceptance
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: importer-v3-acceptance
+          path: |
+            ${{ runner.temp }}/importer-v3-core/contract.json
+            ${{ runner.temp }}/importer-v3-dist
+            ${{ runner.temp }}/importer-v3-evidence
+          if-no-files-found: error
 
   runtime-import-joint:
     name: Installed runtime joint acceptance
@@ -754,7 +794,7 @@ jobs:
   required_aggregate:
     name: Required Quality Aggregate
     if: ${{ always() }}
-    needs: [ classify, lightweight, runtime-wire, runtime-repro, runtime-import-joint, runtime-importer, plugins, presets, compatibility ]
+    needs: [ classify, lightweight, runtime-wire, runtime-repro, runtime-import-joint, runtime-importer, runtime-import-v3, plugins, presets, compatibility ]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -803,6 +843,17 @@ jobs:
           if selected not in ('true', 'false') or (selected == 'true' and result != 'success') or (selected == 'false' and result not in ('success', 'skipped')):
               raise SystemExit('standalone importer acceptance missing or failed')
           PYIMPORTER
+      - name: Require v3 importer acceptance
+        env:
+          SELECTED: ${{ needs.classify.outputs.run_light }}
+          RESULT: ${{ needs.runtime-import-v3.result }}
+        run: |
+          python3 - <<'PYV3'
+          import os
+          selected, result = os.environ['SELECTED'], os.environ['RESULT']
+          if selected not in ('true', 'false') or (selected == 'true' and result != 'success') or (selected == 'false' and result not in ('success', 'skipped')):
+              raise SystemExit('v3 importer acceptance missing or failed')
+          PYV3
       - name: Require every selected task to succeed
         run: |
           set -euo pipefail
