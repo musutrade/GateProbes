@@ -6,7 +6,7 @@ use gatehouse_runtime_protocol::lifecycle_v2::{
     native_image::image_route, native_status::inspect_route, observation::INFO_ROUTE,
     protected_context::ProtectedContext,
 };
-use std::time::Instant;
+use std::time::{Duration, Instant};
 pub type Result<T> = std::result::Result<T, &'static str>;
 /// Only native info and exact full-ID image/container GET. No CLI, environment,
 /// redirects, mutation, retry or implicit endpoint. One deadline spans all calls.
@@ -53,6 +53,10 @@ pub fn capture_plan(
     cancelled: &impl Fn() -> bool,
 ) -> Result<gatehouse_runtime_protocol::lifecycle_v2::plan_record::PlanRecord> {
     use gatehouse_runtime_protocol::lifecycle_v2::plan_record::PlanRecord;
+    image_route(image_id)?;
+    if deadline.saturating_duration_since(Instant::now()) > Duration::from_secs(30) {
+        return Err("capture deadline exceeds maximum");
+    }
     inputs.validate()?;
     identity.validate()?;
     if identity.config_sha256 != context.config_sha256()? {
@@ -64,6 +68,14 @@ pub fn capture_plan(
     let captured =
         context.capture_image_for_plan(image_id, |path| get(context, path, deadline, cancelled))?;
     let record = PlanRecord::capture(context, &captured, identity, inputs)?;
+    finish_capture(record, context, deadline, cancelled)
+}
+fn finish_capture(
+    record: gatehouse_runtime_protocol::lifecycle_v2::plan_record::PlanRecord,
+    context: &ProtectedContext,
+    deadline: Instant,
+    cancelled: &impl Fn() -> bool,
+) -> Result<gatehouse_runtime_protocol::lifecycle_v2::plan_record::PlanRecord> {
     context.revalidate()?;
     if cancelled() || Instant::now() >= deadline {
         return Err("capture cancelled or expired");

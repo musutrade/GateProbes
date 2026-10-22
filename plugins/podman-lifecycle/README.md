@@ -47,3 +47,10 @@ entrypoint, versioned protocol and mutation remain outside this checkpoint.
 Operator name, labels and fixed port are preflight-validated before any socket
 connection. Empty operator labels are allowed because image labels may supply
 the final nonempty map; merged plan validation remains mandatory after capture.
+
+Image IDs and the maximum 30-second deadline are checked at capture entry, before
+connecting. Final-boundary tests call the same production finalizer with already
+validated evidence to deterministically reject cancellation, expiry and changed
+context; they are post-GET withholding tests, not zero-connection claims. Empty
+operator labels are also exercised through all three GETs and PlanRecord using
+inherited image labels.

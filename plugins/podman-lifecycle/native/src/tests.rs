@@ -475,3 +475,84 @@ fn empty_operator_labels_allow_image_inheritance() {
     let facts = decode_image(&id, "GET", &route, 200, &raw).unwrap();
     facts.create_plan(inputs.name, inputs.labels, None).unwrap();
 }
+
+#[test]
+fn invalid_image_and_deadline_cap_are_zero_connection() {
+    for (id, seconds) in [
+        ("".into(), 2),
+        ("short".into(), 2),
+        ("A".repeat(64), 2),
+        ("b".repeat(64), 31),
+    ] {
+        let f = Fixture::new();
+        assert!(capture_plan(
+            &f.context,
+            &id,
+            &plan_identity(&f),
+            plan_inputs(),
+            Instant::now() + Duration::from_secs(seconds),
+            &|| false
+        )
+        .is_err());
+        f.listener.set_nonblocking(true).unwrap();
+        assert_eq!(
+            f.listener.accept().unwrap_err().kind(),
+            std::io::ErrorKind::WouldBlock
+        );
+    }
+}
+#[test]
+fn inherited_labels_end_to_end_and_final_boundary_refusals() {
+    use gatehouse_runtime_protocol::lifecycle_v2::plan_record::PlanRecord;
+    let f = Fixture::new();
+    let identity = plan_identity(&f);
+    let info = f.info.clone();
+    let server = thread::spawn(move || {
+        for n in 0..3 {
+            let (mut s, _) = f.listener.accept().unwrap();
+            request(&mut s);
+            let body = if n == 1 {
+                serde_json::to_vec(&json!({"Id":"b".repeat(64),"Labels":{"inherited":"image"},"Config":{"Labels":{"inherited":"image"}}})).unwrap()
+            } else {
+                info.clone()
+            };
+            s.write_all(&reply(&body)).unwrap();
+        }
+    });
+    let mut inputs = plan_inputs();
+    inputs.labels.clear();
+    let record = capture_plan(
+        &f.context,
+        &"b".repeat(64),
+        &identity,
+        inputs,
+        Instant::now() + Duration::from_secs(2),
+        &|| false,
+    )
+    .unwrap();
+    server.join().unwrap();
+    let plan: serde_json::Value = serde_json::from_slice(record.plan_bytes()).unwrap();
+    assert_eq!(plan["labels"]["inherited"], "image");
+    let bytes = record.encode().unwrap();
+    // Exercise the exact production finalizer with fully validated evidence;
+    // no sleeps or guesses about cancellation polling frequency.
+    let cancelled = PlanRecord::decode(&bytes, &f.context).unwrap();
+    assert!(finish_capture(
+        cancelled,
+        &f.context,
+        Instant::now() + Duration::from_secs(2),
+        &|| true
+    )
+    .is_err());
+    let expired = PlanRecord::decode(&bytes, &f.context).unwrap();
+    assert!(finish_capture(expired, &f.context, Instant::now(), &|| false).is_err());
+    let changed = PlanRecord::decode(&bytes, &f.context).unwrap();
+    fs::write(f.dir.path().join("context.json"), b"{}").unwrap();
+    assert!(finish_capture(
+        changed,
+        &f.context,
+        Instant::now() + Duration::from_secs(2),
+        &|| false
+    )
+    .is_err());
+}
