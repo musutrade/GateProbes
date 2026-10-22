@@ -11,12 +11,10 @@ only the resolved image ID. Image 404 is Unknown, never container absence.
 Health-exec creates and starts one detached exec, then only polls its exact ID
 under the original deadline. Core retains service/recipe orchestration.
 
-Development requires the paired unreleased Core lifecycle protocol source through
-an explicit local Cargo `patch.crates-io.gatehouse-runtime-protocol.path` override.
-The published protocol 0.2.0 does not contain this module. The manifest version is
-only the current development source identity; release wiring must bump and publish
-the additive protocol before pinning an installable lifecycle product. No absolute
-local checkout path is committed, and no released protocol capability is claimed.
+Development now uses the published `gatehouse-runtime-protocol = "=0.3.0"`
+crate, with its registry checksum locked in Cargo.lock. No local Cargo patch is
+required. Core 0.10.0 is published; this lifecycle product remains unpublished
+until packaging, registry wiring and downloaded-Core acceptance are complete.
 
 The builder preserves exact image ID, ownership labels and environment, requests
 one Docker-allocated loopback TCP binding, disables automatic removal/restart and

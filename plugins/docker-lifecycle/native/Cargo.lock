@@ -71,6 +71,8 @@ checksum = "da7c62ceae207dd37ea5b845da6a0696c799f85e97da1ab5b7910be3c1c80223"
 [[package]]
 name = "gatehouse-runtime-protocol"
 version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "357cf18eb55a7a83d9b8840280e77c6f7efe263a74bdeafc7e132cad7a607e54"
 dependencies = [
  "libc",
  "serde",
