@@ -53,6 +53,8 @@ def profile(expected):
         return 'docker-runtime', BINARY, 'gate-runtime/v2'
     if tag == 'docker-readiness-v' + version and version == '0.2.0':
         return 'docker-readiness', 'gateprobes-docker-readiness', 'gate-runtime/v3'
+    if tag == 'docker-lifecycle-v0.1.0' and version == '0.1.0':
+        return 'docker-lifecycle', 'gateprobes-docker-lifecycle', 'gate-runtime/lifecycle-v1'
     raise InvalidRelease('runtime release rejected')
 
 
@@ -79,6 +81,8 @@ def pin(data):
 
 def unpack(data, prefix, binary=BINARY):
     members = (MEMBERS - {BINARY}) | {binary}
+    if binary == 'gateprobes-docker-lifecycle':
+        members |= {'Cargo.toml', 'core-pin.json', 'protocol-LICENSE', 'protocol-license.json'}
     require(len(data) <= MAX_ARCHIVE)
     with gzip.GzipFile(fileobj=io.BytesIO(data)) as zipped:
         raw = zipped.read(MAX_TAR + 1)
@@ -149,6 +153,8 @@ def validate(pin_bytes, archive, sbom, inventory, checksums):
         manifest = decode(files['plugin.json'])
         require(manifest['name'] == product and manifest['version'] == expected['version'])
         require(manifest['executable'] == binary and manifest['protocol'] == protocol)
+        if product == 'docker-lifecycle':
+            require(manifest['core_versions'] == ['0.10.0'])
         validate_sbom(decode(sbom), expected, files)
         return files
     except (ValueError, TypeError, KeyError, AttributeError, OSError, EOFError, OverflowError, RecursionError, tarfile.TarError, zlib.error):

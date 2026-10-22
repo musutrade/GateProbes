@@ -12,21 +12,27 @@ import verify_importer_archive as verifier
 
 
 class V3Package(unittest.TestCase):
+    def setUp(self):
+        import importer_readiness_fixture
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.root = importer_readiness_fixture.create(ROOT, Path(self.temp.name) / 'historical')
+
     def test_real_profile_contains_only_v3_pins_and_exact_manifest(self):
-        files = package_importer.members(ROOT, '0.2.0')
+        files = package_importer.members(self.root, '0.2.0')
         self.assertEqual(set(files), verifier.profile('0.2.0')[1])
         manifest = json.loads(files['plugins/runtime-importer/plugin.json'])
         self.assertEqual(manifest['core_versions'], ['0.9.0'])
         self.assertEqual(manifest['runtime_tag'], 'docker-readiness-v0.2.0')
         self.assertNotIn('plugins/runtime-importer/core-pin.json', files)
         self.assertNotIn('tools/runtime_import/release-pin.json', files)
-        with self.assertRaises(ValueError): package_importer.members(ROOT, '0.1.0')
+        with self.assertRaises(ValueError): package_importer.members(self.root, '0.1.0')
 
     def test_real_package_is_deterministic_and_v3_verifies_before_extract(self):
         import hashlib
         with tempfile.TemporaryDirectory() as temporary:
             a, b = Path(temporary)/'a', Path(temporary)/'b'; a.mkdir(); b.mkdir()
-            first, second = package_importer.build(ROOT, a), package_importer.build(ROOT, b)
+            first, second = package_importer.build(self.root, a), package_importer.build(self.root, b)
             self.assertEqual(first.name, 'gateprobes-runtime-importer-0.2.0.tar.gz')
             self.assertEqual(first.read_bytes(), second.read_bytes())
             sbom = Path(str(first)+'.sbom.cdx.json').read_bytes()
