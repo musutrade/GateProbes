@@ -46,10 +46,13 @@ fn malformed_headers_and_unsupported_framing_are_rejected() {
     ] {
         assert!(headers(raw.as_bytes()).is_err(), "{raw}");
     }
-    assert_eq!(headers(b"HTTP/1.1 204 No Content"), Ok((204, 0)));
+    assert_eq!(
+        headers(b"HTTP/1.1 204 No Content"),
+        Ok((204, Framing::Length(0)))
+    );
     assert_eq!(
         headers(b"HTTP/1.1 200 OK\r\nContent-Length: 2"),
-        Ok((200, 2))
+        Ok((200, Framing::Length(2)))
     );
 }
 fn reply(raw: Vec<u8>, delay: Duration, replace: bool, timeout: Duration) -> Result<Reply> {
@@ -148,4 +151,65 @@ fn socket_identity_rejects_replacement_wrong_owner_and_unsafe_parent() {
     fs::set_permissions(d.path(), fs::Permissions::from_mode(0o777)).unwrap();
     assert!(SocketIdentity::verify(&c).is_err());
     fs::set_permissions(d.path(), fs::Permissions::from_mode(0o700)).unwrap();
+}
+
+#[test]
+fn chunked_transport_accepts_complete_body_and_rejects_ambiguity() {
+    for raw in [
+        "HTTP/1.0 200 OK\r\nTransfer-Encoding: chunked",
+        "HTTP/1.1 204 OK\r\nTransfer-Encoding: chunked",
+        "HTTP/1.1 200 OK\r\nTransfer-Encoding: gzip, chunked",
+        "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\nTrailer: digest",
+    ] {
+        assert!(headers(raw.as_bytes()).is_err());
+    }
+    let header = b"HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n";
+    let raw = [header.as_slice(), b"1\r\n{\r\n1\r\n}\r\n0\r\n\r\n"].concat();
+    assert_eq!(
+        reply(raw, Duration::ZERO, false, Duration::from_secs(1))
+            .unwrap()
+            .body,
+        b"{}"
+    );
+    for body in [
+        b"1\r\n{\r\n".as_slice(),
+        b"0\r\n\r\nx",
+        b"0\r\nDigest: forged\r\n\r\n",
+    ] {
+        assert!(reply(
+            [header.as_slice(), body].concat(),
+            Duration::ZERO,
+            false,
+            Duration::from_secs(1)
+        )
+        .is_err());
+    }
+}
+
+#[cfg(feature = "real-engine-tests")]
+#[test]
+fn explicit_real_engine_readonly_version_and_info() {
+    let path = std::env::var_os("GATEHOUSE_LIFECYCLE_REAL_BINDING")
+        .expect("explicit real engine binding required");
+    let config: Config = serde_json::from_slice(&fs::read(path).unwrap()).unwrap();
+    config.validate().unwrap();
+    let socket = SocketIdentity::verify(&config).unwrap();
+    let deadline = Instant::now() + Duration::from_secs(10);
+    for (route, field, expected) in [
+        (
+            "/version".to_string(),
+            "Version",
+            config.server_version.as_str(),
+        ),
+        (
+            format!("/v{}/info", config.api_version),
+            "ID",
+            config.daemon_id.as_str(),
+        ),
+    ] {
+        let reply = exchange(&config, &socket, "GET", &route, &[], deadline, &|| false).unwrap();
+        assert_eq!(reply.status, 200);
+        let body: serde_json::Value = serde_json::from_slice(&reply.body).unwrap();
+        assert_eq!(body[field].as_str(), Some(expected));
+    }
 }

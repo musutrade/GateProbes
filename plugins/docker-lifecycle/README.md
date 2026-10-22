@@ -2,13 +2,14 @@
 
 This separate, unpublished product implements protected-input Docker create,
 status, start, stop and remove. It does not extend runtime v2 or readiness v3.
-It is not registered or packaged; Core service orchestration is still absent.
-Only fake Unix sockets have been exercised. Resolve-image reads the exact encoded
+It is not registered or packaged. Paired Core now supplies service orchestration,
+protected resource slots and explicit known-ID operator recovery. Native lifecycle
+mutations have so far been exercised with fake Unix sockets. Resolve-image reads the exact encoded
 reference, verifies full image ID and unique RepoDigests, and requires an exact
 RepoDigests match for digest-pinned references. Tags remain mutable; create uses
 only the resolved image ID. Image 404 is Unknown, never container absence.
 Health-exec creates and starts one detached exec, then only polls its exact ID
-under the original deadline. Core service/recipe orchestration is still pending.
+under the original deadline. Core retains service/recipe orchestration.
 
 Development requires the paired unreleased Core lifecycle protocol source through
 an explicit local Cargo `patch.crates-io.gatehouse-runtime-protocol.path` override.
@@ -25,7 +26,7 @@ configuration still applies. This is not a container sandbox or mutation authori
 
 The executable reads bounded exact stdin plus sealed config fd3 and expected fd4.
 It uses a private nonblocking Unix HTTP transport, one monotonic deadline, bounded
-headers/body, no redirects/chunked encoding/proxy/environment/CLI or retries. The
+headers/body, no redirects/proxy/environment/CLI or retries. The
 socket identity is checked before/after each call. Matching version/info including
 the configured rootless flag is observed before/after every complete operation.
 These observations do not authenticate a daemon, prove rootless isolation or detect
@@ -60,3 +61,19 @@ before returning Health, including a definitive nonzero exit. Cancellation, lost
 responses, unexpected identities, deadline expiry and malformed exit data return
 Unknown without repeating create/start. Fake tests cover cancellation before exec
 create, after create/start and during polling, plus a stalled response deadline.
+
+
+Real Docker 29.9.2 read-only preflight showed `/info` uses chunked HTTP/1.1.
+The lifecycle transport therefore supports a bounded subset of
+[RFC 9112 section 7.1](https://www.rfc-editor.org/rfc/rfc9112.html#section-7.1):
+up to 4096 data chunks, at most eight hex size digits, strict CRLF and a 1 MiB
+aggregate decoded body. Chunk extensions, declared/nonempty trailers, conflicting
+Content-Length, combined transfer codings, chunked HTTP/1.0 and bodyless-status
+chunking are refused. Deadline/cancellation and socket identity checks still apply.
+This changes only the new lifecycle product; v2/v3 artifacts remain immutable.
+
+The opt-in Cargo feature `real-engine-tests` adds one read-only version/info test.
+It requires `GATEHOUSE_LIFECYCLE_REAL_BINDING` pointing to an explicitly reviewed
+engine binding JSON; missing input fails. It never creates images or containers,
+and is not part of default fake tests or automatic CI. This is transport evidence,
+not real lifecycle, rootless, restart or downloaded-product acceptance.
