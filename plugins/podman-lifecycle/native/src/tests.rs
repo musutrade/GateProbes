@@ -534,6 +534,14 @@ fn inherited_labels_end_to_end_and_final_boundary_refusals() {
     let plan: serde_json::Value = serde_json::from_slice(record.plan_bytes()).unwrap();
     assert_eq!(plan["labels"]["inherited"], "image");
     let bytes = record.encode().unwrap();
+    let inherited_path = f.dir.path().join("inherited-record");
+    record.create_new(&inherited_path, &f.context).unwrap();
+    let reopened = PlanRecord::open(&inherited_path, &f.context).unwrap();
+    assert_eq!(reopened.encode().unwrap(), bytes);
+    let persisted_plan: serde_json::Value = serde_json::from_slice(reopened.plan_bytes()).unwrap();
+    assert_eq!(persisted_plan["labels"]["inherited"], "image");
+    assert!(!reopened.installation_verified());
+
     // Exercise the exact production finalizer with fully validated evidence;
     // no sleeps or guesses about cancellation polling frequency.
     let cancelled = PlanRecord::decode(&bytes, &f.context).unwrap();
