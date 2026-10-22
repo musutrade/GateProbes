@@ -56,7 +56,7 @@ fn run(case: u8) {
             labels: [("owner".into(), "fixture".into())].into(),
             port: None,
         },
-        timeout_ms: 1500,
+        timeout_ms: if case >= 4 { 3000 } else { 1500 },
     };
     let expected = CaptureExpected::bind(
         &request,
@@ -121,7 +121,27 @@ fn run(case: u8) {
     if case == 3 {
         raw[0] = b'!';
     }
-    child.stdin.take().unwrap().write_all(&raw).unwrap();
+    let mut signalled = false;
+    let signal = if case % 2 == 0 {
+        libc::SIGTERM
+    } else {
+        libc::SIGINT
+    };
+    let mut retained_streams = Vec::new();
+    if case >= 8 {
+        assert!(
+            unsafe {
+                libc::fcntl(
+                    child.stdout.as_ref().unwrap().as_raw_fd(),
+                    libc::F_SETPIPE_SZ,
+                    4096,
+                )
+            } > 0
+        );
+    }
+    if !(4..=5).contains(&case) {
+        child.stdin.take().unwrap().write_all(&raw).unwrap();
+    }
     let mut connections = 0;
     let limit = Instant::now() + Duration::from_secs(4);
     loop {
@@ -146,7 +166,20 @@ fn run(case: u8) {
                 assert!(String::from_utf8(header)
                     .unwrap()
                     .starts_with(&format!("GET {route} HTTP/1.1\r\n")));
-                let body=if connections==2{json!({"Id":"b".repeat(64),"Config":{}})}else{json!({"host":{"hostname":"fixture","security":{"rootless":uid!=0}},"store":{"graphRoot":"/var/lib/containers/storage","runRoot":"/run/containers/storage"},"version":{"APIVersion":"6.1.4","Version":"6.1.4"}})}.to_string();
+                if (6..=7).contains(&case) {
+                    assert_eq!(connections, 1);
+                    assert_eq!(unsafe { libc::kill(child.id() as i32, signal) }, 0);
+                    signalled = true;
+                    // Keep the peer open: cancellation, not EOF, must stop the child.
+                    retained_streams.push(stream);
+                    continue;
+                }
+                let body=if connections==2 {
+                    if case>=8 {
+                        let labels:std::collections::BTreeMap<String,String>=(0..16).map(|i|(format!("label{i}"),"x".repeat(1024))).collect();
+                        json!({"Id":"b".repeat(64),"Labels":labels,"Config":{"Labels":labels}})
+                    } else { json!({"Id":"b".repeat(64),"Config":{}}) }
+                } else {json!({"host":{"hostname":"fixture","security":{"rootless":uid!=0}},"store":{"graphRoot":"/var/lib/containers/storage","runRoot":"/run/containers/storage"},"version":{"APIVersion":"6.1.4","Version":"6.1.4"}})}.to_string();
                 write!(
                     stream,
                     "HTTP/1.1 200 OK\r\nContent-Length: {}\r\n\r\n{}",
@@ -157,6 +190,32 @@ fn run(case: u8) {
             }
             Err(e) if e.kind() == std::io::ErrorKind::WouldBlock => {}
             Err(e) => panic!("{e}"),
+        }
+        if !signalled && (4..=5).contains(&case) {
+            let fdinfo = fs::read_to_string(format!("/proc/{}/fdinfo/0", child.id())).unwrap();
+            let flags = fdinfo
+                .lines()
+                .find_map(|line| line.strip_prefix("flags:\t"))
+                .map(|v| u32::from_str_radix(v, 8).unwrap())
+                .unwrap();
+            if flags & libc::O_NONBLOCK as u32 != 0 {
+                assert_eq!(unsafe { libc::kill(child.id() as i32, signal) }, 0);
+                signalled = true;
+            }
+        }
+        if !signalled && (8..=9).contains(&case) && connections == 3 {
+            let fd = child.stdout.as_ref().unwrap().as_raw_fd();
+            let capacity = unsafe { libc::fcntl(fd, libc::F_GETPIPE_SZ) };
+            let mut available = 0;
+            assert_eq!(
+                unsafe { libc::ioctl(fd, libc::FIONREAD, &mut available) },
+                0
+            );
+            if available >= capacity {
+                assert!(child.try_wait().unwrap().is_none());
+                assert_eq!(unsafe { libc::kill(child.id() as i32, signal) }, 0);
+                signalled = true;
+            }
         }
         if child.try_wait().unwrap().is_some() {
             break;
@@ -177,10 +236,32 @@ fn run(case: u8) {
         let evidence = dir.path().join("record");
         record.create_new(&evidence, &held).unwrap();
         assert!(!record.installation_verified());
-    } else {
+    } else if case < 4 {
         assert!(!output.status.success());
         assert!(output.stdout.is_empty());
         assert_eq!(connections, 0);
+    } else {
+        assert_eq!(output.status.code(), Some(1)); // handler exits; not signal death
+        if case < 10 {
+            assert!(signalled);
+        }
+        assert_eq!(
+            connections,
+            if case < 6 {
+                0
+            } else if case < 8 {
+                1
+            } else {
+                3
+            }
+        );
+        if case < 8 {
+            assert!(output.stdout.is_empty());
+        } else {
+            assert!(!output.stdout.is_empty());
+            assert!(output.stdout.len() <= 4096);
+            assert!(decode_response(&output.stdout, &request, &expected, &held).is_err());
+        }
     }
 }
 #[test]
@@ -192,4 +273,15 @@ fn native_fd_refusals_zero_connect() {
     for case in 1..4 {
         run(case);
     }
+}
+
+#[test]
+fn actual_adapter_signals_during_stdin_capture_and_full_output() {
+    for case in 4..10 {
+        run(case);
+    }
+}
+#[test]
+fn actual_adapter_blocked_output_below_cap_expires() {
+    run(10);
 }

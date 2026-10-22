@@ -71,5 +71,14 @@ host must reject all such output. Diagnostics contain no raw data (stderr empty)
 No environment endpoint, fallback, mutation, or output-path argument exists.
 Real-child fake-socket tests cover env_clear/cwd `/`, fd inheritance, positive
 three-GET response and persistence, and unsealed/missing fd4 or malformed request
-zero-connect refusals. Core held-FD runner, blocked-output/signal/kill-reap tests,
-installed artifact/publication and real Podman remain gates.
+zero-connect refusals. Core runner acceptance is tracked separately; installed artifact/publication
+and real Podman remain gates.
+
+Native signal checkpoint 122 tests SIGTERM and SIGINT during stdin, the first
+engine GET, and a full 4096-byte stdout pipe. Signals wait for observable fd
+nonblocking state, a received request, or pipe occupancy; no fixed sleep selects
+the phase. Each child exits 1 with empty stderr. Output-phase failures retain
+only incomplete stdout, which cannot decode as a response. A separate case leaves
+the pipe full without reading and verifies the request deadline terminates the
+child, below the response size cap. These are fake-socket direct-child tests;
+full stderr, descendant cleanup, real Podman and authority are not established.
