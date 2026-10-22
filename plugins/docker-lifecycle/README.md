@@ -37,7 +37,7 @@ only a separate status 404 with the exact ID-specific Docker message can assert
 absence. All ambiguity, malformed bodies or changed identity returns Unknown.
 The Core host persists these outcomes and requires separate reconciliation.
 
-Development tests use the explicit local protocol patch described above. Both
+Development tests use the locked published protocol 0.3.0 dependency. Both
 native binary and library must be tested with the paired Core source before any
 publication; existing runtime/readiness artifacts remain unchanged.
 
@@ -48,7 +48,7 @@ responses, socket replacement and deadline/cancellation rejection. Mutation test
 cover stop-created without POST, refusal to remove a running container, ambiguous
 command responses, create errors and no retries. These are development regressions;
 Core joint acceptance uses its opt-in paired-artifact test and an explicit binary
-SHA256. A published protocol dependency and real-engine evidence remain required.
+SHA256. Package acceptance remains limited to fake sockets; real-engine package evidence remains unproven.
 
 
 Health requests bind argv and timeout. The adapter verifies a running exact-ID
@@ -78,12 +78,11 @@ not real lifecycle, rootless, restart or downloaded-product acceptance.
 
 ## Core CI source fixture
 
-This source candidate requires protocol 0.3.0. Before that crate is published,
-paired Core CI may build this exact reviewed source with an explicit Cargo patch
-to the checked Core protocol snapshot. This is a test fixture build, not a
-released lifecycle package. No absolute patch path is committed. CI must bind
-the source commit/archive digest and resulting adapter digest, and run only
-fake-socket joint tests. Real-engine tests remain opt-in and excluded.
+Historical Core 0.10 CI used a frozen source fixture with an explicit Cargo patch
+to its checked protocol snapshot before protocol 0.3.0 was published. That fixture
+is not a released lifecycle package. Its source archive and adapter digests remain
+bound to the recorded fake-socket joint tests. Current product builds use the
+published, checksum-locked protocol 0.3.0 without a local patch.
 
 ## Candidate package acceptance
 
@@ -97,3 +96,9 @@ normal lifecycle, retained health failure with exact-fence operator cleanup,
 and twelve pre-spawn identity refusals. Reports retain the private fixture root
 and command diagnostics. Rootless/restart and downloaded published-product
 acceptance remain unproven until separately verified. No real daemon is used.
+
+The immutable protocol 0.3.0 crate omits its MIT text. Packaging authenticates
+the entire locked crate/cache first, then binds its `.cargo_vcs_info.json` to
+Core source `d8505fc25b777ae8cb45e9131e6144ad261ef8df` and includes that
+repository's exact root LICENSE with a pinned digest and provenance JSON.
+No cache files are modified; other missing dependency notices remain errors.

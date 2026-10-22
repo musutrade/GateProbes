@@ -24,6 +24,7 @@
   "limitations": [
     "rootless and daemon restart unproven",
     "no daemon authentication or OS containment",
-    "Core owns durable lease, recovery and cancellation coordination"
+    "Core owns durable lease, recovery and cancellation coordination",
+    "package acceptance uses fake Unix sockets only; real-engine package acceptance unproven"
   ]
 }

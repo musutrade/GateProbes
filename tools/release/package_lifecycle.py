@@ -21,15 +21,40 @@ BINARY = 'gateprobes-docker-lifecycle'
 VERSION = '0.1.0'
 PROTOCOL_CHECKSUM = '357cf18eb55a7a83d9b8840280e77c6f7efe263a74bdeafc7e132cad7a607e54'
 MEMBERS = {BINARY, 'plugin.json', 'README.md', 'Cargo.toml', 'Cargo.lock', 'LICENSE',
-           'THIRD_PARTY_NOTICES.txt', 'rust-toolchain.toml', 'build-inputs.json', 'accept.py', 'core-pin.json'}
+           'THIRD_PARTY_NOTICES.txt', 'rust-toolchain.toml', 'build-inputs.json', 'accept.py', 'core-pin.json', 'protocol-LICENSE', 'protocol-license.json'}
 MANIFEST = {
     'schema': 'gateprobes-runtime-adapter/v1', 'name': PRODUCT, 'version': VERSION,
     'executable': BINARY, 'protocol': 'gate-runtime/lifecycle-v1', 'authority': 'container-lifecycle/mutate',
     'platforms': ['linux-x86_64'], 'core_versions': ['0.10.0'], 'status': 'release-candidate',
     'capabilities': ['resolve-image', 'create', 'status', 'start', 'stop', 'remove', 'health'],
     'limitations': ['rootless and daemon restart unproven', 'no daemon authentication or OS containment',
-                    'Core owns durable lease, recovery and cancellation coordination'],
+                    'Core owns durable lease, recovery and cancellation coordination',
+                    'package acceptance uses fake Unix sockets only; real-engine package acceptance unproven'],
 }
+
+
+
+def protocol_notice(root, package, source, checksum):
+    """Narrow fallback for the one immutable crate missing its upstream MIT text."""
+    pin = {
+        'schema': 'gateprobes-source-license/v1', 'package': 'gatehouse-runtime-protocol',
+        'version': '0.3.0', 'crate_sha256': PROTOCOL_CHECKSUM, 'license_expression': 'MIT',
+        'repository': 'https://github.com/musutrade/GateHouse',
+        'source_commit': 'd8505fc25b777ae8cb45e9131e6144ad261ef8df',
+        'path_in_vcs': 'tools/harness-gate/runtime-protocol', 'license_path': 'LICENSE',
+        'license_sha256': '5b9835780a3cd7518d7637c6730a26c1141d24a00a413364264c2a4091c0e6d9',
+        'reason': 'Immutable published crate declares MIT but omits license text; preserve the exact corresponding source repository license.',
+    }
+    if (package['name'], package['version'], package.get('license'), checksum) != (
+            pin['package'], pin['version'], pin['license_expression'], pin['crate_sha256']):
+        raise ValueError('unapproved missing dependency license')
+    provenance = json.loads(package_workload.checked_file(root, f'plugins/{PRODUCT}/native/protocol-license.json'))
+    license_text = package_workload.checked_file(root, f'plugins/{PRODUCT}/native/protocol-LICENSE')
+    vcs = json.loads((source / '.cargo_vcs_info.json').read_text())
+    if (provenance != pin or hashlib.sha256(license_text).hexdigest() != pin['license_sha256']
+            or vcs != {'git': {'sha1': pin['source_commit']}, 'path_in_vcs': pin['path_in_vcs']}):
+        raise ValueError('protocol source license provenance mismatch')
+    return {'upstream-LICENSE@' + pin['source_commit']: license_text.decode('utf-8')}
 
 
 def validate(root):
@@ -88,7 +113,7 @@ def build(root, output):
         runtime_build.verify_static_pie(binaries[0])
         files = {BINARY: binaries[0], 'LICENSE': package_workload.checked_file(root, 'LICENSE')}
         for name in MEMBERS - {BINARY, 'LICENSE', 'THIRD_PARTY_NOTICES.txt'}:
-            location = 'native/' + name if name in {'Cargo.toml', 'Cargo.lock', 'rust-toolchain.toml', 'build-inputs.json'} else name
+            location = 'native/' + name if name in {'Cargo.toml', 'Cargo.lock', 'rust-toolchain.toml', 'build-inputs.json', 'protocol-LICENSE', 'protocol-license.json'} else name
             files[name] = package_workload.checked_file(root, f'plugins/{PRODUCT}/{location}')
         metadata = json.loads(run('cargo', '+' + runtime_build.TOOLCHAIN, 'metadata', '--locked', '--format-version', '1',
             '--manifest-path', str(native / 'Cargo.toml'), env=env, echo=False))
@@ -99,7 +124,7 @@ def build(root, output):
         texts = []
         for dependency in sorted(metadata['packages'], key=lambda p: (p['name'], p['version'])):
             if dependency['source']:
-                entries, _ = notices.registry_notices(dependency, locked)
+                entries, _ = notices.registry_notices(dependency, locked, missing_notice=lambda package, source, checksum: protocol_notice(root, package, source, checksum))
                 texts.extend(f"{dependency['name']} {dependency['version']} / {name}\n{text}" for name, text in sorted(entries.items()))
         texts.append((sysroot / 'share/doc/rust/COPYRIGHT-library.html').read_text())
         files['THIRD_PARTY_NOTICES.txt'] = '\n\n'.join(texts).encode()

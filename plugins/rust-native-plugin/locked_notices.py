@@ -25,7 +25,7 @@ def identity(path):
 
 
 
-def registry_notices(package, lock):
+def registry_notices(package, lock, *, missing_notice=None):
     """Authenticate archived licenses and the actual unpacked build input.
 
     This never extracts or republishes a .crate archive. Registry metadata alone
@@ -72,6 +72,10 @@ def registry_notices(package, lock):
             require(path.is_dir(), f'cached crate special file: {path}')
     require(actual - {'.cargo-ok', '.cargo-checksum.json'} == seen,
             f'undeclared cached crate files: {source}')
+    if not notices and missing_notice is not None:
+        # Explicit product-owned source-license mapping runs only AFTER every
+        # locked archive/cache integrity check above. Default remains fail-closed.
+        notices = missing_notice(package, source, expected)
     require(package.get('license') and notices, f'missing crate license notices: {package["id"]}')
     return notices, {'package': package['name'], 'version': package['version'],
                      'license_expression': package['license'], 'crate_sha256': expected,
