@@ -77,3 +77,12 @@ It requires `GATEHOUSE_LIFECYCLE_REAL_BINDING` pointing to an explicitly reviewe
 engine binding JSON; missing input fails. It never creates images or containers,
 and is not part of default fake tests or automatic CI. This is transport evidence,
 not real lifecycle, rootless, restart or downloaded-product acceptance.
+
+## Core CI source fixture
+
+This source candidate requires protocol 0.3.0. Before that crate is published,
+paired Core CI may build this exact reviewed source with an explicit Cargo patch
+to the checked Core protocol snapshot. This is a test fixture build, not a
+released lifecycle package. No absolute patch path is committed. CI must bind
+the source commit/archive digest and resulting adapter digest, and run only
+fake-socket joint tests. Real-engine tests remain opt-in and excluded.
