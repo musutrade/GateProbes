@@ -261,3 +261,6 @@ pub(crate) fn exchange(
     budget(deadline, cancelled)?;
     Ok(Reply { status, body })
 }
+
+#[cfg(test)]
+mod tests;
