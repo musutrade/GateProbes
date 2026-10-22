@@ -19,12 +19,14 @@ struct Step {
     path: String,
     status: u16,
     body: Vec<u8>,
+    delay: Duration,
 }
 fn step(method: &'static str, path: impl Into<String>, status: u16, value: Value) -> Step {
     Step {
         method,
         path: path.into(),
         status,
+        delay: Duration::ZERO,
         body: if value.is_null() {
             vec![]
         } else {
@@ -105,6 +107,15 @@ fn exercise_bounds(
     timeout: Duration,
     cancelled: bool,
 ) -> (Response, Vec<(String, Vec<u8>)>) {
+    exercise_options(operation, steps, timeout, cancelled, usize::MAX)
+}
+fn exercise_options(
+    operation: Operation,
+    steps: Vec<Step>,
+    timeout: Duration,
+    cancelled: bool,
+    cancel_after: usize,
+) -> (Response, Vec<(String, Vec<u8>)>) {
     let dir = tempfile::Builder::new()
         .prefix("lifecycle-socket-")
         .tempdir_in(
@@ -169,6 +180,7 @@ fn exercise_bounds(
                     expected.body.len()
                 )
             };
+            thread::sleep(expected.delay);
             let _ = stream.write_all(header.as_bytes());
             let _ = stream.write_all(&expected.body);
         }
@@ -184,7 +196,7 @@ fn exercise_bounds(
     request.binding.operation_key = request.operation_key().unwrap();
     let bytes = request.canonical_bytes().unwrap();
     let result = execute(&sealed(&config), &sealed(&bytes), &bytes, timeout, || {
-        cancelled
+        cancelled || seen.lock().unwrap().len() >= cancel_after
     });
     stop.store(true, Ordering::SeqCst);
     handle.join().unwrap();
@@ -527,17 +539,7 @@ fn create_errors_and_identity_redirect_do_not_retry() {
     assert!(seen.iter().all(|(s, _)| s.starts_with("GET ")));
 }
 #[test]
-fn unsupported_health_and_invalid_bounds_never_connect() {
-    let (r, seen) = exercise(
-        Operation::HealthExec {
-            target: target(),
-            argv: vec!["true".into()],
-            timeout_ms: 1000,
-        },
-        vec![],
-    );
-    assert!(matches!(r.outcome, Outcome::RejectedBeforeEffect { .. }));
-    assert!(seen.is_empty());
+fn invalid_bounds_never_connect() {
     for (timeout, cancelled) in [
         (Duration::ZERO, false),
         (Duration::from_secs(31), false),
@@ -547,4 +549,184 @@ fn unsupported_health_and_invalid_bounds_never_connect() {
         assert!(matches!(r.outcome, Outcome::Unknown { .. }));
         assert!(seen.is_empty());
     }
+}
+
+fn health() -> Operation {
+    Operation::HealthExec {
+        target: target(),
+        argv: vec!["check".into(), "literal $HOME".into()],
+        timeout_ms: 2000,
+    }
+}
+fn exec_create() -> Step {
+    step(
+        "POST",
+        format!("/v1.47/containers/{}/exec", target().object_id),
+        201,
+        json!({"Id":"b".repeat(64)}),
+    )
+}
+fn exec_start() -> Step {
+    step(
+        "POST",
+        format!("/v1.47/exec/{}/start", "b".repeat(64)),
+        200,
+        Value::Null,
+    )
+}
+fn exec_poll(running: bool, exit: i32) -> Step {
+    step(
+        "GET",
+        format!("/v1.47/exec/{}/json", "b".repeat(64)),
+        200,
+        json!({"ID":"b".repeat(64),"ContainerID":target().object_id,"Running":running,"ExitCode":exit}),
+    )
+}
+#[test]
+fn detached_health_polls_without_repeating_effects_and_returns_nonzero_exit() {
+    for code in [0, 7] {
+        let steps = vec![
+            version(),
+            info(),
+            inspect_step("running"),
+            exec_create(),
+            exec_start(),
+            exec_poll(true, 0),
+            exec_poll(false, code),
+            inspect_step("running"),
+            version(),
+            info(),
+        ];
+        let (r, seen) = exercise(health(), steps);
+        let Outcome::Health { exit_code, .. } = r.outcome else {
+            panic!("health failed: {:?}", r.outcome)
+        };
+        assert_eq!(exit_code, code);
+        assert_eq!(
+            seen.iter()
+                .filter(|(line, _)| line.starts_with("POST "))
+                .count(),
+            2
+        );
+        let create: Value = serde_json::from_slice(&seen[3].1).unwrap();
+        assert_eq!(
+            create,
+            json!({"Cmd":["check","literal $HOME"],"AttachStdin":false,"AttachStdout":false,"AttachStderr":false,"Tty":false,"Privileged":false})
+        );
+        assert_eq!(
+            serde_json::from_slice::<Value>(&seen[4].1).unwrap(),
+            json!({"Detach":true,"Tty":false})
+        );
+    }
+}
+#[test]
+fn health_cancellation_before_create_after_create_start_and_poll_never_replays() {
+    for limit in [3, 4, 5, 6] {
+        let mut steps = vec![
+            version(),
+            info(),
+            inspect_step("running"),
+            exec_create(),
+            exec_start(),
+            exec_poll(true, 0),
+        ];
+        steps.truncate(limit);
+        let (r, seen) = exercise_options(health(), steps, Duration::from_secs(3), false, limit);
+        assert!(matches!(r.outcome, Outcome::Unknown { .. }));
+        assert_eq!(seen.len(), limit);
+        assert!(
+            seen.iter()
+                .filter(|(line, _)| line.ends_with("/exec HTTP/1.1"))
+                .count()
+                <= 1
+        );
+        assert!(
+            seen.iter()
+                .filter(|(line, _)| line.ends_with("/start HTTP/1.1"))
+                .count()
+                <= 1
+        );
+    }
+}
+#[test]
+fn health_wrong_exec_identity_or_missing_exit_fails_closed() {
+    for body in [
+        json!({"ID":"c".repeat(64),"ContainerID":target().object_id,"Running":false,"ExitCode":0}),
+        json!({"ID":"b".repeat(64),"ContainerID":"c".repeat(64),"Running":false,"ExitCode":0}),
+        json!({"ID":"b".repeat(64),"ContainerID":target().object_id,"Running":false}),
+    ] {
+        let (r, _) = exercise(
+            health(),
+            vec![
+                version(),
+                info(),
+                inspect_step("running"),
+                exec_create(),
+                exec_start(),
+                step(
+                    "GET",
+                    format!("/v1.47/exec/{}/json", "b".repeat(64)),
+                    200,
+                    body,
+                ),
+            ],
+        );
+        assert!(matches!(r.outcome, Outcome::Unknown { .. }));
+    }
+}
+
+#[test]
+fn health_deadline_during_exec_poll_remains_unknown_without_reexecution() {
+    let mut delayed = exec_poll(false, 0);
+    delayed.delay = Duration::from_millis(1100);
+    let operation = Operation::HealthExec {
+        target: target(),
+        argv: vec!["check".into()],
+        timeout_ms: 1000,
+    };
+    let (r, seen) = exercise(
+        operation,
+        vec![
+            version(),
+            info(),
+            inspect_step("running"),
+            exec_create(),
+            exec_start(),
+            delayed,
+        ],
+    );
+    assert!(matches!(r.outcome, Outcome::Unknown { .. }));
+    assert_eq!(seen.len(), 6);
+    assert_eq!(
+        seen.iter().filter(|(s, _)| s.starts_with("POST ")).count(),
+        2
+    );
+}
+#[test]
+fn health_ambiguous_create_start_and_terminal_container_do_not_repeat_effects() {
+    let (r, seen) = exercise(health(), vec![version(), info(), inspect_step("exited")]);
+    assert!(matches!(r.outcome, Outcome::Unknown { .. }));
+    assert!(seen.iter().all(|(s, _)| s.starts_with("GET ")));
+    let mut wrong = exec_create();
+    wrong.body = serde_json::to_vec(&json!({"Id":"b".repeat(64),"extra":true})).unwrap();
+    let (r, seen) = exercise(
+        health(),
+        vec![version(), info(), inspect_step("running"), wrong],
+    );
+    assert!(matches!(r.outcome, Outcome::Unknown { .. }));
+    assert_eq!(seen.len(), 4);
+    let mut wrong = exec_start();
+    wrong.body = b"{}".to_vec();
+    let (r, seen) = exercise(
+        health(),
+        vec![
+            version(),
+            info(),
+            inspect_step("running"),
+            exec_create(),
+            wrong,
+        ],
+    );
+    assert!(matches!(r.outcome, Outcome::Unknown { .. }));
+    assert_eq!(seen.len(), 5);
 }

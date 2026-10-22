@@ -7,8 +7,8 @@ Only fake Unix sockets have been exercised. Resolve-image reads the exact encode
 reference, verifies full image ID and unique RepoDigests, and requires an exact
 RepoDigests match for digest-pinned references. Tags remain mutable; create uses
 only the resolved image ID. Image 404 is Unknown, never container absence.
-Health-exec returns RejectedBeforeEffect until implemented; healthcheck recipes
-are not usable yet.
+Health-exec creates and starts one detached exec, then only polls its exact ID
+under the original deadline. Core service/recipe orchestration is still pending.
 
 Development requires the paired unreleased Core lifecycle protocol source through
 an explicit local Cargo `patch.crates-io.gatehouse-runtime-protocol.path` override.
@@ -50,3 +50,13 @@ cover stop-created without POST, refusal to remove a running container, ambiguou
 command responses, create errors and no retries. These are development regressions;
 Core joint acceptance uses its opt-in paired-artifact test and an explicit binary
 SHA256. A published protocol dependency and real-engine evidence remain required.
+
+
+Health requests bind argv and timeout. The adapter verifies a running exact-ID
+container, creates exec with no stdin/output/TTY/privilege or environment overrides,
+starts it detached once, and polls exact exec/container identity every 100ms until
+an integer exit status is known. It rechecks the container and daemon observations
+before returning Health, including a definitive nonzero exit. Cancellation, lost
+responses, unexpected identities, deadline expiry and malformed exit data return
+Unknown without repeating create/start. Fake tests cover cancellation before exec
+create, after create/start and during polling, plus a stalled response deadline.

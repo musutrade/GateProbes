@@ -39,14 +39,6 @@ pub fn execute(
     if timeout.is_zero() || timeout > Duration::from_secs(30) || cancelled() {
         return Ok(unknown());
     }
-    if matches!(request.operation, Operation::HealthExec { .. }) {
-        return Ok(Response {
-            outcome: Outcome::RejectedBeforeEffect {
-                reason: Reason::UnsupportedState,
-            },
-            ..unknown()
-        });
-    }
     let deadline = Instant::now() + timeout;
     let result = operate(&request, deadline, &cancelled);
     let response = result.unwrap_or_else(|_| unknown());
@@ -249,7 +241,7 @@ impl<F: Fn() -> bool> Engine<'_, F> {
                 }
                 Ok(Outcome::Removed)
             }
-            _ => Err("operation not implemented"),
+            Operation::HealthExec { target, argv, .. } => self.health(target, argv),
         }
     }
 }
@@ -258,6 +250,12 @@ fn operate(
     deadline: Instant,
     cancelled: &impl Fn() -> bool,
 ) -> Result<Response> {
+    let deadline = match &request.operation {
+        Operation::HealthExec { timeout_ms, .. } => {
+            deadline.min(Instant::now() + Duration::from_millis(u64::from(*timeout_ms)))
+        }
+        _ => deadline,
+    };
     let engine = Engine {
         config: &request.binding.engine_binding,
         socket: SocketIdentity::verify(&request.binding.engine_binding)?,
@@ -288,3 +286,5 @@ fn operate(
 
 #[cfg(test)]
 mod tests;
+
+mod health;
