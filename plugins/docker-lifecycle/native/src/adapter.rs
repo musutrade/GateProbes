@@ -39,10 +39,7 @@ pub fn execute(
     if timeout.is_zero() || timeout > Duration::from_secs(30) || cancelled() {
         return Ok(unknown());
     }
-    if matches!(
-        request.operation,
-        Operation::HealthExec { .. } | Operation::ResolveImage { .. }
-    ) {
+    if matches!(request.operation, Operation::HealthExec { .. }) {
         return Ok(Response {
             outcome: Outcome::RejectedBeforeEffect {
                 reason: Reason::UnsupportedState,
@@ -136,6 +133,18 @@ impl<F: Fn() -> bool> Engine<'_, F> {
     }
     fn outcome(&self, request: &Request) -> Result<Outcome> {
         match &request.operation {
+            Operation::ResolveImage { image } => {
+                let path = format!(
+                    "/v{}/images/{}/json",
+                    self.config.api_version,
+                    crate::encode(image)
+                );
+                let reply = self.exchange("GET", &path, &[])?;
+                if reply.status != 200 {
+                    return Err("image resolution unavailable");
+                }
+                docker::image(&reply.body, image)
+            }
             Operation::Create {
                 name,
                 image_id,

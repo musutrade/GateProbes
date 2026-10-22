@@ -376,3 +376,48 @@ fn post_create_identity_change_and_warning_claim_remain_unknown() {
     assert!(matches!(r.outcome, Outcome::Unknown { .. }));
     assert_eq!(seen.len(), 3);
 }
+
+#[test]
+fn image_resolution_uses_exact_encoded_reference_and_digest_pin() {
+    let reference = format!("example.test/team/image@sha256:{}", "f".repeat(64));
+    let path = format!("/v1.47/images/{}/json", crate::encode(&reference));
+    let operation = Operation::ResolveImage {
+        image: reference.clone(),
+    };
+    let body = json!({"Id":format!("sha256:{}","e".repeat(64)),"RepoDigests":[reference]});
+    let (r, seen) = exercise(
+        operation.clone(),
+        vec![
+            version(),
+            info(),
+            step("GET", &path, 200, body),
+            version(),
+            info(),
+        ],
+    );
+    assert!(matches!(r.outcome, Outcome::Image { .. }));
+    assert!(seen.iter().all(|(line, _)| line.starts_with("GET ")));
+    let (r, _) = exercise(
+        operation.clone(),
+        vec![
+            version(),
+            info(),
+            step(
+                "GET",
+                &path,
+                200,
+                json!({"Id":format!("sha256:{}","e".repeat(64)),"RepoDigests":[]}),
+            ),
+        ],
+    );
+    assert!(matches!(r.outcome, Outcome::Unknown { .. }));
+    let (r, _) = exercise(
+        operation,
+        vec![
+            version(),
+            info(),
+            step("GET", &path, 404, json!({"message":"No such image"})),
+        ],
+    );
+    assert!(matches!(r.outcome, Outcome::Unknown { .. }));
+}
