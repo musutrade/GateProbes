@@ -1,5 +1,5 @@
 //! Private lifecycle Unix HTTP subset. No proxy/env/CLI, redirects, compression,
-//! chunked framing or absence inference. Filesystem revalidation is not timed.
+//! unbounded framing or absence inference. Filesystem revalidation is not timed.
 use crate::{socket_identity::SocketIdentity, Result};
 use gatehouse_runtime_protocol::lifecycle::wire::EngineBinding as Config;
 use std::{
@@ -139,12 +139,19 @@ fn send(
     }
     Ok(())
 }
-fn headers(raw: &[u8]) -> Result<(u16, usize)> {
+#[derive(Debug, PartialEq, Eq)]
+enum Framing {
+    Length(usize),
+    Chunked,
+}
+mod chunked;
+fn headers(raw: &[u8]) -> Result<(u16, Framing)> {
     let raw = std::str::from_utf8(raw).map_err(|_| ERROR)?;
     let mut lines = raw.split("\r\n");
     let status_line = lines.next().ok_or(ERROR)?;
     let mut status = status_line.splitn(3, ' ');
-    if !matches!(status.next(), Some("HTTP/1.0" | "HTTP/1.1")) {
+    let protocol = status.next();
+    if !matches!(protocol, Some("HTTP/1.0" | "HTTP/1.1")) {
         return Err(ERROR);
     }
     let code = status.next().ok_or(ERROR)?;
@@ -180,12 +187,22 @@ fn headers(raw: &[u8]) -> Result<(u16, usize)> {
             return Err(ERROR);
         }
     }
-    if fields.contains_key("transfer-encoding")
+    if fields.contains_key("trailer")
         || fields
             .get("content-encoding")
             .is_some_and(|s| *s != "identity")
     {
         return Err(ERROR);
+    }
+    if let Some(encoding) = fields.get("transfer-encoding") {
+        if protocol != Some("HTTP/1.1")
+            || !encoding.eq_ignore_ascii_case("chunked")
+            || fields.contains_key("content-length")
+            || matches!(code, 204 | 304)
+        {
+            return Err(ERROR);
+        }
+        return Ok((code, Framing::Chunked));
     }
     let length = match fields.get("content-length") {
         Some(length) => *length,
@@ -202,7 +219,7 @@ fn headers(raw: &[u8]) -> Result<(u16, usize)> {
     if matches!(code, 204 | 304) && count != 0 {
         return Err(ERROR);
     }
-    Ok((code, count))
+    Ok((code, Framing::Length(count)))
 }
 
 pub(crate) fn exchange(
@@ -242,12 +259,22 @@ pub(crate) fn exchange(
         receive(&mut stream, &mut byte, deadline, cancelled)?;
         raw.push(byte[0]);
     }
-    let (status, length) = headers(&raw[..raw.len() - 4])?;
-    let mut body = vec![0; length];
-    let mut offset = 0;
-    while offset < length {
-        offset += receive(&mut stream, &mut body[offset..], deadline, cancelled)?;
-    }
+    let (status, framing) = headers(&raw[..raw.len() - 4])?;
+    let mut read_exact = |bytes: &mut [u8]| {
+        let mut offset = 0;
+        while offset < bytes.len() {
+            offset += receive(&mut stream, &mut bytes[offset..], deadline, cancelled)?;
+        }
+        Ok(())
+    };
+    let body = match framing {
+        Framing::Length(length) => {
+            let mut bytes = vec![0; length];
+            read_exact(&mut bytes)?;
+            bytes
+        }
+        Framing::Chunked => chunked::decode(&mut read_exact)?,
+    };
     // Refuse already available trailing bytes; do not wait for EOF on a
     // keep-alive peer. Delayed extra bytes are outside this framing subset.
     let mut extra = [0];

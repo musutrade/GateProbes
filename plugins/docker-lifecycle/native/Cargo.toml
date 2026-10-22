@@ -6,6 +6,9 @@ rust-version = "1.88"
 publish = false
 license = "MIT"
 
+[features]
+real-engine-tests = []
+
 [dependencies]
 gatehouse-runtime-protocol = "=0.2.0"
 serde_json = "1"
