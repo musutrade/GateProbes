@@ -42,5 +42,32 @@ pub fn get(
     let reply = http::exchange(&socket, path, deadline, cancelled)?;
     Ok((reply.status, reply.body))
 }
+/// Fixed transport composition. Returns read-only evidence, never installation,
+/// freshness, lease or mutation authority. One deadline covers all three GETs.
+pub fn capture_plan(
+    context: &ProtectedContext,
+    image_id: &str,
+    identity: &gatehouse_runtime_protocol::lifecycle_v2::profile::SlotIdentity,
+    inputs: gatehouse_runtime_protocol::lifecycle_v2::plan_record::PlanInputs,
+    deadline: Instant,
+    cancelled: &impl Fn() -> bool,
+) -> Result<gatehouse_runtime_protocol::lifecycle_v2::plan_record::PlanRecord> {
+    use gatehouse_runtime_protocol::lifecycle_v2::plan_record::PlanRecord;
+    identity.validate()?;
+    if identity.config_sha256 != context.config_sha256()? {
+        return Err("capture slot config mismatch");
+    }
+    if cancelled() || Instant::now() >= deadline {
+        return Err("capture cancelled or expired");
+    }
+    let captured =
+        context.capture_image_for_plan(image_id, |path| get(context, path, deadline, cancelled))?;
+    let record = PlanRecord::capture(context, &captured, identity, inputs)?;
+    context.revalidate()?;
+    if cancelled() || Instant::now() >= deadline {
+        return Err("capture cancelled or expired");
+    }
+    Ok(record)
+}
 #[cfg(test)]
 mod tests;

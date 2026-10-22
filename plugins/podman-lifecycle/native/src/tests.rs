@@ -269,3 +269,139 @@ fn pathname_swap_at_connect_uses_held_inode_and_sends_no_request() {
         "revalidation must reject before sending HTTP"
     );
 }
+
+fn plan_identity(f: &Fixture) -> gatehouse_runtime_protocol::lifecycle_v2::profile::SlotIdentity {
+    use gatehouse_runtime_protocol::lifecycle_v2::profile::*;
+    SlotIdentity {
+        profile: Profile {
+            protocol: PROTOCOL.into(),
+            product: PRODUCT.into(),
+            version: VERSION.into(),
+            engine: "podman".into(),
+        },
+        installation_sha256: "a".repeat(64),
+        executable_sha256: "c".repeat(64),
+        config_sha256: f.context.config_sha256().unwrap(),
+    }
+}
+fn plan_inputs() -> gatehouse_runtime_protocol::lifecycle_v2::plan_record::PlanInputs {
+    gatehouse_runtime_protocol::lifecycle_v2::plan_record::PlanInputs {
+        name: "fixture".into(),
+        labels: [("owner".into(), "fixture".into())].into(),
+        port: None,
+    }
+}
+#[test]
+fn fixed_capture_gets_and_persisted_evidence_roundtrip() {
+    use gatehouse_runtime_protocol::lifecycle_v2::plan_record::PlanRecord;
+    let f = Fixture::new();
+    let identity = plan_identity(&f);
+    let info = f.info.clone();
+    let server = thread::spawn(move || {
+        for (n, path) in [
+            INFO_ROUTE.to_string(),
+            image_route(&"b".repeat(64)).unwrap(),
+            INFO_ROUTE.to_string(),
+        ]
+        .iter()
+        .enumerate()
+        {
+            let (mut s, _) = f.listener.accept().unwrap();
+            assert!(request(&mut s).starts_with(&format!("GET {path} HTTP/1.1\r\n")));
+            let body = if n == 1 {
+                serde_json::to_vec(
+                    &json!({"Id":"b".repeat(64),"Config":{"ExposedPorts":{"80/tcp":{}}}}),
+                )
+                .unwrap()
+            } else {
+                info.clone()
+            };
+            s.write_all(&reply(&body)).unwrap();
+        }
+    });
+    let record = capture_plan(
+        &f.context,
+        &"b".repeat(64),
+        &identity,
+        plan_inputs(),
+        Instant::now() + Duration::from_secs(2),
+        &|| false,
+    )
+    .unwrap();
+    server.join().unwrap();
+    let path = f.dir.path().join("evidence");
+    record.create_new(&path, &f.context).unwrap();
+    assert_eq!(
+        PlanRecord::open(&path, &f.context)
+            .unwrap()
+            .encode()
+            .unwrap(),
+        record.encode().unwrap()
+    );
+    assert!(!record.installation_verified());
+}
+#[test]
+fn fixed_capture_preflight_refusals_send_zero_bytes() {
+    for case in 0..4 {
+        let f = Fixture::new();
+        let mut identity = plan_identity(&f);
+        if case == 0 {
+            identity.config_sha256 = "d".repeat(64);
+        }
+        if case == 1 {
+            identity.profile.engine = "docker".into();
+        }
+        let deadline = if case == 2 {
+            Instant::now()
+        } else {
+            Instant::now() + Duration::from_secs(2)
+        };
+        assert!(capture_plan(
+            &f.context,
+            &"b".repeat(64),
+            &identity,
+            plan_inputs(),
+            deadline,
+            &|| case == 3
+        )
+        .is_err());
+        f.listener.set_nonblocking(true).unwrap();
+        assert_eq!(
+            f.listener.accept().unwrap_err().kind(),
+            std::io::ErrorKind::WouldBlock
+        );
+    }
+}
+#[test]
+fn fixed_capture_final_info_failure_withholds_evidence() {
+    let f = Fixture::new();
+    let identity = plan_identity(&f);
+    let info = f.info.clone();
+    let server = thread::spawn(move || {
+        for n in 0..3 {
+            let (mut s, _) = f.listener.accept().unwrap();
+            request(&mut s);
+            if n == 2 {
+                s.write_all(b"HTTP/1.1 500 Unavailable\r\nContent-Length: 0\r\n\r\n")
+                    .unwrap();
+            } else {
+                let body = if n == 1 {
+                    serde_json::to_vec(&json!({"Id":"b".repeat(64),"Config":{}})).unwrap()
+                } else {
+                    info.clone()
+                };
+                s.write_all(&reply(&body)).unwrap();
+            }
+        }
+    });
+    assert!(capture_plan(
+        &f.context,
+        &"b".repeat(64),
+        &identity,
+        plan_inputs(),
+        Instant::now() + Duration::from_secs(2),
+        &|| false
+    )
+    .is_err());
+    server.join().unwrap();
+}
