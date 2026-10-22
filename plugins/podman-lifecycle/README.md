@@ -54,3 +54,22 @@ validated evidence to deterministically reject cancellation, expiry and changed
 context; they are post-GET withholding tests, not zero-connection claims. Empty
 operator labels are also exercised through all three GETs and PlanRecord using
 inherited image labels.
+
+Native entry checkpoint 117 adds an unpublished binary. It consumes actual fd3
+and fd4, accepts no arguments, reads at most 64KiB stdin with nonblocking poll,
+validates protected inputs, captures via fixed GET transport, and emits bounded
+canonical capture response. SIGTERM/SIGINT set cancellation; stdin/stdout polling
+and engine I/O share a deadline measured from process entry. Before request decode
+only the 30-second upper bound is known; afterwards the request timeout is charged
+from that same entry instant. Filesystem checks and CPU parsing are not preempted;
+a future host must enforce its own deadline and kill/reap. No installation or
+executable files are reopened by the child; parent provenance remains unproven.
+
+Success requires exit0 plus the complete validated response. Nonzero exit may
+leave a partial stdout write if cancellation/timeout occurs during output; the
+host must reject all such output. Diagnostics contain no raw data (stderr empty).
+No environment endpoint, fallback, mutation, or output-path argument exists.
+Real-child fake-socket tests cover env_clear/cwd `/`, fd inheritance, positive
+three-GET response and persistence, and unsealed/missing fd4 or malformed request
+zero-connect refusals. Core held-FD runner, blocked-output/signal/kill-reap tests,
+installed artifact/publication and real Podman remain gates.
