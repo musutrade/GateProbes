@@ -3,8 +3,12 @@
 This separate, unpublished product implements protected-input Docker create,
 status, start, stop and remove. It does not extend runtime v2 or readiness v3.
 It is not registered or packaged; Core service orchestration is still absent.
-Only fake Unix sockets have been exercised. Resolve-image and health-exec return
-RejectedBeforeEffect until implemented; healthcheck recipes are not usable yet.
+Only fake Unix sockets have been exercised. Resolve-image reads the exact encoded
+reference, verifies full image ID and unique RepoDigests, and requires an exact
+RepoDigests match for digest-pinned references. Tags remain mutable; create uses
+only the resolved image ID. Image 404 is Unknown, never container absence.
+Health-exec returns RejectedBeforeEffect until implemented; healthcheck recipes
+are not usable yet.
 
 Development requires the paired unreleased Core lifecycle protocol source through
 an explicit local Cargo `patch.crates-io.gatehouse-runtime-protocol.path` override.

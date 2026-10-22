@@ -116,3 +116,36 @@ pub(crate) fn exact_absence(bytes: &[u8], target: &Target) -> Result<()> {
 
 #[cfg(test)]
 mod tests;
+
+pub(crate) fn image(
+    bytes: &[u8],
+    reference: &str,
+) -> Result<gatehouse_runtime_protocol::lifecycle::wire::Outcome> {
+    let v = document(bytes)?;
+    let image_id = v["Id"].as_str().ok_or(ERROR)?;
+    if !image_id.strip_prefix("sha256:").is_some_and(id) {
+        return Err(ERROR);
+    }
+    let values = v["RepoDigests"].as_array().ok_or(ERROR)?;
+    if values.len() > 128 {
+        return Err(ERROR);
+    }
+    let mut repo_digests = Vec::new();
+    for value in values {
+        let digest = value.as_str().ok_or(ERROR)?;
+        gatehouse_runtime_protocol::v3::validate_image(digest).map_err(|_| ERROR)?;
+        if !digest.contains('@') || repo_digests.iter().any(|d| d == digest) {
+            return Err(ERROR);
+        }
+        repo_digests.push(digest.to_owned());
+    }
+    if reference.contains('@') && !repo_digests.iter().any(|d| d == reference) {
+        return Err(ERROR);
+    }
+    Ok(
+        gatehouse_runtime_protocol::lifecycle::wire::Outcome::Image {
+            image_id: image_id.into(),
+            repo_digests,
+        },
+    )
+}
