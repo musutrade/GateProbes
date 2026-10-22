@@ -15,8 +15,8 @@ def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def verify_inputs(root):
-    lock = json.loads((root / 'plugins/docker-runtime/native/build-inputs.json').read_text())
+def verify_inputs(root, product="docker-runtime"):
+    lock = json.loads((root / f'plugins/{product}/native/build-inputs.json').read_text())
     if (lock['schema'], lock['target'], lock['toolchain']) != ('gateprobes-runtime-build/v1', TARGET, TOOLCHAIN):
         raise RuntimeError('unsupported runtime build identity')
     sysroot = Path(subprocess.check_output(['rustc', '+' + TOOLCHAIN, '--print', 'sysroot'], text=True).strip())

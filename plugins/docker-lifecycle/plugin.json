@@ -1,0 +1,30 @@
+{
+  "schema": "gateprobes-runtime-adapter/v1",
+  "name": "docker-lifecycle",
+  "version": "0.1.0",
+  "executable": "gateprobes-docker-lifecycle",
+  "protocol": "gate-runtime/lifecycle-v1",
+  "authority": "container-lifecycle/mutate",
+  "platforms": [
+    "linux-x86_64"
+  ],
+  "core_versions": [
+    "0.10.0"
+  ],
+  "status": "release-candidate",
+  "capabilities": [
+    "resolve-image",
+    "create",
+    "status",
+    "start",
+    "stop",
+    "remove",
+    "health"
+  ],
+  "limitations": [
+    "rootless and daemon restart unproven",
+    "no daemon authentication or OS containment",
+    "Core owns durable lease, recovery and cancellation coordination",
+    "package acceptance uses fake Unix sockets only; real-engine package acceptance unproven"
+  ]
+}

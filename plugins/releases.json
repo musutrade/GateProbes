@@ -96,6 +96,13 @@
       "manifests": [
         "plugin.json"
       ]
+    },
+    "docker-lifecycle": {
+      "tag_prefix": "docker-lifecycle-v",
+      "archive": "gateprobes-docker-lifecycle-{version}-linux-amd64.tar.gz",
+      "manifests": [
+        "plugin.json"
+      ]
     }
   }
 }

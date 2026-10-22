@@ -383,7 +383,7 @@ jobs:
           components: ${{ matrix.rust_components }}
 
       - name: Install native runtime musl target
-        if: matrix.plugin == 'docker-runtime'
+        if: matrix.plugin == 'docker-runtime' || matrix.plugin == 'docker-lifecycle'
         run: rustup target add --toolchain 1.99.1 x86_64-unknown-linux-musl
 
       # Cargo cache for Rust plugins

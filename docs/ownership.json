@@ -180,6 +180,15 @@
       "authority": "read-only-runtime-facts",
       "contract_test": "plugins/docker-readiness/accept.py",
       "status": "unpublished-candidate"
+    },
+    "docker-lifecycle": {
+      "paths": [
+        "plugins/docker-lifecycle"
+      ],
+      "authority": "container-lifecycle/mutate; protected Core intent only",
+      "contract_test": "plugins/docker-lifecycle/accept.py",
+      "core_pin": "plugins/docker-lifecycle/core-pin.json",
+      "status": "unpublished-candidate"
     }
   },
   "inputs": [

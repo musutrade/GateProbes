@@ -1,0 +1,13 @@
+{
+  "schema": "gateprobes-source-license/v1",
+  "package": "gatehouse-runtime-protocol",
+  "version": "0.3.0",
+  "crate_sha256": "357cf18eb55a7a83d9b8840280e77c6f7efe263a74bdeafc7e132cad7a607e54",
+  "license_expression": "MIT",
+  "repository": "https://github.com/musutrade/GateHouse",
+  "source_commit": "d8505fc25b777ae8cb45e9131e6144ad261ef8df",
+  "path_in_vcs": "tools/harness-gate/runtime-protocol",
+  "license_path": "LICENSE",
+  "license_sha256": "5b9835780a3cd7518d7637c6730a26c1141d24a00a413364264c2a4091c0e6d9",
+  "reason": "Immutable published crate declares MIT but omits license text; preserve the exact corresponding source repository license."
+}

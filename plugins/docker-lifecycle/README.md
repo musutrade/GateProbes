@@ -1,0 +1,104 @@
+# Docker lifecycle 0.1.0 candidate
+
+This separate, unpublished product implements protected-input Docker create,
+status, start, stop and remove. It does not extend runtime v2 or readiness v3.
+Its independent package and registry wiring are candidates, not published assets. Paired Core now supplies service orchestration,
+protected resource slots and explicit known-ID operator recovery. This candidate package uses fake Unix sockets for acceptance; earlier source-level
+rootful Docker evidence does not establish this package's real-engine acceptance. Resolve-image reads the exact encoded
+reference, verifies full image ID and unique RepoDigests, and requires an exact
+RepoDigests match for digest-pinned references. Tags remain mutable; create uses
+only the resolved image ID. Image 404 is Unknown, never container absence.
+Health-exec creates and starts one detached exec, then only polls its exact ID
+under the original deadline. Core retains service/recipe orchestration.
+
+Development now uses the published `gatehouse-runtime-protocol = "=0.3.0"`
+crate, with its registry checksum locked in Cargo.lock. No local Cargo patch is
+required. Core 0.10.0 is published; this lifecycle product remains unpublished
+until packaging, registry wiring and downloaded-Core acceptance are complete.
+
+The builder preserves exact image ID, ownership labels and environment, requests
+one Docker-allocated loopback TCP binding, disables automatic removal/restart and
+privileged execution, and adds no mounts/devices/command overrides. Image-declared
+configuration still applies. This is not a container sandbox or mutation authority.
+
+
+The executable reads bounded exact stdin plus sealed config fd3 and expected fd4.
+It uses a private nonblocking Unix HTTP transport, one monotonic deadline, bounded
+headers/body, no redirects/proxy/environment/CLI or retries. The
+socket identity is checked before/after each call. Matching version/info including
+the configured rootless flag is observed before/after every complete operation.
+These observations do not authenticate a daemon, prove rootless isolation or detect
+all restarts (a daemon can retain its ID). No OS containment is claimed.
+
+Create requires a full ID, no warnings and a subsequent exact inspection before
+Created. Start/stop/remove require an exact preinspection; stop uses the bound grace,
+remove is non-force and does not delete volumes. Remove returns only a claim;
+only a separate status 404 with the exact ID-specific Docker message can assert
+absence. All ambiguity, malformed bodies or changed identity returns Unknown.
+The Core host persists these outcomes and requires separate reconciliation.
+
+Development tests use the locked published protocol 0.3.0 dependency. Both
+native binary and library must be tested with the paired Core source before any
+publication; existing runtime/readiness artifacts remain unchanged.
+
+Native-entry tests now include successful image resolution using sealed fd3/fd4
+and exact stdin against a fake Unix socket. HTTP tests lock down malformed status
+lines, duplicate/invalid lengths, unsupported encodings, oversized/truncated/trailing
+responses, socket replacement and deadline/cancellation rejection. Mutation tests
+cover stop-created without POST, refusal to remove a running container, ambiguous
+command responses, create errors and no retries. These are development regressions;
+Core joint acceptance uses its opt-in paired-artifact test and an explicit binary
+SHA256. Package acceptance remains limited to fake sockets; real-engine package evidence remains unproven.
+
+
+Health requests bind argv and timeout. The adapter verifies a running exact-ID
+container, creates exec with no stdin/output/TTY/privilege or environment overrides,
+starts it detached once, and polls exact exec/container identity every 100ms until
+an integer exit status is known. It rechecks the container and daemon observations
+before returning Health, including a definitive nonzero exit. Cancellation, lost
+responses, unexpected identities, deadline expiry and malformed exit data return
+Unknown without repeating create/start. Fake tests cover cancellation before exec
+create, after create/start and during polling, plus a stalled response deadline.
+
+
+Real Docker 29.9.2 read-only preflight showed `/info` uses chunked HTTP/1.1.
+The lifecycle transport therefore supports a bounded subset of
+[RFC 9112 section 7.1](https://www.rfc-editor.org/rfc/rfc9112.html#section-7.1):
+up to 4096 data chunks, at most eight hex size digits, strict CRLF and a 1 MiB
+aggregate decoded body. Chunk extensions, declared/nonempty trailers, conflicting
+Content-Length, combined transfer codings, chunked HTTP/1.0 and bodyless-status
+chunking are refused. Deadline/cancellation and socket identity checks still apply.
+This changes only the new lifecycle product; v2/v3 artifacts remain immutable.
+
+The opt-in Cargo feature `real-engine-tests` adds one read-only version/info test.
+It requires `GATEHOUSE_LIFECYCLE_REAL_BINDING` pointing to an explicitly reviewed
+engine binding JSON; missing input fails. It never creates images or containers,
+and is not part of default fake tests or automatic CI. This is transport evidence,
+not real lifecycle, rootless, restart or downloaded-product acceptance.
+
+## Core CI source fixture
+
+Historical Core 0.10 CI used a frozen source fixture with an explicit Cargo patch
+to its checked protocol snapshot before protocol 0.3.0 was published. That fixture
+is not a released lifecycle package. Its source archive and adapter digests remain
+bound to the recorded fake-socket joint tests. Current product builds use the
+published, checksum-locked protocol 0.3.0 without a local patch.
+
+## Candidate package acceptance
+
+The product targets published Core 0.10.0 and protocol 0.3.0. `core-pin.json`
+binds the exact downloaded Linux Core. The packager builds twice with pinned
+musl inputs, requires byte-identical static PIE outputs, records dependency
+notices and SBOM hashes, and runs the extracted `accept.py` against that Core.
+The public `verify` path exercises a service-bound step; `doctor` requires a
+separate readiness host and is not used here. Fourteen fake-socket cases cover
+normal lifecycle, retained health failure with exact-fence operator cleanup,
+and twelve pre-spawn identity refusals. Reports retain the private fixture root
+and command diagnostics. Rootless/restart and downloaded published-product
+acceptance remain unproven until separately verified. No real daemon is used.
+
+The immutable protocol 0.3.0 crate omits its MIT text. Packaging authenticates
+the entire locked crate/cache first, then binds its `.cargo_vcs_info.json` to
+Core source `d8505fc25b777ae8cb45e9131e6144ad261ef8df` and includes that
+repository's exact root LICENSE with a pinned digest and provenance JSON.
+No cache files are modified; other missing dependency notices remain errors.

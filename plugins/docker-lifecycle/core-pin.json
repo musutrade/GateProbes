@@ -1,0 +1,9 @@
+{
+  "schema": "gateprobes-lifecycle-core/v1",
+  "repository": "musutrade/GateHouse",
+  "release": "v0.10.0",
+  "version": "0.10.0",
+  "source_commit": "d8505fc25b777ae8cb45e9131e6144ad261ef8df",
+  "binary": "harness-gate-linux-amd64",
+  "sha256": "fa7a3a355d136267765c017f48b59acf0a6e1bcc581cc57cac67107beb8c6ab8"
+}
