@@ -149,3 +149,24 @@ pub(crate) fn image(
         },
     )
 }
+
+pub(crate) fn exec_created(bytes: &[u8]) -> Result<String> {
+    let value = document(bytes)?;
+    let exec_id = value["Id"].as_str().ok_or(ERROR)?;
+    if value.as_object().ok_or(ERROR)?.len() != 1 || !id(exec_id) {
+        return Err(ERROR);
+    }
+    Ok(exec_id.into())
+}
+pub(crate) fn exec_exit(bytes: &[u8], exec_id: &str, container_id: &str) -> Result<Option<i32>> {
+    let value = document(bytes)?;
+    if value["ID"].as_str() != Some(exec_id) || value["ContainerID"].as_str() != Some(container_id)
+    {
+        return Err(ERROR);
+    }
+    if value["Running"].as_bool().ok_or(ERROR)? {
+        return Ok(None);
+    }
+    let code = value["ExitCode"].as_i64().ok_or(ERROR)?;
+    Ok(Some(i32::try_from(code).map_err(|_| ERROR)?))
+}
