@@ -30,3 +30,9 @@ Version 1.0.4 adds Core 0.9.0 as an onboarding compatibility prerequisite.
 Its initial Core0.9 validation uses the source-built candidate; downloaded
 Core0.9 acceptance must be repeated after release. This does not declare v3
 runtime package compatibility. Published1.0.3 and its pins remain immutable.
+
+Version 1.0.5 adds Core 0.10.0 to both execution-only product declarations.
+Initial validation targets the source-built candidate; downloaded Core 0.10.0
+acceptance remains required after publication. This does not declare lifecycle
+adapter compatibility, rootless or daemon-restart acceptance. Existing 1.0.4
+artifacts and the repository's released Core pin remain immutable.
