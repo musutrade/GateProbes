@@ -68,7 +68,7 @@ jobs:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
       - name: Check links, declarations and forbidden artifacts
         run: python3 tools/ci/check_docs.py
-      - name: Offline runtime import (19 offline tests; joint acceptance runs separately)
+      - name: Offline runtime import (25 offline tests; joint acceptance runs separately)
         run: |
           python3 -B - <<'PYIMPORT'
           import unittest
@@ -84,11 +84,11 @@ jobs:
                         'test_published_assets_smoke_if_supplied'}
           excluded = [test for test in tests if test._testMethodName in separate]
           required = [test for test in tests if test._testMethodName not in separate]
-          if len(tests) != 21 or len(required) != 19 or {test._testMethodName for test in excluded} != separate or len(excluded) != 2:
+          if len(tests) != 27 or len(required) != 25 or {test._testMethodName for test in excluded} != separate or len(excluded) != 2:
               raise SystemExit('runtime import test inventory changed')
           print('Separate required job: joint installed acceptance; local-only: published-assets smoke')
           result = unittest.TextTestRunner(verbosity=2).run(unittest.TestSuite(required))
-          if result.testsRun != 19 or result.skipped or result.expectedFailures or not result.wasSuccessful():
+          if result.testsRun != 25 or result.skipped or result.expectedFailures or not result.wasSuccessful():
               raise SystemExit('required runtime import tests failed or skipped')
           PYIMPORT
 
