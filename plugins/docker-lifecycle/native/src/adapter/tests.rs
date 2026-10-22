@@ -97,11 +97,20 @@ fn create() -> Operation {
     }
 }
 fn exercise(operation: Operation, steps: Vec<Step>) -> (Response, Vec<(String, Vec<u8>)>) {
+    exercise_bounds(operation, steps, Duration::from_secs(3), false)
+}
+fn exercise_bounds(
+    operation: Operation,
+    steps: Vec<Step>,
+    timeout: Duration,
+    cancelled: bool,
+) -> (Response, Vec<(String, Vec<u8>)>) {
     let dir = tempfile::Builder::new()
         .prefix("lifecycle-socket-")
         .tempdir_in(
             std::env::var_os("GATEHOUSE_JOURNAL_TEST_ROOT")
-                .unwrap_or_else(|| "/mnt/dev-ssd".into()),
+                .or_else(|| std::env::var_os("HOME"))
+                .expect("protected test root required"),
         )
         .unwrap();
     fs::set_permissions(dir.path(), fs::Permissions::from_mode(0o700)).unwrap();
@@ -174,13 +183,9 @@ fn exercise(operation: Operation, steps: Vec<Step>) -> (Response, Vec<(String, V
     request.binding.config_sha256 = format!("{:x}", Sha256::digest(&config));
     request.binding.operation_key = request.operation_key().unwrap();
     let bytes = request.canonical_bytes().unwrap();
-    let result = execute(
-        &sealed(&config),
-        &sealed(&bytes),
-        &bytes,
-        Duration::from_secs(3),
-        || false,
-    );
+    let result = execute(&sealed(&config), &sealed(&bytes), &bytes, timeout, || {
+        cancelled
+    });
     stop.store(true, Ordering::SeqCst);
     handle.join().unwrap();
     let seen = Arc::try_unwrap(seen).unwrap().into_inner().unwrap();
@@ -420,4 +425,126 @@ fn image_resolution_uses_exact_encoded_reference_and_digest_pin() {
         ],
     );
     assert!(matches!(r.outcome, Outcome::Unknown { .. }));
+}
+
+#[test]
+fn stopped_created_is_noop_and_running_remove_never_deletes() {
+    let (r, seen) = exercise(
+        Operation::Stop {
+            target: target(),
+            grace_seconds: 10,
+        },
+        vec![
+            version(),
+            info(),
+            inspect_step("created"),
+            inspect_step("created"),
+            version(),
+            info(),
+        ],
+    );
+    assert!(matches!(r.outcome, Outcome::Stopped { .. }));
+    assert!(seen.iter().all(|(s, _)| s.starts_with("GET ")));
+    let (r, seen) = exercise(
+        Operation::Remove { target: target() },
+        vec![version(), info(), inspect_step("running")],
+    );
+    assert!(matches!(r.outcome, Outcome::Unknown { .. }));
+    assert!(seen.iter().all(|(s, _)| s.starts_with("GET ")));
+}
+#[test]
+fn ambiguous_command_replies_never_retry_or_claim_success() {
+    for status in [200, 400, 404, 500] {
+        let t = target();
+        let path = format!("/v1.47/containers/{}/start", t.object_id);
+        let (r, seen) = exercise(
+            Operation::Start { target: t },
+            vec![
+                version(),
+                info(),
+                inspect_step("created"),
+                step("POST", path, status, json!({"message":"ambiguous"})),
+            ],
+        );
+        assert!(matches!(r.outcome, Outcome::Unknown { .. }));
+        assert_eq!(
+            seen.iter().filter(|(s, _)| s.starts_with("POST ")).count(),
+            1
+        );
+    }
+    let t = target();
+    let path = format!("/v1.47/containers/{}/stop?t=10", t.object_id);
+    let (r, _) = exercise(
+        Operation::Stop {
+            target: t,
+            grace_seconds: 10,
+        },
+        vec![
+            version(),
+            info(),
+            inspect_step("running"),
+            step("POST", path, 200, json!({})),
+        ],
+    );
+    assert!(matches!(r.outcome, Outcome::Unknown { .. }));
+    let t = target();
+    let path = format!("/v1.47/containers/{}?force=false&v=false", t.object_id);
+    let (r, _) = exercise(
+        Operation::Remove { target: t },
+        vec![
+            version(),
+            info(),
+            inspect_step("created"),
+            step("DELETE", path, 404, json!({"message":"already missing"})),
+        ],
+    );
+    assert!(matches!(r.outcome, Outcome::Unknown { .. }));
+}
+#[test]
+fn create_errors_and_identity_redirect_do_not_retry() {
+    for status in [400, 404, 409, 500] {
+        let (r, seen) = exercise(
+            create(),
+            vec![
+                version(),
+                info(),
+                step(
+                    "POST",
+                    "/v1.47/containers/create?name=test-container",
+                    status,
+                    json!({"message":"failed"}),
+                ),
+            ],
+        );
+        assert!(matches!(r.outcome, Outcome::Unknown { .. }));
+        assert_eq!(seen.len(), 3);
+    }
+    let (r, seen) = exercise(
+        create(),
+        vec![step("GET", "/version", 302, json!({})), info()],
+    );
+    assert!(matches!(r.outcome, Outcome::Unknown { .. }));
+    assert!(seen.iter().all(|(s, _)| s.starts_with("GET ")));
+}
+#[test]
+fn unsupported_health_and_invalid_bounds_never_connect() {
+    let (r, seen) = exercise(
+        Operation::HealthExec {
+            target: target(),
+            argv: vec!["true".into()],
+            timeout_ms: 1000,
+        },
+        vec![],
+    );
+    assert!(matches!(r.outcome, Outcome::RejectedBeforeEffect { .. }));
+    assert!(seen.is_empty());
+    for (timeout, cancelled) in [
+        (Duration::ZERO, false),
+        (Duration::from_secs(31), false),
+        (Duration::from_secs(1), true),
+    ] {
+        let (r, seen) = exercise_bounds(create(), vec![], timeout, cancelled);
+        assert!(matches!(r.outcome, Outcome::Unknown { .. }));
+        assert!(seen.is_empty());
+    }
 }

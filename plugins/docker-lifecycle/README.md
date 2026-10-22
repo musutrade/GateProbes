@@ -41,3 +41,12 @@ The Core host persists these outcomes and requires separate reconciliation.
 Development tests use the explicit local protocol patch described above. Both
 native binary and library must be tested with the paired Core source before any
 publication; existing runtime/readiness artifacts remain unchanged.
+
+Native-entry tests now include successful image resolution using sealed fd3/fd4
+and exact stdin against a fake Unix socket. HTTP tests lock down malformed status
+lines, duplicate/invalid lengths, unsupported encodings, oversized/truncated/trailing
+responses, socket replacement and deadline/cancellation rejection. Mutation tests
+cover stop-created without POST, refusal to remove a running container, ambiguous
+command responses, create errors and no retries. These are development regressions;
+Core joint acceptance uses its opt-in paired-artifact test and an explicit binary
+SHA256. A published protocol dependency and real-engine evidence remain required.
