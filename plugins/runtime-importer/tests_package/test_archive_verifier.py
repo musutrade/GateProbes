@@ -17,6 +17,7 @@ import sys
 sys.path.insert(0, str(sys_path))
 
 import package_importer  # noqa: E402
+import legacy_fixture
 import verify_importer_archive as verifier  # noqa: E402
 
 PREFIX = verifier.PREFIX
@@ -59,7 +60,8 @@ class VerifierTests(unittest.TestCase):
         cls.temporary = tempfile.TemporaryDirectory(prefix="importer-verifier-")
         output = Path(cls.temporary.name) / "out"
         output.mkdir()
-        cls.archive_path = package_importer.build(ROOT, output)
+        cls.legacy_root = legacy_fixture.create(ROOT, Path(cls.temporary.name) / "legacy-root")
+        cls.archive_path = package_importer.build(cls.legacy_root, output)
         cls.archive = cls.archive_path.read_bytes()
         cls.sbom = Path(str(cls.archive_path) + ".sbom.cdx.json").read_bytes()
         cls.files = verifier.validate(cls.archive, cls.sbom, sha(cls.archive), sha(cls.sbom))
@@ -160,6 +162,46 @@ class VerifierTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             verifier.extract(bad_archive, self.sbom, sha(bad_archive), sha(self.sbom), destination)
         self.assertFalse(destination.exists())
+
+
+class VersionedVerifierTests(unittest.TestCase):
+    def fixture(self):
+        prefix, names = verifier.profile('0.2.0')
+        files = {name: b'fixture bytes' for name in names}
+        archive = gzip_bytes(tar_bytes([(prefix + '/' + name, data, 0o644)
+                                       for name, data in sorted(files.items())]))
+        sbom = json.dumps({'bomFormat':'CycloneDX', 'specVersion':'1.5', 'version':1,
+            'metadata':{'component':{'type':'application','name':'runtime-importer','version':'0.2.0'}},
+            'components':[{'type':'file','name':name,'hashes':[{'alg':'SHA-256','content':sha(data)}]}
+                          for name, data in sorted(files.items())]}).encode()
+        return archive, sbom, files
+
+    def test_v3_requires_explicit_external_version_and_exact_new_pin_members(self):
+        archive, sbom, files = self.fixture()
+        self.assertEqual(verifier.validate(archive, sbom, sha(archive), sha(sbom), '0.2.0'), files)
+        with self.assertRaises(ValueError):
+            verifier.validate(archive, sbom, sha(archive), sha(sbom))
+        self.assertIn('tools/runtime_import/release-pin-v3.json', files)
+        self.assertNotIn('tools/runtime_import/release-pin.json', files)
+
+    def test_profile_confusion_fails_before_creating_destination(self):
+        archive, sbom, _ = self.fixture()
+        with tempfile.TemporaryDirectory() as temporary:
+            destination = Path(temporary) / 'must-not-exist'
+            for version in ['0.1.0', '0.3.0']:
+                with self.assertRaises(ValueError):
+                    verifier.extract(archive, sbom, sha(archive), sha(sbom), destination, version)
+                self.assertFalse(destination.exists())
+            installed = verifier.extract(archive, sbom, sha(archive), sha(sbom), destination, '0.2.0')
+            self.assertEqual(installed.name, 'gateprobes-runtime-importer-0.2.0')
+
+    def test_v3_sbom_cannot_downgrade_identity(self):
+        archive, sbom, _ = self.fixture()
+        metadata = json.loads(sbom)
+        metadata['metadata']['component']['version'] = '0.1.0'
+        changed = json.dumps(metadata).encode()
+        with self.assertRaises(ValueError):
+            verifier.validate(archive, changed, sha(archive), sha(changed), '0.2.0')
 
 
 if __name__ == "__main__":

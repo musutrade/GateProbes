@@ -29,6 +29,7 @@ import accept_importer  # noqa: E402
 import classify as ci_classify  # noqa: E402
 import importer_core  # noqa: E402
 import package_importer  # noqa: E402
+import legacy_fixture
 import package_workload  # noqa: E402
 import plugin_release  # noqa: E402
 
@@ -65,11 +66,12 @@ class DistributionContract(unittest.TestCase):
         cls.out2 = Path(cls.temporary.name) / "out2"
         cls.out1.mkdir()
         cls.out2.mkdir()
-        cls.archive = package_importer.build(ROOT, cls.out1)
-        cls.archive2 = package_importer.build(ROOT, cls.out2)
+        cls.legacy_root = legacy_fixture.create(ROOT, Path(cls.temporary.name) / "legacy-root")
+        cls.archive = package_importer.build(cls.legacy_root, cls.out1)
+        cls.archive2 = package_importer.build(cls.legacy_root, cls.out2)
         cls.sbom = Path(str(cls.archive) + ".sbom.cdx.json")
         cls.sbom2 = Path(str(cls.archive2) + ".sbom.cdx.json")
-        cls.files = package_importer.members(ROOT, "0.1.0")
+        cls.files = package_importer.members(cls.legacy_root, "0.1.0")
 
     @classmethod
     def tearDownClass(cls):
@@ -88,6 +90,7 @@ class DistributionContract(unittest.TestCase):
         shutil.copy2(ROOT / "LICENSE", root / "LICENSE")
         shutil.copytree(ROOT / "plugins/runtime-importer", root / "plugins/runtime-importer")
         shutil.copytree(ROOT / "tools/runtime_import", root / "tools/runtime_import")
+        (root / "plugins/runtime-importer/plugin.json").write_text(json.dumps(legacy_fixture.LEGACY_MANIFEST))
         return temporary, root
 
     def install(self, bundle: Path, destination: Path, home: Path, *, extra_env=None, cwd=None):
@@ -102,7 +105,7 @@ class DistributionContract(unittest.TestCase):
             cwd=cwd or home, env=env, capture_output=True, text=True, timeout=30)
 
     def test_manifest_and_pins_are_exact(self):
-        identity = plugin_release.resolve("runtime-importer", ROOT)
+        identity = plugin_release.resolve("runtime-importer", self.legacy_root)
         self.assertEqual(identity["tag"], "runtime-importer-v0.1.0")
         self.assertEqual(identity["archive"], PREFIX + ".tar.gz")
         manifest = json.loads(self.files["plugins/runtime-importer/plugin.json"])
@@ -277,7 +280,7 @@ class DistributionContract(unittest.TestCase):
         shutil.copy2(CORE, core_dir / "harness-gate-linux-amd64")
         output = Path(temporary.name) / "package-output"
         output.mkdir()
-        package_importer.package(ROOT, output, core_root, ASSETS)
+        package_importer.package(self.legacy_root, output, core_root, ASSETS)
         self.assertEqual({path.name for path in output.iterdir()},
                          {PREFIX + ".tar.gz", PREFIX + ".tar.gz.sbom.cdx.json"})
 
@@ -318,13 +321,13 @@ class DistributionContract(unittest.TestCase):
     def test_ci_job_orders_download_tests_package_and_required_gate(self):
         text = (ROOT / ".github/workflows/ci.yml").read_text()
         self.assertIn("name: Standalone runtime importer acceptance", text)
-        self.assertIn("Distribution tests (30, no skips)", text)
-        self.assertIn("assert suite.countTestCases() == 30", text)
+        self.assertIn("Distribution tests (39, no skips)", text)
+        self.assertIn("assert suite.countTestCases() == 39", text)
         self.assertIn("Require standalone importer acceptance", text)
         self.assertIn("runtime-importer", text[text.index("needs: [ classify"):text.index("needs: [ classify") + 220])
         self.assertLess(text.index("Fetch independently pinned released inputs"),
-                        text.index("Distribution tests (30"))
-        self.assertLess(text.index("Distribution tests (30"),
+                        text.index("Distribution tests (39"))
+        self.assertLess(text.index("Distribution tests (39"),
                         text.index("Package and accept extracted importer"))
 
     def test_collector_release_uses_conditional_importer_core(self):

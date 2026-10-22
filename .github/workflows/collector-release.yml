@@ -98,7 +98,7 @@ jobs:
           components: llvm-tools-preview, rust-docs
       - name: Fetch and verify importer-specific released inputs
         if: needs.policy.outputs.plugin == 'runtime-importer'
-        run: python3 tools/release/importer_core.py --output "$RUNNER_TEMP/core"
+        run: python3 tools/release/importer_core_v3.py --output "$RUNNER_TEMP/core"
       - name: Fetch and verify readiness-specific released Core
         if: needs.policy.outputs.plugin == 'docker-readiness'
         run: python3 tools/release/readiness_core.py --output "$RUNNER_TEMP/core"
@@ -108,13 +108,14 @@ jobs:
       - name: Test, package and accept the clean installed runtime
         env:
           PLUGIN: ${{ needs.policy.outputs.plugin }}
+          HARNESS_GATE_IMPORTER_ACCEPTANCE: ${{ runner.temp }}/collector-acceptance/importer
           HARNESS_GATE_RUNTIME_ACCEPTANCE: ${{ runner.temp }}/collector-acceptance/runtime
           RUST_SOURCE_TEST_EVIDENCE: ${{ runner.temp }}/collector-acceptance/source-risk
           HARNESS_GATE_POSTGRES_ACCEPTANCE: ${{ runner.temp }}/collector-acceptance/postgres
           HARNESS_GATE_TYPESCRIPT_ACCEPTANCE: ${{ runner.temp }}/collector-acceptance/typescript
         run: |
           set -euo pipefail
-          if [ "$PLUGIN" = docker-readiness ]; then
+          if [ "$PLUGIN" = docker-readiness ] || [ "$PLUGIN" = runtime-importer ]; then
             mkdir -p "$HOME/.cache"
             chmod 700 "$HOME" "$HOME/.cache"
           fi

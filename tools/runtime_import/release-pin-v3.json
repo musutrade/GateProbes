@@ -1,0 +1,12 @@
+{
+  "archive_sha256": "6c0ec7f41fe15c9787474bbca5d37331181285b62398af9e82f905e8e8787bef",
+  "checksums_sha256": "07601f74913aa2bbdb79053e71ed1c39acbe9c7cec8f698258e8d1427e7df273",
+  "executable_sha256": "41654c0bf0df5c269d961688eed7fd2d08c35d66f1d75514347b7a829f93bb8a",
+  "inventory_sha256": "ad22d8962cd8b88b3dcd0d091aa969cc697cfddb415a915d4d482cdca3f0661b",
+  "repository": "https://github.com/musutrade/GateProbes",
+  "sbom_sha256": "7ca109894af6bcd39b624e41a0f0f99e19a441cb25a1068c3505c50004c9cb14",
+  "schema": "gateprobes-runtime-release-pin/v1",
+  "source_commit": "dcd0bbdc7d9a10e8de50ee6a6a6d94cc01fbb8b8",
+  "tag": "docker-readiness-v0.2.0",
+  "version": "0.2.0"
+}

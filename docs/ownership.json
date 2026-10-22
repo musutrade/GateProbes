@@ -169,8 +169,8 @@
         "plugins/runtime-importer"
       ],
       "authority": "offline-installation-only",
-      "contract_test": "tools/release/accept_importer.py",
-      "core_pin": "plugins/runtime-importer/core-pin.json",
+      "contract_test": "tools/release/accept_importer_v3.py",
+      "core_pin": "plugins/runtime-importer/core-pin-v3.json",
       "status": "unpublished-candidate"
     },
     "docker-readiness": {

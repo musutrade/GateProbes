@@ -28,6 +28,7 @@ import package_onboarding
 import package_runtime
 import package_importer
 import importer_core
+import importer_core_v3
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -402,7 +403,10 @@ def main() -> None:
             raise RuntimeError("readiness packaged assets differ")
         return
     if args.plugin == "runtime-importer":
-        importer_core.verify(core)
+        if row['version'] == '0.2.0':
+            importer_core_v3.verify(core)
+        else:
+            importer_core.verify(core)
         output = args.output.resolve()
         output.mkdir(parents=True, exist_ok=False)
         assets = core / "runtime-assets"

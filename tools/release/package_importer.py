@@ -17,15 +17,21 @@ NAMES = ('LICENSE', 'plugins/runtime-importer/README.md',
 
 
 def members(root, version):
-    files = {name: package_workload.checked_file(root, name) for name in NAMES}
+    from verify_importer_archive import profile
+    _, names = profile(version)
+    files = {name: package_workload.checked_file(root, name) for name in names}
     manifest = json.loads(files['plugins/runtime-importer/plugin.json'])
     expected = {'schema': 'gateprobes-runtime-importer-distribution/v1', 'name': PRODUCT,
                 'version': version, 'authority': 'offline-installation-only',
-                'core_versions': ['0.8.0'], 'tested_platforms': ['linux-x86_64'],
-                'entrypoint': 'tools/runtime_import/install.py', 'runtime_tag': 'docker-runtime-v0.1.1'}
+                'core_versions': ['0.9.0' if version == '0.2.0' else '0.8.0'], 'tested_platforms': ['linux-x86_64'],
+                'entrypoint': 'tools/runtime_import/install.py', 'runtime_tag': 'docker-readiness-v0.2.0' if version == '0.2.0' else 'docker-runtime-v0.1.1'}
     if manifest != expected:
         raise ValueError('unexpected importer manifest')
-    from importer_core import contract
+    if version == '0.2.0':
+        from importer_core_v3 import contract, runtime_contract
+        runtime_contract(root)
+    else:
+        from importer_core import contract
     contract(root)
     return files
 
@@ -51,6 +57,9 @@ def build(root, output):
 def package(root, output, core, assets):
     import tempfile
     from accept_importer import accept
+    version = plugin_release.resolve(PRODUCT, root)['version']
+    if version == '0.2.0':
+        return package_v3(root, output, core, assets)
     from importer_core import verify
     pin = verify(core, root)
     archive = build(root, output)
@@ -64,3 +73,29 @@ def package(root, output, core, assets):
         if members(installed, plugin_release.resolve(PRODUCT, root)['version']) != members(root, plugin_release.resolve(PRODUCT, root)['version']):
             raise ValueError('extracted importer bytes differ')
         print(json.dumps(accept(installed, core / 'bin' / pin['binary'], assets), sort_keys=True))
+
+
+def package_v3(root, output, core, assets):
+    import os
+    from package_plugin import run
+    from importer_core_v3 import verify
+    pin = verify(core, root)
+    archive = build(root, output)
+    sbom = Path(str(archive) + '.sbom.cdx.json')
+    evidence = Path(os.environ.get('HARNESS_GATE_IMPORTER_ACCEPTANCE', str(output.parent / (output.name + '-acceptance'))))
+    evidence.mkdir(parents=True, exist_ok=True)
+    report = evidence / 'importer-v3.json'
+    run('python3', str(root / 'tools/release/accept_importer_v3.py'),
+        '--archive', str(archive), '--sbom', str(sbom),
+        '--archive-sha256', hashlib.sha256(archive.read_bytes()).hexdigest(),
+        '--sbom-sha256', hashlib.sha256(sbom.read_bytes()).hexdigest(),
+        '--core', str(core / 'bin' / pin['binary']), '--assets', str(assets), '--report', str(report))
+    result = json.loads(report.read_text())
+    cases = ['present', 'missing', 'unavailable', 'changed', 'timeout', 'fixed-expected',
+             'tampered-descriptor', 'tampered-executable', 'tampered-schema']
+    if (result['passed'] != len(cases) or [case['case'] for case in result['cases']] != cases
+            or any(case['exit'] != (0 if case['case'] == 'present' else 1) or case['stderr'] for case in result['cases'])
+            or result['importer_archive_sha256'] != hashlib.sha256(archive.read_bytes()).hexdigest()
+            or result['importer_sbom_sha256'] != hashlib.sha256(sbom.read_bytes()).hexdigest()
+            or result['core_sha256'] != pin['sha256']):
+        raise ValueError('incomplete v3 importer acceptance')

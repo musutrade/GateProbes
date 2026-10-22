@@ -1,32 +1,34 @@
-# Runtime importer 0.1.0 (unpublished candidate)
+# Runtime importer 0.2.0 candidate
 
-This distribution packages the offline runtime importer separately from the
-immutable docker-runtime-v0.1.1 native archive. It contains no Core or adapter
-binary and performs no daemon operation. Linux and Python 3.11+ are required.
+This distribution packages the offline importer for the immutable
+`docker-readiness-v0.2.0` archive and released Core 0.9.0. It contains no Core or
+adapter binary and performs no daemon operation. Linux and Python 3.11+ are required.
+Historical importer 0.1.0/Core 0.8/runtime 0.1.1 artifacts and pins remain unchanged.
 
-Verify this importer's own archive digest and release provenance independently
-before extracting or executing it. The bundled runtime release pin is a reviewed
-operator input, not self-authentication. The importer checks the four supplied
-runtime assets against that pin, publishes a new protected installation without
-replacement, and writes the installed descriptor. Signatures and provenance are
-external prerequisites, not verified by the importer.
+Before extraction, use `tools/release/verify_importer_archive.py` from a separately
+trusted checkout with external archive/SBOM SHA256 pins and `--version 0.2.0`.
+It checks bounded decompression, exact eight regular members, modes and SBOM
+hashes. The version comes from the caller, never from archive bytes. Verify
+signatures/provenance separately; never load the verifier from the unverified
+archive. This does not defend against hostile same-user filesystem races.
 
-The direct installed-host path requires released Core0.8.0. It does not broaden
-runtime0.1.1 plugin-manager metadata or its accept.py Core0.7.1 compatibility.
-Acceptance must use extracted importer bytes, downloaded Core0.8.0 and unchanged
-published runtime0.1.1: installation/modes/descriptor, capabilities without fake
-socket connections, and pin/descriptor/executable tamper rejection. No real
-Docker compatibility, zero-spawn, sandbox, rootless or restart proof is claimed.
+The package includes `core-pin-v3.json` and `release-pin-v3.json`. The runtime pin
+is reviewed operator input, not self-authentication. Supply the four downloaded
+readiness assets to `tools/runtime_import/install.py --pin <protected-pin>
+--assets <assets> --destination <new-protected-directory>`. Installation validates
+the assets, publishes without replacement and writes the installed descriptor.
+The importer does not execute Core, probe the daemon or verify release signatures.
 
-See the bundled tools/runtime_import/README.md for protected path, cooperative
-filesystem, no-overwrite and post-publication fsync failure semantics. The
-standalone artifact and downloaded fixed-pair acceptance are not published yet.
+The separate acceptance harness externally verifies and extracts the importer,
+runs its installer, and invokes downloaded Core 0.9 doctor with installed-v2 host
+configuration and a fake Unix socket. It checks readiness, missing/unavailable
+images, identity change, timeout, forbidden fixed expected input, descriptor and
+executable tampering, and schema tampering even after rebinding the host digest.
+It retains artifact/descriptor hashes, exact exits, stderr and request lists.
+Core still owns service lifecycle coordination; no real Docker/Podman, rootless,
+restart, OS containment, mutation, Remove, Absent or lease migration is proved.
 
-Release verification must use the separately reviewed
-`tools/release/verify_importer_archive.py` from a trusted GateProbes checkout,
-with externally supplied archive and SBOM SHA256 pins. It bounds decompression,
-checks the exact eight regular members/modes and SBOM file hashes before
-extracting into a new directory. It is not loaded from the unverified archive.
-Verify signatures/provenance separately before approving those pins. This
-verifier does not authenticate the publisher or protect against hostile same-user
-filesystem races. Never extract an unverified downloaded archive first.
+See the bundled `tools/runtime_import/README.md` for protected-path, cooperative
+filesystem, no-overwrite and post-publication fsync failure semantics. Candidate
+CI uses a freshly built importer package and downloaded dependencies. Downloaded
+importer-release acceptance follows publication; it is not claimed by local CI.
