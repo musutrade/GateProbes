@@ -53,6 +53,7 @@ pub fn capture_plan(
     cancelled: &impl Fn() -> bool,
 ) -> Result<gatehouse_runtime_protocol::lifecycle_v2::plan_record::PlanRecord> {
     use gatehouse_runtime_protocol::lifecycle_v2::plan_record::PlanRecord;
+    inputs.validate()?;
     identity.validate()?;
     if identity.config_sha256 != context.config_sha256()? {
         return Err("capture slot config mismatch");

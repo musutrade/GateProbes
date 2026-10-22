@@ -43,3 +43,7 @@ Fake tests cover the exact three routes with record persistence/reopen,
 profile/config/deadline/cancel preflight zero-connection refusals, and final-info
 failure withholding evidence. Real Podman, kernel fault/power-loss, installed
 entrypoint, versioned protocol and mutation remain outside this checkpoint.
+
+Operator name, labels and fixed port are preflight-validated before any socket
+connection. Empty operator labels are allowed because image labels may supply
+the final nonempty map; merged plan validation remains mandatory after capture.

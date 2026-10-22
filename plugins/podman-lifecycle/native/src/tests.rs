@@ -405,3 +405,73 @@ fn fixed_capture_final_info_failure_withholds_evidence() {
     .is_err());
     server.join().unwrap();
 }
+
+#[test]
+fn invalid_plan_inputs_never_connect() {
+    use gatehouse_runtime_protocol::lifecycle_v2::plan_record::PlanPort;
+    for case in 0..10 {
+        let f = Fixture::new();
+        let identity = plan_identity(&f);
+        let mut inputs = plan_inputs();
+        match case {
+            0 => inputs.name.clear(),
+            1 => inputs.name = "-invalid".into(),
+            2 => inputs.name = "x".repeat(129),
+            3 => {
+                inputs.labels.insert("".into(), "value".into());
+            }
+            4 => {
+                inputs.labels.insert("control".into(), "bad\nvalue".into());
+            }
+            5 => {
+                inputs.labels.insert("x".repeat(257), "value".into());
+            }
+            6 => {
+                inputs.labels.insert("large".into(), "x".repeat(4097));
+            }
+            7 => inputs.labels = (0..65).map(|i| (format!("key{i}"), "v".into())).collect(),
+            8 => {
+                inputs.port = Some(PlanPort {
+                    container: 0,
+                    host: 8080,
+                })
+            }
+            9 => {
+                inputs.port = Some(PlanPort {
+                    container: 80,
+                    host: 0,
+                })
+            }
+            _ => unreachable!(),
+        }
+        assert!(capture_plan(
+            &f.context,
+            &"b".repeat(64),
+            &identity,
+            inputs,
+            Instant::now() + Duration::from_secs(2),
+            &|| false
+        )
+        .is_err());
+        f.listener.set_nonblocking(true).unwrap();
+        assert_eq!(
+            f.listener.accept().unwrap_err().kind(),
+            std::io::ErrorKind::WouldBlock
+        );
+    }
+}
+#[test]
+fn empty_operator_labels_allow_image_inheritance() {
+    let mut inputs = plan_inputs();
+    inputs.labels.clear();
+    inputs.validate().unwrap();
+    use gatehouse_runtime_protocol::lifecycle_v2::native_image::decode_image;
+    let id = "b".repeat(64);
+    let route = image_route(&id).unwrap();
+    let raw = serde_json::to_vec(
+        &json!({"Id":id,"Labels":{"inherited":"value"},"Config":{"Labels":{"inherited":"value"}}}),
+    )
+    .unwrap();
+    let facts = decode_image(&id, "GET", &route, 200, &raw).unwrap();
+    facts.create_plan(inputs.name, inputs.labels, None).unwrap();
+}
