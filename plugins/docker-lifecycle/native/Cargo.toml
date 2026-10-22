@@ -1,0 +1,11 @@
+[package]
+name = "gateprobes-docker-lifecycle"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.88"
+publish = false
+license = "MIT"
+
+[dependencies]
+gatehouse-runtime-protocol = "=0.2.0"
+serde_json = "1"
