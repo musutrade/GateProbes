@@ -16,8 +16,8 @@
     "tools/release/release_policy.py": {
       "source_repository": "https://github.com/musutrade/Harness-Gate",
       "source_path": "tools/release/release_policy.py",
-      "source_revision": "dcc9194d4c01c4994983af505cf1191774fea70e",
-      "sha256": "19640e4d97e5e02a759ce267a1bb6a5663fcbda6ae7a9e4a2a2829c4dcebf21e"
+      "source_revision": "f6f4483fc5a6176573103e1064ba9d49bd72bad6",
+      "sha256": "15ff9bbcdf49657957cd1ff043c86f6d8d55d2306dfea07a10b3b30a82d3486d"
     },
     "tools/release/release_inventory.py": {
       "source_repository": "https://github.com/musutrade/Harness-Gate",
