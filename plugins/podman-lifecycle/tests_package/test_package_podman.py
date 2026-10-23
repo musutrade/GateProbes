@@ -14,7 +14,7 @@ import package_podman as package
 import package_runtime
 import verify_podman_acceptance as verifier
 
-PREFIX = 'gateprobes-podman-lifecycle-0.1.0-linux-amd64'
+PREFIX = 'gateprobes-podman-lifecycle-0.2.0-linux-amd64'
 
 
 class PackageTests(unittest.TestCase):
@@ -74,12 +74,12 @@ class PackageTests(unittest.TestCase):
         product, lock = package.validate(ROOT)
         self.assertEqual(product.name, 'podman-lifecycle')
         protocol = next(p for p in lock['package'] if p['name'] == 'gatehouse-runtime-protocol')
-        self.assertEqual(protocol['version'], '0.4.1')
+        self.assertEqual(protocol['version'], '0.5.0')
         self.assertEqual(protocol['checksum'], package.PROTOCOL_CHECKSUM)
 
     def test_local_patch_wrong_pin_and_mutation_claim_refused(self):
         cases = [('native/Cargo.toml', lambda s: s + '\n[patch.crates-io]\n'),
-                 ('native/Cargo.toml', lambda s: s.replace('=0.4.1', '=0.4.0')),
+                 ('native/Cargo.toml', lambda s: s.replace('=0.5.0', '=0.4.1')),
                  ('native/Cargo.lock', lambda s: s.replace(package.PROTOCOL_CHECKSUM, '0' * 64)),
                  ('plugin.json', lambda s: s.replace('"capture"', '"remove"'))]
         for name, change in cases:

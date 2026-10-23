@@ -7,7 +7,7 @@ import subprocess
 import urllib.request
 
 ROOT = Path(__file__).resolve().parents[2]
-EXPECTED = {'schema': 'gateprobes-podman-lifecycle-core/v1', 'repository': 'musutrade/GateHouse', 'release': 'v0.11.0', 'version': '0.11.0', 'source_commit': 'ddd950af6cfb703bee17d6f942165837b15f0deb', 'binary': 'harness-gate-linux-amd64', 'sha256': '912a65b17353226becf955de8e74a9c4b7389bf5b273c9a935c6fd68797b18f2'}
+EXPECTED = {'schema': 'gateprobes-podman-lifecycle-core/v1', 'repository': 'musutrade/GateHouse', 'release': 'v0.12.0', 'version': '0.12.0', 'source_commit': '84a306e8f35674b79aaafa0a0fecd05d6087ac24', 'binary': 'harness-gate-linux-amd64', 'sha256': '6890e4465c9d86f53cffe8c58103a650babd03db895e27ae99928659c4f1d1d6'}
 
 
 def contract(root=ROOT):

@@ -13,8 +13,8 @@ import tarfile
 import threading
 
 BINARY = 'gateprobes-podman-lifecycle'
-PREFIX = 'gateprobes-podman-lifecycle-0.1.0-linux-amd64'
-CORE_SHA = '912a65b17353226becf955de8e74a9c4b7389bf5b273c9a935c6fd68797b18f2'
+PREFIX = 'gateprobes-podman-lifecycle-0.2.0-linux-amd64'
+CORE_SHA = '6890e4465c9d86f53cffe8c58103a650babd03db895e27ae99928659c4f1d1d6'
 MEMBERS = {BINARY, 'plugin.json', 'README.md', 'Cargo.toml', 'Cargo.lock', 'LICENSE',
            'THIRD_PARTY_NOTICES.txt', 'rust-toolchain.toml', 'build-inputs.json',
            'accept.py', 'core-pin.json', 'protocol-LICENSE'}
@@ -155,7 +155,7 @@ def fixture(root, binary, core):
             'run_root': '/run/containers/storage', 'remote_socket': None,
             'socket': {'path': str(path), 'device': st.st_dev, 'inode': st.st_ino, 'uid': st.st_uid, 'mode': st.st_mode}}}}
     installation = {'schema': 'gate-runtime/podman-installation-v1', 'product': 'podman-lifecycle',
-                    'version': '0.1.0', 'protocol': 'gate-runtime/lifecycle-v2', 'executable_path': str(exe),
+                    'version': '0.2.0', 'protocol': 'gate-runtime/lifecycle-v2', 'executable_path': str(exe),
                     'executable_sha256': digest(exe.read_bytes()), 'config_schema': 'gate-runtime/podman-context-v1'}
     config_path, install_path = root / 'context.json', root / 'installation.json'
     host = {'schema': 'gate-runtime/podman-host-v1', 'installation_path': str(install_path),
@@ -210,7 +210,7 @@ def run_case(case, index, work, binary, core):
             record = json.loads(result.stdout)
             assert canonical(record) == result.stdout
             assert record['schema'] == 'gate-runtime/podman-plan-evidence-v1'
-            assert record['profile'] == {'protocol': 'gate-runtime/lifecycle-v2', 'product': 'podman-lifecycle', 'version': '0.1.0', 'engine': 'podman'}
+            assert record['profile'] == {'protocol': 'gate-runtime/lifecycle-v2', 'product': 'podman-lifecycle', 'version': '0.2.0', 'engine': 'podman'}
             assert record['image_id'] == IMAGE and record['inputs'] == {'name': 'fixture', 'labels': {'owner': 'fixture'}, 'port': None}
             assert record['config_json'].encode() == canonical(context)
             assert canonical(json.loads(record['plan_json'])) == record['plan_json'].encode()
@@ -240,7 +240,7 @@ def main():
     if args.core_sha256 != CORE_SHA or digest(core.read_bytes()) != CORE_SHA:
         raise ValueError('Core digest mismatch')
     result = subprocess.run([str(core), '--version'], capture_output=True, timeout=15, check=True)
-    if result.stdout != b'harness-gate 0.11.0\n' or result.stderr: raise ValueError('Core version mismatch')
+    if result.stdout != b'harness-gate 0.12.0\n' or result.stderr: raise ValueError('Core version mismatch')
     work = args.work.absolute()
     protected(work.parent)
     if work.exists() or args.report.exists(): raise ValueError('refuse existing acceptance output')
@@ -248,8 +248,8 @@ def main():
     # Run the code from this exact package after validation, never a different checkout script.
     if (installed / 'accept.py').read_bytes() != Path(__file__).read_bytes(): raise ValueError('acceptance script/archive mismatch')
     cases = [run_case(case, i, work, installed / BINARY, core) for i, case in enumerate(CASES)]
-    report = {'schema': 'gateprobes-podman-lifecycle-acceptance/v1', 'product': 'podman-lifecycle', 'version': '0.1.0',
-              'archive_sha256': args.archive_sha256, 'core_sha256': CORE_SHA, 'core_version': '0.11.0',
+    report = {'schema': 'gateprobes-podman-lifecycle-acceptance/v1', 'product': 'podman-lifecycle', 'version': '0.2.0',
+              'archive_sha256': args.archive_sha256, 'core_sha256': CORE_SHA, 'core_version': '0.12.0',
               'executable_sha256': digest((installed / BINARY).read_bytes()), 'passed': len(cases), 'cases': cases,
               'socket_connections_total': sum(c['connections'] for c in cases), 'mutation_attempts': 0,
               'files_created': [], 'limits': 'fake Unix socket only; no real Podman; saved evidence is not authority'}
