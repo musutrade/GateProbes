@@ -105,3 +105,80 @@ class PodmanProfileTests(unittest.TestCase):
                                          for n, b in sorted(files.items())])
             with self.subTest(remove=remove, extra=extra, mode=mode), self.assertRaises(preflight.InvalidRelease):
                 preflight.unpack(archive, NAME[:-7], BINARY)
+
+
+NAME_V3 = BINARY + '-0.3.0-linux-amd64.tar.gz'
+
+
+def evidence_v3(manifest_changes=None):
+    files = dict(fixture.FILES)
+    files.update({n: b'fixture' for n in ['Cargo.toml', 'core-pin.json', 'protocol-LICENSE']})
+    files[BINARY] = files.pop(preflight.BINARY)
+    manifest = dict(name='podman-lifecycle', version='0.3.0', executable=BINARY,
+                    protocol='gate-runtime/lifecycle-v1', core_versions=['0.13.0'],
+                    authority='container-lifecycle/mutate',
+                    capabilities=['capture', 'resolve-image', 'create', 'status', 'start', 'stop', 'remove', 'health'])
+    manifest.update(manifest_changes or {})
+    files['plugin.json'] = json.dumps(manifest).encode()
+    archive = fixture.tar_bytes([(NAME_V3[:-7] + '/' + n, b, 0o755 if n == BINARY else 0o644)
+                                 for n, b in sorted(files.items())])
+    sbom = json.dumps({'bomFormat': 'CycloneDX', 'specVersion': '1.5',
+                      'metadata': {'component': {'type': 'application', 'name': 'podman-lifecycle', 'version': '0.3.0'}},
+                      'components': [{'type': 'file', 'name': n, 'hashes': [{'alg': 'SHA-256', 'content': fixture.sha(b)}]}
+                                     for n, b in files.items()]}).encode()
+    assets = {NAME_V3: archive, NAME_V3 + '.sbom.cdx.json': sbom}
+    inventory = json.dumps({'schema_version': 1, 'source': {'repository': 'https://github.com/musutrade/GateProbes', 'commit': fixture.SOURCE},
+                            'tag': 'podman-lifecycle-v0.3.0', 'checksum_file': 'SHA256SUMS', 'inventory_file': 'release-inventory.json',
+                            'checksum_subjects': sorted([*assets, 'release-inventory.json']),
+                            'assets': [{'kind': 'package' if n == NAME_V3 else 'sbom', 'name': n, 'sha256': fixture.sha(b), 'size_bytes': len(b)}
+                                       for n, b in assets.items()]}).encode()
+    sums = ''.join(fixture.sha(b) + '  ' + n + '\n' for n, b in sorted({**assets, 'release-inventory.json': inventory}.items())).encode()
+    pin = json.loads(fixture.valid()[0])
+    pin.update(tag='podman-lifecycle-v0.3.0', version='0.3.0', executable_sha256=fixture.sha(files[BINARY]))
+    for key, b in [('archive', archive), ('sbom', sbom), ('inventory', inventory), ('checksums', sums)]:
+        pin[key + '_sha256'] = fixture.sha(b)
+    return json.dumps(pin).encode(), archive, sbom, inventory, sums
+
+
+class PodmanLifecycleV3ProfileTests(unittest.TestCase):
+    def test_profile_and_twelve_member_archive(self):
+        self.assertEqual(preflight.profile({'tag': 'podman-lifecycle-v0.3.0', 'version': '0.3.0'}),
+                         ('podman-lifecycle', BINARY, 'gate-runtime/lifecycle-v1'))
+        self.assertEqual(len(preflight.validate(*evidence_v3())), 12)
+
+    def test_install_descriptor_is_v1_sorted_and_config_free(self):
+        pin, archive, sbom, inventory, sums = evidence_v3()
+        with tempfile.TemporaryDirectory(dir=Path.home()) as temporary:
+            root = Path(temporary); root.chmod(0o700)
+            assets = root / 'assets'; assets.mkdir(mode=0o700)
+            for name, data in [(NAME_V3, archive), (NAME_V3 + '.sbom.cdx.json', sbom),
+                               ('release-inventory.json', inventory), ('SHA256SUMS', sums)]:
+                (assets / name).write_bytes(data)
+            pin_path = root / 'pin.json'; pin_path.write_bytes(pin); pin_path.chmod(0o600)
+            destination = root / 'installed'
+            descriptor = install.import_release(pin_path, assets, destination)
+            expected = {'schema': 'gate-runtime/lifecycle-installation-v1',
+                        'product': 'podman-lifecycle', 'version': '0.3.0',
+                        'protocol': 'gate-runtime/lifecycle-v1',
+                        'executable_path': str(destination / BINARY),
+                        'executable_sha256': json.loads(pin)['executable_sha256'],
+                        'config_schema': 'gate-runtime/lifecycle-config-v1'}
+            self.assertEqual(descriptor.read_bytes(),
+                             json.dumps(expected, sort_keys=True, separators=(',', ':')).encode())
+            self.assertFalse((destination / 'config.json').exists())
+            self.assertFalse((destination / 'host.json').exists())
+
+    def test_mixed_capture_or_core_versions_refused(self):
+        for change in [dict(protocol='gate-runtime/lifecycle-v2'),
+                       dict(core_versions=['0.12.0']),
+                       dict(authority='read-only-runtime-facts'),
+                       dict(capabilities=['capture'])]:
+            with self.subTest(change=change), self.assertRaises(preflight.InvalidRelease):
+                preflight.validate(*evidence_v3(change))
+
+    def test_cross_tag_version_refused(self):
+        for tag, version in [('podman-lifecycle-v0.3.0', '0.2.0'),
+                             ('podman-lifecycle-v0.2.0', '0.3.0'),
+                             ('podman-lifecycle-v0.3.1', '0.3.0')]:
+            with self.subTest(tag=tag), self.assertRaises(preflight.InvalidRelease):
+                preflight.profile({'tag': tag, 'version': version})

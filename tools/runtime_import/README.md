@@ -108,3 +108,20 @@ with an executable at mode 0500. The installation has no host or context. The
 operator supplies those separately; the installer neither executes binaries nor
 contacts a daemon. Docker profiles and the released 0.4 package retain their
 historical formats and pins.
+
+### Podman lifecycle profile (importer 0.6)
+
+The externally trusted tag `podman-lifecycle-v0.3.0` selects importer 0.6 for
+Core 0.13.0. It accepts the same twelve-member Podman archive but requires the
+manifest protocol `gate-runtime/lifecycle-v1`, mutation authority and the native
+create/status/start/stop/remove/health capabilities. Installation writes a
+canonical sorted-key `gate-runtime/lifecycle-installation-v1` descriptor with
+`gate-runtime/lifecycle-config-v1`, mode 0400. It does not generate a config,
+host, lease or container. The historical 0.2.0 capture profile and all earlier
+pins remain unchanged.
+
+The candidate release has not been published. `core-pin-podman.json`,
+`release-pin-podman.json` and the real archive/SBOM hashes must be replaced from
+the actual 0.13.0 Core and 0.3.0 product releases after independent review; no
+hash is filled in advance. Do not publish importer 0.6.0 while those pins still
+describe 0.12.0/0.2.0.

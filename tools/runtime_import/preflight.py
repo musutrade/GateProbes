@@ -57,6 +57,8 @@ def profile(expected):
         return 'docker-lifecycle', 'gateprobes-docker-lifecycle', 'gate-runtime/lifecycle-v1'
     if tag == 'podman-lifecycle-v0.2.0' and version == '0.2.0':
         return 'podman-lifecycle', 'gateprobes-podman-lifecycle', 'gate-runtime/lifecycle-v2'
+    if tag == 'podman-lifecycle-v0.3.0' and version == '0.3.0':
+        return 'podman-lifecycle', 'gateprobes-podman-lifecycle', 'gate-runtime/lifecycle-v1'
     raise InvalidRelease('runtime release rejected')
 
 
@@ -160,9 +162,16 @@ def validate(pin_bytes, archive, sbom, inventory, checksums):
         if product == 'docker-lifecycle':
             require(manifest['core_versions'] == ['0.10.0'])
         if product == 'podman-lifecycle':
-            require(manifest['core_versions'] == ['0.12.0'])
-            require(manifest['authority'] == 'read-only-runtime-facts')
-            require(manifest['capabilities'] == ['capture'])
+            if expected['version'] == '0.2.0':
+                require(manifest['core_versions'] == ['0.12.0'])
+                require(manifest['authority'] == 'read-only-runtime-facts')
+                require(manifest['capabilities'] == ['capture'])
+            elif expected['version'] == '0.3.0':
+                require(manifest['core_versions'] == ['0.13.0'])
+                require(manifest['authority'] == 'container-lifecycle/mutate')
+                require(manifest['capabilities'][:1] == ['capture'])
+                require({'create', 'status', 'start', 'stop', 'remove', 'health'}
+                        <= set(manifest['capabilities']))
         validate_sbom(decode(sbom), expected, files)
         return files
     except (ValueError, TypeError, KeyError, AttributeError, OSError, EOFError, OverflowError, RecursionError, tarfile.TarError, zlib.error):
