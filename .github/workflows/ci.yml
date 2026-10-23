@@ -234,7 +234,7 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
-      - name: Fetch pinned Core0.11 and released Podman0.1
+      - name: Fetch pinned Core0.12 and released Podman0.2
         run: python3 tools/release/importer_core_podman.py --output "$RUNNER_TEMP/importer-podman-core"
       - name: Package and externally verify candidate importer before installed Podman
         env:

@@ -23,11 +23,11 @@ def members(root, version):
     manifest = json.loads(files['plugins/runtime-importer/plugin.json'])
     expected = {'schema': 'gateprobes-runtime-importer-distribution/v1', 'name': PRODUCT,
                 'version': version, 'authority': 'offline-installation-only',
-                'core_versions': ['0.11.0' if version == '0.4.0' else '0.10.0' if version == '0.3.0' else '0.9.0' if version == '0.2.0' else '0.8.0'], 'tested_platforms': ['linux-x86_64'],
-                'entrypoint': 'tools/runtime_import/install.py', 'runtime_tag': 'podman-lifecycle-v0.1.0' if version == '0.4.0' else 'docker-lifecycle-v0.1.0' if version == '0.3.0' else 'docker-readiness-v0.2.0' if version == '0.2.0' else 'docker-runtime-v0.1.1'}
+                'core_versions': ['0.12.0' if version == '0.5.0' else '0.11.0' if version == '0.4.0' else '0.10.0' if version == '0.3.0' else '0.9.0' if version == '0.2.0' else '0.8.0'], 'tested_platforms': ['linux-x86_64'],
+                'entrypoint': 'tools/runtime_import/install.py', 'runtime_tag': 'podman-lifecycle-v0.2.0' if version == '0.5.0' else 'podman-lifecycle-v0.1.0' if version == '0.4.0' else 'docker-lifecycle-v0.1.0' if version == '0.3.0' else 'docker-readiness-v0.2.0' if version == '0.2.0' else 'docker-runtime-v0.1.1'}
     if manifest != expected:
         raise ValueError('unexpected importer manifest')
-    if version == '0.4.0':
+    if version in ('0.4.0', '0.5.0'):
         from importer_core_podman import contract, runtime_contract
         runtime_contract(root)
     elif version == '0.3.0':
@@ -64,7 +64,7 @@ def package(root, output, core, assets):
     import tempfile
     from accept_importer import accept
     version = plugin_release.resolve(PRODUCT, root)['version']
-    if version == '0.4.0':
+    if version in ('0.4.0', '0.5.0'):
         return package_podman(root, output, core, assets)
     if version == '0.3.0':
         return package_lifecycle(root, output, core, assets)
