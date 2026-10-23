@@ -42,3 +42,9 @@ Validation initially uses the pinned source-built Core0.11 candidate; downloaded
 Core0.11 acceptance remains required after publication. This does not declare
 Podman adapter compatibility, real-engine behavior, mutation or lease authority.
 Existing1.0.5 artifacts/pins remain immutable.
+
+Version 1.0.7 adds Core 0.12.0 to both execution-only product declarations.
+Validation uses the source-built Core0.12 candidate; downloaded Core0.12
+acceptance remains required after publication. This does not declare Podman
+adapter, real-engine, mutation or lease compatibility. Existing1.0.6 artifacts
+and pins remain immutable.
