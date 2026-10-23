@@ -36,3 +36,9 @@ Initial validation targets the source-built candidate; downloaded Core 0.10.0
 acceptance remains required after publication. This does not declare lifecycle
 adapter compatibility, rootless or daemon-restart acceptance. Existing 1.0.4
 artifacts and the repository's released Core pin remain immutable.
+
+Version 1.0.6 adds Core 0.11.0 to both execution-only product declarations.
+Validation initially uses the pinned source-built Core0.11 candidate; downloaded
+Core0.11 acceptance remains required after publication. This does not declare
+Podman adapter compatibility, real-engine behavior, mutation or lease authority.
+Existing1.0.5 artifacts/pins remain immutable.
