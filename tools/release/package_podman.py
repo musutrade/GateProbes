@@ -18,11 +18,11 @@ import runtime_build
 
 PRODUCT = 'podman-lifecycle'
 BINARY = 'gateprobes-podman-lifecycle'
-VERSION = '0.1.0'
-PROTOCOL_CHECKSUM = 'b3f78f75c41d95d83f0f743b69ae5b5d4087711410865af2a6c418890bba9425'
+VERSION = '0.2.0'
+PROTOCOL_CHECKSUM = 'f1619c05a4069ca03b477f456ee08f831f873022080c8ed96c850dbe20f6f90b'
 MEMBERS = {BINARY, 'plugin.json', 'README.md', 'Cargo.toml', 'Cargo.lock', 'LICENSE',
            'THIRD_PARTY_NOTICES.txt', 'rust-toolchain.toml', 'build-inputs.json', 'accept.py', 'core-pin.json', 'protocol-LICENSE'}
-MANIFEST = {'schema': 'gateprobes-runtime-adapter/v1', 'name': 'podman-lifecycle', 'version': '0.1.0', 'executable': 'gateprobes-podman-lifecycle', 'protocol': 'gate-runtime/lifecycle-v2', 'authority': 'read-only-runtime-facts', 'platforms': ['linux-x86_64'], 'core_versions': ['0.11.0'], 'status': 'release-candidate', 'capabilities': ['capture'], 'limitations': ['fake Unix socket acceptance only; real Podman compatibility unproven', 'capture-v1 requests only; no create, start, stop, remove, exec or lease authority', 'explicit operator trust-host selection; saved evidence is not authority or freshness proof', 'no daemon authentication, restart detection, rootless validation or OS containment']}
+MANIFEST = {'schema': 'gateprobes-runtime-adapter/v1', 'name': 'podman-lifecycle', 'version': '0.2.0', 'executable': 'gateprobes-podman-lifecycle', 'protocol': 'gate-runtime/lifecycle-v2', 'authority': 'read-only-runtime-facts', 'platforms': ['linux-x86_64'], 'core_versions': ['0.12.0'], 'status': 'release-candidate', 'capabilities': ['capture'], 'limitations': ['fake Unix socket package acceptance only; separate local read-only Podman 5.7 capture passed; production/rootless/restart/containment unproven', 'capture-v1 requests only; no create, start, stop, remove, exec or lease authority', 'explicit operator trust-host selection; saved evidence is not authority or freshness proof', 'no daemon authentication, restart detection, rootless validation or OS containment']}
 
 
 def validate(root):
@@ -32,11 +32,11 @@ def validate(root):
     lock = tomllib.loads((product / 'native/Cargo.lock').read_text())
     if manifest != MANIFEST or (cargo['package']['name'], cargo['package']['version']) != (BINARY, VERSION):
         raise ValueError('lifecycle product identity mismatch')
-    if cargo['dependencies']['gatehouse-runtime-protocol'] != '=0.4.1' or 'patch' in cargo or 'replace' in cargo:
+    if cargo['dependencies']['gatehouse-runtime-protocol'] != '=0.5.0' or 'patch' in cargo or 'replace' in cargo:
         raise ValueError('lifecycle requires published protocol without patches')
     entries = [p for p in lock['package'] if p['name'] == 'gatehouse-runtime-protocol']
     if len(entries) != 1 or (entries[0]['version'], entries[0].get('source'), entries[0].get('checksum')) != (
-            '0.4.1', 'registry+https://github.com/rust-lang/crates.io-index', PROTOCOL_CHECKSUM):
+            '0.5.0', 'registry+https://github.com/rust-lang/crates.io-index', PROTOCOL_CHECKSUM):
         raise ValueError('lifecycle protocol lock mismatch')
     if tomllib.loads((product / 'native/rust-toolchain.toml').read_text())['toolchain']['channel'] != runtime_build.TOOLCHAIN:
         raise ValueError('lifecycle toolchain mismatch')

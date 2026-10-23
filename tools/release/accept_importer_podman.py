@@ -14,9 +14,16 @@ from importer_core_podman import EXPECTED, runtime_contract
 from verify_podman_acceptance import CASES, PARSE_ERRORS
 
 ROOT = Path(__file__).resolve().parents[2]
-spec = importlib.util.spec_from_file_location('podman_fixture', ROOT / 'plugins/podman-lifecycle/accept.py')
+FIXTURE_VERSION = '0.1.0'
+FIXTURE_SHA256 = '902b64dba081bf85032a7d58d947cffe06f0444c6107c20e1a4a1584d6dff981'
+FIXTURE_PATH = ROOT / 'plugins/podman-lifecycle/tests_historical/accept_0_1.py'
+if hashlib.sha256(FIXTURE_PATH.read_bytes()).hexdigest() != FIXTURE_SHA256:
+    raise ValueError('historical Podman 0.1 acceptance fixture digest mismatch')
+spec = importlib.util.spec_from_file_location('podman_fixture_0_1', FIXTURE_PATH)
 fixture = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(fixture)
+if fixture.PREFIX != 'gateprobes-podman-lifecycle-0.1.0-linux-amd64':
+    raise ValueError('historical Podman 0.1 acceptance fixture identity mismatch')
 digest, canonical = fixture.digest, fixture.canonical
 
 

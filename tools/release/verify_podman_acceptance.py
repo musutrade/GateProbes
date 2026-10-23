@@ -21,7 +21,7 @@ def verify(report, archive):
     value = json.loads(report.read_text())
     if (value.get('schema'), value.get('product'), value.get('version'), value.get('core_version'),
         value.get('core_sha256'), value.get('archive_sha256'), value.get('passed')) != (
-            'gateprobes-podman-lifecycle-acceptance/v1', 'podman-lifecycle', '0.1.0', '0.11.0',
+            'gateprobes-podman-lifecycle-acceptance/v1', 'podman-lifecycle', '0.2.0', '0.12.0',
             EXPECTED['sha256'], hashlib.sha256(archive.read_bytes()).hexdigest(), len(CASES)):
         raise ValueError('Podman acceptance identity mismatch')
     rows = value.get('cases', [])

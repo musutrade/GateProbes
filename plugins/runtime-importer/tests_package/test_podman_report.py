@@ -23,6 +23,18 @@ def report():
 
 
 class PodmanReport(unittest.TestCase):
+    def test_historical_0_1_fixture_is_pinned_and_exact(self):
+        import hashlib
+        import inspect
+        self.assertEqual(acceptance.FIXTURE_VERSION, '0.1.0')
+        self.assertEqual(
+            hashlib.sha256(acceptance.FIXTURE_PATH.read_bytes()).hexdigest(),
+            acceptance.FIXTURE_SHA256,
+        )
+        self.assertEqual(acceptance.fixture.PREFIX, 'gateprobes-podman-lifecycle-0.1.0-linux-amd64')
+        self.assertEqual(acceptance.fixture.CORE_SHA, '912a65b17353226becf955de8e74a9c4b7389bf5b273c9a935c6fd68797b18f2')
+        self.assertIn("'version': '0.1.0'", inspect.getsource(acceptance.fixture.run_case))
+
     def test_identity_bound_to_both_assets_and_core(self):
         value = report()
         acceptance.verify_report(value, b'archive', b'sbom')

@@ -309,8 +309,18 @@ class UnixHttpTest(unittest.TestCase):
         self.assertEqual(http.get(cfg, '/version', timeout=1).body, b'ok')
         endpoint.join()
         socket_path = endpoint.path
-        endpoint.close()
-        replacement = self.endpoint(sock=socket_path)
+        original = socket_path.stat()
+        # Keep the original inode alive while creating its replacement.
+        replacement = self.endpoint()
+        distinct = replacement.path.stat()
+        self.assertNotEqual((original.st_dev, original.st_ino),
+                            (distinct.st_dev, distinct.st_ino))
+        self.assertEqual(original.st_mode, distinct.st_mode)
+        os.replace(replacement.path, socket_path)
+        replacement.path = socket_path
+        installed = socket_path.stat()
+        self.assertEqual((installed.st_dev, installed.st_ino),
+                         (distinct.st_dev, distinct.st_ino))
         with self.assertRaises(config.InvalidConfig):
             cfg.revalidate()
         self.assert_transport_error(lambda: http.get(cfg, '/version', timeout=0.2))
