@@ -21,9 +21,9 @@ lifetime, daemon restart continuity or hostile same-UID isolation. No startup or
 socket activation assumptions are proven beyond the fake Unix listener tests.
 
 The protocol dependency must temporarily be patched to the exact accompanying
-Core source: published protocol0.3 lacks lifecycle_v2. No absolute patch is stored
+Core source: published protocol0.3 lacks lifecycle_v2; required protocol0.4 is not yet published. No absolute patch is stored
 in the manifest; this crate cannot be released or built standalone from published
-protocol0.3. Use the frozen handoff's exact source/patch command for local review.
+protocol0.4 until it is published. Use the frozen handoff's exact source/patch command for local review.
 A future versioned protocol release, adapter entrypoint/install descriptor,
 durable context+image+plan reservation, mutation/lease integration and real Podman
 validation are required. HTTP code derives from the existing Docker lifecycle
