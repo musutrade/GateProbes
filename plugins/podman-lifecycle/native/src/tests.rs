@@ -22,6 +22,9 @@ struct Fixture {
 }
 impl Fixture {
     fn new() -> Self {
+        Self::new_api("6.1.4")
+    }
+    fn new_api(api: &str) -> Self {
         let dir = tempfile::tempdir_in(std::env::var_os("HOME").unwrap()).unwrap();
         fs::set_permissions(dir.path(), fs::Permissions::from_mode(0o700)).unwrap();
         let path = dir.path().join("p.sock");
@@ -29,7 +32,7 @@ impl Fixture {
         fs::set_permissions(&path, fs::Permissions::from_mode(0o600)).unwrap();
         let m = fs::metadata(&path).unwrap();
         let uid = unsafe { libc::geteuid() };
-        let cfg = json!({"operator_epoch":"a".repeat(32),"principal_uid":uid,"observation":{"engine":"podman","api_surface":"libpod","selected_api":"6.1.4","server_version":"6.1.4","hostname":"fixture","rootless":uid!=0,"graph_root":"/var/lib/containers/storage","run_root":"/run/containers/storage","remote_socket":null,"socket":{"path":path,"device":m.dev(),"inode":m.ino(),"uid":m.uid(),"mode":m.mode()}}});
+        let cfg = json!({"operator_epoch":"a".repeat(32),"principal_uid":uid,"observation":{"engine":"podman","api_surface":"libpod","selected_api":api,"server_version":api,"hostname":"fixture","rootless":uid!=0,"graph_root":"/var/lib/containers/storage","run_root":"/run/containers/storage","remote_socket":null,"socket":{"path":path,"device":m.dev(),"inode":m.ino(),"uid":m.uid(),"mode":m.mode()}}});
         let config = dir.path().join("context.json");
         fs::write(&config, serde_json::to_vec(&cfg).unwrap()).unwrap();
         fs::set_permissions(&config, fs::Permissions::from_mode(0o600)).unwrap();
@@ -63,9 +66,17 @@ fn reply(body: &[u8]) -> Vec<u8> {
 }
 #[test]
 fn route_api_is_bound_to_protected_context_without_fallback() {
-    let f = Fixture::new();
-    let deadline = Instant::now() + Duration::from_secs(2);
-    assert!(get(&f.context, "/v5.7.0/libpod/info", deadline, &|| false).is_err());
+    for (api, wrong) in [
+        ("6.1.4", "/v5.7.0/libpod/info"),
+        ("5.7.0", "/v6.1.4/libpod/info"),
+    ] {
+        let f = Fixture::new_api(api);
+        let deadline = Instant::now() + Duration::from_secs(2);
+        assert!(
+            get(&f.context, wrong, deadline, &|| false).is_err(),
+            "{api}"
+        );
+    }
 }
 
 #[test]

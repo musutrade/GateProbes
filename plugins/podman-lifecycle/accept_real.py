@@ -182,11 +182,16 @@ def main():
     image = json.loads(image_bytes)
     if image.get('Id') != IMAGE_ID:
         raise SystemExit('pinned image ID mismatch')
+    core = args.core.resolve(strict=True)
+    core_sha = digest(core.read_bytes())
+    core_version = subprocess.run([str(core), '--version'], capture_output=True, timeout=15, check=True)
+    if core_version.stderr or not core_version.stdout.strip():
+        raise SystemExit('Core version unavailable')
     temp = tempfile.mkdtemp(prefix='podman57-real-', dir=Path.home())
     root = Path(temp)
     root.chmod(0o700)
     try:
-        subprocess.run([str(args.core.resolve(strict=True)), '--project-root', str(root),
+        subprocess.run([str(core), '--project-root', str(root),
                         'init', '--preset', 'generic'], cwd='/', env={}, check=True,
                        capture_output=True, timeout=15)
         executable, installation_path, installation = install(root, args.binary)
@@ -198,7 +203,7 @@ def main():
                 'config_sha256': digest(context_path.read_bytes())}
         host_path = root / '.harness-gate/runtime/podman-capture-v1/host.json'
         write(host_path, host)
-        argv = [str(args.core.resolve(strict=True)), '--project-root', str(root),
+        argv = [str(core), '--project-root', str(root),
                 'podman-capture', '--trust-host', '--image-id', IMAGE_ID,
                 '--name', 'fixture', '--label', 'owner=fixture', '--timeout-ms', '30000']
         started = time.monotonic()
@@ -227,7 +232,7 @@ def main():
             'image_id': IMAGE_ID, 'rootless': True,
             'socket': {'path': str(socket_path), 'device': st.st_dev,
                        'inode': st.st_ino, 'uid': st.st_uid, 'mode': st.st_mode},
-            'core': str(args.core.resolve()), 'core_version': 'harness-gate 0.12.0',
+            'core': str(args.core.resolve()), 'core_version': core_version.stdout.decode().strip(), 'core_sha256': core_sha,
             'binary_sha256': digest(executable.read_bytes()),
             'installation_sha256': digest(installation_path.read_bytes()),
             'context_sha256': digest(context_path.read_bytes()),
@@ -235,7 +240,23 @@ def main():
             'record_sha256': digest(result.stdout),
             'elapsed_ms': round(elapsed * 1000),
             'cases': {'real_info': True, 'pinned_image': True, 'capture': True,
-                      'no_container_mutation': True},
+                      'image_container_counts_unchanged': True},
+            'no_mutation_basis': 'The entrypoint performs only read-only GET info/image requests and Core podman-capture; unchanged image/container counts are corroborating evidence, not a proof of no mutation.',
+            'record_sanitized': {'profile': record['profile'], 'image_id': record['image_id'],
+                                 'image_sha256': record['image_sha256'], 'plan_sha256': record['plan_sha256'],
+                                 'plan_json': record['plan_json'],
+                                 'asserted_installation_sha256': record['asserted_installation_sha256'],
+                                 'asserted_executable_sha256': record['asserted_executable_sha256'],
+                                 'config_sha256': record['config_sha256'],
+                                 'operator_epoch': context_value['context']['operator_epoch']},
+            'context_sanitized': {'schema': context_value['schema'], 'principal_uid': os.geteuid(),
+                                  'selected_api': API, 'server_version': info['version']['Version'],
+                                  'rootless': info['host']['security']['rootless'],
+                                  'hostname': info['host']['hostname'],
+                                  'graph_root': info['store']['graphRoot'], 'run_root': info['store']['runRoot'],
+                                  'remote_socket_path': normalize_socket_path(info['host']['remoteSocket']['path']),
+                                  'socket': {'path': str(socket_path), 'device': st.st_dev,
+                                             'inode': st.st_ino, 'uid': st.st_uid, 'mode': st.st_mode}},
             'image_count': before_counts[0], 'container_count': before_counts[1],
             'limits': 'real rootless Unix socket; read-only GET/capture only; no pull/run/restart'
         }
