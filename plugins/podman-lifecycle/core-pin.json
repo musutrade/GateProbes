@@ -1,0 +1,9 @@
+{
+  "schema": "gateprobes-podman-lifecycle-core/v1",
+  "repository": "musutrade/GateHouse",
+  "release": "v0.11.0",
+  "version": "0.11.0",
+  "source_commit": "ddd950af6cfb703bee17d6f942165837b15f0deb",
+  "binary": "harness-gate-linux-amd64",
+  "sha256": "912a65b17353226becf955de8e74a9c4b7389bf5b273c9a935c6fd68797b18f2"
+}

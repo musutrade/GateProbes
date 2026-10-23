@@ -1,0 +1,24 @@
+{
+  "schema": "gateprobes-runtime-adapter/v1",
+  "name": "podman-lifecycle",
+  "version": "0.1.0",
+  "executable": "gateprobes-podman-lifecycle",
+  "protocol": "gate-runtime/lifecycle-v2",
+  "authority": "read-only-runtime-facts",
+  "platforms": [
+    "linux-x86_64"
+  ],
+  "core_versions": [
+    "0.11.0"
+  ],
+  "status": "release-candidate",
+  "capabilities": [
+    "capture"
+  ],
+  "limitations": [
+    "fake Unix socket acceptance only; real Podman compatibility unproven",
+    "capture-v1 requests only; no create, start, stop, remove, exec or lease authority",
+    "explicit operator trust-host selection; saved evidence is not authority or freshness proof",
+    "no daemon authentication, restart detection, rootless validation or OS containment"
+  ]
+}

@@ -1,0 +1,18 @@
+[package]
+name = "gateprobes-podman-lifecycle"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.88"
+publish = false
+license = "MIT"
+
+[dependencies]
+gatehouse-runtime-protocol = "=0.4.1"
+libc = "0.2"
+
+[dev-dependencies]
+serde_json = "1"
+tempfile = "3"
+
+[lints.clippy]
+cognitive_complexity = "warn"
