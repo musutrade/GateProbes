@@ -15,7 +15,7 @@ list. This module does not verify signatures or confer authority on a pin.
 
 Validation binds all four asset hashes, the exact checksum subjects, inventory
 source/tag/member sizes, binary identity and SBOM file hashes. Runtime/readiness
-profiles require exactly nine flat members; lifecycle requires exactly thirteen.
+profiles require exactly nine flat members; Docker lifecycle requires exactly thirteen; Podman capture requires twelve.
 All profiles enforce their exact member sets and modes,
 without links, aliases, duplicate members or extensions. Compressed input is
 limited to 16 MiB, decompressed tar to 32 MiB, and JSON documents to 1 MiB. Content
@@ -96,3 +96,12 @@ It does not generate a config or host: operators must supply explicit protected
 `gate-runtime/lifecycle-config-v1` engine binding and `gate-runtime/lifecycle-host-v1`
 references with exact digests. Core 0.10 consumes these through a service-bound
 `verify` invocation. Runtime/readiness descriptors retain their historical formats.
+
+### Podman capture profile (importer 0.4)
+
+The externally trusted tag `podman-lifecycle-v0.1.0` selects a separate twelve-member
+archive, `gate-runtime/lifecycle-v2`, Core 0.11.0 and capture-only authority.
+It creates `gate-runtime/podman-installation-v1` metadata in protocol field order,
+mode 0400, with an executable at mode 0500. The installation has no host or context.
+The operator supplies those separately; the installer neither executes binaries
+nor contacts a daemon. Docker profiles retain their historical formats and pins.

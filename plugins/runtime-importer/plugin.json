@@ -1,14 +1,14 @@
 {
   "schema": "gateprobes-runtime-importer-distribution/v1",
   "name": "runtime-importer",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "authority": "offline-installation-only",
   "core_versions": [
-    "0.10.0"
+    "0.11.0"
   ],
   "tested_platforms": [
     "linux-x86_64"
   ],
   "entrypoint": "tools/runtime_import/install.py",
-  "runtime_tag": "docker-lifecycle-v0.1.0"
+  "runtime_tag": "podman-lifecycle-v0.1.0"
 }

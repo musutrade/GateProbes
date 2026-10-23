@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[3]
 class ImporterLifecycleGate(unittest.TestCase):
     def test_required_job_cannot_pass_when_missing_skipped_or_failed(self):
         workflow = (ROOT / '.github/workflows/ci.yml').read_text()
-        self.assertIn('runtime-importer, runtime-import-v3, runtime-import-lifecycle, plugins', workflow)
+        self.assertIn('runtime-importer, runtime-import-v3, runtime-import-lifecycle, runtime-import-podman, plugins', workflow)
         gate = workflow.split('      - name: Require lifecycle importer acceptance\n', 1)[1]
         self.assertIn('RESULT: ${{ needs.runtime-import-lifecycle.result }}', gate)
         script = textwrap.dedent(gate.split("<<'PYLIFECYCLE'\n", 1)[1].split('          PYLIFECYCLE', 1)[0])
@@ -26,10 +26,10 @@ class ImporterLifecycleGate(unittest.TestCase):
         ci = (ROOT / '.github/workflows/ci.yml').read_text()
         job = ci.split('  runtime-import-lifecycle:\n',1)[1].split('  runtime-import-joint:',1)[0]
         self.assertIn('importer_core_lifecycle.py', job)
-        self.assertIn('--plugin runtime-importer', job)
+        self.assertIn('importer_lifecycle_fixture.create', job)
         self.assertIn('importer-lifecycle-dist',job)
         self.assertIn('legacy_fixture.create',ci)
         release = (ROOT / '.github/workflows/collector-release.yml').read_text()
-        self.assertIn('importer_core_lifecycle.py --output', release)
+        self.assertIn('importer_core_podman.py --output', release)
         self.assertNotIn('importer_core.py --output', release)
         self.assertIn('HARNESS_GATE_IMPORTER_ACCEPTANCE:', release)
