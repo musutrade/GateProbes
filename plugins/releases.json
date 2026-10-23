@@ -103,6 +103,13 @@
       "manifests": [
         "plugin.json"
       ]
+    },
+    "podman-lifecycle": {
+      "tag_prefix": "podman-lifecycle-v",
+      "archive": "gateprobes-podman-lifecycle-{version}-linux-amd64.tar.gz",
+      "manifests": [
+        "plugin.json"
+      ]
     }
   }
 }

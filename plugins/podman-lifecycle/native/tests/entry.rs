@@ -65,7 +65,35 @@ fn run(case: u8) {
         config_path.to_str().unwrap().into(),
     )
     .unwrap();
-    let eb = expected.encode(&request).unwrap();
+    let expected_file = expected_file(&expected.encode(&request).unwrap(), case);
+    let config = File::open(&config_path).unwrap();
+    let cfd = unsafe { libc::fcntl(config.as_raw_fd(), libc::F_DUPFD_CLOEXEC, 10) };
+    let efd = unsafe { libc::fcntl(expected_file.as_raw_fd(), libc::F_DUPFD_CLOEXEC, 10) };
+    assert!(cfd >= 10 && efd >= 10);
+    let child_config = unsafe { File::from_raw_fd(cfd) };
+    let child_expected = unsafe { File::from_raw_fd(efd) };
+    let mut child = spawn_child(case, cfd, efd);
+    drop(child_config);
+    drop(child_expected);
+    let signal = if case.is_multiple_of(2) {
+        libc::SIGTERM
+    } else {
+        libc::SIGINT
+    };
+    prepare_input(&mut child, &request, case);
+    let (connections, signalled) = supervise(&listener, &mut child, case, uid, signal);
+    let output = child.wait_with_output().unwrap();
+    assert!(output.stderr.is_empty());
+    verify_output(
+        case,
+        output,
+        connections,
+        signalled,
+        (&request, &expected, &held),
+        dir.path(),
+    );
+}
+fn expected_file(eb: &[u8], case: u8) -> File {
     let fd = unsafe {
         libc::memfd_create(
             c"expected".as_ptr(),
@@ -75,7 +103,7 @@ fn run(case: u8) {
     assert!(fd >= 0);
     let mut expected_file = unsafe { File::from_raw_fd(fd) };
     assert_eq!(unsafe { libc::fchmod(fd, 0o600) }, 0);
-    expected_file.write_all(&eb).unwrap();
+    expected_file.write_all(eb).unwrap();
     if case != 1 {
         assert_eq!(
             unsafe {
@@ -91,43 +119,14 @@ fn run(case: u8) {
             0
         );
     }
-    let config = File::open(&config_path).unwrap();
-    let cfd = unsafe { libc::fcntl(config.as_raw_fd(), libc::F_DUPFD_CLOEXEC, 10) };
-    let efd = unsafe { libc::fcntl(expected_file.as_raw_fd(), libc::F_DUPFD_CLOEXEC, 10) };
-    assert!(cfd >= 10 && efd >= 10);
-    let child_config = unsafe { File::from_raw_fd(cfd) };
-    let child_expected = unsafe { File::from_raw_fd(efd) };
-    let mut cmd = Command::new(env!("CARGO_BIN_EXE_gateprobes-podman-lifecycle"));
-    cmd.env_clear()
-        .current_dir("/")
-        .stdin(Stdio::piped())
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped());
-    unsafe {
-        cmd.pre_exec(move || {
-            if libc::dup2(cfd, 3) < 0 || libc::dup2(efd, 4) < 0 {
-                return Err(std::io::Error::last_os_error());
-            }
-            if case == 2 {
-                libc::close(4);
-            }
-            Ok(())
-        });
-    }
-    let mut child = cmd.spawn().unwrap();
-    drop(child_config);
-    drop(child_expected);
+    expected_file
+}
+
+fn prepare_input(child: &mut std::process::Child, request: &CaptureRequest, case: u8) {
     let mut raw = request.encode().unwrap();
     if case == 3 {
         raw[0] = b'!';
     }
-    let mut signalled = false;
-    let signal = if case.is_multiple_of(2) {
-        libc::SIGTERM
-    } else {
-        libc::SIGINT
-    };
-    let mut retained_streams = Vec::new();
     if case >= 8 {
         assert!(
             unsafe {
@@ -145,30 +144,108 @@ fn run(case: u8) {
     if !matches!(case, 2 | 4 | 5) {
         child.stdin.take().unwrap().write_all(&raw).unwrap();
     }
+}
+
+fn spawn_child(case: u8, cfd: i32, efd: i32) -> std::process::Child {
+    let mut cmd = Command::new(env!("CARGO_BIN_EXE_gateprobes-podman-lifecycle"));
+    cmd.env_clear()
+        .current_dir("/")
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped());
+    unsafe {
+        cmd.pre_exec(move || {
+            if libc::dup2(cfd, 3) < 0 || libc::dup2(efd, 4) < 0 {
+                return Err(std::io::Error::last_os_error());
+            }
+            if case == 2 {
+                libc::close(4);
+            }
+            Ok(())
+        });
+    }
+    cmd.spawn().unwrap()
+}
+
+fn read_request(stream: &mut std::os::unix::net::UnixStream, connections: usize) {
+    stream
+        .set_read_timeout(Some(Duration::from_secs(1)))
+        .unwrap();
+    let mut header = vec![];
+    while !header.ends_with(b"\r\n\r\n") {
+        let mut b = [0];
+        stream.read_exact(&mut b).unwrap();
+        header.push(b[0]);
+        assert!(header.len() < 16384);
+    }
+    let route = if connections == 2 {
+        format!("/v6.1.4/libpod/images/{}/json", "b".repeat(64))
+    } else {
+        "/v6.1.4/libpod/info".into()
+    };
+    assert!(String::from_utf8(header)
+        .unwrap()
+        .starts_with(&format!("GET {route} HTTP/1.1\r\n")));
+}
+fn respond(stream: &mut std::os::unix::net::UnixStream, connections: usize, case: u8, uid: u32) {
+    let body=if connections==2 {
+                    if case>=8 {
+                        let labels:std::collections::BTreeMap<String,String>=(0..16).map(|i|(format!("label{i}"),"x".repeat(1024))).collect();
+                        json!({"Id":"b".repeat(64),"Labels":labels,"Config":{"Labels":labels}})
+                    } else { json!({"Id":"b".repeat(64),"Config":{}}) }
+                } else {json!({"host":{"hostname":"fixture","security":{"rootless":uid!=0}},"store":{"graphRoot":"/var/lib/containers/storage","runRoot":"/run/containers/storage"},"version":{"APIVersion":"6.1.4","Version":"6.1.4"}})}.to_string();
+    write!(
+        stream,
+        "HTTP/1.1 200 OK\r\nContent-Length: {}\r\n\r\n{}",
+        body.len(),
+        body
+    )
+    .unwrap();
+}
+fn signal_stdin(child: &mut std::process::Child, signal: i32) -> bool {
+    let fdinfo = fs::read_to_string(format!("/proc/{}/fdinfo/0", child.id())).unwrap();
+    let flags = fdinfo
+        .lines()
+        .find_map(|line| line.strip_prefix("flags:\t"))
+        .map(|v| u32::from_str_radix(v, 8).unwrap())
+        .unwrap();
+    if flags & libc::O_NONBLOCK as u32 != 0 {
+        assert_eq!(unsafe { libc::kill(child.id() as i32, signal) }, 0);
+        return true;
+    }
+    false
+}
+fn signal_output(child: &mut std::process::Child, signal: i32) -> bool {
+    let fd = child.stdout.as_ref().unwrap().as_raw_fd();
+    let capacity = unsafe { libc::fcntl(fd, libc::F_GETPIPE_SZ) };
+    let mut available = 0;
+    assert_eq!(
+        unsafe { libc::ioctl(fd, libc::FIONREAD, &mut available) },
+        0
+    );
+    if available >= capacity {
+        assert!(child.try_wait().unwrap().is_none());
+        assert_eq!(unsafe { libc::kill(child.id() as i32, signal) }, 0);
+        return true;
+    }
+    false
+}
+fn supervise(
+    listener: &UnixListener,
+    child: &mut std::process::Child,
+    case: u8,
+    uid: u32,
+    signal: i32,
+) -> (usize, bool) {
     let mut connections = 0;
+    let mut signalled = false;
+    let mut retained_streams = Vec::new();
     let limit = Instant::now() + Duration::from_secs(4);
     loop {
         match listener.accept() {
             Ok((mut stream, _)) => {
                 connections += 1;
-                stream
-                    .set_read_timeout(Some(Duration::from_secs(1)))
-                    .unwrap();
-                let mut header = vec![];
-                while !header.ends_with(b"\r\n\r\n") {
-                    let mut b = [0];
-                    stream.read_exact(&mut b).unwrap();
-                    header.push(b[0]);
-                    assert!(header.len() < 16384);
-                }
-                let route = if connections == 2 {
-                    format!("/v6.1.4/libpod/images/{}/json", "b".repeat(64))
-                } else {
-                    "/v6.1.4/libpod/info".into()
-                };
-                assert!(String::from_utf8(header)
-                    .unwrap()
-                    .starts_with(&format!("GET {route} HTTP/1.1\r\n")));
+                read_request(&mut stream, connections);
                 if (6..=7).contains(&case) {
                     assert_eq!(connections, 1);
                     assert_eq!(unsafe { libc::kill(child.id() as i32, signal) }, 0);
@@ -177,48 +254,16 @@ fn run(case: u8) {
                     retained_streams.push(stream);
                     continue;
                 }
-                let body=if connections==2 {
-                    if case>=8 {
-                        let labels:std::collections::BTreeMap<String,String>=(0..16).map(|i|(format!("label{i}"),"x".repeat(1024))).collect();
-                        json!({"Id":"b".repeat(64),"Labels":labels,"Config":{"Labels":labels}})
-                    } else { json!({"Id":"b".repeat(64),"Config":{}}) }
-                } else {json!({"host":{"hostname":"fixture","security":{"rootless":uid!=0}},"store":{"graphRoot":"/var/lib/containers/storage","runRoot":"/run/containers/storage"},"version":{"APIVersion":"6.1.4","Version":"6.1.4"}})}.to_string();
-                write!(
-                    stream,
-                    "HTTP/1.1 200 OK\r\nContent-Length: {}\r\n\r\n{}",
-                    body.len(),
-                    body
-                )
-                .unwrap();
+                respond(&mut stream, connections, case, uid);
             }
             Err(e) if e.kind() == std::io::ErrorKind::WouldBlock => {}
             Err(e) => panic!("{e}"),
         }
         if !signalled && (4..=5).contains(&case) {
-            let fdinfo = fs::read_to_string(format!("/proc/{}/fdinfo/0", child.id())).unwrap();
-            let flags = fdinfo
-                .lines()
-                .find_map(|line| line.strip_prefix("flags:\t"))
-                .map(|v| u32::from_str_radix(v, 8).unwrap())
-                .unwrap();
-            if flags & libc::O_NONBLOCK as u32 != 0 {
-                assert_eq!(unsafe { libc::kill(child.id() as i32, signal) }, 0);
-                signalled = true;
-            }
+            signalled = signal_stdin(child, signal);
         }
         if !signalled && (8..=9).contains(&case) && connections == 3 {
-            let fd = child.stdout.as_ref().unwrap().as_raw_fd();
-            let capacity = unsafe { libc::fcntl(fd, libc::F_GETPIPE_SZ) };
-            let mut available = 0;
-            assert_eq!(
-                unsafe { libc::ioctl(fd, libc::FIONREAD, &mut available) },
-                0
-            );
-            if available >= capacity {
-                assert!(child.try_wait().unwrap().is_none());
-                assert_eq!(unsafe { libc::kill(child.id() as i32, signal) }, 0);
-                signalled = true;
-            }
+            signalled = signal_output(child, signal);
         }
         if child.try_wait().unwrap().is_some() {
             break;
@@ -230,43 +275,76 @@ fn run(case: u8) {
         }
         std::thread::sleep(Duration::from_millis(2));
     }
-    let output = child.wait_with_output().unwrap();
-    assert!(output.stderr.is_empty());
+    (connections, signalled)
+}
+type Binding<'a> = (
+    &'a CaptureRequest,
+    &'a CaptureExpected,
+    &'a ProtectedContext,
+);
+fn verify_output(
+    case: u8,
+    output: std::process::Output,
+    connections: usize,
+    signalled: bool,
+    binding: Binding<'_>,
+    dir: &std::path::Path,
+) {
+    let (request, expected, held) = binding;
     if case == 0 {
         assert!(output.status.success());
         assert_eq!(connections, 3);
-        let record = decode_response(&output.stdout, &request, &expected, &held).unwrap();
-        let evidence = dir.path().join("record");
-        record.create_new(&evidence, &held).unwrap();
+        let record = decode_response(&output.stdout, request, expected, held).unwrap();
+        let evidence = dir.join("record");
+        record.create_new(&evidence, held).unwrap();
         assert!(!record.installation_verified());
     } else if case < 4 {
         assert_eq!(output.status.code(), Some(1));
         assert!(output.stdout.is_empty());
         assert_eq!(connections, 0);
     } else {
-        assert_eq!(output.status.code(), Some(1)); // handler exits; not signal death
-        if case < 10 {
-            assert!(signalled);
-        }
-        assert_eq!(
+        assert_signal_result(
+            case,
+            &output,
             connections,
-            if case < 6 {
-                0
-            } else if case < 8 {
-                1
-            } else {
-                3
-            }
+            signalled,
+            (request, expected, held),
         );
-        if case < 8 {
-            assert!(output.stdout.is_empty());
-        } else {
-            assert!(!output.stdout.is_empty());
-            assert!(output.stdout.len() <= 4096);
-            assert!(decode_response(&output.stdout, &request, &expected, &held).is_err());
-        }
     }
 }
+fn assert_signal_result(
+    case: u8,
+    output: &std::process::Output,
+    connections: usize,
+    signalled: bool,
+    binding: Binding<'_>,
+) {
+    assert_eq!(output.status.code(), Some(1)); // handler exits; not signal death
+    if case < 10 {
+        assert!(signalled);
+    }
+    assert_eq!(
+        connections,
+        match case {
+            4..=5 => 0,
+            6..=7 => 1,
+            _ => 3,
+        }
+    );
+    assert_signal_stdout(case, output, binding);
+}
+
+fn assert_signal_stdout(case: u8, output: &std::process::Output, binding: Binding<'_>) {
+    let (request, expected, held) = binding;
+    if case < 8 {
+        assert!(output.stdout.is_empty());
+    } else {
+        assert!(!output.stdout.is_empty());
+        assert!(output.stdout.len() <= 4096);
+        assert!(decode_response(&output.stdout, request, expected, held).is_err());
+    }
+}
+
 #[test]
 fn native_fd_capture_positive() {
     run(0);

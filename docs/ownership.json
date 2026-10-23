@@ -189,6 +189,15 @@
       "contract_test": "plugins/docker-lifecycle/accept.py",
       "core_pin": "plugins/docker-lifecycle/core-pin.json",
       "status": "unpublished-candidate"
+    },
+    "podman-lifecycle": {
+      "paths": [
+        "plugins/podman-lifecycle"
+      ],
+      "authority": "read-only-runtime-facts; explicit operator trust-host; no mutation or lease",
+      "contract_test": "plugins/podman-lifecycle/accept.py",
+      "core_pin": "plugins/podman-lifecycle/core-pin.json",
+      "status": "unpublished-candidate"
     }
   },
   "inputs": [

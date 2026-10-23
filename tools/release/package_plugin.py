@@ -395,6 +395,18 @@ def main() -> None:
     args = parser.parse_args()
     row = plugin_release.resolve(args.plugin)
     core = args.core_root.resolve()
+    if args.plugin == "podman-lifecycle":
+        import podman_core
+        import package_podman
+        podman_core.verify(core)
+        package_podman.validate(ROOT)
+        output = args.output.resolve()
+        output.mkdir(parents=True, exist_ok=False)
+        package_podman.package(ROOT, output, core)
+        expected = {row["archive"], row["archive"] + ".sbom.cdx.json"}
+        if {path.name for path in output.iterdir()} != expected:
+            raise RuntimeError("Podman packaged assets differ")
+        return
     if args.plugin == "docker-lifecycle":
         lifecycle_core.verify(core)
         package_lifecycle.validate(ROOT)
