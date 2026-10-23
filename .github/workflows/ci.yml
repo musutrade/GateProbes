@@ -68,7 +68,7 @@ jobs:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
       - name: Check links, declarations and forbidden artifacts
         run: python3 tools/ci/check_docs.py
-      - name: Offline runtime import (25 offline tests; joint acceptance runs separately)
+      - name: Offline runtime import (31 offline tests; joint acceptance runs separately)
         run: |
           python3 -B - <<'PYIMPORT'
           import unittest
@@ -84,11 +84,11 @@ jobs:
                         'test_published_assets_smoke_if_supplied'}
           excluded = [test for test in tests if test._testMethodName in separate]
           required = [test for test in tests if test._testMethodName not in separate]
-          if len(tests) != 27 or len(required) != 25 or {test._testMethodName for test in excluded} != separate or len(excluded) != 2:
+          if len(tests) != 33 or len(required) != 31 or {test._testMethodName for test in excluded} != separate or len(excluded) != 2:
               raise SystemExit('runtime import test inventory changed')
           print('Separate required job: joint installed acceptance; local-only: published-assets smoke')
           result = unittest.TextTestRunner(verbosity=2).run(unittest.TestSuite(required))
-          if result.testsRun != 25 or result.skipped or result.expectedFailures or not result.wasSuccessful():
+          if result.testsRun != 31 or result.skipped or result.expectedFailures or not result.wasSuccessful():
               raise SystemExit('required runtime import tests failed or skipped')
           PYIMPORT
 
@@ -102,7 +102,7 @@ jobs:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
       - name: Fetch independently pinned released inputs
         run: python3 tools/release/importer_core.py --output "$RUNNER_TEMP/importer-core"
-      - name: Distribution tests (45, no skips)
+      - name: Distribution tests (54, no skips)
         env:
           GATEHOUSE_CORE: ${{ runner.temp }}/importer-core/bin/harness-gate-linux-amd64
           RUNTIME_IMPORT_ASSETS: ${{ runner.temp }}/importer-core/runtime-assets
@@ -110,9 +110,9 @@ jobs:
           python3 - <<'PYIMPORTER'
           import unittest
           suite = unittest.defaultTestLoader.discover('plugins/runtime-importer/tests_package')
-          assert suite.countTestCases() == 45
+          assert suite.countTestCases() == 54
           result = unittest.TextTestRunner(verbosity=2).run(suite)
-          assert result.testsRun == 45 and not result.skipped and not result.expectedFailures and result.wasSuccessful()
+          assert result.testsRun == 54 and not result.skipped and not result.expectedFailures and result.wasSuccessful()
           PYIMPORTER
       - name: Package and accept extracted importer
         run: |
@@ -196,7 +196,25 @@ jobs:
           set -euo pipefail
           mkdir -p "$HOME/.cache"
           chmod 700 "$HOME" "$HOME/.cache"
-          python3 tools/release/package_plugin.py --plugin runtime-importer --core-root "$RUNNER_TEMP/importer-lifecycle-core" --output "$RUNNER_TEMP/importer-lifecycle-dist"
+          python3 - <<'PYLIFECYCLEFIXTURE'
+          import os, sys, tempfile
+          from pathlib import Path
+          sys.path.insert(0, 'tools/release')
+          import importer_lifecycle_fixture, package_importer
+          with tempfile.TemporaryDirectory() as temp:
+              root = importer_lifecycle_fixture.create(Path.cwd(), Path(temp) / 'fixture')
+              output = Path(os.environ['RUNNER_TEMP']) / 'importer-lifecycle-dist'
+              output.mkdir()
+              core = Path(os.environ['RUNNER_TEMP']) / 'importer-lifecycle-core'
+              # Harness stays in trusted checkout; extracted bytes come from historical fixture.
+              archive = package_importer.build(root, output)
+              import subprocess, hashlib
+              sbom = Path(str(archive) + '.sbom.cdx.json')
+              subprocess.run(['python3', 'tools/release/accept_importer_lifecycle.py', '--archive', str(archive), '--sbom', str(sbom),
+                  '--archive-sha256', hashlib.sha256(archive.read_bytes()).hexdigest(), '--sbom-sha256', hashlib.sha256(sbom.read_bytes()).hexdigest(),
+                  '--core', str(core / 'bin/harness-gate-linux-amd64'), '--assets', str(core / 'runtime-assets'),
+                  '--report', str(output / 'acceptance.json')], check=True)
+          PYLIFECYCLEFIXTURE
       - name: Retain importer lifecycle contract package and acceptance
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -206,6 +224,35 @@ jobs:
             ${{ runner.temp }}/importer-lifecycle-core/contract.json
             ${{ runner.temp }}/importer-lifecycle-dist
             ${{ runner.temp }}/importer-lifecycle-evidence
+          if-no-files-found: error
+
+  runtime-import-podman:
+    name: Podman importer capture acceptance
+    needs: classify
+    if: needs.classify.outputs.run_light == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - name: Fetch pinned Core0.11 and released Podman0.1
+        run: python3 tools/release/importer_core_podman.py --output "$RUNNER_TEMP/importer-podman-core"
+      - name: Package and externally verify candidate importer before installed Podman
+        env:
+          HARNESS_GATE_IMPORTER_ACCEPTANCE: ${{ runner.temp }}/importer-podman-evidence
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.cache"
+          chmod 700 "$HOME" "$HOME/.cache"
+          python3 tools/release/package_plugin.py --plugin runtime-importer --core-root "$RUNNER_TEMP/importer-podman-core" --output "$RUNNER_TEMP/importer-podman-dist"
+      - name: Retain importer Podman contract package and acceptance
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: importer-podman-acceptance
+          path: |
+            ${{ runner.temp }}/importer-podman-core/contract.json
+            ${{ runner.temp }}/importer-podman-dist
+            ${{ runner.temp }}/importer-podman-evidence
           if-no-files-found: error
 
   runtime-import-joint:
@@ -841,7 +888,7 @@ jobs:
   required_aggregate:
     name: Required Quality Aggregate
     if: ${{ always() }}
-    needs: [ classify, lightweight, runtime-wire, runtime-repro, runtime-import-joint, runtime-importer, runtime-import-v3, runtime-import-lifecycle, plugins, presets, compatibility ]
+    needs: [ classify, lightweight, runtime-wire, runtime-repro, runtime-import-joint, runtime-importer, runtime-import-v3, runtime-import-lifecycle, runtime-import-podman, plugins, presets, compatibility ]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -912,6 +959,17 @@ jobs:
           if selected not in ('true', 'false') or (selected == 'true' and result != 'success') or (selected == 'false' and result not in ('success', 'skipped')):
               raise SystemExit('lifecycle importer acceptance missing or failed')
           PYLIFECYCLE
+      - name: Require Podman importer acceptance
+        env:
+          SELECTED: ${{ needs.classify.outputs.run_light }}
+          RESULT: ${{ needs.runtime-import-podman.result }}
+        run: |
+          python3 - <<'PYPODMAN'
+          import os
+          selected, result = os.environ['SELECTED'], os.environ['RESULT']
+          if selected not in ('true', 'false') or (selected == 'true' and result != 'success') or (selected == 'false' and result not in ('success', 'skipped')):
+              raise SystemExit('Podman importer acceptance missing or failed')
+          PYPODMAN
       - name: Require every selected task to succeed
         run: |
           set -euo pipefail

@@ -1,0 +1,12 @@
+{
+  "schema": "gateprobes-runtime-release-pin/v1",
+  "repository": "https://github.com/musutrade/GateProbes",
+  "tag": "podman-lifecycle-v0.1.0",
+  "version": "0.1.0",
+  "source_commit": "4b79bc13391fb015c51d9ac77959dfd2072d892d",
+  "executable_sha256": "88208b6fb4182f008851c1706d780ef2d4edd812ba54196accedb77939267bda",
+  "archive_sha256": "7869c259f640fb6de7580debd748fa5467c5291f88bc16b20bab74603024772f",
+  "sbom_sha256": "e216d89025a73d59edc72e833b4665aa792d2317c8b05a6e0068f2c99feffff4",
+  "inventory_sha256": "ef91e1d00226208dc793084ad59d38504af76988c285c4786b19a53775ae8e9b",
+  "checksums_sha256": "84be3f4cb64e468a21077dc787ce1a0d787122335f300acdf2e8bc63896ccee2"
+}

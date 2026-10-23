@@ -98,6 +98,12 @@ def publish(parent_fd, source, target):
 
 def descriptor(pin, destination):
     product, binary, protocol = preflight.profile(pin)
+    if product == 'podman-lifecycle':
+        return {'schema': 'gate-runtime/podman-installation-v1',
+                'product': product, 'version': pin['version'], 'protocol': protocol,
+                'executable_path': str(destination / binary),
+                'executable_sha256': pin['executable_sha256'],
+                'config_schema': 'gate-runtime/podman-context-v1'}
     if product == 'docker-lifecycle':
         return {'schema': 'gate-runtime/lifecycle-installation-v1',
                 'product': product, 'version': pin['version'], 'protocol': protocol,
@@ -146,8 +152,10 @@ def import_release(pin_path, assets_path, destination_path):
             for name, content in files.items():
                 write_file(stage / name, content, 0o500 if name == binary else 0o400)
             value = descriptor(pin, destination)
-            if preflight.profile(pin)[0] == 'docker-lifecycle':
-                data = json.dumps(value, sort_keys=True, separators=(',', ':'), ensure_ascii=False).encode()
+            if preflight.profile(pin)[0] in ('docker-lifecycle', 'podman-lifecycle'):
+                # Podman v1 canonicalizes in protocol field order; Docker v1 sorts keys.
+                data = json.dumps(value, sort_keys=preflight.profile(pin)[0] == 'docker-lifecycle',
+                                  separators=(',', ':'), ensure_ascii=False).encode()
             else:
                 data = json.dumps(value, indent=2, sort_keys=True).encode() + b'\n'
             write_file(stage / 'installation.json', data, 0o400)

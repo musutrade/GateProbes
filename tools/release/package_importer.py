@@ -23,11 +23,14 @@ def members(root, version):
     manifest = json.loads(files['plugins/runtime-importer/plugin.json'])
     expected = {'schema': 'gateprobes-runtime-importer-distribution/v1', 'name': PRODUCT,
                 'version': version, 'authority': 'offline-installation-only',
-                'core_versions': ['0.10.0' if version == '0.3.0' else '0.9.0' if version == '0.2.0' else '0.8.0'], 'tested_platforms': ['linux-x86_64'],
-                'entrypoint': 'tools/runtime_import/install.py', 'runtime_tag': 'docker-lifecycle-v0.1.0' if version == '0.3.0' else 'docker-readiness-v0.2.0' if version == '0.2.0' else 'docker-runtime-v0.1.1'}
+                'core_versions': ['0.11.0' if version == '0.4.0' else '0.10.0' if version == '0.3.0' else '0.9.0' if version == '0.2.0' else '0.8.0'], 'tested_platforms': ['linux-x86_64'],
+                'entrypoint': 'tools/runtime_import/install.py', 'runtime_tag': 'podman-lifecycle-v0.1.0' if version == '0.4.0' else 'docker-lifecycle-v0.1.0' if version == '0.3.0' else 'docker-readiness-v0.2.0' if version == '0.2.0' else 'docker-runtime-v0.1.1'}
     if manifest != expected:
         raise ValueError('unexpected importer manifest')
-    if version == '0.3.0':
+    if version == '0.4.0':
+        from importer_core_podman import contract, runtime_contract
+        runtime_contract(root)
+    elif version == '0.3.0':
         from importer_core_lifecycle import contract, runtime_contract
         runtime_contract(root)
     elif version == '0.2.0':
@@ -61,6 +64,8 @@ def package(root, output, core, assets):
     import tempfile
     from accept_importer import accept
     version = plugin_release.resolve(PRODUCT, root)['version']
+    if version == '0.4.0':
+        return package_podman(root, output, core, assets)
     if version == '0.3.0':
         return package_lifecycle(root, output, core, assets)
     if version == '0.2.0':
@@ -133,3 +138,23 @@ def package_lifecycle(root, output, core, assets):
             or report['importer_archive_sha256'] != hashlib.sha256(archive.read_bytes()).hexdigest()
             or report['importer_sbom_sha256'] != hashlib.sha256(sbom.read_bytes()).hexdigest()):
         raise ValueError('incomplete lifecycle importer acceptance')
+
+
+def package_podman(root, output, core, assets):
+    import os
+    from package_plugin import run
+    from importer_core_podman import verify
+    from accept_importer_podman import verify_report
+    pin = verify(core, root)
+    archive = build(root, output)
+    sbom = Path(str(archive) + '.sbom.cdx.json')
+    evidence = Path(os.environ.get('HARNESS_GATE_IMPORTER_ACCEPTANCE', str(output) + '-acceptance'))
+    evidence.mkdir(parents=True, exist_ok=True)
+    report = evidence / 'importer-podman.json'
+    run('python3', str(root / 'tools/release/accept_importer_podman.py'),
+        '--archive', str(archive), '--sbom', str(sbom),
+        '--archive-sha256', hashlib.sha256(archive.read_bytes()).hexdigest(),
+        '--sbom-sha256', hashlib.sha256(sbom.read_bytes()).hexdigest(),
+        '--core', str(core / 'bin' / pin['binary']), '--assets', str(assets),
+        '--report', str(report))
+    verify_report(json.loads(report.read_bytes()), archive.read_bytes(), sbom.read_bytes())
