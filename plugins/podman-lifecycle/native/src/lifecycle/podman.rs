@@ -144,31 +144,14 @@ pub(crate) fn inspect(bytes: &[u8], target: &Target, image: Option<&str>) -> Res
     })
 }
 
-fn ports(value: &Value, container_port: u16) -> Result<Vec<Port>> {
-    let mut bindings = None;
-    for path in [
-        &value["HostConfig"]["PortBindings"],
-        &value["NetworkSettings"]["Ports"],
-    ] {
-        if let Some(map) = path.as_object() {
-            if !map.is_empty() {
-                bindings = Some(map);
-            }
-        }
+fn single_port(value: &Value, container_port: u16) -> Result<Option<Port>> {
+    if value.is_null() {
+        return Ok(None);
     }
-    let Some(bindings) = bindings else {
-        return Ok(vec![]);
-    };
-    let key = format!("{container_port}/tcp");
-    if bindings.len() != 1 || !bindings.contains_key(&key) {
-        return Err(ERROR);
+    let values = value.as_array().ok_or(ERROR)?;
+    if values.is_empty() {
+        return Ok(None);
     }
-    let Some(values) = bindings[&key].as_array() else {
-        if bindings[&key].is_null() {
-            return Ok(vec![]);
-        }
-        return Err(ERROR);
-    };
     if values.len() != 1 {
         return Err(ERROR);
     }
@@ -184,12 +167,50 @@ fn ports(value: &Value, container_port: u16) -> Result<Vec<Port>> {
     if host_port == 0 || host_port.to_string() != raw {
         return Err(ERROR);
     }
-    Ok(vec![Port {
+    Ok(Some(Port {
         container_port,
         protocol: "tcp".into(),
         host_ip: "127.0.0.1".into(),
         host_port,
-    }])
+    }))
+}
+
+fn ports(value: &Value, container_port: u16) -> Result<Vec<Port>> {
+    let key = format!("{container_port}/tcp");
+    let mut observed: Option<Port> = None;
+    // Validate both Libpod views rather than letting the last nonempty map mask
+    // an extra or non-loopback binding in the other. Image-exposed null entries
+    // are allowed; any other published port is refused.
+    for path in [
+        &value["HostConfig"]["PortBindings"],
+        &value["NetworkSettings"]["Ports"],
+    ] {
+        let Some(map) = path.as_object() else {
+            continue;
+        };
+        for (name, entry) in map {
+            if name != &key {
+                let published = match entry {
+                    Value::Null => false,
+                    Value::Array(values) => !values.is_empty(),
+                    _ => return Err(ERROR),
+                };
+                if published {
+                    return Err(ERROR);
+                }
+                continue;
+            }
+            let Some(parsed) = single_port(entry, container_port)? else {
+                continue;
+            };
+            match &observed {
+                Some(previous) if previous != &parsed => return Err(ERROR),
+                Some(_) => {}
+                None => observed = Some(parsed),
+            }
+        }
+    }
+    Ok(observed.into_iter().collect())
 }
 
 #[derive(Deserialize)]
@@ -517,6 +538,46 @@ mod tests {
             changed[field] = replacement;
             assert!(inspect(&serde_json::to_vec(&changed).unwrap(), &target, None).is_err());
         }
+    }
+
+    #[test]
+    fn both_port_views_are_checked_and_cannot_mask_extra_or_different_bindings() {
+        let target = target();
+        let base = || {
+            serde_json::from_slice::<Value>(&serde_json::to_vec(&json!({
+                "Id": target.object_id,
+                "Name": target.name,
+                "Image": "e".repeat(64),
+                "Config": {"Labels": {
+                    "gatehouse.lifecycle.authority":"container-lifecycle/mutate",
+                    "gatehouse.lifecycle.invocation":"11111111111111111111111111111111",
+                    "gatehouse.lifecycle.project":"project",
+                    "gatehouse.lifecycle.resource":"service:fixture"
+                }},
+                "State": {"Status":"running","Running":true,"Paused":false,"Restarting":false,"Dead":false},
+                "HostConfig": {"PortBindings":{"8080/tcp":[{"HostIp":"127.0.0.1","HostPort":"49152"}]}},
+                "NetworkSettings": {"Ports":{"8080/tcp":[{"HostIp":"127.0.0.1","HostPort":"49152"}]}}
+            })).unwrap())
+            .unwrap()
+        };
+        assert!(inspect(&serde_json::to_vec(&base()).unwrap(), &target, None).is_ok());
+
+        let mut extra_host = base();
+        extra_host["HostConfig"]["PortBindings"]["9090/tcp"] =
+            json!([{"HostIp":"127.0.0.1","HostPort":"49153"}]);
+        assert!(inspect(&serde_json::to_vec(&extra_host).unwrap(), &target, None).is_err());
+
+        let mut nonloopback = base();
+        nonloopback["HostConfig"]["PortBindings"]["8080/tcp"][0]["HostIp"] = "0.0.0.0".into();
+        assert!(inspect(&serde_json::to_vec(&nonloopback).unwrap(), &target, None).is_err());
+
+        let mut different = base();
+        different["NetworkSettings"]["Ports"]["8080/tcp"][0]["HostPort"] = "49153".into();
+        assert!(inspect(&serde_json::to_vec(&different).unwrap(), &target, None).is_err());
+
+        let mut exposed_null = base();
+        exposed_null["NetworkSettings"]["Ports"]["9090/tcp"] = Value::Null;
+        assert!(inspect(&serde_json::to_vec(&exposed_null).unwrap(), &target, None).is_ok());
     }
 
     #[test]

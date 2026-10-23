@@ -220,7 +220,7 @@ fn read_request(stream: &mut UnixStream, method: &str, path: &str) {
 }
 
 #[test]
-fn create_start_health_stop_remove_through_exact_libpod_routes() {
+fn create_uses_exact_libpod_route_and_proves_created_state() {
     let operation = Operation::Create {
         name: "fixture".into(),
         image_id: format!("sha256:{}", "e".repeat(64)),
@@ -266,7 +266,7 @@ fn create_start_health_stop_remove_through_exact_libpod_routes() {
 }
 
 #[test]
-fn status_absence_is_exact_and_unknown_results_are_retained() {
+fn status_absence_uses_exact_libpod_route_and_message() {
     let target = Target {
         object_id: id(),
         name: "fixture".into(),
@@ -320,4 +320,204 @@ fn status_absence_is_exact_and_unknown_results_are_retained() {
     }
     rx.recv_timeout(Duration::from_secs(5)).unwrap();
     server.join().unwrap();
+}
+
+fn target() -> Target {
+    Target {
+        object_id: id(),
+        name: "fixture".into(),
+        container_port: 8080,
+        labels: labels(),
+    }
+}
+
+fn stop_steps(
+    status: u16,
+    inspect: Vec<u8>,
+    after_terminal: bool,
+) -> Vec<(String, String, u16, Vec<u8>)> {
+    let mut steps = vec![
+        ("GET".into(), "/v5.7.0/libpod/info".into(), 200, info_body()),
+        (
+            "GET".into(),
+            format!("/v5.7.0/libpod/containers/{}/json", id()),
+            200,
+            inspect_body("running"),
+        ),
+        (
+            "POST".into(),
+            format!("/v5.7.0/libpod/containers/{}/stop?t=5", id()),
+            status,
+            if status == 500 {
+                serde_json::to_vec(&serde_json::json!({"cause":"permission denied","message":"network cleanup","response":500})).unwrap()
+            } else {
+                Vec::new()
+            },
+        ),
+        (
+            "GET".into(),
+            format!("/v5.7.0/libpod/containers/{}/json", id()),
+            200,
+            inspect.clone(),
+        ),
+    ];
+    if after_terminal {
+        steps.push((
+            "GET".into(),
+            format!("/v5.7.0/libpod/containers/{}/json", id()),
+            200,
+            inspect,
+        ));
+        steps.push(("GET".into(), "/v5.7.0/libpod/info".into(), 200, info_body()));
+    }
+    steps
+}
+
+#[test]
+fn podman_stop_cleanup_error_is_proved_only_by_fresh_terminal_state() {
+    let second = fixture(
+        Operation::Stop {
+            target: target(),
+            grace_seconds: 5,
+        },
+        8080,
+    );
+    let expected = second.request.canonical_bytes().unwrap();
+    let config = memory(&second.config);
+    let expected_file = memory(&expected);
+    let (tx, rx) = mpsc::channel();
+    let socket = second.socket.clone();
+    let server =
+        thread::spawn(move || serve(socket, stop_steps(500, inspect_body("exited"), true), tx));
+    let response = execute(
+        &config,
+        &expected_file,
+        &expected,
+        Duration::from_secs(5),
+        || false,
+    )
+    .unwrap();
+    match response.outcome {
+        Outcome::Stopped { object } => assert_eq!(
+            object.state,
+            gatehouse_runtime_protocol::lifecycle::wire::ContainerState::Exited
+        ),
+        other => panic!("{other:?}"),
+    }
+    rx.recv_timeout(Duration::from_secs(5)).unwrap();
+    server.join().unwrap();
+
+    let fixture = fixture(
+        Operation::Stop {
+            target: target(),
+            grace_seconds: 5,
+        },
+        8080,
+    );
+    let expected = fixture.request.canonical_bytes().unwrap();
+    let config = memory(&fixture.config);
+    let expected_file = memory(&expected);
+    let (tx, rx) = mpsc::channel();
+    let socket = fixture.socket.clone();
+    let server =
+        thread::spawn(move || serve(socket, stop_steps(500, inspect_body("running"), false), tx));
+    let response = execute(
+        &config,
+        &expected_file,
+        &expected,
+        Duration::from_secs(5),
+        || false,
+    )
+    .unwrap();
+    assert!(matches!(response.outcome, Outcome::Unknown { .. }));
+    rx.recv_timeout(Duration::from_secs(5)).unwrap();
+    server.join().unwrap();
+}
+
+#[test]
+fn wrong_remove_claim_and_ownership_mismatch_return_unknown_without_retry() {
+    let remove_fixture = fixture(Operation::Remove { target: target() }, 8080);
+    let expected = remove_fixture.request.canonical_bytes().unwrap();
+    let config = memory(&remove_fixture.config);
+    let expected_file = memory(&expected);
+    let (tx, rx) = mpsc::channel();
+    let socket = remove_fixture.socket.clone();
+    let steps = vec![
+        ("GET".into(), "/v5.7.0/libpod/info".into(), 200, info_body()),
+        (
+            "GET".into(),
+            format!("/v5.7.0/libpod/containers/{}/json", id()),
+            200,
+            inspect_body("exited"),
+        ),
+        (
+            "DELETE".into(),
+            format!(
+                "/v5.7.0/libpod/containers/{}?force=false&volumes=false",
+                id()
+            ),
+            200,
+            serde_json::to_vec(&serde_json::json!([{"Id":"b".repeat(64)}])).unwrap(),
+        ),
+    ];
+    let server = thread::spawn(move || serve(socket, steps, tx));
+    let response = execute(
+        &config,
+        &expected_file,
+        &expected,
+        Duration::from_secs(5),
+        || false,
+    )
+    .unwrap();
+    assert!(matches!(response.outcome, Outcome::Unknown { .. }));
+    rx.recv_timeout(Duration::from_secs(5)).unwrap();
+    server.join().unwrap();
+
+    let second = fixture(Operation::Status { target: target() }, 8080);
+    let expected = second.request.canonical_bytes().unwrap();
+    let config = memory(&second.config);
+    let expected_file = memory(&expected);
+    let (tx, rx) = mpsc::channel();
+    let socket = second.socket.clone();
+    let mut changed: serde_json::Value = serde_json::from_slice(&inspect_body("running")).unwrap();
+    changed["Config"]["Labels"]["gatehouse.lifecycle.project"] = "other".into();
+    let steps = vec![
+        ("GET".into(), "/v5.7.0/libpod/info".into(), 200, info_body()),
+        (
+            "GET".into(),
+            format!("/v5.7.0/libpod/containers/{}/json", id()),
+            200,
+            serde_json::to_vec(&changed).unwrap(),
+        ),
+    ];
+    let server = thread::spawn(move || serve(socket, steps, tx));
+    let response = execute(
+        &config,
+        &expected_file,
+        &expected,
+        Duration::from_secs(5),
+        || false,
+    )
+    .unwrap();
+    assert!(matches!(response.outcome, Outcome::Unknown { .. }));
+    rx.recv_timeout(Duration::from_secs(5)).unwrap();
+    server.join().unwrap();
+}
+
+#[test]
+fn cancellation_before_dispatch_returns_unknown_without_connecting() {
+    let fixture = fixture(Operation::Status { target: target() }, 8080);
+    let expected = fixture.request.canonical_bytes().unwrap();
+    let config = memory(&fixture.config);
+    let expected_file = memory(&expected);
+    let response = execute(
+        &config,
+        &expected_file,
+        &expected,
+        Duration::from_secs(5),
+        || true,
+    )
+    .unwrap();
+    assert!(matches!(response.outcome, Outcome::Unknown { .. }));
+    assert!(response.observations.is_none());
 }
