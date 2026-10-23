@@ -7,13 +7,34 @@ import subprocess
 import urllib.request
 
 ROOT = Path(__file__).resolve().parents[2]
-EXPECTED = {'schema': 'gateprobes-podman-lifecycle-core/v1', 'repository': 'musutrade/GateHouse', 'release': 'v0.12.0', 'version': '0.12.0', 'source_commit': '84a306e8f35674b79aaafa0a0fecd05d6087ac24', 'binary': 'harness-gate-linux-amd64', 'sha256': '6890e4465c9d86f53cffe8c58103a650babd03db895e27ae99928659c4f1d1d6'}
+def product_core_versions(root=ROOT):
+    manifest = json.loads((root / 'plugins/podman-lifecycle/plugin.json').read_text())
+    versions = manifest.get('core_versions')
+    if not isinstance(versions, list) or not versions or not all(isinstance(v, str) for v in versions):
+        raise ValueError('invalid lifecycle product core versions')
+    return versions
 
 
-def contract(root=ROOT):
+EXPECTED_0_2 = {'schema': 'gateprobes-podman-lifecycle-core/v1', 'repository': 'musutrade/GateHouse', 'release': 'v0.12.0', 'version': '0.12.0', 'source_commit': '84a306e8f35674b79aaafa0a0fecd05d6087ac24', 'binary': 'harness-gate-linux-amd64', 'sha256': '6890e4465c9d86f53cffe8c58103a650babd03db895e27ae99928659c4f1d1d6'}
+
+
+def contract(root=ROOT, core_versions=None):
     value = json.loads((root / 'plugins/podman-lifecycle/core-pin.json').read_text())
-    if value != EXPECTED:
-        raise ValueError('unexpected lifecycle Core pin')
+    versions = product_core_versions(root) if core_versions is None else core_versions
+    if versions == ['0.12.0']:
+        if value != EXPECTED_0_2:
+            raise ValueError('unexpected historical lifecycle Core pin')
+        return value
+    if versions != ['0.13.0']:
+        raise ValueError('unsupported lifecycle product core_versions')
+    if (value.get('schema'), value.get('repository'), value.get('binary'),
+            value.get('release'), value.get('version')) != (
+            'gateprobes-podman-lifecycle-core/v1', 'musutrade/GateHouse',
+            'harness-gate-linux-amd64', 'v0.13.0', '0.13.0'):
+        raise ValueError('unexpected lifecycle Core0.13 pin')
+    for key in ('source_commit', 'sha256'):
+        if not isinstance(value.get(key), str) or not value[key]:
+            raise ValueError('incomplete lifecycle Core0.13 pin')
     return value
 
 

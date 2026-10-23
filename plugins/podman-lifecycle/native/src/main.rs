@@ -116,33 +116,54 @@ mod entry {
         let config = unsafe { File::from_raw_fd(3) };
         let expected = unsafe { File::from_raw_fd(4) };
         let bytes = input(start + Duration::from_secs(30))?;
-        let request = CaptureRequest::decode(&bytes).map_err(|_| ())?;
-        let end = start + Duration::from_millis(request.timeout_ms as u64);
-        budget(end)?;
-        let inputs = capture_inputs::parse(config, expected, &bytes).map_err(|_| ())?;
-        budget(end)?;
-        let r = inputs.request();
-        let e = inputs.expected();
-        let context = inputs.context().map_err(|_| ())?;
-        let identity = SlotIdentity {
-            profile: r.profile.clone(),
-            installation_sha256: e.installation_sha256.clone(),
-            config_sha256: e.config_sha256.clone(),
-            executable_sha256: e.executable_sha256.clone(),
-        };
-        let record = gateprobes_podman_lifecycle::capture_plan(
-            context,
-            &r.image_id,
-            &identity,
-            r.inputs.clone(),
-            end,
-            &cancelled,
-        )
-        .map_err(|_| ())?;
-        let response = encode_response(&record, r, e, context).map_err(|_| ())?;
-        context.revalidate().map_err(|_| ())?;
-        budget(end)?;
-        output(&response, end)
+        let request: serde_json::Value = serde_json::from_slice(&bytes).map_err(|_| ())?;
+        if request.get("schema").and_then(serde_json::Value::as_str)
+            == Some("gate-runtime/podman-capture-v1")
+        {
+            let request = CaptureRequest::decode(&bytes).map_err(|_| ())?;
+            let end = start + Duration::from_millis(request.timeout_ms as u64);
+            budget(end)?;
+            let inputs = capture_inputs::parse(config, expected, &bytes).map_err(|_| ())?;
+            budget(end)?;
+            let r = inputs.request();
+            let e = inputs.expected();
+            let context = inputs.context().map_err(|_| ())?;
+            let identity = SlotIdentity {
+                profile: r.profile.clone(),
+                installation_sha256: e.installation_sha256.clone(),
+                config_sha256: e.config_sha256.clone(),
+                executable_sha256: e.executable_sha256.clone(),
+            };
+            let record = gateprobes_podman_lifecycle::capture_plan(
+                context,
+                &r.image_id,
+                &identity,
+                r.inputs.clone(),
+                end,
+                &cancelled,
+            )
+            .map_err(|_| ())?;
+            let response = encode_response(&record, r, e, context).map_err(|_| ())?;
+            context.revalidate().map_err(|_| ())?;
+            budget(end)?;
+            output(&response, end)
+        } else {
+            let remaining = Duration::from_secs(30).saturating_sub(start.elapsed());
+            if remaining.is_zero() {
+                return Err(());
+            }
+            let response = gateprobes_podman_lifecycle::lifecycle::execute(
+                &config, &expected, &bytes, remaining, cancelled,
+            )
+            .map_err(|_| ())?;
+            let value = serde_json::to_value(response).map_err(|_| ())?;
+            let response = serde_json::to_vec(&value).map_err(|_| ())?;
+            if response.len() > 65_536 {
+                return Err(());
+            }
+            budget(start + Duration::from_secs(30))?;
+            output(&response, start + Duration::from_secs(30))
+        }
     }
 }
 fn main() {
