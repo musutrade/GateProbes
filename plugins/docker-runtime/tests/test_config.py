@@ -409,9 +409,16 @@ class ConfigTest(unittest.TestCase):
         sock = self.mk_socket()
         path, payload = self.write(self.data(sock))
         loaded = config.load(str(path), digest(payload))
-        path.unlink()
-        path.write_bytes(payload)
-        os.chmod(path, 0o600)
+        # Keep both files alive until replacement: unlink/recreate can reuse the
+        # original inode and timestamps, so it does not guarantee a new identity.
+        replacement, _ = self.write(raw=payload, name='replacement.json')
+        original_info, replacement_info = path.stat(), replacement.stat()
+        self.assertNotEqual((original_info.st_dev, original_info.st_ino),
+                            (replacement_info.st_dev, replacement_info.st_ino))
+        self.assertEqual(path.read_bytes(), replacement.read_bytes())
+        self.assertEqual(stat.S_IMODE(original_info.st_mode),
+                         stat.S_IMODE(replacement_info.st_mode))
+        os.replace(replacement, path)
         with self.assertRaises(config.InvalidConfig):
             loaded.revalidate()
 
