@@ -139,7 +139,10 @@ fn run(case: u8) {
             } > 0
         );
     }
-    if !(4..=5).contains(&case) {
+    // Missing fd4 must fail before stdin is consumed. Keep its writer open and
+    // send nothing: an incorrect read-before-fd-check now hits the bounded wait,
+    // rather than racing a write against the correctly exiting child.
+    if !matches!(case, 2 | 4 | 5) {
         child.stdin.take().unwrap().write_all(&raw).unwrap();
     }
     let mut connections = 0;
@@ -237,7 +240,7 @@ fn run(case: u8) {
         record.create_new(&evidence, &held).unwrap();
         assert!(!record.installation_verified());
     } else if case < 4 {
-        assert!(!output.status.success());
+        assert_eq!(output.status.code(), Some(1));
         assert!(output.stdout.is_empty());
         assert_eq!(connections, 0);
     } else {
