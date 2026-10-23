@@ -62,6 +62,13 @@ fn reply(body: &[u8]) -> Vec<u8> {
     b
 }
 #[test]
+fn route_api_is_bound_to_protected_context_without_fallback() {
+    let f = Fixture::new();
+    let deadline = Instant::now() + Duration::from_secs(2);
+    assert!(get(&f.context, "/v5.7.0/libpod/info", deadline, &|| false).is_err());
+}
+
+#[test]
 fn actual_socket_image_composition_and_exact_gets() {
     let f = Fixture::new();
     let id = "b".repeat(64);

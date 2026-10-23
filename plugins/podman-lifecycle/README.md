@@ -1,11 +1,11 @@
 # Podman read-only capture adapter
 
-This Linux x86_64 product captures image metadata through the native Libpod
-6.1.4 API. Core 0.11 explicitly invokes it through `podman-capture --trust-host`.
+This Linux x86_64 product captures image metadata through an explicitly selected
+native Libpod 5.7.0 or 6.1.4 read-only API. The 6.1.4 profile remains unchanged. Core 0.11 explicitly invokes it through `podman-capture --trust-host`.
 It performs exactly info/image/info GET requests and returns canonical evidence;
 it does not create, start, stop, remove, or execute inside containers.
 
-The product tuple is `podman-lifecycle/0.1.0/gate-runtime/lifecycle-v2/podman`.
+The candidate product tuple is `podman-lifecycle/0.2.0/gate-runtime/lifecycle-v2/podman`.
 The native entry accepts only `gate-runtime/podman-capture-v1` requests, with
 protected configuration on fd3 and a sealed per-invocation binding on fd4.
 Core holds and verifies the executable before spawning it with an empty
