@@ -41,7 +41,7 @@ class PolicyError(RuntimeError):
 
 
 def version_from_tag(tag: str, prefix: str = "v") -> str:
-    if prefix not in ("v", "rust-collector-v") or not tag.startswith(prefix):
+    if prefix not in ("v", "rust-collector-v", "protocol-v") or not tag.startswith(prefix):
         raise PolicyError(f"release tag must use the selected prefix {prefix!r}: {tag!r}")
     match = SEMVER_PATTERN.fullmatch("v" + tag[len(prefix):])
     if match is None:
@@ -298,7 +298,7 @@ def parser() -> argparse.ArgumentParser:
     subcommands = root.add_subparsers(dest="command", required=True)
     command = subcommands.add_parser("verify", help="verify a tag is eligible to publish")
     command.add_argument("--tag", required=True)
-    command.add_argument("--tag-prefix", choices=("v", "rust-collector-v"), default="v")
+    command.add_argument("--tag-prefix", choices=("v", "rust-collector-v", "protocol-v"), default="v")
     command.add_argument("--commit", required=True)
     command.add_argument("--repository", required=True)
     command.add_argument("--repo", type=Path, default=Path("."))
