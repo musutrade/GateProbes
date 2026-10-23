@@ -48,3 +48,10 @@ Validation uses the source-built Core0.12 candidate; downloaded Core0.12
 acceptance remains required after publication. This does not declare Podman
 adapter, real-engine, mutation or lease compatibility. Existing1.0.6 artifacts
 and pins remain immutable.
+
+Version 1.0.8 retains Core 0.5.0–0.12.0 and adds Core 0.13.0 to both
+execution-only product declarations. Validation uses the candidate Core 0.13.0
+source build; downloaded Core 0.13.0 acceptance remains required after
+publication. Publish this compatible package before Core CI binds it exactly.
+This declaration does not claim Podman real-engine, mutation or lease behavior.
+Existing 1.0.7 artifacts and pins remain immutable.
