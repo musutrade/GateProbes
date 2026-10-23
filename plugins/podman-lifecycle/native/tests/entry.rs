@@ -122,7 +122,7 @@ fn run(case: u8) {
         raw[0] = b'!';
     }
     let mut signalled = false;
-    let signal = if case % 2 == 0 {
+    let signal = if case.is_multiple_of(2) {
         libc::SIGTERM
     } else {
         libc::SIGINT
