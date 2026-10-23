@@ -55,7 +55,7 @@ def profile(expected):
         return 'docker-readiness', 'gateprobes-docker-readiness', 'gate-runtime/v3'
     if tag == 'docker-lifecycle-v0.1.0' and version == '0.1.0':
         return 'docker-lifecycle', 'gateprobes-docker-lifecycle', 'gate-runtime/lifecycle-v1'
-    if tag == 'podman-lifecycle-v0.1.0' and version == '0.1.0':
+    if tag == 'podman-lifecycle-v0.2.0' and version == '0.2.0':
         return 'podman-lifecycle', 'gateprobes-podman-lifecycle', 'gate-runtime/lifecycle-v2'
     raise InvalidRelease('runtime release rejected')
 
@@ -160,7 +160,7 @@ def validate(pin_bytes, archive, sbom, inventory, checksums):
         if product == 'docker-lifecycle':
             require(manifest['core_versions'] == ['0.10.0'])
         if product == 'podman-lifecycle':
-            require(manifest['core_versions'] == ['0.11.0'])
+            require(manifest['core_versions'] == ['0.12.0'])
             require(manifest['authority'] == 'read-only-runtime-facts')
             require(manifest['capabilities'] == ['capture'])
         validate_sbom(decode(sbom), expected, files)

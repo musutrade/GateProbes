@@ -1,4 +1,4 @@
-"""Trusted versioned importer0.2 inputs; no unverified executable may run."""
+"""Trusted versioned importer0.5 inputs; no unverified executable may run."""
 import io
 import json
 from pathlib import Path
@@ -14,15 +14,18 @@ import importer_core_podman
 
 
 class PodmanInputs(unittest.TestCase):
-    def test_exact_published_pins_select_v3_without_changing_v1(self):
+    def test_exact_published_pins_select_podman_without_changing_v1(self):
         core = importer_core_podman.contract(ROOT)
         runtime, _ = importer_core_podman.runtime_contract(ROOT)
-        self.assertEqual(core['version'], '0.11.0')
-        self.assertEqual(runtime['tag'], 'podman-lifecycle-v0.1.0')
+        self.assertEqual(core['version'], '0.12.0')
+        self.assertEqual(core['source_commit'], '84a306e8f35674b79aaafa0a0fecd05d6087ac24')
+        self.assertEqual(runtime['tag'], 'podman-lifecycle-v0.2.0')
+        self.assertEqual(runtime['source_commit'], 'e376df9a8021f9351525da630c5e3bb1ad83c767')
+        self.assertEqual(runtime['archive_sha256'], 'e3112a8dffb289a5e88de9aed8c1f6bfc3eae91169a1bbd45d05db63a22e1874')
         old = json.loads((ROOT / 'tools/runtime_import/release-pin.json').read_text())
         self.assertEqual(old['tag'], 'docker-runtime-v0.1.1')
 
-    def test_v2_pin_cannot_select_importer_v3_inputs(self):
+    def test_v2_pin_cannot_select_podman_inputs(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             directory = root / 'tools/runtime_import'; directory.mkdir(parents=True)

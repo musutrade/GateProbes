@@ -248,7 +248,7 @@
       "platforms": [
         "linux"
       ],
-      "toolchain": "Python 3.11+; package-local released Core0.11.0",
+      "toolchain": "Python 3.11+; package-local released Core0.12.0",
       "toolchains": [
         "python"
       ],

@@ -97,11 +97,14 @@ It does not generate a config or host: operators must supply explicit protected
 references with exact digests. Core 0.10 consumes these through a service-bound
 `verify` invocation. Runtime/readiness descriptors retain their historical formats.
 
-### Podman capture profile (importer 0.4)
+### Podman capture profile (importer 0.4/0.5)
 
-The externally trusted tag `podman-lifecycle-v0.1.0` selects a separate twelve-member
-archive, `gate-runtime/lifecycle-v2`, Core 0.11.0 and capture-only authority.
-It creates `gate-runtime/podman-installation-v1` metadata in protocol field order,
-mode 0400, with an executable at mode 0500. The installation has no host or context.
-The operator supplies those separately; the installer neither executes binaries
-nor contacts a daemon. Docker profiles retain their historical formats and pins.
+The externally trusted tag `podman-lifecycle-v0.1.0` selects the immutable importer
+0.4 profile for Core 0.11.0. The tag `podman-lifecycle-v0.2.0` selects importer 0.5
+for Core 0.12.0. Both select the separate twelve-member Podman archive,
+`gate-runtime/lifecycle-v2` and capture-only authority. Installation creates
+`gate-runtime/podman-installation-v1` metadata in protocol field order, mode 0400,
+with an executable at mode 0500. The installation has no host or context. The
+operator supplies those separately; the installer neither executes binaries nor
+contacts a daemon. Docker profiles and the released 0.4 package retain their
+historical formats and pins.
