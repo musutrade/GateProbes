@@ -169,9 +169,17 @@
         "plugins/runtime-importer"
       ],
       "authority": "offline-installation-only",
-      "contract_test": "tools/release/accept_importer_podman06.py",
+      "contract_test": "tools/release/accept_importer_podman07.py",
       "core_pin": "plugins/runtime-importer/core-pin-podman.json",
-      "status": "unpublished-candidate"
+      "status": "published",
+      "published_version": "0.7.0",
+      "published_release": "https://github.com/musutrade/GateProbes/releases/tag/runtime-importer-v0.7.0",
+      "core_versions": [
+        "0.13.0",
+        "0.14.1"
+      ],
+      "compatibility_receipt": "docs/releases/runtime-importer-0.7.0-acceptance.md",
+      "historical_boundary": "Importer 0.1 through 0.6 artifacts, pins and tags are unchanged; the 0.6 archive keeps its own acceptance script."
     },
     "docker-readiness": {
       "paths": [
@@ -197,7 +205,11 @@
       "authority": "container-lifecycle/mutate; protected Core intent only",
       "contract_test": "plugins/podman-lifecycle/accept_lifecycle.py",
       "core_pin": "plugins/podman-lifecycle/core-pin.json",
-      "status": "unpublished-candidate"
+      "status": "published",
+      "published_version": "0.3.0",
+      "published_release": "https://github.com/musutrade/GateProbes/releases/tag/podman-lifecycle-v0.3.0",
+      "compatibility_receipt": "docs/releases/podman-lifecycle-0.3.0-status.md",
+      "archived_manifest": "Published plugin.json still declares core_versions [\"0.13.0\"] and packaging-time candidate wording; immutable packaging history, not a current unpublished fact and not edited here."
     }
   },
   "inputs": [
