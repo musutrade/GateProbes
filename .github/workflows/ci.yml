@@ -102,7 +102,7 @@ jobs:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
       - name: Fetch independently pinned released inputs
         run: python3 tools/release/importer_core.py --output "$RUNNER_TEMP/importer-core"
-      - name: Distribution tests (55, no skips)
+      - name: Distribution tests (57, no skips)
         env:
           GATEHOUSE_CORE: ${{ runner.temp }}/importer-core/bin/harness-gate-linux-amd64
           RUNTIME_IMPORT_ASSETS: ${{ runner.temp }}/importer-core/runtime-assets
@@ -110,10 +110,11 @@ jobs:
           python3 - <<'PYIMPORTER'
           import unittest
           suite = unittest.defaultTestLoader.discover('plugins/runtime-importer/tests_package')
-          assert suite.countTestCases() == 55
+          assert suite.countTestCases() == 57
           result = unittest.TextTestRunner(verbosity=2).run(suite)
-          assert result.testsRun == 55 and not result.skipped and not result.expectedFailures and result.wasSuccessful()
+          assert result.testsRun == 57 and not result.skipped and not result.expectedFailures and result.wasSuccessful()
           PYIMPORTER
+
       - name: Package and accept extracted importer
         run: |
           set -euo pipefail
@@ -234,7 +235,7 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
-      - name: Fetch pinned Core0.13 and released Podman0.3
+      - name: Fetch pinned Core0.14.1 and released Podman0.3
         run: python3 tools/release/importer_core_podman.py --output "$RUNNER_TEMP/importer-podman-core"
       - name: Package and externally verify candidate importer before installed Podman
         env:

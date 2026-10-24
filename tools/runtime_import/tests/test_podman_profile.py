@@ -199,8 +199,12 @@ class PodmanImporterVersionOverrideTests(unittest.TestCase):
         self.assertEqual(runtime['tag'], 'podman-lifecycle-v0.2.0')
         current = importer_core_podman.contract(importer_core_podman.ROOT)
         current_runtime, _ = importer_core_podman.runtime_contract(importer_core_podman.ROOT)
-        self.assertEqual(current, importer_core_podman.EXPECTED_0_6)
+        self.assertEqual(current, importer_core_podman.EXPECTED_0_7)
+        self.assertEqual(current['version'], '0.14.1')
         self.assertEqual(current_runtime['tag'], 'podman-lifecycle-v0.3.0')
+        historical = importer_core_podman.ROOT / 'tools/runtime_import/tests/fixtures/0.6.0'
+        self.assertEqual(importer_core_podman.contract(historical, version='0.6.0'), importer_core_podman.EXPECTED_0_6)
+        self.assertEqual(importer_core_podman.runtime_contract(historical, version='0.6.0')[0], importer_core_podman.RUNTIME_0_3)
 
 
 class PodmanPrepareVersionTests(unittest.TestCase):

@@ -1,10 +1,11 @@
 {
   "schema": "gateprobes-runtime-importer-distribution/v1",
   "name": "runtime-importer",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "authority": "offline-installation-only",
   "core_versions": [
-    "0.13.0"
+    "0.13.0",
+    "0.14.1"
   ],
   "tested_platforms": [
     "linux-x86_64"
