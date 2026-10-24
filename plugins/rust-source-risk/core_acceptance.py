@@ -302,10 +302,14 @@ def main() -> int:
     cargo_environment = verify_cargo_environment(root)
 
     host = Path(tempfile.mkdtemp(prefix="host-", dir=root.parent))
-    replay = host / "replay"
-    replay.mkdir(mode=0o700)
+    # The replay ledger checks every ancestor. Use a private directory directly
+    # under the sticky system temporary root so unrelated RUNNER_TEMP modes do
+    # not make the host-owned ledger look group/world writable.
+    replay = Path(tempfile.mkdtemp(prefix="source-risk-replay-", dir="/tmp"))
     require(not replay.resolve().is_relative_to(root),
             "replay state must be outside the measured workspace")
+    require(replay.stat().st_mode & 0o077 == 0,
+            "replay state directory must be host-private")
     python = Path(sys.executable).resolve()
 
     def run(label: str, command: list, env=None):

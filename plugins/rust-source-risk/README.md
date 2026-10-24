@@ -120,7 +120,9 @@ The runner performs a fresh `capture.py` on the committed
 one-time signing key and replay state outside the measured workspace, verifies
 the complete signed `harness-project-collector-request/v1` path, runs the
 separate `quality evaluate` policy path, and writes a machine receipt with all
-source, archive, member, tool, Core, series and result identities.
+source, archive, member, tool, Core, series and result identities. The replay
+ledger is a private directory under the system temporary root, so Core's
+ancestor protection check does not depend on unrelated runner-directory modes.
 
 The ten required negatives are layered: four signed-collect failures
 (`stale-context`, `expired`, `tampered-signature`, `replay`), then six

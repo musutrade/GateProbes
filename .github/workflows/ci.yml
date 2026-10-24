@@ -791,7 +791,7 @@ jobs:
           if [ ! -x "$tool" ]; then
             cargo +1.99.1 install --locked --root "$RUNNER_TEMP/source-risk/tools" cargo-llvm-cov --version 0.9.0
           fi
-          "$tool" --version
+          "$tool" llvm-cov --version
       - name: Download and verify immutable release inputs
         env:
           GH_TOKEN: ${{ github.token }}
@@ -826,6 +826,7 @@ jobs:
               raise SystemExit('source-risk release inventory identity mismatch')
           print('verified immutable Core and source-risk release inputs')
           PY
+          chmod +x "$core/harness-gate-linux-amd64"
           mkdir -p "$RUNNER_TEMP/source-risk/unpack"
           tar -xzf "$release/harness-gate-rust-source-risk-0.2.0-linux-amd64.tar.gz" \
             -C "$RUNNER_TEMP/source-risk/unpack"
@@ -850,11 +851,13 @@ jobs:
           set -euo pipefail
           unset RUSTUP_TOOLCHAIN
           export PATH="$RUNNER_TEMP/source-risk/bin:$RUNNER_TEMP/source-risk/tools/bin:$PATH"
-          mkdir -p "$CARGO_HOME" "$RUNNER_TEMP/source-risk/capture"
+          capture="$RUNNER_TEMP/source-risk/capture"
+          test ! -e "$capture"
+          mkdir -p "$CARGO_HOME" "$RUNNER_TEMP/source-risk"
           plugin="$RUNNER_TEMP/source-risk/unpack/harness-gate-rust-source-risk-0.2.0-linux-amd64"
           python3 "$plugin/capture.py" \
             --repository "$GITHUB_WORKSPACE/plugins/rust-source-risk/fixtures/core-acceptance" \
-            --output "$RUNNER_TEMP/source-risk/capture" \
+            --output "$capture" \
             --target-dir "$RUNNER_TEMP/source-risk/target" \
             --manifest Cargo.toml \
             --source-root apps/server/src \
