@@ -24,7 +24,7 @@ sys.path.insert(0, str(ROOT / "tools/release"))
 import package_onboarding  # noqa: E402
 
 CORE = Path(os.environ.get("GATEHOUSE_CORE", ""))
-ARCHIVE = "gateprobes-onboarding-presets-1.0.8.tar.gz"
+ARCHIVE = "gateprobes-onboarding-presets-1.0.9.tar.gz"
 SCAFFOLD = ("plugins/releases.json",)
 MEMBERS = (
     "LICENSE",
@@ -94,7 +94,7 @@ class PackageContract(unittest.TestCase):
                 self.assertEqual(stream.extractfile(member).read(), expected[member.name])
         sbom = json.loads((first / (ARCHIVE + ".sbom.cdx.json")).read_bytes())
         self.assertEqual(sbom["metadata"]["component"],
-                         {"type": "application", "name": "onboarding-presets", "version": "1.0.8"})
+                         {"type": "application", "name": "onboarding-presets", "version": "1.0.9"})
         self.assertEqual({c["name"]: c["hashes"][0]["content"] for c in sbom["components"]},
                          {name: hashlib.sha256(expected[f"{prefix}/{name}"]).hexdigest()
                           for name in MEMBERS})
