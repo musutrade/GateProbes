@@ -1,9 +1,9 @@
 {
   "schema": "gateprobes-importer-core/v2",
   "repository": "musutrade/GateHouse",
-  "release": "v0.13.0",
-  "version": "0.13.0",
-  "source_commit": "565e622f77659e48604cfb9508adee14765de323",
+  "release": "v0.14.1",
+  "version": "0.14.1",
+  "source_commit": "c22a12e25a5ea6f617d4afb9dd4e2410dc14f267",
   "binary": "harness-gate-linux-amd64",
-  "sha256": "1800325ea2f541dd9b011c03dc93c3dac341e839ece6289ebe778275dcaacf75"
+  "sha256": "6b4f36d432266e43e22d82776729d76f04098c5cf63ae2295f508359a37e060c"
 }
