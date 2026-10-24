@@ -5,6 +5,8 @@ import sys
 import tempfile
 import unittest
 
+from capture import validate_effective_cfg_sources
+
 HERE = Path(__file__).resolve().parent
 CAPTURE = HERE / 'capture.py'
 
@@ -24,6 +26,17 @@ class CaptureEnvironmentTests(unittest.TestCase):
                    '--source-root', 'src']
         return subprocess.run(command, env=env, text=True, capture_output=True)
 
+    def marker_environment(self, root):
+        tools = root / 'bin'
+        tools.mkdir()
+        marker = root / 'cargo-ran'
+        cargo = tools / 'cargo'
+        cargo.write_text('#!/bin/sh\nprintf ran > "' + str(marker) + '"\nexit 77\n')
+        cargo.chmod(0o755)
+        env = self.clean_environment(root)
+        env['PATH'] = str(tools) + os.pathsep + env['PATH']
+        return env, marker
+
     def clean_environment(self, root):
         home = root / 'cargo-home'
         home.mkdir()
@@ -42,6 +55,7 @@ class CaptureEnvironmentTests(unittest.TestCase):
             ('[build]\nrustc = "/tmp/different-rustc"\n', 'rustc'),
             ('[env]\nCARGO_BUILD_RUSTFLAGS = "--cfg changed"\n', 'CARGO_BUILD_RUSTFLAGS'),
             ('[env]\nRUSTC_WRAPPER = "/tmp/wrapper"\n', 'RUSTC_WRAPPER'),
+            ('[env]\nCARGO_BUILD_RUSTC_WRAPPER = "/tmp/wrapper"\n', 'CARGO_BUILD_RUSTC_WRAPPER'),
         ):
             with tempfile.TemporaryDirectory() as tmp:
                 root = Path(tmp)
@@ -84,6 +98,41 @@ class CaptureEnvironmentTests(unittest.TestCase):
             (repo / 'Cargo.toml').write_text('[package]\nname="fixture"\nversion="0.1.0"\nedition="2024"\nbuild = "scripts/build.rs"\n')
             result = self.capture(root, repo, self.clean_environment(root))
             self.assert_rejected(result, 'custom build script')
+
+    def test_no_space_custom_build_and_cargo_wrapper_env_are_rejected_before_cargo(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            repo = self.repository(root)
+            (repo / 'Cargo.toml').write_text('[package]\nname="fixture"\nversion="0.1.0"\nedition="2024"\nbuild="custom.rs"\n')
+            (repo / 'custom.rs').write_text('fn main() {}\n')
+            env, marker = self.marker_environment(root)
+            result = self.capture(root, repo, env)
+            self.assert_rejected(result, 'custom build script')
+            self.assertFalse(marker.exists(), 'cargo ran before rejecting the custom build')
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            repo = self.repository(root)
+            env, marker = self.marker_environment(root)
+            env['CARGO_BUILD_RUSTC_WRAPPER'] = '/tmp/probe-wrapper'
+            result = self.capture(root, repo, env)
+            self.assert_rejected(result, 'CARGO_BUILD_RUSTC_WRAPPER')
+            self.assertFalse(marker.exists(), 'cargo ran before rejecting the wrapper environment')
+
+    def test_build_false_and_snapshot_only_build_script_boundaries(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            repo = self.repository(root)
+            (repo / 'Cargo.toml').write_text('[package]\nname="fixture"\nversion="0.1.0"\nedition="2024"\nbuild=false\n')
+            (repo / 'build.rs').write_text('fn main() {}\n')
+            validate_effective_cfg_sources(repo, repo)
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            repo = self.repository(root)
+            snapshot = root / 'snapshot'
+            snapshot.mkdir()
+            (snapshot / 'build.rs').write_text('fn main() {}\n')
+            with self.assertRaisesRegex(ValueError, 'build script'):
+                validate_effective_cfg_sources(repo, snapshot)
 
     def test_different_snapshot_toolchain_is_rejected(self):
         with tempfile.TemporaryDirectory() as tmp:

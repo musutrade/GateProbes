@@ -24,7 +24,9 @@ FORBIDDEN_BUILD_KEYS = {
 }
 FORBIDDEN_ENV_KEYS = {
     'RUSTFLAGS', 'CARGO_ENCODED_RUSTFLAGS', 'CARGO_BUILD_TARGET',
-    'CARGO_BUILD_RUSTFLAGS', 'RUSTC', 'RUSTC_WRAPPER',
+    'CARGO_BUILD_RUSTFLAGS', 'CARGO_BUILD_RUSTC', 'CARGO_BUILD_RUSTC_WRAPPER',
+    'CARGO_BUILD_RUSTC_WORKSPACE_WRAPPER', 'CARGO_BUILD_RUSTDOC',
+    'CARGO_BUILD_RUSTDOCFLAGS', 'RUSTC', 'RUSTC_WRAPPER',
     'RUSTC_WORKSPACE_WRAPPER', 'RUSTUP_TOOLCHAIN',
 }
 
@@ -46,6 +48,8 @@ def rustc_version(cwd):
 
 def validate_environment(repo):
     for name in ('RUSTFLAGS', 'CARGO_ENCODED_RUSTFLAGS', 'CARGO_BUILD_TARGET', 'CARGO_BUILD_RUSTFLAGS',
+                 'CARGO_BUILD_RUSTC', 'CARGO_BUILD_RUSTC_WRAPPER', 'CARGO_BUILD_RUSTC_WORKSPACE_WRAPPER',
+                 'CARGO_BUILD_RUSTDOC', 'CARGO_BUILD_RUSTDOCFLAGS',
                  'RUSTC', 'RUSTC_WRAPPER', 'RUSTC_WORKSPACE_WRAPPER'):
         if os.environ.get(name):
             raise ValueError(f'unsupported environment variable for capture: {name}')
@@ -85,16 +89,35 @@ def validate_configuration(repo, root):
             raise ValueError(f'unsupported Cargo configuration in {path}')
 
 
-def validate_effective_cfg_sources(repo):
-    for path in repo.rglob('build.rs'):
-        if not any(part in {'.git', 'target'} for part in path.parts):
-            raise ValueError(f'unsupported build script for effective cfg: {path}')
-    for path in repo.rglob('Cargo.toml'):
-        if any(part in {'.git', 'target'} for part in path.parts):
+def validate_effective_cfg_sources(repo, root):
+    manifests = set()
+    for base in (repo, root):
+        for path in base.rglob('Cargo.toml'):
+            if not any(part in {'.git', 'target'} for part in path.parts):
+                manifests.add(path)
+    disabled_build = set()
+    for path in sorted(manifests):
+        try:
+            data = tomllib.loads(path.read_text())
+        except (OSError, tomllib.TOMLDecodeError) as error:
+            raise ValueError(f'invalid Cargo manifest for effective cfg: {path}: {error}') from error
+        package = data.get('package', {})
+        if not isinstance(package, dict):
+            raise ValueError(f'invalid package table for effective cfg: {path}')
+        build = package.get('build')
+        if build is False:
+            disabled_build.add(path.parent.resolve())
             continue
-        if any(line.strip().startswith('build = "') or line.strip().startswith("build = '")
-               for line in path.read_text().splitlines()):
-            raise ValueError(f'unsupported custom build script for effective cfg: {path}')
+        if build is not None:
+            if isinstance(build, str) and build:
+                raise ValueError(f'unsupported custom build script for effective cfg: {path}')
+            raise ValueError(f'invalid package.build for effective cfg: {path}')
+    for base in (repo, root):
+        for path in base.rglob('build.rs'):
+            if any(part in {'.git', 'target'} for part in path.parts):
+                continue
+            if path.parent.resolve() not in disabled_build:
+                raise ValueError(f'unsupported build script for effective cfg: {path}')
 
 
 def validate_toolchain(repo, root):
@@ -143,7 +166,7 @@ def main():
             inputs[str(relative)] = sha(data)
     (root / '.local-capture-snapshot').write_text('backend-source-only rehearsal\n')
     validate_configuration(repo, root)
-    validate_effective_cfg_sources(repo)
+    validate_effective_cfg_sources(repo, root)
     target_triple = args.target or host_target(root)
     target_cfg = compiler_configuration(target_triple, root)
     validate_toolchain(repo, root)
