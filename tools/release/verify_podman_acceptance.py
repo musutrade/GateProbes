@@ -1,4 +1,4 @@
-"""Verify the exact Podman 0.3.0 capture and mutation package reports."""
+"""Verify an explicit Podman package report mode against archive bytes."""
 import argparse
 import hashlib
 import json
@@ -19,6 +19,7 @@ CAPTURE_CASES = ['normal', 'no-persist', 'missing-trust', 'missing-mapped-host-w
                  'timeout-out-of-range', 'override-host', 'override-output', 'override-socket']
 CAPTURE_PARSE_ERRORS = {'missing-trust', 'incomplete-port-pair', 'timeout-out-of-range', 'override-host',
                         'override-output', 'override-socket'}
+PARSE_ERRORS = CAPTURE_PARSE_ERRORS  # historical importer compatibility
 MUTATION_CASES = ['capture-config-refuses-mutation', 'resolve-image', 'create', 'status', 'start',
                   'stop', 'remove', 'health']
 MUTATIONS = {'capture-config-refuses-mutation': 0, 'resolve-image': 0, 'create': 1, 'status': 0,
@@ -99,12 +100,18 @@ def verify_mutation(report, archive):
     return value
 
 
+def verify_mode(mode, report, archive):
+    if mode == 'capture':
+        return verify(report, archive)
+    if mode == 'mutation':
+        return verify_mutation(report, archive)
+    raise ValueError('unsupported Podman acceptance mode')
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--mode', choices=('capture', 'mutation'), required=True)
     parser.add_argument('--report', type=Path, required=True)
     parser.add_argument('--archive', type=Path, required=True)
-    parser.add_argument('--mutation-report', type=Path)
     args = parser.parse_args()
-    verify(args.report, args.archive)
-    if args.mutation_report:
-        verify_mutation(args.mutation_report, args.archive)
+    verify_mode(args.mode, args.report, args.archive)

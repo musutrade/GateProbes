@@ -1,0 +1,21 @@
+{
+  "schema": "gateprobes-runtime-adapter/v1",
+  "name": "podman-lifecycle",
+  "version": "0.2.0",
+  "executable": "gateprobes-podman-lifecycle",
+  "protocol": "gate-runtime/lifecycle-v2",
+  "authority": "read-only-runtime-facts",
+  "platforms": [
+    "linux-x86_64"
+  ],
+  "core_versions": [
+    "0.12.0"
+  ],
+  "status": "release-candidate",
+  "capabilities": [
+    "capture"
+  ],
+  "limitations": [
+    "fixed historical fixture only; no mutation authority"
+  ]
+}
