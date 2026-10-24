@@ -98,9 +98,57 @@ does not claim that the base compiler cfg is the complete effective cfg for arbi
 build scripts.
 
 `capture.py --help` documents snapshot arguments. `acceptance.py --bundle BUNDLE
---plugin PLUGIN_DIRECTORY` runs a backend-only, ephemeral-key Core rehearsal. It
-refuses a real checkout and checks signature, stale context, expiration, replay
-and artifact tampering. It is not the project's complete production gate.
+--plugin PLUGIN_DIRECTORY` is the older backend-only, ephemeral-key Core
+rehearsal. It refuses a real checkout and checks signature, stale context,
+expiration, replay and artifact tampering. It is not the required CI gate.
+
+## Pinned Core current-consumer acceptance
+
+`core_acceptance.py` is the required CI acceptance for the immutable published
+0.2.0 archive. It does not build, republish or relabel 0.2.0. The fixed release
+and Core pins are in `core_acceptance.json`; the script rejects a missing,
+changed or extra archive member, a changed archive, release inventory or Core
+binary, a wrong Core version, a wrong toolchain, a missing clean `CARGO_HOME`,
+and a non-empty artifact root.
+
+```sh
+python3 core_acceptance.py   --bundle /path/to/fresh/capture/bundle.json   --archive /path/to/harness-gate-rust-source-risk-0.2.0-linux-amd64.tar.gz   --release-inventory /path/to/release-inventory.json   --core /absolute/path/to/harness-gate-linux-amd64   --presets-dir /path/to/GateProbes/presets   --output /path/to/acceptance/receipt.json
+```
+
+The runner performs a fresh `capture.py` on the committed
+`fixtures/core-acceptance` project before this command. The acceptance keeps the
+one-time signing key and replay state outside the measured workspace, verifies
+the complete signed `harness-project-collector-request/v1` path, runs the
+separate `quality evaluate` policy path, and writes a machine receipt with all
+source, archive, member, tool, Core, series and result identities.
+
+The ten required negatives are layered: four signed-collect failures
+(`stale-context`, `expired`, `tampered-signature`, `replay`), then six
+evaluate failures (`tampered-artifact`, `wrong-target`, `wrong-version`,
+`wrong-source`, `missing-metric`, `missing-evidence`). Each case asserts its
+specific expected reason; an unexpected success or a generic nonzero exit is a
+failure. A separate real measured policy-fail case uses a fixture-only CRAP
+limit to prove that transport `PASS` is not a final policy `PASS`.
+
+The CI job `source-risk-core-acceptance` is a **current consumer regression**
+against the already published 0.2.0 archive and the published Core 0.14.1
+binary. It does not claim that the historical 0.2.0 publication was gated by
+this acceptance. A future source-risk release must run the same acceptance
+against its candidate archive after the static `contract.py` check; that
+packaging integration is a separate release-design change, not a 0.2.0
+re-release.
+
+The native MIR `rust-collector-compatibility.json` matrix does not apply to this
+generic project collector, so no matrix row is added. The `thiserror`
+`error`/`from`/`source` macro attributes remain unsupported; this acceptance
+does not broaden them.
+
+Future release-gate design (not implemented for 0.2.0): after the existing
+static `contract.py` check in `tools/release/package_plugin.py`, extract the
+candidate archive and run the same signed collect/evaluate matrix against that
+candidate, deriving archive/member pins from the candidate release inventory.
+Do not substitute the immutable 0.2.0 archive for a candidate, and do not treat
+the current 0.2.0 consumer regression as candidate-artifact acceptance.
 
 The reviewed GH-288 Linux x86-64 matrix passed for Rust 1.97.1 / LLVM
 22.1.6 and Rust 1.99.0 / LLVM 23.1.1: each ran the existing 26 tests and
@@ -218,4 +266,4 @@ explicit host binding update; existing signed captures retain their old identity
 
 ## Stable distribution boundary
 
-The 0.2.0 identity does not change measurement algorithms or toolchain pins; it adds the recorded target configuration to the series identity and supports the conditional-compilation subset above. `coverage.region` retains its documented exact source-region meaning; it is not branch coverage or MIR cleanup coverage. Publication requires fresh source and unsupported-input tests, installed-package compatibility against released Core v0.6.0, and independent downloaded-archive acceptance. `release-gated` identifies this release-controlled distribution, not a production isolation/signing service. Linux x86_64 is the accepted distribution scope; previous RC evidence remains historical.
+The 0.2.0 identity does not change measurement algorithms or toolchain pins; it adds the recorded target configuration to the series identity and supports the conditional-compilation subset above. `coverage.region` retains its documented exact source-region meaning; it is not branch coverage or MIR cleanup coverage. The historical archive's README and manifest say v0.6.0; the repository's static release contract actually pinned Core v0.7.1 (`docs/ownership.json`). Neither statement is a full Core 0.14.1 consumer gate. The separate current-consumer acceptance above uses published Core 0.14.1 and the immutable 0.2.0 archive. `release-gated` identifies this release-controlled distribution, not a production isolation/signing service. Linux x86_64 is the accepted distribution scope; previous RC evidence remains historical.
