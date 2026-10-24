@@ -27,21 +27,37 @@ const MAX_SCAN_ENTRIES: usize = 1024;
 thread_local! {
     static BEFORE_ISOLATE: std::cell::RefCell<Option<fn(&Path)>> = const { std::cell::RefCell::new(None) };
     static REPLACEMENT_BYTES: std::cell::RefCell<Vec<u8>> = const { std::cell::RefCell::new(Vec::new()) };
+    static SWAP_TARGET: std::cell::RefCell<Option<std::ffi::OsString>> = const { std::cell::RefCell::new(None) };
 }
 
 #[cfg(test)]
 pub(crate) fn test_arm_swap(bytes: &[u8]) {
     REPLACEMENT_BYTES.with(|slot| *slot.borrow_mut() = bytes.to_vec());
+    SWAP_TARGET.with(|slot| *slot.borrow_mut() = None);
+    BEFORE_ISOLATE.with(|slot| *slot.borrow_mut() = Some(test_replace_file));
+}
+
+#[cfg(test)]
+pub(crate) fn test_arm_swap_for(name: &str, bytes: &[u8]) {
+    REPLACEMENT_BYTES.with(|slot| *slot.borrow_mut() = bytes.to_vec());
+    SWAP_TARGET.with(|slot| *slot.borrow_mut() = Some(std::ffi::OsString::from(name)));
     BEFORE_ISOLATE.with(|slot| *slot.borrow_mut() = Some(test_replace_file));
 }
 
 #[cfg(test)]
 pub(crate) fn test_disarm_swap() {
     BEFORE_ISOLATE.with(|slot| *slot.borrow_mut() = None);
+    SWAP_TARGET.with(|slot| *slot.borrow_mut() = None);
 }
 
 #[cfg(test)]
 fn test_replace_file(path: &Path) {
+    let target = SWAP_TARGET.with(|slot| slot.borrow().clone());
+    if let Some(target) = target {
+        if path.file_name() != Some(target.as_os_str()) {
+            return;
+        }
+    }
     let bytes = REPLACEMENT_BYTES.with(|slot| slot.borrow().clone());
     let _ = fs::remove_file(path);
     let _ = fs::write(path, bytes);
@@ -282,9 +298,12 @@ pub(crate) fn release_lock(
         });
     }
     let backup = isolate(path)?;
-    let handle_meta = handle
-        .metadata()
-        .with_context(|| format!("inspect held lifecycle lock {path:?}"))?;
+    let handle_meta = handle.metadata().with_context(|| {
+        format!(
+            "inspect held lifecycle lock {path:?} after moving it to {:?}",
+            backup.object
+        )
+    })?;
     match staged_mismatch(&backup, &handle_meta, None)? {
         None => Ok(LockRelease::Released {
             backup: Some(backup.dir),

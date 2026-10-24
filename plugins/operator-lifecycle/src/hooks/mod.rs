@@ -6,6 +6,8 @@ mod preserve;
 use anyhow::{anyhow, ensure, Context, Result};
 use filesystem::State;
 use preserve::{LockRelease, Removal};
+#[cfg(not(test))]
+use std::io::Write as _;
 use std::path::Path;
 
 #[derive(Debug, Clone, Copy, clap::Subcommand)]
@@ -28,6 +30,34 @@ const HOOKS: [(&str, &str); 2] = [
         "#!/bin/sh\n# harness-gate managed hook v1\nexec harness-gate verify --all\n",
     ),
 ];
+
+enum Completed {
+    Status(bool),
+    Changed(&'static str),
+}
+
+#[cfg(test)]
+thread_local! {
+    static OUTPUT: std::cell::RefCell<Vec<String>> = const { std::cell::RefCell::new(Vec::new()) };
+}
+
+fn say(message: &str) {
+    #[cfg(test)]
+    OUTPUT.with(|output| output.borrow_mut().push(message.to_string()));
+    #[cfg(not(test))]
+    {
+        let _ = writeln!(std::io::stdout(), "{message}");
+    }
+}
+
+fn warn(message: &str) {
+    #[cfg(test)]
+    OUTPUT.with(|output| output.borrow_mut().push(message.to_string()));
+    #[cfg(not(test))]
+    {
+        let _ = writeln!(std::io::stderr(), "{message}");
+    }
+}
 
 fn readiness(root: &Path, core: &Path) -> Result<()> {
     let output = crate::capture(
@@ -62,27 +92,27 @@ fn readiness(root: &Path, core: &Path) -> Result<()> {
     Ok(())
 }
 
-fn report_backups(directory: &Path) {
-    match preserve::discover(directory) {
-        Ok(rows) => {
-            for line in preserve::discovery_notices(&rows) {
-                println!("{line}");
-            }
-        }
-        Err(error) => println!("warning: preservation scan incomplete: {error:#}"),
+/// A failed or incomplete scan is an error, not a warning: the command must not
+/// claim success while retained objects may be invisible.
+fn report_backups(directory: &Path) -> Result<()> {
+    let rows = preserve::discover(directory)
+        .context("preservation scan failed or was incomplete; no hooks were changed")?;
+    for line in preserve::discovery_notices(&rows) {
+        warn(&line);
     }
+    Ok(())
 }
 
 pub(crate) fn run(root: &Path, core: &Path, action: HookAction) -> Result<bool> {
     let directory = paths::resolve(root)?;
-    report_backups(&directory);
+    report_backups(&directory)?;
     if matches!(action, HookAction::Status)
         && directory
             .join(".harness-gate-hooks.lock")
             .symlink_metadata()
             .is_ok()
     {
-        println!("Hooks lifecycle: busy (lock exists)");
+        say("Hooks lifecycle: busy (lock exists)");
         return Ok(false);
     }
     let mut lock = if matches!(action, HookAction::Status) {
@@ -90,13 +120,13 @@ pub(crate) fn run(root: &Path, core: &Path, action: HookAction) -> Result<bool> 
     } else {
         Some(filesystem::Lock::acquire(&directory)?)
     };
-    let outcome = (|| -> Result<bool> {
+    let outcome = (|| -> Result<Completed> {
         let states = HOOKS
             .iter()
             .map(|(name, content)| filesystem::inspect(&directory.join(name), content.as_bytes()))
             .collect::<Result<Vec<_>>>()?;
         if matches!(action, HookAction::Status) {
-            return status(root, core, &states);
+            return status(root, core, &states).map(Completed::Status);
         }
         ensure!(
             states.iter().all(|state| matches!(
@@ -106,15 +136,11 @@ pub(crate) fn run(root: &Path, core: &Path, action: HookAction) -> Result<bool> 
             "existing hooks are modified, foreign or unsafe; no files changed"
         );
         if matches!(action, HookAction::Uninstall) {
-            let removals = uninstall(&directory, &states)
+            uninstall(&directory, &states)
                 .context("uninstall incomplete; inspect hooks status before retrying")?;
-            for removal in &removals {
-                if let Some(notice) = preserve::removal_notice(removal) {
-                    eprintln!("{notice}");
-                }
-            }
-            println!("Managed hooks removed (already absent is unchanged).");
-            return Ok(true);
+            return Ok(Completed::Changed(
+                "Managed hooks removed (already absent is unchanged).",
+            ));
         }
         readiness(root, core)?;
         ensure!(
@@ -122,22 +148,30 @@ pub(crate) fn run(root: &Path, core: &Path, action: HookAction) -> Result<bool> 
             "managed hook is not executable; restore its permissions explicitly"
         );
         install(&directory, &states)?;
-        println!("Managed pre-commit and pre-push hooks installed. No checks were executed.");
-        Ok(true)
+        Ok(Completed::Changed(
+            "Managed pre-commit and pre-push hooks installed. No checks were executed.",
+        ))
     })();
-    merge_outcome(outcome, lock.take().map(filesystem::Lock::finish))
+    match merge_outcome(outcome, lock.take().map(filesystem::Lock::finish))? {
+        Completed::Status(value) => Ok(value),
+        Completed::Changed(message) => {
+            // Printed only after the lock was released successfully.
+            say(message);
+            Ok(true)
+        }
+    }
 }
 
 /// Explicit release runs on success and error paths. Both the command error and
 /// the release error are kept; a lost lock is never reported as success.
-fn merge_outcome(outcome: Result<bool>, release: Option<Result<LockRelease>>) -> Result<bool> {
+fn merge_outcome<T>(outcome: Result<T>, release: Option<Result<LockRelease>>) -> Result<T> {
     let Some(release) = release else {
         return outcome;
     };
     match (outcome, release) {
         (Ok(value), Ok(LockRelease::Released { backup })) => {
             if let Some(notice) = preserve::lock_release_notice(&LockRelease::Released { backup }) {
-                eprintln!("{notice}");
+                warn(&notice);
             }
             Ok(value)
         }
@@ -145,15 +179,18 @@ fn merge_outcome(outcome: Result<bool>, release: Option<Result<LockRelease>>) ->
         (Ok(_), Ok(LockRelease::LeftForeign { path })) => Err(anyhow!(
             "lock ownership was lost; a foreign object was left in place at {path:?}"
         )),
-        (Ok(_), Ok(LockRelease::LostOwnership { backup, reason, restored })) => Err(anyhow!(
+        (Ok(_), Ok(LockRelease::LostOwnership {
+            backup,
+            reason,
+            restored,
+        })) => Err(anyhow!(
             "lock ownership was lost ({reason}); exact object kept at {backup:?} (restored={restored})"
         )),
-        (Ok(_), Err(error)) => {
-            Err(error.context("hooks command completed but lock release failed; the lock may still exist"))
-        }
+        (Ok(_), Err(error)) => Err(error
+            .context("hooks command completed but lock release failed; the lock may still exist")),
         (Err(error), Ok(LockRelease::Released { backup })) => {
             if let Some(notice) = preserve::lock_release_notice(&LockRelease::Released { backup }) {
-                eprintln!("{notice}");
+                warn(&notice);
             }
             Err(error)
         }
@@ -161,11 +198,13 @@ fn merge_outcome(outcome: Result<bool>, release: Option<Result<LockRelease>>) ->
         (Err(error), Ok(LockRelease::LeftForeign { path })) => Err(error.context(format!(
             "additionally the lifecycle lock was replaced by a foreign object at {path:?}"
         ))),
-        (Err(error), Ok(LockRelease::LostOwnership { backup, reason, restored })) => {
-            Err(error.context(format!(
-                "additionally lock ownership was lost ({reason}); exact object kept at {backup:?} (restored={restored})"
-            )))
-        }
+        (Err(error), Ok(LockRelease::LostOwnership {
+            backup,
+            reason,
+            restored,
+        })) => Err(error.context(format!(
+            "additionally lock ownership was lost ({reason}); exact object kept at {backup:?} (restored={restored})"
+        ))),
         (Err(error), Err(release)) => {
             Err(error.context(format!("additionally lock release failed: {release:#}")))
         }
@@ -174,21 +213,47 @@ fn merge_outcome(outcome: Result<bool>, release: Option<Result<LockRelease>>) ->
 
 fn status(root: &Path, core: &Path, states: &[State]) -> Result<bool> {
     for ((name, _), state) in HOOKS.iter().zip(states) {
-        println!("{name}: {state:?}");
+        say(&format!("{name}: {state:?}"));
     }
     match readiness(root, core) {
-        Ok(()) => println!("Configuration: hook profile participates"),
-        Err(error) => println!("Configuration: {}", error.to_string().escape_debug()),
+        Ok(()) => say("Configuration: hook profile participates"),
+        Err(error) => say(&format!(
+            "Configuration: {}",
+            error.to_string().escape_debug()
+        )),
     }
     Ok(states.iter().all(|state| *state == State::Current))
 }
 
 fn preserved_error(name: &str, removal: &Removal) -> anyhow::Error {
     match removal {
-        Removal::Preserved { backup, reason, restored } => anyhow!(
+        Removal::Preserved {
+            backup,
+            reason,
+            restored,
+        } => anyhow!(
             "{name}: ownership was lost ({reason}); exact object kept at {backup:?} (restored={restored})"
         ),
         other => anyhow!("{name}: unexpected removal outcome {other:?}"),
+    }
+}
+
+/// Every completed move is reported as soon as it happens and is named in the
+/// error of a later failure, so a partial uninstall is always recoverable.
+fn completed_backups(completed: &[Removal]) -> String {
+    let paths = completed
+        .iter()
+        .filter_map(|removal| match removal {
+            Removal::Removed { backup: Some(path) } | Removal::Preserved { backup: path, .. } => {
+                Some(format!("{path:?}"))
+            }
+            _ => None,
+        })
+        .collect::<Vec<_>>();
+    if paths.is_empty() {
+        "no hook object was moved before this failure".to_string()
+    } else {
+        format!("already retained backups: {}", paths.join(", "))
     }
 }
 
@@ -204,18 +269,27 @@ fn uninstall(directory: &Path, states: &[State]) -> Result<Vec<Removal>> {
             }
         })
         .collect::<std::io::Result<Vec<_>>>()?;
-    let mut removals = Vec::new();
+    let mut completed = Vec::new();
     for ((name, content), identity) in HOOKS.iter().zip(identities) {
-        if let Some(identity) = identity {
-            let removal =
-                filesystem::remove_owned(&directory.join(name), content.as_bytes(), &identity)?;
-            if matches!(removal, Removal::Preserved { .. }) {
-                return Err(preserved_error(name, &removal));
+        let Some(identity) = identity else {
+            continue;
+        };
+        match filesystem::remove_owned(&directory.join(name), content.as_bytes(), &identity) {
+            Ok(removal) => {
+                if let Some(notice) = preserve::removal_notice(&removal) {
+                    warn(&notice);
+                }
+                if matches!(removal, Removal::Preserved { .. }) {
+                    return Err(
+                        preserved_error(name, &removal).context(completed_backups(&completed))
+                    );
+                }
+                completed.push(removal);
             }
-            removals.push(removal);
+            Err(error) => return Err(error.context(completed_backups(&completed))),
         }
     }
-    Ok(removals)
+    Ok(completed)
 }
 
 fn install(directory: &Path, states: &[State]) -> Result<()> {
@@ -232,7 +306,7 @@ fn install(directory: &Path, states: &[State]) -> Result<()> {
                     match filesystem::remove_owned(&directory.join(name), content, &identity) {
                         Ok(removal) => {
                             if let Some(notice) = preserve::removal_notice(&removal) {
-                                eprintln!("{notice}");
+                                warn(&notice);
                             }
                             if matches!(removal, Removal::Preserved { .. }) {
                                 rollback = Some(preserved_error(name, &removal));
@@ -262,6 +336,7 @@ fn install(directory: &Path, states: &[State]) -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::path::{Path, PathBuf};
 
     fn write_hooks(directory: &Path) {
         for (name, content) in HOOKS {
@@ -284,7 +359,7 @@ mod tests {
             .collect()
     }
 
-    fn backup_objects(directory: &Path) -> Vec<std::path::PathBuf> {
+    fn backup_objects(directory: &Path) -> Vec<PathBuf> {
         std::fs::read_dir(directory)
             .unwrap()
             .filter_map(|entry| entry.ok())
@@ -296,6 +371,40 @@ mod tests {
             })
             .map(|entry| entry.path().join("object"))
             .collect()
+    }
+
+    fn git_repo() -> tempfile::TempDir {
+        let root = tempfile::tempdir().unwrap();
+        let status = std::process::Command::new("git")
+            .args(["init", "-q"])
+            .arg(root.path())
+            .status()
+            .unwrap();
+        assert!(status.success());
+        root
+    }
+
+    fn fake_core(directory: &Path) -> PathBuf {
+        let path = directory.join("fake-core");
+        std::fs::write(
+            &path,
+            "#!/bin/sh\ncat <<'EOF'\n[project]\nhook_profile = \"hook\"\n\n[[steps]]\nprofiles = [\"hook\"]\nEOF\n",
+        )
+        .unwrap();
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o755)).unwrap();
+        }
+        path
+    }
+
+    fn take_output() -> Vec<String> {
+        OUTPUT.with(|output| std::mem::take(&mut *output.borrow_mut()))
+    }
+
+    fn output_contains(needle: &str) -> bool {
+        OUTPUT.with(|output| output.borrow().iter().any(|line| line.contains(needle)))
     }
 
     // Issue #92 production regression: uninstall keeps a foreign replacement.
@@ -384,7 +493,7 @@ mod tests {
     fn merge_outcome_never_reports_success_for_a_lost_lock() {
         let lost = || {
             Ok(LockRelease::LostOwnership {
-                backup: std::path::PathBuf::from("/tmp/backup"),
+                backup: PathBuf::from("/tmp/backup"),
                 reason: "foreign",
                 restored: true,
             })
@@ -394,7 +503,7 @@ mod tests {
 
         let foreign = || {
             Ok(LockRelease::LeftForeign {
-                path: std::path::PathBuf::from("/tmp/lock"),
+                path: PathBuf::from("/tmp/lock"),
             })
         };
         assert!(merge_outcome(Ok(true), Some(foreign())).is_err());
@@ -403,7 +512,7 @@ mod tests {
 
     #[test]
     fn merge_outcome_keeps_primary_and_release_errors() {
-        let outcome = Err(anyhow!("primary failure"));
+        let outcome: Result<bool> = Err(anyhow!("primary failure"));
         let release = Err(anyhow!("release failure"));
         let message = format!("{:#}", merge_outcome(outcome, Some(release)).unwrap_err());
         assert!(message.contains("primary failure"));
@@ -411,12 +520,115 @@ mod tests {
 
         let message = format!(
             "{:#}",
-            merge_outcome(
+            merge_outcome::<bool>(
                 Err(anyhow!("primary failure")),
                 Some(Ok(LockRelease::AlreadyAbsent))
             )
             .unwrap_err()
         );
         assert!(message.contains("primary failure"));
+    }
+
+    // Command-level: an incomplete scan is a non-zero failure for status, not a
+    // warning followed by exit 0.
+    #[test]
+    fn status_fails_when_preservation_scan_is_incomplete() {
+        let root = git_repo();
+        let core = fake_core(root.path());
+        let hooks = root.path().join(".git/hooks");
+        write_hooks(&hooks);
+        for index in 0..1025 {
+            std::fs::write(hooks.join(format!("extra-{index}")), b"").unwrap();
+        }
+        let result = run(root.path(), &core, HookAction::Status);
+        assert!(result.is_err(), "incomplete scan must not succeed");
+        let message = format!("{:#}", result.unwrap_err());
+        assert!(message.contains("preservation scan failed"), "{message}");
+    }
+
+    // Command-level: a mutating command makes no changes when the scan fails.
+    #[test]
+    fn install_makes_no_changes_when_preservation_scan_is_incomplete() {
+        let root = git_repo();
+        let core = fake_core(root.path());
+        let hooks = root.path().join(".git/hooks");
+        for index in 0..1025 {
+            std::fs::write(hooks.join(format!("extra-{index}")), b"").unwrap();
+        }
+        assert!(run(root.path(), &core, HookAction::Install).is_err());
+        assert!(!hooks.join("pre-commit").exists());
+        assert!(!hooks.join(".harness-gate-hooks.lock").exists());
+        assert!(backup_objects(&hooks).is_empty());
+    }
+
+    // Command-level: the success line is printed only after a successful lock
+    // release. A lost lock must fail without a preceding success message.
+    #[test]
+    fn install_reports_success_only_after_lock_release() {
+        let root = git_repo();
+        let core = fake_core(root.path());
+        let hooks = root.path().join(".git/hooks");
+        preserve::test_arm_swap(b"foreign lock content");
+        let result = run(root.path(), &core, HookAction::Install);
+        preserve::test_disarm_swap();
+        let error = result.expect_err("lost lock must fail the command");
+        assert!(format!("{error:#}").contains("lock ownership was lost"));
+        assert!(
+            !output_contains("installed. No checks were executed"),
+            "success was printed before the lock release failed"
+        );
+        assert!(hooks.join("pre-commit").exists());
+        assert_eq!(
+            std::fs::read(hooks.join(".harness-gate-hooks.lock")).unwrap(),
+            b"foreign lock content"
+        );
+    }
+
+    // Command-level: a partial uninstall reports the first retained backup both
+    // immediately and in the error, so nothing becomes unreachable.
+    #[test]
+    fn uninstall_reports_completed_backups_when_a_later_hook_fails() {
+        let root = git_repo();
+        let core = fake_core(root.path());
+        let hooks = root.path().join(".git/hooks");
+        write_hooks(&hooks);
+        preserve::test_arm_swap_for("pre-push", b"foreign editor content");
+        let result = run(root.path(), &core, HookAction::Uninstall);
+        preserve::test_disarm_swap();
+        let error = result.expect_err("lost ownership must fail uninstall");
+        let message = format!("{error:#}");
+        assert!(message.contains("already retained backups"), "{message}");
+        assert!(!hooks.join("pre-commit").exists());
+        assert_eq!(
+            std::fs::read(hooks.join("pre-push")).unwrap(),
+            b"foreign editor content"
+        );
+        let objects = backup_objects(&hooks);
+        // pre-commit backup, pre-push backup and the released lock backup.
+        assert_eq!(objects.len(), 3, "removed hook, preserved hook and lock");
+        assert!(objects
+            .iter()
+            .any(|path| std::fs::read(path).unwrap() == HOOKS[0].1.as_bytes()));
+        assert!(objects
+            .iter()
+            .any(|path| std::fs::read(path).unwrap() == b"foreign editor content"));
+        assert!(message.contains(&format!(
+            "{:?}",
+            objects
+                .iter()
+                .find(|path| std::fs::read(path).unwrap() == HOOKS[0].1.as_bytes())
+                .unwrap()
+                .parent()
+                .unwrap()
+        )));
+        assert!(
+            output_contains("retained hook object at"),
+            "completed backup was not reported immediately"
+        );
+        assert!(
+            !output_contains("Managed hooks removed"),
+            "success must not be reported for a partial uninstall"
+        );
+        take_output();
     }
 }

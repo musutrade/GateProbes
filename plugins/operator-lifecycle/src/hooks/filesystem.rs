@@ -147,15 +147,33 @@ impl Drop for Lock {
         let outcome = preserve::release_lock(&self.path, &self.identity, &self.file);
         #[cfg(not(unix))]
         let outcome = preserve::release_lock(&self.path, &self.identity);
-        if let Ok(LockRelease::LostOwnership {
-            backup,
-            reason,
-            restored,
-        }) = outcome
-        {
-            eprintln!(
+        // Best effort only: Drop runs while unwinding and must not panic. Every
+        // non-trivial result names its exact retained path on stderr.
+        let message = match outcome {
+            Ok(LockRelease::AlreadyAbsent) => None,
+            Ok(LockRelease::Released { backup: None }) => None,
+            Ok(LockRelease::Released {
+                backup: Some(backup),
+            }) => Some(format!(
+                "warning: lifecycle lock was preserved at {backup:?} during unwinding; nothing was deleted"
+            )),
+            Ok(LockRelease::LeftForeign { path }) => Some(format!(
+                "warning: lifecycle lock at {path:?} is not the held object; it was left in place"
+            )),
+            Ok(LockRelease::LostOwnership {
+                backup,
+                reason,
+                restored,
+            }) => Some(format!(
                 "warning: lifecycle lock ownership was lost ({reason}); exact object kept at {backup:?} (restored={restored})"
-            );
+            )),
+            Err(error) => Some(format!(
+                "warning: lifecycle lock preservation failed: {error:#}; no object was deleted"
+            )),
+        };
+        if let Some(message) = message {
+            use std::io::Write as _;
+            let _ = writeln!(std::io::stderr(), "{message}");
         }
     }
 }
@@ -217,6 +235,30 @@ mod tests {
             fs::read(root.path().join(".harness-gate-hooks.lock")).unwrap(),
             b"foreign"
         );
+    }
+
+    #[test]
+    fn drop_fallback_preserves_a_replaced_lock() {
+        let root = tempfile::tempdir().unwrap();
+        let lock = Lock::acquire(root.path()).unwrap();
+        let path = lock.path.clone();
+        preserve::test_arm_swap(b"foreign lock content");
+        drop(lock);
+        preserve::test_disarm_swap();
+        assert_eq!(fs::read(&path).unwrap(), b"foreign lock content");
+        let objects = fs::read_dir(root.path())
+            .unwrap()
+            .filter_map(|entry| entry.ok())
+            .filter(|entry| {
+                entry
+                    .file_name()
+                    .to_string_lossy()
+                    .starts_with(preserve::BACKUP_PREFIX)
+            })
+            .map(|entry| entry.path().join("object"))
+            .collect::<Vec<_>>();
+        assert_eq!(objects.len(), 1);
+        assert_eq!(fs::read(&objects[0]).unwrap(), b"foreign lock content");
     }
 
     #[test]
