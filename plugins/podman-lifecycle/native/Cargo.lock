@@ -76,9 +76,9 @@ checksum = "da7c62ceae207dd37ea5b845da6a0696c799f85e97da1ab5b7910be3c1c80223"
 
 [[package]]
 name = "gatehouse-runtime-protocol"
-version = "0.5.0"
+version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f1619c05a4069ca03b477f456ee08f831f873022080c8ed96c850dbe20f6f90b"
+checksum = "9baf36412437e6011cbf1f08f0130e3c3336af908d5e0d55ab5d0523e6c389cb"
 dependencies = [
  "base64",
  "libc",
@@ -90,11 +90,13 @@ dependencies = [
 
 [[package]]
 name = "gateprobes-podman-lifecycle"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "gatehouse-runtime-protocol",
  "libc",
+ "serde",
  "serde_json",
+ "sha2",
  "tempfile",
 ]
 

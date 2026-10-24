@@ -1,6 +1,7 @@
 //! Unreleased Linux-only read-only transport checkpoint, no plugin entrypoint.
 #![cfg(target_os = "linux")]
 mod http;
+pub mod lifecycle;
 mod socket_identity;
 #[cfg(test)]
 use gatehouse_runtime_protocol::lifecycle_v2::{

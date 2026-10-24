@@ -194,8 +194,8 @@
       "paths": [
         "plugins/podman-lifecycle"
       ],
-      "authority": "read-only-runtime-facts; explicit operator trust-host; no mutation or lease",
-      "contract_test": "plugins/podman-lifecycle/accept.py",
+      "authority": "container-lifecycle/mutate; protected Core intent only",
+      "contract_test": "plugins/podman-lifecycle/accept_lifecycle.py",
       "core_pin": "plugins/podman-lifecycle/core-pin.json",
       "status": "unpublished-candidate"
     }

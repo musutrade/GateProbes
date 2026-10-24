@@ -65,6 +65,6 @@ is required for real-engine acceptance. Same-UID/root replacement after checks
 is outside the boundary. Bounded socket/pipe deadlines do not preempt kernel
 regular-file I/O, and process-group cleanup does not contain escaped descendants.
 
-Podman create/start/stop/remove operations and durable service lease integration
-remain separate implementation work. Read-only installation and plan evidence
-must not be promoted into that authority.
+The native Podman 5.7 mutation profile is the separate `podman-lifecycle/0.3.0`
+`gate-runtime/lifecycle-v1` installation documented in `lifecycle.md`. Read-only
+installation and plan evidence are never promoted into mutation authority.
