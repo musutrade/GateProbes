@@ -68,7 +68,7 @@ jobs:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
       - name: Check links, declarations and forbidden artifacts
         run: python3 tools/ci/check_docs.py
-      - name: Offline runtime import (31 offline tests; joint acceptance runs separately)
+      - name: Offline runtime import (37 offline tests; joint acceptance runs separately)
         run: |
           python3 -B - <<'PYIMPORT'
           import unittest
@@ -84,11 +84,11 @@ jobs:
                         'test_published_assets_smoke_if_supplied'}
           excluded = [test for test in tests if test._testMethodName in separate]
           required = [test for test in tests if test._testMethodName not in separate]
-          if len(tests) != 33 or len(required) != 31 or {test._testMethodName for test in excluded} != separate or len(excluded) != 2:
+          if len(tests) != 39 or len(required) != 37 or {test._testMethodName for test in excluded} != separate or len(excluded) != 2:
               raise SystemExit('runtime import test inventory changed')
           print('Separate required job: joint installed acceptance; local-only: published-assets smoke')
           result = unittest.TextTestRunner(verbosity=2).run(unittest.TestSuite(required))
-          if result.testsRun != 31 or result.skipped or result.expectedFailures or not result.wasSuccessful():
+          if result.testsRun != 37 or result.skipped or result.expectedFailures or not result.wasSuccessful():
               raise SystemExit('required runtime import tests failed or skipped')
           PYIMPORT
 
@@ -227,14 +227,14 @@ jobs:
           if-no-files-found: error
 
   runtime-import-podman:
-    name: Podman importer capture acceptance
+    name: Podman importer lifecycle acceptance
     needs: classify
     if: needs.classify.outputs.run_light == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
-      - name: Fetch pinned Core0.12 and released Podman0.2
+      - name: Fetch pinned Core0.13 and released Podman0.3
         run: python3 tools/release/importer_core_podman.py --output "$RUNNER_TEMP/importer-podman-core"
       - name: Package and externally verify candidate importer before installed Podman
         env:

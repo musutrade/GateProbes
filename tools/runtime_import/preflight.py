@@ -57,6 +57,8 @@ def profile(expected):
         return 'docker-lifecycle', 'gateprobes-docker-lifecycle', 'gate-runtime/lifecycle-v1'
     if tag == 'podman-lifecycle-v0.2.0' and version == '0.2.0':
         return 'podman-lifecycle', 'gateprobes-podman-lifecycle', 'gate-runtime/lifecycle-v2'
+    if tag == 'podman-lifecycle-v0.3.0' and version == '0.3.0':
+        return 'podman-lifecycle', 'gateprobes-podman-lifecycle', 'gate-runtime/lifecycle-v1'
     raise InvalidRelease('runtime release rejected')
 
 
@@ -81,12 +83,17 @@ def pin(data):
     return value
 
 
-def unpack(data, prefix, binary=BINARY):
+def unpack(data, prefix, binary=BINARY, version=None):
     members = (MEMBERS - {BINARY}) | {binary}
     if binary == 'gateprobes-docker-lifecycle':
         members |= {'Cargo.toml', 'core-pin.json', 'protocol-LICENSE', 'protocol-license.json'}
     if binary == 'gateprobes-podman-lifecycle':
         members |= {'Cargo.toml', 'core-pin.json', 'protocol-LICENSE'}
+        if version is None:
+            version = '0.3.0' if '-0.3.0-' in prefix else '0.2.0' if '-0.2.0-' in prefix else None
+        if version == '0.3.0':
+            members.discard('accept.py')
+            members.add('accept_lifecycle.py')
     require(len(data) <= MAX_ARCHIVE)
     with gzip.GzipFile(fileobj=io.BytesIO(data)) as zipped:
         raw = zipped.read(MAX_TAR + 1)
@@ -152,7 +159,7 @@ def validate(pin_bytes, archive, sbom, inventory, checksums):
         require(len(lines) == len(subjects))
         require(set(lines) == {digest(data) + '  ' + name for name, data in subjects.items()})
         validate_inventory(decode(inventory), expected, assets)
-        files = unpack(archive, name.removesuffix('.tar.gz'), binary)
+        files = unpack(archive, name.removesuffix('.tar.gz'), binary, expected['version'])
         require(digest(files[binary]) == expected['executable_sha256'])
         manifest = decode(files['plugin.json'])
         require(manifest['name'] == product and manifest['version'] == expected['version'])
@@ -160,9 +167,15 @@ def validate(pin_bytes, archive, sbom, inventory, checksums):
         if product == 'docker-lifecycle':
             require(manifest['core_versions'] == ['0.10.0'])
         if product == 'podman-lifecycle':
-            require(manifest['core_versions'] == ['0.12.0'])
-            require(manifest['authority'] == 'read-only-runtime-facts')
-            require(manifest['capabilities'] == ['capture'])
+            if expected['version'] == '0.2.0':
+                require(manifest['core_versions'] == ['0.12.0'])
+                require(manifest['authority'] == 'read-only-runtime-facts')
+                require(manifest['capabilities'] == ['capture'])
+            elif expected['version'] == '0.3.0':
+                require(manifest['core_versions'] == ['0.13.0'])
+                require(manifest['authority'] == 'container-lifecycle/mutate')
+                require(manifest['capabilities'] == ['capture', 'resolve-image', 'create', 'status',
+                                                     'start', 'stop', 'remove', 'health'])
         validate_sbom(decode(sbom), expected, files)
         return files
     except (ValueError, TypeError, KeyError, AttributeError, OSError, EOFError, OverflowError, RecursionError, tarfile.TarError, zlib.error):

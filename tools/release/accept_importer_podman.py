@@ -11,14 +11,12 @@ import subprocess
 import tempfile
 
 from verify_importer_archive import extract, LIMIT
-from importer_core_podman import EXPECTED, runtime_contract
+from importer_core_podman import EXPECTED
 from verify_podman_acceptance import PARSE_ERRORS
 
 ROOT = Path(__file__).resolve().parents[2]
 IMPORTER_VERSION = '0.5.0'
-MANIFEST = json.loads((ROOT / 'plugins/runtime-importer/plugin.json').read_text())
-if MANIFEST.get('version') != IMPORTER_VERSION:
-    raise ValueError('unexpected importer distribution version')
+RUNTIME_0_5 = {'schema': 'gateprobes-runtime-release-pin/v1', 'repository': 'https://github.com/musutrade/GateProbes', 'tag': 'podman-lifecycle-v0.2.0', 'version': '0.2.0', 'source_commit': 'e376df9a8021f9351525da630c5e3bb1ad83c767', 'executable_sha256': 'c14a30f4f91c54ce2f0a46f60de6293cbc3b225b9f5cf5dc286ac98b2b032f7b', 'archive_sha256': 'e3112a8dffb289a5e88de9aed8c1f6bfc3eae91169a1bbd45d05db63a22e1874', 'sbom_sha256': '16b22c74068895817a356abf58199137d59da03a552402e2fce63fc36688040d', 'inventory_sha256': '3b8f677ad84efcc3f03c62123772f2f442242a20f9dbaa253b85a627be6000e8', 'checksums_sha256': '20c462222d9ca52abf1f9ae14cba1a84504240d626a0f8e39fa1039008cb6845'}
 FIXTURES = {
     '0.1.0': {
         'path': ROOT / 'plugins/podman-lifecycle/tests_historical/accept_0_1.py',
@@ -135,7 +133,7 @@ def descriptor_fixture(runtime, fixture_module, states):
 
 def verify_report(value, archive, sbom, runtime=None, fixture_module=None, core_version=None):
     if runtime is None:
-        runtime = runtime_contract(ROOT)[0]
+        runtime = RUNTIME_0_5
     if fixture_module is None:
         fixture_module = fixture
     if core_version is None:
@@ -178,7 +176,7 @@ def main():
         parser.add_argument('--' + name, required=True)
     args = parser.parse_args()
     os.umask(0o077)
-    runtime, _ = runtime_contract(ROOT)
+    runtime = RUNTIME_0_5
     record, module = load_fixture(runtime['version'])
     core = args.core.resolve(strict=True)
     if digest(core.read_bytes()) != record['core_sha256'] or record['core_sha256'] != EXPECTED['sha256']:

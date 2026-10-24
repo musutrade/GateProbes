@@ -169,8 +169,8 @@
         "plugins/runtime-importer"
       ],
       "authority": "offline-installation-only",
-      "contract_test": "tools/release/accept_importer_v3.py",
-      "core_pin": "plugins/runtime-importer/core-pin-v3.json",
+      "contract_test": "tools/release/accept_importer_podman06.py",
+      "core_pin": "plugins/runtime-importer/core-pin-podman.json",
       "status": "unpublished-candidate"
     },
     "docker-readiness": {

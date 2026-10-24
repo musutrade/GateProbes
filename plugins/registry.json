@@ -248,7 +248,7 @@
       "platforms": [
         "linux"
       ],
-      "toolchain": "Python 3.11+; package-local released Core0.12.0",
+      "toolchain": "Python 3.11+; package-local released Core0.13.0",
       "toolchains": [
         "python"
       ],
@@ -256,7 +256,7 @@
       "entries": {
         "install": "python3 -I -B ../../tools/runtime_import/install.py --help",
         "test": "python3 -m unittest discover -s tests_package -v",
-        "contract": "python3 ../../tools/release/accept_importer_podman.py --help",
+        "contract": "python3 ../../tools/release/accept_importer_podman06.py --help",
         "package": "python3 ../../tools/release/package_plugin.py --plugin runtime-importer --core-root \"$RUNNER_TEMP/importer-podman-core\" --output \"$RUNNER_TEMP/importer-dist\""
       },
       "protocols": []

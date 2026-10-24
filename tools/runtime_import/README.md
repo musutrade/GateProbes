@@ -15,7 +15,7 @@ list. This module does not verify signatures or confer authority on a pin.
 
 Validation binds all four asset hashes, the exact checksum subjects, inventory
 source/tag/member sizes, binary identity and SBOM file hashes. Runtime/readiness
-profiles require exactly nine flat members; Docker lifecycle requires exactly thirteen; Podman capture requires twelve.
+profiles require exactly nine flat members; Docker lifecycle requires exactly thirteen; Podman capture and Podman lifecycle each require exactly twelve.
 All profiles enforce their exact member sets and modes,
 without links, aliases, duplicate members or extensions. Compressed input is
 limited to 16 MiB, decompressed tar to 32 MiB, and JSON documents to 1 MiB. Content
@@ -53,7 +53,7 @@ Core main has the installed entry; released Core0.7.1 does not.
 
 ## Validation scope
 
-The lightweight gate discovers exactly 27 tests and runs 25 offline tests with
+The lightweight gate discovers exactly 39 tests and runs 37 offline tests with
 zero failures, skips or expected failures. The same two tests remain excluded:
 `test_joint_core_main_capabilities_with_published_assets` runs in a separate
 required Ubuntu24 job, and `test_published_assets_smoke_if_supplied` remains
@@ -97,14 +97,17 @@ It does not generate a config or host: operators must supply explicit protected
 references with exact digests. Core 0.10 consumes these through a service-bound
 `verify` invocation. Runtime/readiness descriptors retain their historical formats.
 
-### Podman capture profile (importer 0.4/0.5)
+### Podman profiles (importer 0.4/0.5/0.6)
 
 The externally trusted tag `podman-lifecycle-v0.1.0` selects the immutable importer
 0.4 profile for Core 0.11.0. The tag `podman-lifecycle-v0.2.0` selects importer 0.5
-for Core 0.12.0. Both select the separate twelve-member Podman archive,
-`gate-runtime/lifecycle-v2` and capture-only authority. Installation creates
-`gate-runtime/podman-installation-v1` metadata in protocol field order, mode 0400,
+for Core 0.12.0 and the capture-only `podman-installation-v1` format. The tag
+`podman-lifecycle-v0.3.0` selects importer 0.6 for Core 0.13.0: the separate
+twelve-member Podman archive contains `accept_lifecycle.py` rather than the
+historical `accept.py`, and uses `gate-runtime/lifecycle-v1` with
+`container-lifecycle/mutate` authority. Installation creates canonical
+`gate-runtime/lifecycle-installation-v1` metadata in sorted field order, mode 0400,
 with an executable at mode 0500. The installation has no host or context. The
 operator supplies those separately; the installer neither executes binaries nor
-contacts a daemon. Docker profiles and the released 0.4 package retain their
+contacts a daemon. Docker profiles and the released 0.4/0.5 packages retain their
 historical formats and pins.
