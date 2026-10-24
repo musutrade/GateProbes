@@ -241,106 +241,234 @@ mod tests {
     }
 }
 
-// Test-only prototype of the proposed preservation algorithm. It is not wired
-// into production; it exists to make the design reviewable and executable.
+// Test-only prototype v2: retain the moved inode as a recoverable backup.
+// Nothing here is wired into production; it exists to review the retention and
+// reporting semantics before a production implementation.
 #[cfg(test)]
 pub(super) mod preserve_prototype {
     use super::*;
-    use std::path::PathBuf;
-    use std::sync::atomic::{AtomicU64, Ordering};
+    use std::fs::DirBuilder;
+    use std::path::{Path, PathBuf};
 
-    static NEXT_STAGING: AtomicU64 = AtomicU64::new(1);
+    pub(super) const BACKUP_PREFIX: &str = ".harness-gate-preserve-";
 
     #[derive(Debug, PartialEq, Eq)]
     pub(super) enum Outcome {
-        Removed,
-        RestoredForeign { path: PathBuf },
-        RetainedConflict { recovery: PathBuf },
+        /// Path freed; the moved inode is retained as a backup.
+        RemovedOwned { backup: PathBuf },
+        /// Foreign or modified object restored no-clobber; the backup link stays.
+        Restored {
+            path: PathBuf,
+            backup: PathBuf,
+            reason: &'static str,
+        },
+        /// Restore was impossible without clobbering; the object stays in backup.
+        RetainedConflict { backup: PathBuf, reason: &'static str },
     }
 
-    fn staging_dir(parent: &Path) -> Result<PathBuf> {
+    #[derive(Debug, Clone)]
+    pub(super) struct Backup {
+        pub(super) dir: PathBuf,
+        pub(super) object: PathBuf,
+    }
+
+    #[derive(Debug)]
+    pub(super) struct BackupReport {
+        pub(super) dir: PathBuf,
+        pub(super) object: PathBuf,
+        pub(super) kind: &'static str,
+        pub(super) size: u64,
+        pub(super) escaped: String,
+    }
+
+    #[derive(Debug, PartialEq, Eq)]
+    pub(super) enum LockRelease {
+        AlreadyAbsent,
+        Released { backup: PathBuf },
+        LeftForeign { path: PathBuf },
+    }
+
+    fn unique_name() -> String {
+        let mut bytes = [0u8; 16];
+        let random = fs::File::open("/dev/urandom")
+            .and_then(|mut file| file.read_exact(&mut bytes))
+            .is_ok();
+        if !random {
+            let nanos = std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .map(|value| value.as_nanos())
+                .unwrap_or(0);
+            bytes[..8].copy_from_slice(&nanos.to_le_bytes());
+            bytes[8..12].copy_from_slice(&std::process::id().to_le_bytes());
+        }
+        bytes.iter().map(|byte| format!("{byte:02x}")).collect()
+    }
+
+    fn backup_directory(parent: &Path) -> Result<Backup> {
         for _ in 0..16 {
-            let name = format!(
-                ".harness-gate-preserve-{:016x}",
-                NEXT_STAGING.fetch_add(1, Ordering::Relaxed)
-            );
-            let dir = parent.join(name);
-            match fs::create_dir(&dir) {
+            let dir = parent.join(format!("{BACKUP_PREFIX}{}", unique_name()));
+            let mut builder = DirBuilder::new();
+            #[cfg(unix)]
+            {
+                use std::os::unix::fs::DirBuilderExt;
+                builder.mode(0o700);
+            }
+            match builder.create(&dir) {
                 Ok(()) => {
-                    #[cfg(unix)]
-                    {
-                        use std::os::unix::fs::PermissionsExt;
-                        fs::set_permissions(&dir, fs::Permissions::from_mode(0o700))?;
-                    }
                     let meta = fs::symlink_metadata(&dir)?;
                     ensure!(
                         meta.is_dir() && !meta.file_type().is_symlink(),
-                        "unsafe preservation staging directory"
+                        "unsafe preservation backup directory"
                     );
-                    return Ok(dir);
+                    #[cfg(unix)]
+                    {
+                        use std::os::unix::fs::PermissionsExt;
+                        ensure!(
+                            meta.permissions().mode() & 0o077 == 0,
+                            "preservation backup directory is not private"
+                        );
+                    }
+                    return Ok(Backup {
+                        object: dir.join("object"),
+                        dir,
+                    });
                 }
                 Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => continue,
                 Err(error) => return Err(error.into()),
             }
         }
-        anyhow::bail!("cannot create private preservation staging directory")
+        anyhow::bail!("cannot create private preservation backup directory")
     }
 
-    fn contents(path: &Path) -> Result<Vec<u8>> {
+    fn read_bytes(path: &Path) -> Result<Vec<u8>> {
         let mut bytes = Vec::new();
         fs::File::open(path)?.take(16384).read_to_end(&mut bytes)?;
         Ok(bytes)
     }
 
-    fn restore_no_clobber(staged: &Path, path: &Path) -> Result<bool> {
-        let meta = fs::symlink_metadata(staged)?;
-        if meta.is_dir() {
-            // No portable no-clobber directory rename in std; retain and report.
-            return Ok(false);
+    /// Atomically move the object into a private backup directory. The inode is
+    /// never unlinked; pre-opened writers keep the same inode alive in the
+    /// backup. The target name is checked free first; a same-user race remains
+    /// and is explicitly out of scope.
+    pub(super) fn isolate(path: &Path) -> Result<Backup> {
+        let parent = path.parent().context("hook parent")?;
+        let backup = backup_directory(parent)?;
+        match fs::symlink_metadata(&backup.object) {
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
+            _ => anyhow::bail!("preservation backup target unexpectedly exists"),
         }
-        match fs::hard_link(staged, path) {
-            Ok(()) => {
-                fs::remove_file(staged)?;
-                Ok(true)
-            }
-            Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => Ok(false),
-            Err(error) => Err(error.into()),
-        }
+        fs::rename(path, &backup.object).context("isolate object into backup")?;
+        Ok(backup)
     }
 
-    /// Isolate, verify after the move, delete only a verified original, and
-    /// restore anything else without clobbering. Directories are retained.
-    pub(super) fn remove_owned_preserving(
+    /// Decide after the move. Only an exact owned object may free the path, and
+    /// even then its inode stays in the backup. Everything else is restored
+    /// no-clobber or retained with its exact backup path.
+    pub(super) fn classify(
+        backup: &Backup,
         path: &Path,
         content: &[u8],
         identity: &fs::Metadata,
     ) -> Result<Outcome> {
-        let parent = path.parent().context("hook parent")?;
-        let staging = staging_dir(parent)?;
-        let staged = staging.join("object");
-        fs::rename(path, &staged).context("isolate hook before removal")?;
-        let meta = fs::symlink_metadata(&staged)?;
+        let meta = fs::symlink_metadata(&backup.object)?;
         let ours = meta.is_file()
             && !meta.file_type().is_symlink()
             && same_identity(identity, &meta)
-            && contents(&staged)? == content;
+            && read_bytes(&backup.object)? == content;
         if ours {
-            fs::remove_file(&staged).context("remove verified owned hook")?;
-            let _ = fs::remove_dir(&staging);
-            return Ok(Outcome::Removed);
+            return Ok(Outcome::RemovedOwned {
+                backup: backup.dir.clone(),
+            });
         }
-        if restore_no_clobber(&staged, path)? {
-            let _ = fs::remove_dir(&staging);
-            return Ok(Outcome::RestoredForeign {
+        if meta.is_dir() {
+            return Ok(Outcome::RetainedConflict {
+                backup: backup.dir.clone(),
+                reason: "directory",
+            });
+        }
+        let reason = if meta.file_type().is_symlink() {
+            "symlink"
+        } else if same_identity(identity, &meta) {
+            "modified"
+        } else {
+            "foreign"
+        };
+        match fs::hard_link(&backup.object, path) {
+            Ok(()) => Ok(Outcome::Restored {
+                path: path.to_path_buf(),
+                backup: backup.dir.clone(),
+                reason,
+            }),
+            Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => {
+                Ok(Outcome::RetainedConflict {
+                    backup: backup.dir.clone(),
+                    reason: "restore target occupied",
+                })
+            }
+            Err(error) => Err(error.into()),
+        }
+    }
+
+    /// Read-only discovery of crash residue. Never mutates anything.
+    pub(super) fn discover(directory: &Path) -> Result<Vec<BackupReport>> {
+        let mut rows = Vec::new();
+        for entry in fs::read_dir(directory)? {
+            let entry = entry?;
+            let name = entry.file_name();
+            let Some(name) = name.to_str() else { continue };
+            if !name.starts_with(BACKUP_PREFIX) {
+                continue;
+            }
+            let meta = fs::symlink_metadata(entry.path())?;
+            if !meta.is_dir() || meta.file_type().is_symlink() {
+                continue;
+            }
+            let object = entry.path().join("object");
+            let Ok(object_meta) = fs::symlink_metadata(&object) else {
+                continue;
+            };
+            let kind = if object_meta.file_type().is_symlink() {
+                "symlink"
+            } else if object_meta.is_dir() {
+                "directory"
+            } else {
+                "file"
+            };
+            rows.push(BackupReport {
+                escaped: format!("{:?}", object),
+                dir: entry.path(),
+                object,
+                kind,
+                size: object_meta.len(),
+            });
+        }
+        rows.sort_by(|left, right| left.dir.cmp(&right.dir));
+        Ok(rows)
+    }
+
+    /// Lock release is separate from hook removal: verify identity, then move
+    /// the lock into a backup. A foreign lock is never moved or deleted.
+    pub(super) fn release_lock(path: &Path, identity: &fs::Metadata) -> Result<LockRelease> {
+        let meta = match fs::symlink_metadata(path) {
+            Ok(meta) => meta,
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
+                return Ok(LockRelease::AlreadyAbsent)
+            }
+            Err(error) => return Err(error.into()),
+        };
+        if !same_identity(identity, &meta) {
+            return Ok(LockRelease::LeftForeign {
                 path: path.to_path_buf(),
             });
         }
-        Ok(Outcome::RetainedConflict { recovery: staged })
+        let backup = isolate(path)?;
+        Ok(LockRelease::Released { backup: backup.dir })
     }
 
     #[cfg(test)]
     mod tests {
         use super::*;
+        use std::io::Write as _;
 
         fn owned(root: &Path, bytes: &[u8]) -> (PathBuf, fs::Metadata) {
             let path = root.join("pre-commit");
@@ -349,52 +477,106 @@ pub(super) mod preserve_prototype {
             (path, identity)
         }
 
+        fn same_inode(left: &Path, right: &Path) -> bool {
+            same_identity(
+                &fs::symlink_metadata(left).unwrap(),
+                &fs::symlink_metadata(right).unwrap(),
+            )
+        }
+
         #[test]
-        fn verified_original_is_removed_without_staging_leftovers() {
+        fn preopened_fd_write_after_isolation_is_preserved() {
             let root = tempfile::tempdir().unwrap();
             let (path, identity) = owned(root.path(), b"managed");
-            let outcome = remove_owned_preserving(&path, b"managed", &identity).unwrap();
-            assert_eq!(outcome, Outcome::Removed);
+            let mut handle = fs::OpenOptions::new()
+                .write(true)
+                .open(&path)
+                .unwrap();
+            let backup = isolate(&path).unwrap();
+            handle.write_all(b"user edit after isolation").unwrap();
+            handle.sync_all().unwrap();
+            let outcome = classify(&backup, &path, b"managed", &identity).unwrap();
+            assert!(matches!(outcome, Outcome::Restored { reason: "modified", .. }));
+            assert_eq!(fs::read(&backup.object).unwrap(), b"user edit after isolation");
+            assert_eq!(fs::read(&path).unwrap(), b"user edit after isolation");
+            assert!(same_inode(&backup.object, &path));
+        }
+
+        #[test]
+        fn preopened_fd_with_existing_hardlink_keeps_edits_visible() {
+            let root = tempfile::tempdir().unwrap();
+            let (path, identity) = owned(root.path(), b"managed");
+            let extra = root.path().join("editor-link");
+            fs::hard_link(&path, &extra).unwrap();
+            let mut handle = fs::OpenOptions::new().write(true).open(&path).unwrap();
+            let backup = isolate(&path).unwrap();
+            handle.write_all(b"edit through hard link").unwrap();
+            let _ = classify(&backup, &path, b"managed", &identity).unwrap();
+            assert_eq!(fs::read(&extra).unwrap(), b"edit through hard link");
+            assert_eq!(fs::read(&backup.object).unwrap(), b"edit through hard link");
+        }
+
+        // Why v1 was rejected: a pre-opened writer keeps the inode alive, so an
+        // unlink after verification still loses the user's later write.
+        #[test]
+        fn v1_style_unlink_after_verification_loses_preopened_edit() {
+            let root = tempfile::tempdir().unwrap();
+            let (path, identity) = owned(root.path(), b"managed");
+            let mut handle = fs::OpenOptions::new().write(true).open(&path).unwrap();
+            let backup = isolate(&path).unwrap();
+            assert!(same_identity(&identity, &fs::symlink_metadata(&backup.object).unwrap()));
+            handle.write_all(b"user edit").unwrap();
+            fs::remove_file(&backup.object).unwrap(); // v1 behaviour
+            assert!(!backup.object.exists());
+            drop(handle);
+            assert_eq!(fs::read_dir(&backup.dir).unwrap().count(), 0, "the edit is gone");
+        }
+
+        #[test]
+        fn owned_object_frees_path_but_keeps_backup() {
+            let root = tempfile::tempdir().unwrap();
+            let (path, identity) = owned(root.path(), b"managed");
+            let backup = isolate(&path).unwrap();
+            let outcome = classify(&backup, &path, b"managed", &identity).unwrap();
+            assert_eq!(outcome, Outcome::RemovedOwned { backup: backup.dir.clone() });
             assert!(!path.exists());
-            assert_eq!(fs::read_dir(root.path()).unwrap().count(), 0);
+            assert_eq!(fs::read(&backup.object).unwrap(), b"managed");
         }
 
         #[test]
-        fn foreign_replacement_is_restored_without_clobber() {
+        fn foreign_object_is_restored_with_backup_link() {
             let root = tempfile::tempdir().unwrap();
             let (path, identity) = owned(root.path(), b"managed");
+            // Keep the original inode alive so the filesystem cannot reuse its
+            // number for the replacement; dev+ino alone is not a strong identity.
+            let keep = root.path().join("kept-inode");
+            fs::hard_link(&path, &keep).unwrap();
             fs::remove_file(&path).unwrap();
-            fs::write(&path, b"foreign editor content").unwrap();
-            let outcome = remove_owned_preserving(&path, b"managed", &identity).unwrap();
-            assert_eq!(
-                outcome,
-                Outcome::RestoredForeign { path: path.clone() }
-            );
-            assert_eq!(fs::read(&path).unwrap(), b"foreign editor content");
-            assert_eq!(fs::read_dir(root.path()).unwrap().count(), 1);
+            fs::write(&path, b"foreign content").unwrap();
+            let backup = isolate(&path).unwrap();
+            let outcome = classify(&backup, &path, b"managed", &identity).unwrap();
+            assert!(matches!(outcome, Outcome::Restored { reason: "foreign", .. }));
+            assert_eq!(fs::read(&path).unwrap(), b"foreign content");
+            assert_eq!(fs::read(&backup.object).unwrap(), b"foreign content");
+            assert!(same_inode(&path, &backup.object));
         }
 
         #[test]
-        fn conflict_keeps_recoverable_copy_and_reports_path() {
+        fn restore_conflict_retains_backup_and_reports_path() {
             let root = tempfile::tempdir().unwrap();
             let (path, identity) = owned(root.path(), b"managed");
             fs::remove_file(&path).unwrap();
             fs::write(&path, b"foreign").unwrap();
-            // Simulate a second arrival after isolation but before restore.
-            let parent = path.parent().unwrap();
-            let staging = staging_dir(parent).unwrap();
-            let staged = staging.join("object");
-            fs::rename(&path, &staged).unwrap();
+            let backup = isolate(&path).unwrap();
             fs::write(&path, b"new arrival").unwrap();
-            assert!(!restore_no_clobber(&staged, &path).unwrap());
-            let outcome = remove_owned_preserving(&path, b"managed", &identity);
-            // The current path is now the new arrival, so this call restores it
-            // again or reports a conflict; either way nothing is deleted.
-            assert!(matches!(
-                outcome.unwrap(),
-                Outcome::RestoredForeign { .. } | Outcome::RetainedConflict { .. }
-            ));
-            assert!(path.exists());
+            let outcome = classify(&backup, &path, b"managed", &identity).unwrap();
+            match outcome {
+                Outcome::RetainedConflict { backup: dir, reason } => {
+                    assert_eq!(reason, "restore target occupied");
+                    assert_eq!(fs::read(dir.join("object")).unwrap(), b"foreign");
+                }
+                other => panic!("expected retained conflict, got {other:?}"),
+            }
             assert_eq!(fs::read(&path).unwrap(), b"new arrival");
         }
 
@@ -405,35 +587,52 @@ pub(super) mod preserve_prototype {
             fs::remove_file(&path).unwrap();
             #[cfg(unix)]
             std::os::unix::fs::symlink("foreign-target", &path).unwrap();
-            let outcome = remove_owned_preserving(&path, b"managed", &identity).unwrap();
-            assert!(matches!(
-                outcome,
-                Outcome::RestoredForeign { .. } | Outcome::RetainedConflict { .. }
-            ));
+            let backup = isolate(&path).unwrap();
+            let outcome = classify(&backup, &path, b"managed", &identity).unwrap();
+            assert!(matches!(outcome, Outcome::Restored { reason: "symlink", .. }));
             assert!(fs::symlink_metadata(&path).unwrap().file_type().is_symlink());
 
-            let dir_path = root.path().join("pre-push");
-            fs::create_dir(&dir_path).unwrap();
-            let dir_identity = fs::symlink_metadata(&dir_path).unwrap();
-            let outcome = remove_owned_preserving(&dir_path, b"managed", &dir_identity).unwrap();
-            match outcome {
-                Outcome::RetainedConflict { recovery } => {
-                    assert!(recovery.is_dir(), "directory kept in the reported recovery path");
-                }
-                other => panic!("directory must be retained, got {other:?}"),
-            }
+            let directory = root.path().join("pre-push");
+            fs::create_dir(&directory).unwrap();
+            let dir_identity = fs::symlink_metadata(&directory).unwrap();
+            let backup = isolate(&directory).unwrap();
+            let outcome = classify(&backup, &directory, b"managed", &dir_identity).unwrap();
+            assert!(matches!(outcome, Outcome::RetainedConflict { reason: "directory", .. }));
+            assert!(backup.object.is_dir());
         }
 
         #[test]
-        fn crash_between_rename_and_decision_preserves_the_file() {
+        fn crash_residue_is_discovered_read_only_with_exact_path() {
             let root = tempfile::tempdir().unwrap();
             let (path, _identity) = owned(root.path(), b"managed");
-            let staging = staging_dir(root.path()).unwrap();
-            let staged = staging.join("object");
-            fs::rename(&path, &staged).unwrap();
-            // Simulated crash: no decision or cleanup ran.
+            let backup = isolate(&path).unwrap();
+            // Simulated crash: no classify, no cleanup.
+            let rows = discover(root.path()).unwrap();
+            assert_eq!(rows.len(), 1);
+            assert_eq!(rows[0].object, backup.object);
+            assert!(rows[0].escaped.contains("object"));
+            assert!(rows[0].size > 0);
+            assert_eq!(fs::read(&backup.object).unwrap(), b"managed");
+        }
+
+        #[test]
+        fn lock_release_retains_backup_and_leaves_new_holder_alone() {
+            let root = tempfile::tempdir().unwrap();
+            let lock = Lock::acquire(root.path()).unwrap();
+            let old_identity = lock.identity.clone();
+            let path = lock.path.clone();
+            let released = release_lock(&path, &old_identity).unwrap();
+            let LockRelease::Released { backup } = released else {
+                panic!("expected released lock");
+            };
             assert!(!path.exists());
-            assert_eq!(fs::read(&staged).unwrap(), b"managed");
+            assert!(backup.join("object").exists());
+            let new_lock = Lock::acquire(root.path()).unwrap();
+            // An old instance's fallback must not touch the new holder.
+            let stale = release_lock(&path, &old_identity).unwrap();
+            assert!(matches!(stale, LockRelease::LeftForeign { .. }));
+            assert!(path.exists());
+            drop(new_lock);
         }
     }
 }
