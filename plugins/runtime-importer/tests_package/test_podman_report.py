@@ -19,7 +19,7 @@ def report():
                      'descriptor_path': '/private/installed/installation.json',
                      'descriptor_mode': 0o400, 'descriptor_sha256': 'a' * 64,
                      'routes': [['GET', '/v6.1.4/libpod/info'], ['GET', '/v6.1.4/libpod/images/' + 'b' * 64 + '/json'], ['GET', '/v6.1.4/libpod/info']] if i < 2 else []})
-    runtime = acceptance.runtime_contract(acceptance.ROOT)[0]
+    runtime = acceptance.RUNTIME_0_5
     return {'schema': 'gateprobes-importer-podman-acceptance/v1',
             'runtime_tag': runtime['tag'], 'runtime_version': runtime['version'],
             'core_version': acceptance.CORE_VERSION, 'core_sha256': acceptance.EXPECTED['sha256'],

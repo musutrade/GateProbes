@@ -5,13 +5,18 @@ from pathlib import Path
 import stat
 import tempfile
 import unittest
+from unittest.mock import Mock, patch
 
 import test_preflight as fixture
 import preflight
 import install
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'release'))
+import importer_core_podman
 
 BINARY = 'gateprobes-podman-lifecycle'
 NAME = BINARY + '-0.2.0-linux-amd64.tar.gz'
+HISTORICAL = Path(__file__).resolve().parent / 'fixtures/0.5.0'
 
 
 def evidence(manifest_changes=None, binary_name=BINARY, mode=0o755):
@@ -105,3 +110,125 @@ class PodmanProfileTests(unittest.TestCase):
                                          for n, b in sorted(files.items())])
             with self.subTest(remove=remove, extra=extra, mode=mode), self.assertRaises(preflight.InvalidRelease):
                 preflight.unpack(archive, NAME[:-7], BINARY)
+
+
+NAME_V3 = BINARY + '-0.3.0-linux-amd64.tar.gz'
+
+
+def evidence_v3(manifest_changes=None):
+    files = dict(fixture.FILES)
+    files.pop('accept.py')
+    files['accept_lifecycle.py'] = b'# lifecycle acceptance entry\n'
+    files.update({n: b'fixture' for n in ['Cargo.toml', 'core-pin.json', 'protocol-LICENSE']})
+    files[BINARY] = files.pop(preflight.BINARY)
+    manifest = dict(name='podman-lifecycle', version='0.3.0', executable=BINARY,
+                    protocol='gate-runtime/lifecycle-v1', core_versions=['0.13.0'],
+                    authority='container-lifecycle/mutate',
+                    capabilities=['capture', 'resolve-image', 'create', 'status', 'start', 'stop', 'remove', 'health'])
+    manifest.update(manifest_changes or {})
+    files['plugin.json'] = json.dumps(manifest).encode()
+    archive = fixture.tar_bytes([(NAME_V3[:-7] + '/' + n, b, 0o755 if n == BINARY else 0o644)
+                                 for n, b in sorted(files.items())])
+    sbom = json.dumps({'bomFormat': 'CycloneDX', 'specVersion': '1.5',
+                      'metadata': {'component': {'type': 'application', 'name': 'podman-lifecycle', 'version': '0.3.0'}},
+                      'components': [{'type': 'file', 'name': n, 'hashes': [{'alg': 'SHA-256', 'content': fixture.sha(b)}]}
+                                     for n, b in files.items()]}).encode()
+    assets = {NAME_V3: archive, NAME_V3 + '.sbom.cdx.json': sbom}
+    inventory = json.dumps({'schema_version': 1, 'source': {'repository': 'https://github.com/musutrade/GateProbes', 'commit': fixture.SOURCE},
+                            'tag': 'podman-lifecycle-v0.3.0', 'checksum_file': 'SHA256SUMS', 'inventory_file': 'release-inventory.json',
+                            'checksum_subjects': sorted([*assets, 'release-inventory.json']),
+                            'assets': [{'kind': 'package' if n == NAME_V3 else 'sbom', 'name': n, 'sha256': fixture.sha(b), 'size_bytes': len(b)}
+                                       for n, b in assets.items()]}).encode()
+    sums = ''.join(fixture.sha(b) + '  ' + n + '\n' for n, b in sorted({**assets, 'release-inventory.json': inventory}.items())).encode()
+    pin = json.loads(fixture.valid()[0])
+    pin.update(tag='podman-lifecycle-v0.3.0', version='0.3.0', executable_sha256=fixture.sha(files[BINARY]))
+    for key, b in [('archive', archive), ('sbom', sbom), ('inventory', inventory), ('checksums', sums)]:
+        pin[key + '_sha256'] = fixture.sha(b)
+    return json.dumps(pin).encode(), archive, sbom, inventory, sums
+
+
+class PodmanLifecycleV3ProfileTests(unittest.TestCase):
+    def test_profile_and_twelve_member_archive(self):
+        self.assertEqual(preflight.profile({'tag': 'podman-lifecycle-v0.3.0', 'version': '0.3.0'}),
+                         ('podman-lifecycle', BINARY, 'gate-runtime/lifecycle-v1'))
+        self.assertEqual(len(preflight.validate(*evidence_v3())), 12)
+
+    def test_install_descriptor_is_v1_sorted_and_config_free(self):
+        pin, archive, sbom, inventory, sums = evidence_v3()
+        with tempfile.TemporaryDirectory(dir=Path.home()) as temporary:
+            root = Path(temporary); root.chmod(0o700)
+            assets = root / 'assets'; assets.mkdir(mode=0o700)
+            for name, data in [(NAME_V3, archive), (NAME_V3 + '.sbom.cdx.json', sbom),
+                               ('release-inventory.json', inventory), ('SHA256SUMS', sums)]:
+                (assets / name).write_bytes(data)
+            pin_path = root / 'pin.json'; pin_path.write_bytes(pin); pin_path.chmod(0o600)
+            destination = root / 'installed'
+            descriptor = install.import_release(pin_path, assets, destination)
+            expected = {'schema': 'gate-runtime/lifecycle-installation-v1',
+                        'product': 'podman-lifecycle', 'version': '0.3.0',
+                        'protocol': 'gate-runtime/lifecycle-v1',
+                        'executable_path': str(destination / BINARY),
+                        'executable_sha256': json.loads(pin)['executable_sha256'],
+                        'config_schema': 'gate-runtime/lifecycle-config-v1'}
+            self.assertEqual(descriptor.read_bytes(),
+                             json.dumps(expected, sort_keys=True, separators=(',', ':')).encode())
+            self.assertFalse((destination / 'config.json').exists())
+            self.assertFalse((destination / 'host.json').exists())
+
+    def test_mixed_capture_or_core_versions_refused(self):
+        for change in [dict(protocol='gate-runtime/lifecycle-v2'),
+                       dict(core_versions=['0.12.0']),
+                       dict(authority='read-only-runtime-facts'),
+                       dict(capabilities=['capture'])]:
+            with self.subTest(change=change), self.assertRaises(preflight.InvalidRelease):
+                preflight.validate(*evidence_v3(change))
+
+    def test_cross_tag_version_refused(self):
+        for tag, version in [('podman-lifecycle-v0.3.0', '0.2.0'),
+                             ('podman-lifecycle-v0.2.0', '0.3.0'),
+                             ('podman-lifecycle-v0.3.1', '0.3.0')]:
+            with self.subTest(tag=tag), self.assertRaises(preflight.InvalidRelease):
+                preflight.profile({'tag': tag, 'version': version})
+
+
+class PodmanImporterVersionOverrideTests(unittest.TestCase):
+    def test_historical_core_and_runtime_pins_are_not_reinterpreted_by_current_manifest(self):
+        core = importer_core_podman.contract(HISTORICAL, version='0.5.0')
+        runtime, _ = importer_core_podman.runtime_contract(HISTORICAL, version='0.5.0')
+        self.assertEqual(core['version'], '0.12.0')
+        self.assertEqual(runtime['tag'], 'podman-lifecycle-v0.2.0')
+        current = importer_core_podman.contract(importer_core_podman.ROOT)
+        current_runtime, _ = importer_core_podman.runtime_contract(importer_core_podman.ROOT)
+        self.assertEqual(current, importer_core_podman.EXPECTED_0_6)
+        self.assertEqual(current_runtime['tag'], 'podman-lifecycle-v0.3.0')
+
+
+class PodmanPrepareVersionTests(unittest.TestCase):
+    def test_prepare_forwards_explicit_version_to_verify(self):
+        import hashlib
+        import io
+        import importer_core_podman as module
+        payload = b'fixture-payload'
+        digest = hashlib.sha256(payload).hexdigest()
+        pin = {'binary': 'harness-gate-linux-amd64', 'repository': 'musutrade/GateHouse',
+               'release': 'v0.12.0', 'version': '0.12.0', 'sha256': digest}
+        runtime = {'tag': 'podman-lifecycle-v0.2.0', 'archive_sha256': digest,
+                   'sbom_sha256': digest, 'inventory_sha256': digest, 'checksums_sha256': digest}
+        validator = Mock()
+        seen = []
+        with tempfile.TemporaryDirectory(dir=Path.home()) as temporary:
+            destination = Path(temporary) / 'installed'
+            class Reply:
+                def __enter__(self):
+                    return self
+                def __exit__(self, *args):
+                    return False
+                def read(self, _size):
+                    return payload
+            with patch.object(module, 'contract', return_value=pin), \
+                    patch.object(module, 'runtime_contract', return_value=(runtime, validator)), \
+                    patch.object(module, 'verify', side_effect=lambda _d, _r, version: seen.append(version)), \
+                    patch.object(module.urllib.request, 'urlopen', return_value=Reply()):
+                module.prepare(destination, version='0.5.0')
+        self.assertEqual(seen, ['0.5.0'])
+        validator.validate.assert_called_once()
