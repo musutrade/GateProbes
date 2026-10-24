@@ -63,3 +63,9 @@ predecessor separately. Downloaded Core 0.14.0 acceptance remains pending until
 that release exists. Publish this prerequisite before updating Core CI's archive
 pin; do not relax Core's exact-version check or rewrite 1.0.8. The repository
 released Core pin and runtime/importer compatibility declarations are unchanged.
+
+Version 1.0.10 adds exact Core 0.14.1 compatibility for its protocol publication
+repair. All prior declarations, execution policy and released Core pins remain
+unchanged. Candidate acceptance is separate from downloaded Core acceptance;
+v0.14.0 was tagged but its publication failed, so a new Core version is required.
+Historical preset releases remain immutable.
