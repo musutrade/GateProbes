@@ -11,7 +11,7 @@ boundary between the published bytes and later acceptance evidence.
 - Archive `gateprobes-podman-lifecycle-0.3.0-linux-amd64.tar.gz`, SHA-256 `044a1e9d6d7be82ca8e83b8f810ce6c266825a793d77f418d14efd13a69d69a0`
 - SBOM SHA-256 `f66dbe03e8c7b1f8cc20f93b1ad3857ec908b6f4158073965a2b515a64bbf262`
 - Inventory SHA-256 `8713afa1cb1fa52509d36541ffc8d0098a6defc00f2ba1bc4e5beb8793a5bc4b`
-- `SHA256SUMS` SHA-256 `389c309ec6deb477815e25c6919616f17cbcbdfd27afc9c27dba76a902bf12c`
+- `SHA256SUMS` SHA-256 `389c309ec6deb477815e25c6919616f17cbcbdfd27acfc9c27dba76a902bf12c`
 - Adapter executable `gateprobes-podman-lifecycle`, SHA-256 `efca5ba3b8e8bbbf0d7cce0efdce12b3f58fba190e01ba790bac81650c972d9d`, mode 0500 after installation
 
 All four integrity subjects pass `cosign verify-blob` with certificate identity

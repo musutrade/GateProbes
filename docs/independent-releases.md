@@ -244,3 +244,20 @@ empty stderr. The release packaging entry always runs Core acceptance; the
 build-only function is not a release acceptance substitute. The pre-version-bump repair passed cross-runner equality in CI run
 39535862193; each new artifact version must pass that comparison again. The published
 `docker-runtime-v0.1.0` assets remain immutable.
+
+## Published runtime importer and Podman lifecycle (2026-10-24)
+
+`runtime-importer-v0.7.0` is published with an exact Core 0.14.1 pin and declared
+Core 0.13.0/0.14.1 compatibility; downloaded-archive acceptance passed against
+both published Core binaries. See the
+[importer 0.7.0 receipt](releases/runtime-importer-0.7.0-acceptance.md).
+
+`podman-lifecycle-v0.3.0` is published and independently verified, but its
+immutable packaged manifest still declares Core 0.13.0 and packaging-time
+candidate wording. That wording is packaging history, not a current unpublished
+fact; the receipt records the verified interoperability without editing the
+artifact or Core's installation gate. See the
+[adapter status receipt](releases/podman-lifecycle-0.3.0-status.md).
+
+Both entries cover Linux x86_64 rootless Podman 5.7.0 normal lifecycle only; no
+daemon restart, additional platforms or fleet migration is certified.
