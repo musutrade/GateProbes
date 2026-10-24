@@ -166,6 +166,52 @@ fn install(directory: &Path, states: &[State]) -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    // Reproduction of issue #92 for the uninstall path: the identity snapshot is
+    // taken, then the file is replaced before the final removal.
+    #[test]
+    fn reproduction_uninstall_deletes_foreign_replacement() {
+        let root = tempfile::tempdir().unwrap();
+        let directory = root.path();
+        for (name, content) in HOOKS {
+            let path = directory.join(name);
+            std::fs::write(&path, content).unwrap();
+            #[cfg(unix)]
+            {
+                use std::os::unix::fs::PermissionsExt;
+                std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o755)).unwrap();
+            }
+        }
+        let states = HOOKS
+            .iter()
+            .map(|(name, content)| filesystem::inspect(&directory.join(name), content.as_bytes()))
+            .collect::<Result<Vec<_>>>()
+            .unwrap();
+        filesystem::test_arm_remove_swap(b"foreign editor content");
+        let result = uninstall(directory, &states);
+        filesystem::test_disarm_remove_swap();
+        assert!(result.is_ok(), "uninstall removed without detecting the swap");
+        assert!(!directory.join("pre-commit").exists(), "foreign pre-commit was deleted");
+    }
+
+    // Reproduction of issue #92 for the install rollback path.
+    #[test]
+    fn reproduction_rollback_deletes_foreign_replacement() {
+        let root = tempfile::tempdir().unwrap();
+        let directory = root.path();
+        std::fs::write(directory.join("pre-push"), "foreign arriving before install").unwrap();
+        let states = HOOKS
+            .iter()
+            .map(|(name, content)| filesystem::inspect(&directory.join(name), content.as_bytes()))
+            .collect::<Result<Vec<_>>>()
+            .unwrap();
+        filesystem::test_arm_remove_swap(b"foreign editor content");
+        let result = install(directory, &states);
+        filesystem::test_disarm_remove_swap();
+        assert!(result.is_err(), "install should fail on the foreign pre-push");
+        assert!(!directory.join("pre-commit").exists(), "foreign rollback target was deleted");
+    }
+
     #[test]
     fn late_second_target_conflict_rolls_back_only_created_hook() {
         let root = tempfile::tempdir().unwrap();
