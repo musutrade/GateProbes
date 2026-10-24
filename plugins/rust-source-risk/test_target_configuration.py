@@ -29,6 +29,8 @@ class TargetConfigurationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             for name in ('RUSTFLAGS', 'CARGO_ENCODED_RUSTFLAGS', 'CARGO_BUILD_TARGET',
+                         'CARGO_BUILD_RUSTC', 'CARGO_BUILD_RUSTC_WRAPPER',
+                         'CARGO_BUILD_RUSTC_WORKSPACE_WRAPPER',
                          'CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUSTFLAGS'):
                 with patch.dict(os.environ, {name: '--cfg changed'}, clear=False):
                     with self.assertRaisesRegex(ValueError, name):
