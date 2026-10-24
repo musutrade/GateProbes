@@ -1,0 +1,34 @@
+{
+  "schema": "gateprobes-onboarding-compatibility-candidate/v1",
+  "date": "2026-10-24",
+  "product": "onboarding-presets",
+  "version": "1.0.10",
+  "status": "candidate; unpublished",
+  "base_commit": "07edfcd3c11245fe3e558f5fd44bdcfe2f6e39cf",
+  "platform": "linux-x86_64",
+  "archive_sha256": "0aca0d1fdaf3ac0c13775fdcd4b8076d942ff3e050a1fd8f017b880ccaed29c9",
+  "checks": [
+    {
+      "core_version": "0.13.0",
+      "core_sha256": "1800325ea2f541dd9b011c03dc93c3dac341e839ece6289ebe778275dcaacf75",
+      "origin": "downloaded published Core",
+      "steps": 29,
+      "passed": true
+    },
+    {
+      "core_version": "0.14.1",
+      "core_sha256": "d049a0f593c05cc2f34cb090ab1dda7380f2eaa4d20491b2561c00d148b28056",
+      "origin": "source-built candidate at GateHouse9324f9337b8c9c41728ca85967cd2242ff0589af",
+      "steps": 29,
+      "passed": true
+    }
+  ],
+  "package_contract_tests": 4,
+  "manager_tests": 8,
+  "extracted_archive_acceptance": "29 real steps with0.14.1 candidate; packaging and source-independent package test pass",
+  "scope": "only execution preset exact Core compatibility; original1.0.9 and all pins immutable",
+  "pending": [
+    "public release and signature/provenance verification",
+    "downloaded Core0.14.1 acceptance after publication"
+  ]
+}
