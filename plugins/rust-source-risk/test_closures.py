@@ -8,6 +8,7 @@ from measure import measure
 from test_toolchain_compatibility import logged_run, retained_measure, retained_root, tool_identity
 
 HERE = Path(__file__).resolve().parent
+TARGET = {'target': 'x86_64-unknown-linux-gnu', 'cfg': ['target_os="linux"', 'unix']}
 
 
 class ClosureNativeTests(unittest.TestCase):
@@ -36,7 +37,7 @@ class ClosureNativeTests(unittest.TestCase):
     def result(self, name="closures", llvm=None):
         result = retained_measure(self.root, self._testMethodName,
                                   lambda: measure(self.root, [name + ".rs"], llvm or self.root / (name + ".json"),
-                                                  self.inventory))
+                                                  self.inventory, TARGET))
         return result['functions']
 
     def row(self, rows, binding):

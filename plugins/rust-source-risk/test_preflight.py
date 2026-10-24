@@ -9,6 +9,7 @@ import unittest
 from measure import source_inventories
 
 HERE = Path(__file__).resolve().parent
+TARGET = {'target': 'x86_64-unknown-linux-gnu', 'cfg': ['target_os="linux"', 'unix']}
 
 
 class SourcePreflightTests(unittest.TestCase):
@@ -27,8 +28,10 @@ class SourcePreflightTests(unittest.TestCase):
         self.marker = self.root / 'cargo-started'
         cargo.write_text('#!/bin/sh\nprintf started > "$CARGO_MARKER"\nexit 77\n')
         cargo.chmod(0o755)
+        cargo_home = self.root / 'cargo-home'
+        cargo_home.mkdir()
         self.env = dict(os.environ, PATH=str(tools) + os.pathsep + os.environ['PATH'],
-                        CARGO_MARKER=str(self.marker))
+                        CARGO_MARKER=str(self.marker), CARGO_HOME=str(cargo_home))
 
     def capture(self):
         return subprocess.run([
@@ -71,10 +74,10 @@ struct B { #[serde(serialize_with = "other")] x: u32 }
         outside.write_text('pub fn outside() {}')
         (self.repo / 'src/link.rs').symlink_to(outside)
         with self.assertRaisesRegex(ValueError, 'source escapes root'):
-            source_inventories(self.repo, ['src/link.rs'], HERE / 'inventory')
+            source_inventories(self.repo, ['src/link.rs'], HERE / 'inventory', TARGET)
         for path in ('../outside.rs', '/outside.rs', 'src/../outside.rs'):
             with self.assertRaisesRegex(ValueError, 'noncanonical'):
-                source_inventories(self.repo, [path], HERE / 'inventory')
+                source_inventories(self.repo, [path], HERE / 'inventory', TARGET)
 
 
 if __name__ == '__main__':

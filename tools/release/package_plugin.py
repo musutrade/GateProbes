@@ -35,8 +35,8 @@ import importer_core_v3
 ROOT = Path(__file__).resolve().parents[2]
 
 
-def run(*args: str, cwd: Path = ROOT, env=None, echo=True, combine=False) -> str:
-    result = subprocess.run(args, cwd=cwd, env=env, check=False, text=True,
+def run(*args: str, cwd: Path = ROOT, env=None, echo=True, combine=False, input=None) -> str:
+    result = subprocess.run(args, cwd=cwd, env=env, check=False, text=True, input=input,
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT if combine else None)
     if echo or result.returncode:
         print(result.stdout, end="", flush=True)
@@ -151,8 +151,17 @@ def rust_measure_package(output: Path, core: Path) -> None:
             if not (installed / filename).is_file():
                 raise RuntimeError("incomplete measurer archive: " + filename)
         check_measurer_identity(installed / identity["executable"], smoke, identity)
-        run("python3", str(source / "contract.py"), "--binary", str(installed / identity["executable"]),
-            "--core-root", str(core / "tools/quality"), cwd=consumer)
+        if version == "0.3.1":
+            run("python3", str(source / "contract.py"),
+                "--binary", str(installed / identity["executable"]),
+                "--core-root", str(core / "tools/quality"), cwd=consumer)
+        elif version == "0.4.0":
+            run("python3", str(source / "candidate_contract.py"),
+                "--binary", str(installed / identity["executable"]),
+                "--plugin-dir", str(installed),
+                "--core-root", str(core / "tools/quality"), cwd=consumer)
+        else:
+            raise RuntimeError("unsupported rust-measure contract route: " + version)
         metadata = stage / "cargo-metadata.json"
         metadata.write_text(run("cargo", "metadata", "--locked", "--format-version", "1",
                                 "--manifest-path", str(manifest), env=env, echo=False))
@@ -333,6 +342,7 @@ def rust_package(output: Path, core: Path) -> None:
         (package / "ast").mkdir()
         shutil.copy2(source / "ast/Cargo.lock", package / "ast/Cargo.lock")
         run("python3", str(package / "plugin.py"), "--help", cwd=stage)
+        shutil.rmtree(package / "__pycache__", ignore_errors=True)
         metadata = stage / "cargo-metadata.json"
         metadata.write_text(run("cargo", "metadata", "--locked", "--format-version", "1",
                                 "--manifest-path", str(manifest), env=env, echo=False))
@@ -353,7 +363,12 @@ def rust_package(output: Path, core: Path) -> None:
         (package / "THIRD_PARTY_NOTICES.txt").write_text("\n\n".join(notices))
         smoke = stage / "smoke.rs"
         smoke.write_text("fn published_inventory(x: bool) { if x {} }\n")
-        rows = json.loads(run(str(package / "inventory"), str(smoke), cwd=stage))
+        version = run("rustc", "-vV", echo=False)
+        target = next(line.removeprefix("host: ") for line in version.splitlines() if line.startswith("host: "))
+        cfg = sorted(set(run("rustc", "--print", "cfg", "--target", target, echo=False).splitlines()))
+        target_cfg = json.dumps({"target": target, "cfg": cfg})
+        rows = json.loads(run(str(package / "inventory"), str(smoke), "--target-cfg",
+                              cwd=stage, input=target_cfg))
         if len(rows) != 1 or rows[0]["complexity"] != 2:
             raise RuntimeError("packaged inventory smoke test failed")
         with tarfile.open(output / (name + ".tar.gz"), "w:gz") as archive:

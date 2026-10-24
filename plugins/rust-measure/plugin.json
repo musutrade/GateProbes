@@ -1,7 +1,7 @@
 {
   "schema": "rust-measure-plugin/v1",
   "name": "harness-gate-rust-measure",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "executable": "harness-gate-rust-measure",
   "analyzer": "harness-gate-rust-measure",
   "rule": "mccabe-rust-3",

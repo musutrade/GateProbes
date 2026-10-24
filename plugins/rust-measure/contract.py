@@ -3,9 +3,10 @@
 
 Runs the built binary through the pinned Harness-Gate `source_measure.ast`
 contract from the commit recorded in `docs/ownership.json`. That consumer
-asserts the `harness-gate-rust-measure/0.3.1` / `mccabe-rust-3` identity and the
-compiler target configuration echo, so a binary the pinned Core would reject
-fails here instead of being published.
+asserts the pinned Core's expected `harness-gate-rust-measure/0.3.1` /
+`mccabe-rust-3` identity and the compiler target configuration echo. The 0.4.0
+candidate therefore fails this consumer contract until GH#108 updates the Core
+pin; that is an expected release blocker, not a reason to weaken the contract.
 """
 from __future__ import annotations
 

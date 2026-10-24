@@ -1,5 +1,7 @@
+mod configuration;
 mod select;
 
+use configuration::{Configuration, TargetConfiguration};
 use proc_macro2::Span;
 use serde::Serialize;
 use syn::{
@@ -452,8 +454,16 @@ impl<'ast> Visit<'ast> for Inventory<'_> {
         }
     }
 }
-fn inventory(source: &str) -> Result<Vec<Callable>, String> {
-    let syntax = syn::parse_file(source).map_err(|e| e.to_string())?;
+fn inventory_with_target(
+    source: &str,
+    target: &TargetConfiguration,
+) -> Result<Vec<Callable>, String> {
+    let mut syntax = syn::parse_file(source).map_err(|e| e.to_string())?;
+    let mut filter = Configuration::new(target.cfg.clone());
+    filter.apply(&mut syntax);
+    if !filter.errors.is_empty() {
+        return Err(filter.errors.join("; "));
+    }
     let mut visitor = Inventory {
         source,
         functions: vec![],
@@ -468,11 +478,19 @@ fn inventory(source: &str) -> Result<Vec<Callable>, String> {
 }
 fn main() {
     let result = (|| -> Result<(), String> {
-        let path = std::env::args().nth(1).ok_or("expected Rust source path")?;
+        let mut args = std::env::args().skip(1);
+        let path = args.next().ok_or("expected Rust source path")?;
+        if args.next().as_deref() != Some("--target-cfg") || args.next().is_some() {
+            return Err("expected --target-cfg and one JSON target configuration on stdin".into());
+        }
+        let target: TargetConfiguration = serde_json::from_reader(std::io::stdin())
+            .map_err(|e| format!("invalid target configuration: {e}"))?;
+        let target = target.canonical()?;
         let source = std::fs::read_to_string(path).map_err(|e| e.to_string())?;
         println!(
             "{}",
-            serde_json::to_string(&inventory(&source)?).map_err(|e| e.to_string())?
+            serde_json::to_string(&inventory_with_target(&source, &target)?)
+                .map_err(|e| e.to_string())?
         );
         Ok(())
     })();
@@ -482,14 +500,28 @@ fn main() {
     }
 }
 #[cfg(test)]
+fn inventory(source: &str) -> Result<Vec<Callable>, String> {
+    inventory_with_target(
+        source,
+        &TargetConfiguration {
+            target: "x86_64-unknown-linux-gnu".into(),
+            cfg: vec!["target_os=\"linux\"".into(), "unix".into()],
+        },
+    )
+}
+
+#[cfg(test)]
 mod tests {
     use super::*;
+
     #[test]
     fn test_modules_are_outside_the_production_boundary() {
         let rows = inventory("fn production() {} #[cfg(test)] mod tests { #[test] fn only_test() { arbitrary!(); } } #[cfg(test)] #[path=\"../tests/external.rs\"] mod external;").unwrap();
         assert_eq!(rows.len(), 1);
         assert_eq!(rows[0].name, "production");
-        assert!(inventory("#[cfg(not(test))] mod production { fn f() {} }").is_err());
+        let rows = inventory("#[cfg(not(test))] mod production { fn f() {} }").unwrap();
+        assert_eq!(rows.len(), 1);
+        assert_eq!(rows[0].name, "f");
         assert!(inventory("#[cfg(feature=\"test\")] mod feature { fn f() {} }").is_err());
     }
     #[test]
@@ -559,6 +591,64 @@ mod tests {
         let f = inventory(src).unwrap();
         assert_eq!(f[1].start[1], src.find("||").unwrap() + 1);
     }
+    #[test]
+    fn production_view_handles_compound_and_nested_cfg() {
+        let source = r#"
+#[cfg(any(test, unix))]
+fn unix_or_test() { if true {} }
+#[cfg(all(test, target_os = "linux"))]
+fn linux_test_only() {}
+#[cfg(all(unix, not(test)))]
+fn unix_production() { if true {} }
+#[cfg(not(any(unix, windows)))]
+fn exotic() {}
+#[cfg(not(windows))]
+fn not_windows() { if true {} }
+fn plain() {}
+"#;
+        let rows = inventory(source).unwrap();
+        assert_eq!(
+            rows.iter().map(|row| row.name.as_str()).collect::<Vec<_>>(),
+            vec!["unix_or_test", "unix_production", "not_windows", "plain"]
+        );
+        assert_eq!(rows[0].complexity, 2);
+        assert_eq!(rows[1].complexity, 2);
+    }
+
+    #[test]
+    fn cfg_attr_test_derive_is_accepted_only_on_derive_bearing_items() {
+        let source = r#"
+#[cfg_attr(test, derive(schemars::JsonSchema))]
+struct Production { value: String }
+#[cfg_attr(test, derive(Debug), derive(Clone))]
+enum Mode { A }
+#[cfg_attr(test, derive(Debug))]
+union Bits { value: u64 }
+fn plain() {}
+"#;
+        let rows = inventory(source).unwrap();
+        assert_eq!(rows.len(), 1);
+        assert_eq!(rows[0].name, "plain");
+        assert!(inventory("#[cfg_attr(test, derive(Debug))] fn bad() {}").is_err());
+        assert!(
+            inventory("#[cfg_attr(not(test), derive(Debug))] struct Bad { value: u8 }").is_err()
+        );
+        assert!(
+            inventory("#[cfg_attr(test, cfg(feature = \"x\"))] struct Bad { value: u8 }").is_err()
+        );
+    }
+
+    #[test]
+    fn every_cfg_operand_is_validated_before_reduction() {
+        for source in [
+            "#[cfg(all(windows, feature = \"x\"))] fn f() {}",
+            "#[cfg(any(unix, feature = \"x\"))] fn f() {}",
+            "#[cfg(not(feature = \"x\"))] fn f() {}",
+        ] {
+            assert!(inventory(source).is_err(), "{source}");
+        }
+    }
+
     #[test]
     fn async_and_methods() {
         let f = inventory(

@@ -36,7 +36,7 @@
       "entries": {
         "install": "cargo build --locked --release",
         "test": "cargo test --locked",
-        "contract": "python3 contract.py --binary target/release/harness-gate-rust-measure --core-root \"$RUNNER_TEMP/core/tools/quality\"",
+        "contract": "python3 candidate_contract.py --binary target/release/harness-gate-rust-measure --plugin-dir . --core-root \"$RUNNER_TEMP/core/tools/quality\"",
         "package": "cargo build --locked --release"
       },
       "protocols": [],
