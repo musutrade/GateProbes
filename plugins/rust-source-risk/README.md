@@ -87,6 +87,16 @@ python3 plugin.py discover --request /absolute/request.json
 python3 plugin.py collect --request /absolute/request.json
 ```
 
+Capture binds the recorded target/cfg and rustc version to the actual snapshot cwd and
+fails closed on compiler, wrapper, target, rustflags/rustdocflags, linker/runner or
+`[env]` overrides from the repository, snapshot ancestors or `CARGO_HOME`. A clean
+`CARGO_HOME` without such overrides is required; the user's global configuration is
+never modified. Project `build.rs`/custom `build =` scripts are rejected because
+`cargo:rustc-cfg` output is not part of `rustc --print cfg`; `feature` and other
+custom cfg predicates are likewise rejected. A supported capture environment therefore
+does not claim that the base compiler cfg is the complete effective cfg for arbitrary
+build scripts.
+
 `capture.py --help` documents snapshot arguments. `acceptance.py --bundle BUNDLE
 --plugin PLUGIN_DIRECTORY` runs a backend-only, ephemeral-key Core rehearsal. It
 refuses a real checkout and checks signature, stale context, expiration, replay

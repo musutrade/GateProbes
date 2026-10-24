@@ -71,6 +71,20 @@ class CaptureEnvironmentTests(unittest.TestCase):
             result = self.capture(root, repo, dict(os.environ, CARGO_HOME=str(home)))
             self.assert_rejected(result, 'RUSTC_WRAPPER')
 
+    def test_build_script_cfg_is_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            repo = self.repository(root)
+            (repo / 'build.rs').write_text('fn main() { println!("cargo:rustc-cfg=custom"); }\n')
+            result = self.capture(root, repo, self.clean_environment(root))
+            self.assert_rejected(result, 'build script')
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            repo = self.repository(root)
+            (repo / 'Cargo.toml').write_text('[package]\nname="fixture"\nversion="0.1.0"\nedition="2024"\nbuild = "scripts/build.rs"\n')
+            result = self.capture(root, repo, self.clean_environment(root))
+            self.assert_rejected(result, 'custom build script')
+
     def test_different_snapshot_toolchain_is_rejected(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

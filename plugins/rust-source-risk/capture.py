@@ -85,6 +85,18 @@ def validate_configuration(repo, root):
             raise ValueError(f'unsupported Cargo configuration in {path}')
 
 
+def validate_effective_cfg_sources(repo):
+    for path in repo.rglob('build.rs'):
+        if not any(part in {'.git', 'target'} for part in path.parts):
+            raise ValueError(f'unsupported build script for effective cfg: {path}')
+    for path in repo.rglob('Cargo.toml'):
+        if any(part in {'.git', 'target'} for part in path.parts):
+            continue
+        if any(line.strip().startswith('build = "') or line.strip().startswith("build = '")
+               for line in path.read_text().splitlines()):
+            raise ValueError(f'unsupported custom build script for effective cfg: {path}')
+
+
 def validate_toolchain(repo, root):
     repository_version = rustc_version(repo)
     snapshot_version = rustc_version(root)
@@ -131,6 +143,7 @@ def main():
             inputs[str(relative)] = sha(data)
     (root / '.local-capture-snapshot').write_text('backend-source-only rehearsal\n')
     validate_configuration(repo, root)
+    validate_effective_cfg_sources(repo)
     target_triple = args.target or host_target(root)
     target_cfg = compiler_configuration(target_triple, root)
     validate_toolchain(repo, root)
