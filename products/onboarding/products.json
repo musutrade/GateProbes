@@ -2,7 +2,7 @@
   "schema": "gateprobes-products/v1",
   "products": {
     "rust-minimal": {
-      "version": "1.0.8",
+      "version": "1.0.9",
       "source": "https://github.com/musutrade/GateProbes",
       "core_versions": [
         "0.5.0",
@@ -14,7 +14,8 @@
         "0.10.0",
         "0.11.0",
         "0.12.0",
-        "0.13.0"
+        "0.13.0",
+        "0.14.0"
       ],
       "protocol": "harness-preset-catalog/v1",
       "platforms": [
@@ -36,7 +37,7 @@
       ]
     },
     "python-minimal": {
-      "version": "1.0.8",
+      "version": "1.0.9",
       "source": "https://github.com/musutrade/GateProbes",
       "core_versions": [
         "0.5.0",
@@ -48,7 +49,8 @@
         "0.10.0",
         "0.11.0",
         "0.12.0",
-        "0.13.0"
+        "0.13.0",
+        "0.14.0"
       ],
       "protocol": "harness-preset-catalog/v1",
       "platforms": [

@@ -1,0 +1,40 @@
+{
+  "schema": "gateprobes-onboarding-compatibility-candidate/v1",
+  "date": "2026-10-24",
+  "product": "onboarding-presets",
+  "version": "1.0.9",
+  "status": "candidate; unpublished",
+  "base_commit": "1723af519e90e34fed60fa59afcb962665d7c7ee",
+  "platform": "linux-x86_64",
+  "archive_sha256": "d472c8c09e68c0dedf1ab0a90fa67181c0d4d9d29be1292650babbe246ceed53",
+  "checks": [
+    {
+      "core_version": "0.13.0",
+      "core_origin": "published downloaded binary",
+      "core_sha256": "1800325ea2f541dd9b011c03dc93c3dac341e839ece6289ebe778275dcaacf75",
+      "passed": true,
+      "steps": 29
+    },
+    {
+      "core_version": "0.14.0",
+      "core_origin": "source-built candidate at GateHouse d89e529da2eb1ada45a2acafa2eb54c608d545ec",
+      "core_sha256": "0566ed841b7b4da978032c070c745d88786e4acc23721f45411ac5e26ee3b8de",
+      "passed": true,
+      "steps": 29
+    }
+  ],
+  "package_contract_tests": 4,
+  "manager_tests": 8,
+  "extracted_archive_acceptance": "29 real steps with candidate Core0.14.0 during packaging",
+  "scope": "Rust/Python init/check/verify, trust/tamper negatives, upgrade and exact rollback; execution-only presets",
+  "unchanged": [
+    "previous exact Core allowlist entries",
+    "released Core contract pin",
+    "preset execution and quality policy",
+    "historical1.0.8 artifacts"
+  ],
+  "pending": [
+    "publication/signature/provenance verification and downloaded1.0.9 acceptance",
+    "downloaded Core0.14.0 acceptance after that Core release exists"
+  ]
+}

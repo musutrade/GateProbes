@@ -55,3 +55,11 @@ source build; downloaded Core 0.13.0 acceptance remains required after
 publication. Publish this compatible package before Core CI binds it exactly.
 This declaration does not claim Podman real-engine, mutation or lease behavior.
 Existing 1.0.7 artifacts and pins remain immutable.
+
+Version 1.0.9 retains every previously declared Core version and adds Core
+0.14.0 to both execution-only products for the Core CLI retirement release.
+Validation covers the source-built 0.14.0 candidate and the downloaded 0.13.0
+predecessor separately. Downloaded Core 0.14.0 acceptance remains pending until
+that release exists. Publish this prerequisite before updating Core CI's archive
+pin; do not relax Core's exact-version check or rewrite 1.0.8. The repository
+released Core pin and runtime/importer compatibility declarations are unchanged.

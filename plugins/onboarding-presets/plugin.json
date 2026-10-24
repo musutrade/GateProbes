@@ -1,7 +1,7 @@
 {
   "schema": "gateprobes-preset-distribution/v1",
   "name": "onboarding-presets",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "products": [
     "rust-minimal",
     "python-minimal"
