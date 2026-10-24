@@ -28,8 +28,10 @@ class SourcePreflightTests(unittest.TestCase):
         self.marker = self.root / 'cargo-started'
         cargo.write_text('#!/bin/sh\nprintf started > "$CARGO_MARKER"\nexit 77\n')
         cargo.chmod(0o755)
+        cargo_home = self.root / 'cargo-home'
+        cargo_home.mkdir()
         self.env = dict(os.environ, PATH=str(tools) + os.pathsep + os.environ['PATH'],
-                        CARGO_MARKER=str(self.marker))
+                        CARGO_MARKER=str(self.marker), CARGO_HOME=str(cargo_home))
 
     def capture(self):
         return subprocess.run([

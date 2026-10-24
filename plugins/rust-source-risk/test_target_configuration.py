@@ -5,7 +5,7 @@ import subprocess
 import tempfile
 import unittest
 from unittest.mock import patch
-from capture import compiler_configuration, validate_environment
+from capture import compiler_configuration, validate_configuration, validate_environment
 from measure import target_configuration
 
 HERE = Path(__file__).resolve().parent
@@ -19,7 +19,7 @@ class TargetConfigurationTests(unittest.TestCase):
         self.assertEqual(target_configuration(value), value)
 
     def test_compiler_configuration_is_canonical(self):
-        value = compiler_configuration('x86_64-unknown-linux-gnu')
+        value = compiler_configuration('x86_64-unknown-linux-gnu', Path.cwd())
         self.assertEqual(value['target'], 'x86_64-unknown-linux-gnu')
         self.assertEqual(value['cfg'], sorted(set(value['cfg'])))
         self.assertIn('target_os="linux"', value['cfg'])
@@ -34,12 +34,15 @@ class TargetConfigurationTests(unittest.TestCase):
                     with self.assertRaisesRegex(ValueError, name):
                         validate_environment(root)
             (root / '.cargo').mkdir()
+            home = root / 'cargo-home'
+            home.mkdir()
             (root / '.cargo/config.toml').write_text('[build]\nrustflags = ["--cfg", "changed"]\n')
-            with self.assertRaisesRegex(ValueError, 'rustflags'):
-                validate_environment(root)
-            (root / '.cargo/config.toml').write_text('[build]\ntarget = "aarch64-unknown-linux-gnu"\n')
-            with self.assertRaisesRegex(ValueError, 'target'):
-                validate_environment(root)
+            with patch.dict(os.environ, {'CARGO_HOME': str(home)}):
+                with self.assertRaisesRegex(ValueError, 'rustflags'):
+                    validate_configuration(root, root)
+                (root / '.cargo/config.toml').write_text('[build]\ntarget = "aarch64-unknown-linux-gnu"\n')
+                with self.assertRaisesRegex(ValueError, 'target'):
+                    validate_configuration(root, root)
 
     def inventory(self, source, target, arguments=('--target-cfg',)):
         if not INVENTORY.is_file():

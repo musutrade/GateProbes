@@ -18,14 +18,30 @@ from plugin import COLLECTOR, TYPES, canonical, discover, inventory, series, sha
 from measure import source_inventories, target_configuration
 
 
-def host_target():
-    version = subprocess.check_output(['rustc', '-vV'], text=True)
+FORBIDDEN_BUILD_KEYS = {
+    'rustc', 'rustc-wrapper', 'rustc-workspace-wrapper', 'rustdoc',
+    'target', 'rustflags', 'rustdocflags', 'linker', 'runner',
+}
+FORBIDDEN_ENV_KEYS = {
+    'RUSTFLAGS', 'CARGO_ENCODED_RUSTFLAGS', 'CARGO_BUILD_TARGET',
+    'CARGO_BUILD_RUSTFLAGS', 'RUSTC', 'RUSTC_WRAPPER',
+    'RUSTC_WORKSPACE_WRAPPER', 'RUSTUP_TOOLCHAIN',
+}
+
+
+def host_target(cwd):
+    version = subprocess.check_output(['rustc', '-vV'], cwd=cwd, text=True)
     return next(line.removeprefix('host: ') for line in version.splitlines() if line.startswith('host: '))
 
 
-def compiler_configuration(target):
-    values = sorted(set(subprocess.check_output(['rustc', '--print', 'cfg', '--target', target], text=True).splitlines()))
+def compiler_configuration(target, cwd):
+    values = sorted(set(subprocess.check_output(
+        ['rustc', '--print', 'cfg', '--target', target], cwd=cwd, text=True).splitlines()))
     return target_configuration({'target': target, 'cfg': values})
+
+
+def rustc_version(cwd):
+    return subprocess.check_output(['rustc', '-vV'], cwd=cwd, text=True).strip()
 
 
 def validate_environment(repo):
@@ -36,23 +52,45 @@ def validate_environment(repo):
     for name in os.environ:
         if name.startswith('CARGO_TARGET_') and name.endswith('_RUSTFLAGS'):
             raise ValueError(f'unsupported environment variable for capture: {name}')
-    for name in ('.cargo/config.toml', '.cargo/config'):
-        path = repo / name
-        if not path.is_file():
-            continue
+
+
+def configuration_sources(repo, root):
+    paths = set()
+    for base in (repo, root, *root.parents):
+        paths.add(base / '.cargo/config.toml')
+        paths.add(base / '.cargo/config')
+    cargo_home = Path(os.environ.get('CARGO_HOME', Path.home() / '.cargo')).resolve()
+    paths.add(cargo_home / 'config.toml')
+    paths.add(cargo_home / 'config')
+    return sorted(path for path in paths if path.is_file())
+
+
+def validate_configuration(repo, root):
+    for path in configuration_sources(repo, root):
         text = path.read_text()
-        if name.endswith('.toml'):
+        if path.name.endswith('.toml'):
             data = tomllib.loads(text)
-            if 'rustflags' in data.get('build', {}) or 'target' in data.get('build', {}):
-                raise ValueError(f'unsupported build target/rustflags in {name}')
-            for target in data.get('target', {}).values():
-                if 'rustflags' in target:
-                    raise ValueError(f'unsupported target rustflags in {name}')
-            for key in ('RUSTFLAGS', 'CARGO_ENCODED_RUSTFLAGS', 'CARGO_BUILD_TARGET'):
-                if key in data.get('env', {}):
-                    raise ValueError(f'unsupported environment override in {name}: {key}')
-        elif any(token in text for token in ('rustflags', 'CARGO_ENCODED_RUSTFLAGS', 'CARGO_BUILD_TARGET')):
-            raise ValueError(f'unsupported rustflags/environment override in {name}')
+            build = data.get('build', {})
+            forbidden = FORBIDDEN_BUILD_KEYS & set(build)
+            if forbidden:
+                raise ValueError(f'unsupported build configuration in {path}: {sorted(forbidden)}')
+            for target, values in data.get('target', {}).items():
+                forbidden = FORBIDDEN_BUILD_KEYS & set(values)
+                if forbidden:
+                    raise ValueError(f'unsupported target configuration in {path} ({target}): {sorted(forbidden)}')
+            for key in data.get('env', {}):
+                if key in FORBIDDEN_ENV_KEYS or (key.startswith('CARGO_TARGET_') and key.endswith('_RUSTFLAGS')):
+                    raise ValueError(f'unsupported environment override in {path}: {key}')
+        elif any(token in text for token in (*FORBIDDEN_BUILD_KEYS, *FORBIDDEN_ENV_KEYS)):
+            raise ValueError(f'unsupported Cargo configuration in {path}')
+
+
+def validate_toolchain(repo, root):
+    repository_version = rustc_version(repo)
+    snapshot_version = rustc_version(root)
+    if repository_version != snapshot_version:
+        raise ValueError('rustc version differs between repository and snapshot cwd')
+    return snapshot_version
 
 
 def main():
@@ -68,8 +106,6 @@ def main():
     args = parser.parse_args()
     repo = args.repository.resolve(strict=True)
     validate_environment(repo)
-    target_triple = args.target or host_target()
-    target_cfg = compiler_configuration(target_triple)
     out = args.output.absolute()
     out.mkdir(mode=0o700)
     root = out / 'workspace'
@@ -94,6 +130,10 @@ def main():
             destination.write_bytes(data)
             inputs[str(relative)] = sha(data)
     (root / '.local-capture-snapshot').write_text('backend-source-only rehearsal\n')
+    validate_configuration(repo, root)
+    target_triple = args.target or host_target(root)
+    target_cfg = compiler_configuration(target_triple, root)
+    validate_toolchain(repo, root)
     # Inspect the same immutable input snapshot that will be compiled. Cheap
     # syntax/Serde failures must be reported together before cargo is started.
     sources = inventory({'workspace_root': str(root),
@@ -128,8 +168,8 @@ def main():
     for name in ('llvm-cov', 'llvm-profdata'):
         p = Path(export[0]).with_name(name)
         tools[name] = {'path': str(p), 'sha256': sha(p.read_bytes()), 'version': subprocess.check_output([p, '--version'], text=True).strip()}
-    tools['rustc'] = subprocess.check_output(['rustc', '-vV'], text=True).strip()
-    tools['cargo-llvm-cov'] = subprocess.check_output(['cargo', 'llvm-cov', '--version'], text=True).strip()
+    tools['rustc'] = rustc_version(root)
+    tools['cargo-llvm-cov'] = subprocess.check_output(['cargo', 'llvm-cov', '--version'], cwd=root, text=True).strip()
     config = {p: h for p, h in inputs.items() if p.endswith(('Cargo.toml', 'Cargo.lock')) or p.startswith('.cargo/')}
     revision = subprocess.check_output(['git', '-C', repo, 'rev-parse', 'HEAD'], text=True).strip()
     request = {'schema': 'harness-collector-request/v1', 'project': 'codexsymphony', 'component': 'backend',

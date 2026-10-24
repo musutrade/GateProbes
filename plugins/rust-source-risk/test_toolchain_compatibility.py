@@ -152,6 +152,8 @@ fn main() { std::hint::black_box(manual(true)); std::hint::black_box(manual(fals
 CFG_MATRIX = {
     'plain': ('pub fn plain() -> usize { 1 }', ['plain'], True, False),
     'cfg_attr': ('#[cfg_attr(test, derive(Debug))] struct A { value: u8 }\npub fn plain() -> usize { 1 }', ['plain'], True, False),
+    'cfg_attr_enum': ('#[cfg_attr(test, derive(Debug))] enum A { One }\npub fn plain() -> usize { 1 }', ['plain'], True, False),
+    'cfg_attr_union': ('#[cfg_attr(test, derive(Debug))] union A { value: u64 }\npub fn plain() -> usize { 1 }', ['plain'], True, False),
     'compound': ('#[cfg(any(test, unix))] pub fn platform() -> usize { 1 }\npub fn plain() -> usize { 1 }', ['platform', 'plain'], True, False),
     'nested': ('#[cfg(all(unix, not(test)))] pub fn nested() -> usize { 1 }\npub fn plain() -> usize { 1 }', ['nested', 'plain'], True, False),
     'cfg_test_module': ('#[cfg(test)] mod tests { fn excluded() {} }\npub fn plain() -> usize { 1 }', ['plain'], True, True),
@@ -171,6 +173,10 @@ CFG_MATRIX = {
     'cfg_attr_inner': ('#[cfg_attr(test, cfg(feature = "x"))] struct A { value: u8 }', None, False, False),
     'cfg_attr_field': ('struct A { #[cfg_attr(test, derive(Debug))] value: u8 }\npub fn plain() -> usize { 1 }', None, False, False),
     'cfg_attr_module': ('#[cfg_attr(test, derive(Debug))] mod m { fn inner() {} }\npub fn plain() -> usize { 1 }', None, False, False),
+    'cfg_attr_derive_invalid': ('#[cfg_attr(test, derive(Debug = "bad"))] struct A { value: u8 }\npub fn plain() -> usize { 1 }', None, False, False),
+    'cfg_attr_derive_empty': ('#[cfg_attr(test, derive())] struct A { value: u8 }\npub fn plain() -> usize { 1 }', None, False, False),
+    'cfg_attr_derive_literal': ('#[cfg_attr(test, derive("Debug"))] struct A { value: u8 }\npub fn plain() -> usize { 1 }', None, False, False),
+    'cfg_attr_derive_nested': ('#[cfg_attr(test, derive(derive(Debug)))] struct A { value: u8 }\npub fn plain() -> usize { 1 }', None, False, False),
 }
 
 

@@ -110,10 +110,22 @@ impl Configuration {
         }
         let mut derive = false;
         for argument in arguments {
-            match argument {
-                Meta::List(list) if list.path.is_ident("derive") => derive = true,
-                _ => return false,
+            let Meta::List(list) = argument else {
+                return false;
+            };
+            if !list.path.is_ident("derive") {
+                return false;
             }
+            let Ok(paths) = syn::parse::Parser::parse2(
+                syn::punctuated::Punctuated::<syn::Path, syn::Token![,]>::parse_terminated,
+                list.tokens.clone(),
+            ) else {
+                return false;
+            };
+            if paths.is_empty() {
+                return false;
+            }
+            derive = true;
         }
         derive
     }
@@ -433,6 +445,10 @@ mod tests {
             parse_quote!(#[cfg_attr(not(test), derive(Debug))]),
             parse_quote!(#[cfg_attr(test, cfg(feature = "x"))]),
             parse_quote!(#[cfg_attr(test, derive(Debug), doc = "x")]),
+            parse_quote!(#[cfg_attr(test, derive(Debug = "bad"))]),
+            parse_quote!(#[cfg_attr(test, derive())]),
+            parse_quote!(#[cfg_attr(test, derive("Debug"))]),
+            parse_quote!(#[cfg_attr(test, derive(derive(Debug))) ]),
         ] {
             let mut configuration = configuration();
             let mut attributes = vec![attribute];
