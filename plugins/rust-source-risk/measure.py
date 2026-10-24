@@ -70,7 +70,21 @@ def line_coverage(source, regions, excluded):
             cursor += len(fragment)
     return sum(lines.values()), len(lines)
 
-def source_inventories(source_root, production_files, ast_binary):
+def target_configuration(value):
+    """Validate the recorded target identity used by the source inventory."""
+    if not isinstance(value, dict) or set(value) != {'target', 'cfg'}:
+        raise ValueError('invalid target configuration shape')
+    target = value['target']
+    cfg = value['cfg']
+    if not isinstance(target, str) or not target or any(c.isspace() for c in target):
+        raise ValueError('invalid target triple')
+    if (not isinstance(cfg, list) or not cfg or any(not isinstance(v, str) or not v for v in cfg)
+            or cfg != sorted(set(cfg))):
+        raise ValueError('target configuration must be a nonempty sorted unique list')
+    return {'target': target, 'cfg': cfg}
+
+
+def source_inventories(source_root, production_files, ast_binary, target_cfg):
     """Validate paths first, then report compatibility failures across all files.
 
     Failed inventories are never returned as an incomplete production boundary.
@@ -88,10 +102,12 @@ def source_inventories(source_root, production_files, ast_binary):
         if relative in paths:
             raise ValueError('duplicate source')
         paths[relative] = path
+    target_cfg = target_configuration(target_cfg)
     inventories = {}
     errors = []
     for relative, path in sorted(paths.items()):
-        result = subprocess.run([str(ast_binary), str(path)], capture_output=True, text=True)
+        result = subprocess.run([str(ast_binary), str(path), '--target-cfg'],
+                                input=json.dumps(target_cfg), capture_output=True, text=True)
         if result.returncode == 1:
             errors.append(f'{relative}: {result.stderr.strip() or "inventory rejected source"}')
         else:
@@ -102,13 +118,13 @@ def source_inventories(source_root, production_files, ast_binary):
     return inventories
 
 
-def measure(source_root, production_files, llvm_path, ast_binary, coverage_root=None):
+def measure(source_root, production_files, llvm_path, ast_binary, target_cfg, coverage_root=None):
     root = Path(source_root).resolve(strict=True)
     native_root = Path(coverage_root or root)
     llvm = strict_json(llvm_path)
     if llvm.get('type') != 'llvm.coverage.json.export' or llvm.get('version') != '3.1.0':
         raise ValueError('unsupported LLVM source coverage format')
-    inventories = source_inventories(root, production_files, ast_binary)
+    inventories = source_inventories(root, production_files, ast_binary, target_cfg)
     paths = {str(native_root / relative): relative for relative in inventories}
     native = defaultdict(list)
     names = set()
@@ -203,9 +219,11 @@ def main():
     parser.add_argument('--source', action='append', required=True)
     parser.add_argument('--llvm-json', required=True)
     parser.add_argument('--ast-binary', required=True)
+    parser.add_argument('--target-config', required=True)
     parser.add_argument('--output', required=True)
     args = parser.parse_args()
-    result = measure(args.source_root, args.source, args.llvm_json, args.ast_binary)
+    result = measure(args.source_root, args.source, args.llvm_json, args.ast_binary,
+                     strict_json(args.target_config))
     Path(args.output).write_text(json.dumps(result, indent=2) + '\n')
 
 if __name__ == '__main__':

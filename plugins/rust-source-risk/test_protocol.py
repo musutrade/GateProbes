@@ -5,7 +5,7 @@ from pathlib import Path
 import tempfile
 import unittest
 from unittest.mock import patch
-from plugin import COLLECTOR, TYPES, canonical, file, project, relative, series, sha
+from plugin import COLLECTOR, TYPES, canonical, file, project, receipt_target, relative, series, sha
 
 class ProtocolTests(unittest.TestCase):
     def test_manifest_matches_protocol_identity(self):
@@ -22,12 +22,31 @@ class ProtocolTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'symlink'): file(root, 'alias')
 
     def test_series_binds_method_and_toolchain_not_tool_location(self):
-        request = {'parameters': {'receipt': {'pipeline': {'tools': {'llvm-cov': {'path': '/a', 'sha256': 'a'*64, 'version': 'v1'}}}}}, 'context': {'target': 'test'}}
+        request = {'parameters': {'receipt': {'pipeline': {
+            'tools': {'llvm-cov': {'path': '/a', 'sha256': 'a'*64, 'version': 'v1'}},
+            'target_cfg': {'target': 'x86_64-unknown-linux-gnu', 'cfg': ['target_os="linux"', 'unix']},
+        }}}, 'context': {'target': 'x86_64-unknown-linux-gnu'}}
         original = series(request)
         request['parameters']['receipt']['pipeline']['tools']['llvm-cov']['path'] = '/b'
         self.assertEqual(series(request), original)
         request['parameters']['receipt']['pipeline']['tools']['llvm-cov']['sha256'] = 'b'*64
         self.assertNotEqual(series(request), original)
+        request['parameters']['receipt']['pipeline']['target_cfg']['cfg'] = ['target_os="linux"']
+        self.assertNotEqual(series(request), original)
+        request['parameters']['receipt']['pipeline']['target_cfg'] = {
+            'target': 'aarch64-unknown-linux-gnu', 'cfg': ['target_os="linux"', 'unix']}
+        self.assertNotEqual(series(request), original)
+
+    def test_receipt_target_must_be_present_canonical_and_match_context(self):
+        target = {'target': 'x86_64-unknown-linux-gnu', 'cfg': ['target_os="linux"', 'unix']}
+        receipt = {'pipeline': {'target_cfg': target}}
+        self.assertEqual(receipt_target(receipt, target['target']), target)
+        with self.assertRaises(ValueError):
+            receipt_target({'pipeline': {}}, target['target'])
+        with self.assertRaises(ValueError):
+            receipt_target({'pipeline': {'target_cfg': {**target, 'cfg': ['unix', 'target_os="linux"']}}}, target['target'])
+        with self.assertRaises(ValueError):
+            receipt_target(receipt, 'aarch64-unknown-linux-gnu')
 
     def test_signed_binding_and_claims_checked_before_collection(self):
         with tempfile.TemporaryDirectory() as tmp:

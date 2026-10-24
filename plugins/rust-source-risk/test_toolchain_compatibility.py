@@ -42,7 +42,7 @@ def retained_root(prefix):
     return Path(temporary.name), temporary
 
 
-def logged_run(root, label, command, *, env=None, cwd=None, check=True, timeout=600):
+def logged_run(root, label, command, *, env=None, cwd=None, check=True, timeout=600, input=None):
     commands = Path(root) / 'commands'
     commands.mkdir(parents=True, exist_ok=True)
     log = Path(tempfile.mkdtemp(prefix=label + '-', dir=commands))
@@ -53,7 +53,7 @@ def logged_run(root, label, command, *, env=None, cwd=None, check=True, timeout=
                                  'LLVM_PROFILE_FILE', 'RUSTFLAGS', 'PATH')}}
     write(log / 'command.json', metadata)
     try:
-        result = subprocess.run(list(map(str, command)), cwd=cwd, env=env,
+        result = subprocess.run(list(map(str, command)), cwd=cwd, env=env, input=input,
                                 capture_output=True, timeout=timeout)
     except (OSError, subprocess.TimeoutExpired) as error:
         (log / 'stdout').write_bytes(getattr(error, 'stdout', None) or b'')
@@ -149,6 +149,30 @@ mod tests { pub fn excluded() -> i32 { 99 } }
 fn main() { std::hint::black_box(manual(true)); std::hint::black_box(manual(false)); }
 '''
 
+CFG_MATRIX = {
+    'plain': ('pub fn plain() -> usize { 1 }', ['plain'], True, False),
+    'cfg_attr': ('#[cfg_attr(test, derive(Debug))] struct A { value: u8 }\npub fn plain() -> usize { 1 }', ['plain'], True, False),
+    'compound': ('#[cfg(any(test, unix))] pub fn platform() -> usize { 1 }\npub fn plain() -> usize { 1 }', ['platform', 'plain'], True, False),
+    'nested': ('#[cfg(all(unix, not(test)))] pub fn nested() -> usize { 1 }\npub fn plain() -> usize { 1 }', ['nested', 'plain'], True, False),
+    'cfg_test_module': ('#[cfg(test)] mod tests { fn excluded() {} }\npub fn plain() -> usize { 1 }', ['plain'], True, True),
+    'cfg_test_function': ('#[cfg(test)] pub fn excluded() -> usize { 1 }\npub fn plain() -> usize { 1 }', ['plain'], True, True),
+    'test_attribute': ('#[test] pub fn test_only() {}\npub fn plain() -> usize { 1 }', ['plain'], True, True),
+    'not_test': ('#[cfg(not(test))] pub fn production() -> usize { 1 }', ['production'], True, False),
+    'any_windows': ('#[cfg(any(test, windows))] pub fn excluded() -> usize { 1 }\npub fn plain() -> usize { 1 }', ['plain'], True, True),
+    'all_test_unix': ('#[cfg(all(test, unix))] pub fn excluded() -> usize { 1 }\npub fn plain() -> usize { 1 }', ['plain'], True, True),
+    'all_test_target': ('#[cfg(all(test, target_os = "linux"))] pub fn excluded() -> usize { 1 }\npub fn plain() -> usize { 1 }', ['plain'], True, True),
+    'not_any': ('#[cfg(not(any(unix, windows)))] pub fn excluded() -> usize { 1 }\npub fn plain() -> usize { 1 }', ['plain'], True, True),
+    'not_windows': ('#[cfg(not(windows))] pub fn production() -> usize { 1 }\npub fn plain() -> usize { 1 }', ['production', 'plain'], True, False),
+    'any_target_os': ('#[cfg(any(target_os = "linux", target_os = "macos"))] pub fn production() -> usize { 1 }\npub fn plain() -> usize { 1 }', ['production', 'plain'], True, False),
+    'not_any_target_os': ('#[cfg(not(any(target_os = "linux", target_os = "macos", target_os = "windows")))] pub fn excluded() -> usize { 1 }\npub fn plain() -> usize { 1 }', ['plain'], True, True),
+    'feature': ('#[cfg(any(test, feature = "extra"))] pub fn excluded() -> usize { 1 }\npub fn plain() -> usize { 1 }', None, False, False),
+    'cfg_attr_not_test': ('#[cfg_attr(not(test), derive(Debug))] struct A { value: u8 }\npub fn plain() -> usize { 1 }', None, False, False),
+    'cfg_attr_function': ('#[cfg_attr(test, derive(Debug))] pub fn bad() -> usize { 1 }', None, False, False),
+    'cfg_attr_inner': ('#[cfg_attr(test, cfg(feature = "x"))] struct A { value: u8 }', None, False, False),
+    'cfg_attr_field': ('struct A { #[cfg_attr(test, derive(Debug))] value: u8 }\npub fn plain() -> usize { 1 }', None, False, False),
+    'cfg_attr_module': ('#[cfg_attr(test, derive(Debug))] mod m { fn inner() {} }\npub fn plain() -> usize { 1 }', None, False, False),
+}
+
 
 class Matrix:
     def __init__(self, root, toolchain, core, build_record):
@@ -162,6 +186,10 @@ class Matrix:
                     'CARGO_BUILD_TARGET', 'CARGO_BUILD_RUSTFLAGS', 'RUST_SOURCE_INVENTORY'):
             self.env.pop(key, None)
         self.identity = tool_identity(root, self.env)
+        self.target = self.identity['host']
+        self.target_cfg = {'target': self.target, 'cfg': sorted(set(subprocess.check_output(
+            ['rustc', '--print', 'cfg', '--target', self.target], env=self.env, text=True).splitlines()))}
+        write(root / 'target.json', self.target_cfg)
         if self.identity['host'] != 'x86_64-unknown-linux-gnu':
             raise RuntimeError('blocked: this certification fixture is Linux x86-64 only')
         commit, llvm = COMBINATIONS[toolchain]
@@ -188,6 +216,12 @@ class Matrix:
             raise RuntimeError('blocked: analyzer dependency lock changed')
         analyzer = root / 'ast-target/debug/harness-gate-rust-source-inventory'
         shutil.copy2(analyzer, self.plugin / 'inventory')
+        measure_plugin = HERE.parent / 'rust-measure'
+        logged_run(root, 'measure-build', ['cargo', 'build', '--locked', '--offline', '--manifest-path',
+                    measure_plugin / 'Cargo.toml'], env=dict(self.env, CARGO_TARGET_DIR=str(root / 'measure-target')))
+        self.measure = root / 'measure-target/debug/harness-gate-rust-measure'
+        if not self.measure.is_file():
+            raise RuntimeError('blocked: measurer build did not produce the analyzer')
         self.env['RUST_SOURCE_INVENTORY'] = str(self.plugin / 'inventory')
         self.identity['inventory'] = {'path': str(self.plugin / 'inventory'), 'sha256': digest(self.plugin / 'inventory'),
                                       'toolchain': toolchain, 'fresh_target': str(root / 'ast-target')}
@@ -208,7 +242,8 @@ class Matrix:
         root.mkdir()
         path = root / 'sample.rs'
         path.write_text(source)
-        inventory = logged_run(root, 'inventory', [self.plugin / 'inventory', path], env=self.env, check=False)
+        inventory = logged_run(root, 'inventory', [self.plugin / 'inventory', path, '--target-cfg'],
+                               env=self.env, check=False, input=json.dumps(self.target_cfg).encode())
         (root / 'inventory.json' if inventory.returncode == 0 else root / 'inventory.stderr').write_bytes(
             inventory.stdout if inventory.returncode == 0 else inventory.stderr)
         extra = list(flags)
@@ -236,7 +271,8 @@ class Matrix:
         llvm.write_bytes(exported.stdout)
         result = logged_run(root, 'source-measure', [sys.executable, self.plugin / 'measure.py',
                             '--source-root', root, '--source', 'sample.rs', '--llvm-json', llvm,
-                            '--ast-binary', self.plugin / 'inventory', '--output', root / 'metrics.json'],
+                            '--ast-binary', self.plugin / 'inventory', '--target-config', root / 'target.json',
+                            '--output', root / 'metrics.json'],
                             env=self.env, check=False)
         data = json.loads(exported.stdout)
         boundary = ('llvm-format' if data.get('version') != '3.1.0' else
@@ -297,6 +333,10 @@ class Matrix:
         if digest(self.identity['cargo_llvm_cov_executable']['path']) != self.identity['cargo_llvm_cov_executable']['sha256']:
             raise AssertionError('cargo-llvm-cov executable changed during capture')
         receipt = captured['request']['parameters']['receipt']
+        if receipt['pipeline']['target_cfg'] != self.target_cfg:
+            raise AssertionError('capture recorded a different target configuration')
+        if captured['request']['context']['target'] != self.target:
+            raise AssertionError('capture context target differs from the selected target')
         if receipt['pipeline']['tools']['rustc'] != self.identity['rustc_vV'].strip():
             raise AssertionError('capture used a different rustc')
         for name in ('llvm-cov', 'llvm-profdata'):
@@ -374,14 +414,50 @@ def certification_suite(matrix):
                     write(root / 'collector-boundary.json', {'state': 'unsupported', 'core_chain': 'not reached',
                                                             'generated_called': called, 'measurement_boundary': row['earliest_measurement_boundary']})
 
+        def test_cfg_matrix_matches_between_published_paths(self):
+            root = self.root / 'cfg-matrix'
+            root.mkdir()
+            target_file = root / 'target.json'
+            write(target_file, self.target_cfg)
+            for name, (source, expected, accepted, excluded_expected) in CFG_MATRIX.items():
+                with self.subTest(case=name):
+                    path = root / (name + '.rs')
+                    path.write_text(source)
+                    analyzer = logged_run(root, 'analyzer-' + name, [self.measure, path, '--target-cfg'],
+                                          env=self.env, check=False, input=json.dumps(self.target_cfg).encode())
+                    collector = logged_run(root, 'collector-' + name, [self.plugin / 'inventory', path, '--target-cfg'],
+                                           env=self.env, check=False, input=json.dumps(self.target_cfg).encode())
+                    self.assertEqual(analyzer.returncode == 0, accepted, analyzer.stderr.decode())
+                    self.assertEqual(collector.returncode == 0, accepted, collector.stderr.decode())
+                    if not accepted:
+                        continue
+                    analyzer_data = json.loads(analyzer.stdout)
+                    collector_data = json.loads(collector.stdout)
+                    self.assertEqual([row['name'] for row in analyzer_data['symbols']], expected)
+                    self.assertEqual([row['name'] for row in collector_data], expected)
+                    self.assertEqual(bool(analyzer_data['excluded']), excluded_expected)
+
+        def test_thiserror_metadata_remains_a_separate_blocker(self):
+            root = self.root / 'thiserror'
+            root.mkdir()
+            path = root / 'sample.rs'
+            path.write_text('#[derive(Debug, thiserror::Error)]\npub enum E { #[error("bad")] Bad }\npub fn plain() {}\n')
+            analyzer = logged_run(root, 'analyzer-thiserror', [self.measure, path, '--target-cfg'],
+                                  env=self.env, check=False, input=json.dumps(self.target_cfg).encode())
+            collector = logged_run(root, 'collector-thiserror', [self.plugin / 'inventory', path, '--target-cfg'],
+                                   env=self.env, check=False, input=json.dumps(self.target_cfg).encode())
+            self.assertEqual(analyzer.returncode, 0)
+            self.assertNotEqual(collector.returncode, 0)
+            self.assertIn('unsupported attribute error', collector.stderr.decode())
+
         def test_cfg_feature_diagnostic_variants_do_not_certify_source_ownership(self):
             for enabled in (False, True):
                 with self.subTest(enabled=enabled):
                     flags = ['--cfg', 'feature="enabled"'] if enabled else []
                     root, row = matrix.diagnostic('cfg-' + str(enabled).lower(), FEATURE, flags)
                     self.assertNotEqual(row['inventory_exit'], 0)
-                    self.assertIn('unsupported attribute cfg', (root / 'inventory.stderr').read_text())
-                    matrix.rejection_capture(root, 'unsupported attribute cfg')
+                    self.assertIn('unsupported cfg predicate', (root / 'inventory.stderr').read_text())
+                    matrix.rejection_capture(root, 'unsupported cfg predicate')
                     write(root / 'collector-boundary.json', {'state': 'unsupported', 'core_chain': 'not reached',
                                                             'cfg_flags': flags, 'measurement_boundary': row['earliest_measurement_boundary']})
 

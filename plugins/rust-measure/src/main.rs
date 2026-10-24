@@ -359,7 +359,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     println!(
         "{}",
-        json!({"analyzer": "harness-gate-rust-measure", "version": "0.3.1", "rule": "mccabe-rust-3", "configuration": target_configuration, "excluded": excluded, "symbols": inventory.symbols})
+        json!({"analyzer": "harness-gate-rust-measure", "version": "0.4.0", "rule": "mccabe-rust-3", "configuration": target_configuration, "excluded": excluded, "symbols": inventory.symbols})
     );
     Ok(())
 }

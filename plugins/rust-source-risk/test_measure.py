@@ -9,6 +9,7 @@ from measure import crap, line_coverage, measure, source_inventories, strict_jso
 from test_toolchain_compatibility import logged_run, retained_measure, retained_root, tool_identity
 
 HERE = Path(__file__).resolve().parent
+TARGET = {'target': 'x86_64-unknown-linux-gnu', 'cfg': ['target_os="linux"', 'unix']}
 
 class ArithmeticTests(unittest.TestCase):
     def test_exact_threshold(self):
@@ -62,7 +63,7 @@ fn main() { ten(true); eleven(true); std::mem::drop(unpolled()); }
 
     def result(self, path=None):
         return retained_measure(self.root, self._testMethodName,
-                                lambda: measure(self.root, ['sample.rs'], path or self.llvm, self.inventory))
+                                lambda: measure(self.root, ['sample.rs'], path or self.llvm, self.inventory, TARGET))
 
     def test_real_native_threshold_and_unpolled_async(self):
         rows = {f['name']: f for f in self.result()['functions']}
@@ -109,7 +110,7 @@ fn main() { ten(true); eleven(true); std::mem::drop(unpolled()); }
         self.assertIn('no measurements produced', message)
 
     def test_ambiguous_and_missing_anchors_are_both_reported(self):
-        inventories = source_inventories(self.root, ['sample.rs'], self.inventory)
+        inventories = source_inventories(self.root, ['sample.rs'], self.inventory, TARGET)
         first, second = inventories['sample.rs'][:2]
         second['anchors'].append(first['anchors'][0])
         def change(rows):

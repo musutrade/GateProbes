@@ -1,4 +1,4 @@
-# Rust source-risk collector (0.1.0 release candidate)
+# Rust source-risk collector (0.2.0 release candidate)
 
 This is an independent Harness-Gate collector plugin. It does not modify Core,
 change a policy threshold, sign its own requests, or replace the MIR measurement
@@ -21,7 +21,7 @@ its numbers are not interchangeable with MIR CC or another tool's CC definition.
 Supported expression macros are `matches!`, comma-separated expression arguments
 of `tracing::{info,warn,error,debug,trace}!`, and `sqlx::migrate!`. User expressions
 inside those arguments are visited (including `?`). Unsupported macro grammar,
-other macros, item macros, conditional compilation attributes and unrecognized
+other macros, item macros, unsupported conditional-compilation attributes and unrecognized
 attributes fail closed. The collector does not pretend to measure arbitrary Rust
 macro expansions. Generated derive bodies are outside this source-only scope.
 
@@ -162,7 +162,17 @@ source syntax does not prove execution, and a parent's execution count must not
 be substituted. Missing mappings are reported together, with source locations
 and callable kinds, instead of requiring repeated attempts to expose each one.
 
-Exact `#[cfg(test)]` modules are excluded from the production boundary, including external test modules. Other conditional configurations remain unsupported and fail closed.
+The production view evaluates item-level `cfg` predicates for `test`, `unix`, `windows` and
+`target_os` (linux/macos/windows), including recursive `not`/`all`/`any`, using the exact
+target configuration recorded by capture. Exact `cfg(test)` modules and items are excluded;
+`cfg(any(test, ...))` evaluates the remaining production branch. Item-level
+`cfg_attr(test, derive(...))` is removed from the production view; other `cfg_attr` predicates,
+inner attributes and positions fail closed. Item-level filtering covers `syn::Item` positions;
+conditional attributes on fields, enum variants, trait/impl members, expressions, match arms
+and file attributes remain unsupported and fail closed. The measurer retains its existing
+field/impl/expression support; this is a documented position difference, not a claim that both
+tools accept every position. Unsupported predicates such as `feature` and unrecognized
+attributes (including thiserror `error`/`from`/`source` metadata) still fail closed.
 
 ## Signed candidate distribution
 
@@ -198,4 +208,4 @@ explicit host binding update; existing signed captures retain their old identity
 
 ## Stable distribution boundary
 
-The 0.1.0 identity does not change measurement algorithms or toolchain pins. `coverage.region` retains its documented exact source-region meaning; it is not branch coverage or MIR cleanup coverage. Publication requires fresh source and unsupported-input tests, installed-package compatibility against released Core v0.6.0, and independent downloaded-archive acceptance. `release-gated` identifies this release-controlled distribution, not a production isolation/signing service. Linux x86_64 is the accepted distribution scope; previous RC evidence remains historical.
+The 0.2.0 identity does not change measurement algorithms or toolchain pins; it adds the recorded target configuration to the series identity and supports the conditional-compilation subset above. `coverage.region` retains its documented exact source-region meaning; it is not branch coverage or MIR cleanup coverage. Publication requires fresh source and unsupported-input tests, installed-package compatibility against released Core v0.6.0, and independent downloaded-archive acceptance. `release-gated` identifies this release-controlled distribution, not a production isolation/signing service. Linux x86_64 is the accepted distribution scope; previous RC evidence remains historical.

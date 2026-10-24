@@ -10,10 +10,10 @@ import platform
 import subprocess
 import sys
 import tempfile
-from measure import measure, strict_json
+from measure import measure, strict_json, target_configuration
 
 HERE = Path(__file__).resolve().parent
-COLLECTOR = {'name': 'rust-source-risk', 'version': '0.1.0'}
+COLLECTOR = {'name': 'rust-source-risk', 'version': '0.2.0'}
 TYPES = {'complexity.cyclomatic': 'count', 'coverage.function': 'ratio',
          'coverage.line': 'ratio', 'coverage.region': 'ratio', 'risk.crap': 'rational'}
 
@@ -87,6 +87,12 @@ def series(request):
              'metrics': [{'name': k, 'type': v} for k, v in sorted(TYPES.items())]}
     return {'id': 'measurement-series/v1:' + sha(canonical(value).encode()), **value}
 
+def receipt_target(receipt, context_target):
+    target_cfg = target_configuration(receipt.get('pipeline', {}).get('target_cfg'))
+    require(target_cfg['target'] == context_target, 'target configuration context mismatch')
+    return target_cfg
+
+
 def reexport(request, destination):
     receipt = request['parameters']['receipt']
     require(receipt['schema'] == 'rust-source-capture/v1', 'invalid capture receipt')
@@ -98,6 +104,7 @@ def reexport(request, destination):
         require(sha(file(root, name).read_bytes()) == digest, 'capture input changed: ' + name)
     for name, digest in receipt['pipeline']['files'].items():
         require(sha(file(root, name).read_bytes()) == digest, 'pipeline configuration changed: ' + name)
+    target_cfg = receipt_target(receipt, request['context']['target'])
     raw = Path(receipt['raw_root'])
     require(raw.is_absolute() and raw.resolve() == raw, 'invalid raw capture root')
     for name, digest in receipt['raw'].items():
@@ -119,7 +126,7 @@ def reexport(request, destination):
             command += ['-object', str(file(raw, name))]
         with open(destination, 'xb') as output:
             subprocess.run(command, check=True, stdout=output, stderr=subprocess.PIPE)
-    return measure(root, list(sources), destination, HERE / 'inventory', receipt['coverage_root'])
+    return measure(root, list(sources), destination, HERE / 'inventory', target_cfg, receipt['coverage_root'])
 
 def discover(request):
     with tempfile.TemporaryDirectory(prefix='rust-source-discovery-') as tmp:

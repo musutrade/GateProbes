@@ -12,9 +12,47 @@ import shlex
 import shutil
 import subprocess
 import sys
+import tomllib
 import uuid
 from plugin import COLLECTOR, TYPES, canonical, discover, inventory, series, sha
-from measure import source_inventories
+from measure import source_inventories, target_configuration
+
+
+def host_target():
+    version = subprocess.check_output(['rustc', '-vV'], text=True)
+    return next(line.removeprefix('host: ') for line in version.splitlines() if line.startswith('host: '))
+
+
+def compiler_configuration(target):
+    values = sorted(set(subprocess.check_output(['rustc', '--print', 'cfg', '--target', target], text=True).splitlines()))
+    return target_configuration({'target': target, 'cfg': values})
+
+
+def validate_environment(repo):
+    for name in ('RUSTFLAGS', 'CARGO_ENCODED_RUSTFLAGS', 'CARGO_BUILD_TARGET', 'CARGO_BUILD_RUSTFLAGS',
+                 'RUSTC', 'RUSTC_WRAPPER', 'RUSTC_WORKSPACE_WRAPPER'):
+        if os.environ.get(name):
+            raise ValueError(f'unsupported environment variable for capture: {name}')
+    for name in os.environ:
+        if name.startswith('CARGO_TARGET_') and name.endswith('_RUSTFLAGS'):
+            raise ValueError(f'unsupported environment variable for capture: {name}')
+    for name in ('.cargo/config.toml', '.cargo/config'):
+        path = repo / name
+        if not path.is_file():
+            continue
+        text = path.read_text()
+        if name.endswith('.toml'):
+            data = tomllib.loads(text)
+            if 'rustflags' in data.get('build', {}) or 'target' in data.get('build', {}):
+                raise ValueError(f'unsupported build target/rustflags in {name}')
+            for target in data.get('target', {}).values():
+                if 'rustflags' in target:
+                    raise ValueError(f'unsupported target rustflags in {name}')
+            for key in ('RUSTFLAGS', 'CARGO_ENCODED_RUSTFLAGS', 'CARGO_BUILD_TARGET'):
+                if key in data.get('env', {}):
+                    raise ValueError(f'unsupported environment override in {name}: {key}')
+        elif any(token in text for token in ('rustflags', 'CARGO_ENCODED_RUSTFLAGS', 'CARGO_BUILD_TARGET')):
+            raise ValueError(f'unsupported rustflags/environment override in {name}')
 
 
 def main():
@@ -26,8 +64,12 @@ def main():
     parser.add_argument('--source-root', action='append', required=True)
     parser.add_argument('--input', action='append', required=True, help='file/directory to snapshot, including all build/test/migration inputs')
     parser.add_argument('--test', action='append', default=[])
+    parser.add_argument('--target')
     args = parser.parse_args()
     repo = args.repository.resolve(strict=True)
+    validate_environment(repo)
+    target_triple = args.target or host_target()
+    target_cfg = compiler_configuration(target_triple)
     out = args.output.absolute()
     out.mkdir(mode=0o700)
     root = out / 'workspace'
@@ -47,18 +89,18 @@ def main():
             if str(relative) in inputs:
                 raise ValueError('overlapping input roots')
             data = p.read_bytes()
-            target = root / relative
-            target.parent.mkdir(parents=True, exist_ok=True)
-            target.write_bytes(data)
+            destination = root / relative
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            destination.write_bytes(data)
             inputs[str(relative)] = sha(data)
     (root / '.local-capture-snapshot').write_text('backend-source-only rehearsal\n')
     # Inspect the same immutable input snapshot that will be compiled. Cheap
     # syntax/Serde failures must be reported together before cargo is started.
     sources = inventory({'workspace_root': str(root),
                          'parameters': {'source_roots': args.source_root}})
-    source_inventories(root, list(sources), Path(__file__).resolve().parent / 'inventory')
+    source_inventories(root, list(sources), Path(__file__).resolve().parent / 'inventory', target_cfg)
     env = dict(os.environ, CARGO_TARGET_DIR=str(args.target_dir.absolute()))
-    command = ['cargo', 'llvm-cov', '--manifest-path', str(root / args.manifest), '--locked', '--json', '--output-path', str(out / 'cargo-coverage.json'), '--verbose']
+    command = ['cargo', 'llvm-cov', '--manifest-path', str(root / args.manifest), '--locked', '--json', '--output-path', str(out / 'cargo-coverage.json'), '--target', target_triple, '--verbose']
     for test in args.test:
         command += ['--test', test]
     with (out / 'capture.stdout').open('wb') as stdout, (out / 'capture.stderr').open('wb') as stderr:
@@ -91,13 +133,13 @@ def main():
     config = {p: h for p, h in inputs.items() if p.endswith(('Cargo.toml', 'Cargo.lock')) or p.startswith('.cargo/')}
     revision = subprocess.check_output(['git', '-C', repo, 'rev-parse', 'HEAD'], text=True).strip()
     request = {'schema': 'harness-collector-request/v1', 'project': 'codexsymphony', 'component': 'backend',
-               'collector': COLLECTOR, 'context': {'commit': revision, 'base_commit': revision, 'run': 'rust-source-' + uuid.uuid4().hex, 'target': 'x86_64-unknown-linux-gnu'},
+               'collector': COLLECTOR, 'context': {'commit': revision, 'base_commit': revision, 'run': 'rust-source-' + uuid.uuid4().hex, 'target': target_triple},
                'requested_capabilities': sorted(TYPES), 'workspace_root': str(root), 'output_root': str(root / 'evidence'),
                'parameters': {'source_roots': args.source_root, 'boundary': 'production', 'artifact_subdir': 'backend-source'}}
     (root / 'evidence').mkdir()
     request['parameters']['receipt'] = {'schema': 'rust-source-capture/v1', 'context': request['context'], 'coverage_root': str(root),
                                          'sources': inventory(request), 'inputs': inputs,
-                                         'pipeline': {'files': config, 'tools': tools, 'tests': args.test, 'manifest': args.manifest, 'capture': 'cargo-llvm-cov-locked/v1'},
+                                         'pipeline': {'files': config, 'tools': tools, 'tests': args.test, 'manifest': args.manifest, 'capture': 'cargo-llvm-cov-locked/v1', 'target_cfg': target_cfg},
                                          'raw_root': str(raw), 'raw': retained, **groups}
     request['parameters']['subjects'] = discover(request)
     bundle = {'request': request, 'series': series(request)}
