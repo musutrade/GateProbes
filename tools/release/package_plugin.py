@@ -156,6 +156,8 @@ def rust_measure_package(output: Path, core: Path) -> None:
                 "--binary", str(installed / identity["executable"]),
                 "--core-root", str(core / "tools/quality"), cwd=consumer)
         elif version == "0.4.0":
+            # Packaging builds a new artifact. The current-production contract
+            # is the separate CI route against the immutable downloaded release.
             run("python3", str(source / "candidate_contract.py"),
                 "--binary", str(installed / identity["executable"]),
                 "--plugin-dir", str(installed),

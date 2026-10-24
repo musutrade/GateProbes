@@ -1,0 +1,15 @@
+{
+  "schema": "rust-measure-production-core/v1",
+  "repository": "musutrade/GateHouse",
+  "source_commit": "6ec99b8f56477ce1b79a12a16e93f745eee6bb42",
+  "files": {
+    "tools/quality/source_measure.py": "e9021ad820daf04749f84e321eb0f0466925d097702ca85e43e1e712046720d7",
+    "tools/quality/function_risk.py": "474721231723fe5ca1ee3c50033a15319f59bbb152f755ce366d800e006c3abc",
+    "tools/quality/production_coverage.py": "50f8548080adb8730b75fe51bbe647979868b72fd00d0b8ca4729a2d47e6437d",
+    "tools/quality/complexity_analyzer.py": "b39907e62acfc4b4bec4d6db2b054053b2d7ffe702528bf60e8f1e30874b88ab",
+    "tools/quality/quality_evidence.py": "8938ce2fc2d49caf2e3f3dac284fe3d07a13a3da9cbd8e1e729f011e2d5d145e",
+    "tools/quality/quality_common.py": "1b908a7e791fc6df4a5f2d5112a0180c35a6e39a1e8f932a95672d24c78e4cf8",
+    "tools/quality/tests/rust_measure_candidate_acceptance.py": "445f669cf5bf07df783bcfd12f4587565bf6c01891711246fbe3b6421ab25382"
+  },
+  "acceptance": "tools/quality/tests/rust_measure_candidate_acceptance.py"
+}
