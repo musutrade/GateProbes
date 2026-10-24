@@ -167,13 +167,21 @@ fn inspect_body(state: &str) -> Vec<u8> {
     .unwrap()
 }
 
-fn serve(socket: PathBuf, steps: Vec<(String, String, u16, Vec<u8>)>, done: mpsc::Sender<()>) {
+fn listen(socket: &std::path::Path) -> UnixListener {
     let listener = UnixListener::bind(socket).unwrap();
     fs::set_permissions(
         listener.local_addr().unwrap().as_pathname().unwrap(),
         std::fs::Permissions::from_mode(0o600),
     )
     .unwrap();
+    listener
+}
+
+fn serve(
+    listener: UnixListener,
+    steps: Vec<(String, String, u16, Vec<u8>)>,
+    done: mpsc::Sender<()>,
+) {
     for (expected_method, expected_path, status, body) in steps {
         let (mut stream, _) = listener.accept().unwrap();
         read_request(&mut stream, &expected_method, &expected_path);
@@ -234,7 +242,7 @@ fn create_uses_exact_libpod_route_and_proves_created_state() {
     let config = memory(&fixture.config);
     let expected_file = memory(&expected);
     let (tx, rx) = mpsc::channel();
-    let socket = fixture.socket.clone();
+    let listener = listen(&fixture.socket);
     let steps = vec![
         ("GET".into(), "/v5.7.0/libpod/info".into(), 200, info_body()),
         (
@@ -251,7 +259,7 @@ fn create_uses_exact_libpod_route_and_proves_created_state() {
         ),
         ("GET".into(), "/v5.7.0/libpod/info".into(), 200, info_body()),
     ];
-    let server = thread::spawn(move || serve(socket, steps, tx));
+    let server = thread::spawn(move || serve(listener, steps, tx));
     let response = execute(
         &config,
         &expected_file,
@@ -261,6 +269,83 @@ fn create_uses_exact_libpod_route_and_proves_created_state() {
     )
     .unwrap();
     assert!(matches!(response.outcome, Outcome::Created { .. }));
+    rx.recv_timeout(Duration::from_secs(5)).unwrap();
+    server.join().unwrap();
+}
+
+#[test]
+fn listener_is_ready_before_dispatch_and_late_bind_is_unknown() {
+    // Reproduce the old spawn-then-bind order with a controlled gate. No socket
+    // exists while execute runs, so the adapter must return Unknown immediately.
+    let first = fixture(Operation::Status { target: target() }, 8080);
+    let expected = first.request.canonical_bytes().unwrap();
+    let config = memory(&first.config);
+    let expected_file = memory(&expected);
+    let (release_tx, release_rx) = mpsc::channel();
+    let (bound_tx, bound_rx) = mpsc::channel();
+    let socket = first.socket.clone();
+    let late = thread::spawn(move || {
+        release_rx.recv().unwrap();
+        let listener = UnixListener::bind(socket).unwrap();
+        fs::set_permissions(
+            listener.local_addr().unwrap().as_pathname().unwrap(),
+            std::fs::Permissions::from_mode(0o600),
+        )
+        .unwrap();
+        bound_tx.send(()).unwrap();
+        let (_stream, _) = listener.accept().unwrap();
+    });
+    let response = execute(
+        &config,
+        &expected_file,
+        &expected,
+        Duration::from_secs(5),
+        || false,
+    )
+    .unwrap();
+    assert!(matches!(response.outcome, Outcome::Unknown { .. }));
+    release_tx.send(()).unwrap();
+    bound_rx.recv_timeout(Duration::from_secs(5)).unwrap();
+    UnixStream::connect(&first.socket).unwrap();
+    late.join().unwrap();
+
+    // New order: bind and chmod on this thread before dispatching the adapter.
+    let fixture = fixture(Operation::Status { target: target() }, 8080);
+    let expected = fixture.request.canonical_bytes().unwrap();
+    let config = memory(&fixture.config);
+    let expected_file = memory(&expected);
+    let listener = listen(&fixture.socket);
+    assert!(fixture.socket.exists());
+    assert_eq!(
+        fs::metadata(&fixture.socket).unwrap().permissions().mode() & 0o777,
+        0o600
+    );
+    let (tx, rx) = mpsc::channel();
+    let server = thread::spawn(move || {
+        serve(
+            listener,
+            vec![
+                ("GET".into(), "/v5.7.0/libpod/info".into(), 200, info_body()),
+                (
+                    "GET".into(),
+                    format!("/v5.7.0/libpod/containers/{}/json", id()),
+                    200,
+                    inspect_body("created"),
+                ),
+                ("GET".into(), "/v5.7.0/libpod/info".into(), 200, info_body()),
+            ],
+            tx,
+        )
+    });
+    let response = execute(
+        &config,
+        &expected_file,
+        &expected,
+        Duration::from_secs(5),
+        || false,
+    )
+    .unwrap();
+    assert!(matches!(response.outcome, Outcome::Status { .. }));
     rx.recv_timeout(Duration::from_secs(5)).unwrap();
     server.join().unwrap();
 }
@@ -283,7 +368,7 @@ fn status_absence_uses_exact_libpod_route_and_message() {
     let config = memory(&fixture.config);
     let expected_file = memory(&expected);
     let (tx, rx) = mpsc::channel();
-    let socket = fixture.socket.clone();
+    let listener = listen(&fixture.socket);
     let missing = serde_json::to_vec(&serde_json::json!({
         "cause":"no such container",
         "message":format!("no container with name or ID \"{}\" found: no such container", target.object_id),
@@ -299,7 +384,7 @@ fn status_absence_uses_exact_libpod_route_and_message() {
         ),
         ("GET".into(), "/v5.7.0/libpod/info".into(), 200, info_body()),
     ];
-    let server = thread::spawn(move || serve(socket, steps, tx));
+    let server = thread::spawn(move || serve(listener, steps, tx));
     let response = execute(
         &config,
         &expected_file,
@@ -386,9 +471,9 @@ fn podman_stop_cleanup_error_is_proved_only_by_fresh_terminal_state() {
     let config = memory(&second.config);
     let expected_file = memory(&expected);
     let (tx, rx) = mpsc::channel();
-    let socket = second.socket.clone();
+    let listener = listen(&second.socket);
     let server =
-        thread::spawn(move || serve(socket, stop_steps(500, inspect_body("exited"), true), tx));
+        thread::spawn(move || serve(listener, stop_steps(500, inspect_body("exited"), true), tx));
     let response = execute(
         &config,
         &expected_file,
@@ -418,9 +503,14 @@ fn podman_stop_cleanup_error_is_proved_only_by_fresh_terminal_state() {
     let config = memory(&fixture.config);
     let expected_file = memory(&expected);
     let (tx, rx) = mpsc::channel();
-    let socket = fixture.socket.clone();
-    let server =
-        thread::spawn(move || serve(socket, stop_steps(500, inspect_body("running"), false), tx));
+    let listener = listen(&fixture.socket);
+    let server = thread::spawn(move || {
+        serve(
+            listener,
+            stop_steps(500, inspect_body("running"), false),
+            tx,
+        )
+    });
     let response = execute(
         &config,
         &expected_file,
@@ -441,7 +531,7 @@ fn wrong_remove_claim_and_ownership_mismatch_return_unknown_without_retry() {
     let config = memory(&remove_fixture.config);
     let expected_file = memory(&expected);
     let (tx, rx) = mpsc::channel();
-    let socket = remove_fixture.socket.clone();
+    let listener = listen(&remove_fixture.socket);
     let steps = vec![
         ("GET".into(), "/v5.7.0/libpod/info".into(), 200, info_body()),
         (
@@ -460,7 +550,7 @@ fn wrong_remove_claim_and_ownership_mismatch_return_unknown_without_retry() {
             serde_json::to_vec(&serde_json::json!([{"Id":"b".repeat(64)}])).unwrap(),
         ),
     ];
-    let server = thread::spawn(move || serve(socket, steps, tx));
+    let server = thread::spawn(move || serve(listener, steps, tx));
     let response = execute(
         &config,
         &expected_file,
@@ -478,7 +568,7 @@ fn wrong_remove_claim_and_ownership_mismatch_return_unknown_without_retry() {
     let config = memory(&second.config);
     let expected_file = memory(&expected);
     let (tx, rx) = mpsc::channel();
-    let socket = second.socket.clone();
+    let listener = listen(&second.socket);
     let mut changed: serde_json::Value = serde_json::from_slice(&inspect_body("running")).unwrap();
     changed["Config"]["Labels"]["gatehouse.lifecycle.project"] = "other".into();
     let steps = vec![
@@ -490,7 +580,7 @@ fn wrong_remove_claim_and_ownership_mismatch_return_unknown_without_retry() {
             serde_json::to_vec(&changed).unwrap(),
         ),
     ];
-    let server = thread::spawn(move || serve(socket, steps, tx));
+    let server = thread::spawn(move || serve(listener, steps, tx));
     let response = execute(
         &config,
         &expected_file,
