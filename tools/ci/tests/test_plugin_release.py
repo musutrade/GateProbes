@@ -26,7 +26,7 @@ class PluginIdentityTests(unittest.TestCase):
             row = plugin_release.resolve(name)
             self.assertEqual(plugin_release.resolve_tag(row["tag"]), row)
             self.assertIn(row["version"], row["archive"])
-        self.assertEqual(plugin_release.resolve("rust-measure")["version"], "0.3.1")
+        self.assertEqual(plugin_release.resolve("rust-measure")["version"], "0.4.0")
 
     def test_unknown_stale_or_malformed_tags_fail(self):
         for tag in ("v0.4.8", "rust-collector-v0.1.0-rc.8", "typescript-risk-v0.0.1",
