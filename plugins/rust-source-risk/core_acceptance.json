@@ -1,0 +1,53 @@
+{
+  "schema": "rust-source-risk-core-acceptance/v1",
+  "release": {
+    "tag": "rust-source-risk-v0.2.0",
+    "source_commit": "d47afd65254f310f3f34c2bb548773eb9f31b121",
+    "archive": "harness-gate-rust-source-risk-0.2.0-linux-amd64.tar.gz",
+    "archive_sha256": "737eddfffe625c402680d62034e29d02ce95c4ed7c5db7d95ddcc0deb2836eb9",
+    "inventory_sha256": "dc4d9fd3180e11832713851265813787ac2abec2628f904ad910ef49eb4bf52e",
+    "members": {
+      "ast/Cargo.lock": "6012d9210bcdee08aef8808fe8a8627a3c4b38e0c139f0f390dd1148ce23baee",
+      "capture.py": "e20e9d18171d615b20ac8c91a8a9286f3d38b3514db4335e1cd83cfd974da093",
+      "inventory": "2ec54413128987e98827b97d60a7dfa77afc0652c8700fdc007dbf3fb508f78b",
+      "LICENSE": "5b9835780a3cd7518d7637c6730a26c1141d24a00a413364264c2a4091c0e6d9",
+      "measure.py": "e3a3a32ff46d4561234065ed3fad08c8cba5b4631648fe10ed955fd0c68bdb30",
+      "plugin.json": "b533ee4dbe47deacc71d20079c6771ed1fbac0439134339facc8e94260a04153",
+      "plugin.py": "2ec0910ff579027f717fadb411c42d7f267dd39acb2f94f3d1931217c3613f90",
+      "README.md": "35b91bf1786889b396e163d773188ba15f77f30ec17dc8080119a9ec6ccbc171",
+      "THIRD_PARTY_NOTICES.txt": "4aeb0e5876c8d7d6b0723cefec78f90a5762a5a98c43a005f880c4c67813a251"
+    },
+    "name": "rust-source-risk",
+    "version": "0.2.0"
+  },
+  "core": {
+    "release": "v0.14.1",
+    "source_commit": "c22a12e25a5ea6f617d4afb9dd4e2410dc14f267",
+    "binary": "harness-gate-linux-amd64",
+    "sha256": "6b4f36d432266e43e22d82776729d76f04098c5cf63ae2295f508359a37e060c",
+    "version": "harness-gate 0.14.1"
+  },
+  "fixture": {
+    "target": "x86_64-unknown-linux-gnu",
+    "manifest": "Cargo.toml",
+    "source_root": "apps/server/src",
+    "inputs": {
+      "Cargo.toml": "e1ff60e7cad369ae5cc0109e23f2ffcd9055cee8b12d0913dfc1349bedf40cf7",
+      "Cargo.lock": "027f824b16807cbd1a0a8c4dc45c75379c46bdb64dc871f73d104a425ac831a0",
+      "apps/server/src/lib.rs": "9bea95d58fa1f737084abdb52c1da5c7641a0f5bac8206f2b87ea4b868f030bc",
+      "tests/integration.rs": "76b7eff0ded0089e4bba5e080bef84f21cf892b3770c01fc7debbc6292f9e987"
+    },
+    "sources": {
+      "apps/server/src/lib.rs": "9bea95d58fa1f737084abdb52c1da5c7641a0f5bac8206f2b87ea4b868f030bc"
+    },
+    "pipeline_files": {
+      "Cargo.toml": "e1ff60e7cad369ae5cc0109e23f2ffcd9055cee8b12d0913dfc1349bedf40cf7",
+      "Cargo.lock": "027f824b16807cbd1a0a8c4dc45c75379c46bdb64dc871f73d104a425ac831a0"
+    }
+  },
+  "tools": {
+    "rustc": "1.99.1",
+    "cargo_llvm_cov": "0.9.0",
+    "python": "3.14"
+  }
+}

@@ -394,6 +394,10 @@ def accept_rust_archive(archive: Path, source: Path, consumer: Path, core: Path)
             raise RuntimeError("incomplete Rust collector archive: " + name)
     for test in source.glob("test_*.py"):
         shutil.copy2(test, installed / test.name)
+    # The acceptance unit tests need their harness and pins, but the published
+    # runtime package does not. Copy them only into the extracted test tree.
+    for name in ("core_acceptance.py", "core_acceptance.json"):
+        shutil.copy2(source / name, installed / name)
     shutil.copytree(source / "fixtures", installed / "fixtures")
     output = run("python3", "-m", "unittest", "discover", "-s", str(installed),
                  "-p", "test_*.py", "-v", cwd=consumer, combine=True, env=dict(

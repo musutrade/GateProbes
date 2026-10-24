@@ -761,6 +761,132 @@ jobs:
             *) echo "unexpected installed version: $installed" >&2; exit 1 ;;
           esac
 
+  source-risk-core-acceptance:
+    name: source-risk 0.2.0 current consumer acceptance
+    needs: classify
+    if: needs.classify.outputs.run_plugins == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: '3.14'
+      - uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # stable
+        with:
+          toolchain: '1.99.1'
+          components: llvm-tools-preview
+      - name: Cache fixed cargo-llvm-cov
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
+        with:
+          path: ${{ runner.temp }}/source-risk/tools
+          key: source-risk-cargo-llvm-cov-0.9.0-rust-1.99.1
+      - name: Install fixed cargo-llvm-cov
+        run: |
+          set -euo pipefail
+          tool="$RUNNER_TEMP/source-risk/tools/bin/cargo-llvm-cov"
+          if [ ! -x "$tool" ]; then
+            cargo +1.99.1 install --locked --root "$RUNNER_TEMP/source-risk/tools" cargo-llvm-cov --version 0.9.0
+          fi
+          "$tool" llvm-cov --version
+      - name: Download and verify immutable release inputs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          core="$RUNNER_TEMP/source-risk/core"
+          release="$RUNNER_TEMP/source-risk/release"
+          mkdir -p "$core" "$release"
+          gh release download v0.14.1 --repo musutrade/GateHouse --dir "$core" \
+            --pattern harness-gate-linux-amd64 \
+            --pattern SHA256SUMS \
+            --pattern release-inventory.json
+          gh release download rust-source-risk-v0.2.0 --repo musutrade/GateProbes --dir "$release" \
+            --pattern harness-gate-rust-source-risk-0.2.0-linux-amd64.tar.gz \
+            --pattern release-inventory.json
+          python3 - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          root = Path(__import__('os').environ['RUNNER_TEMP']) / 'source-risk'
+          core = root / 'core/harness-gate-linux-amd64'
+          archive = root / 'release/harness-gate-rust-source-risk-0.2.0-linux-amd64.tar.gz'
+          inventory = root / 'release/release-inventory.json'
+          expected_core = '6b4f36d432266e43e22d82776729d76f04098c5cf63ae2295f508359a37e060c'
+          expected_archive = '737eddfffe625c402680d62034e29d02ce95c4ed7c5db7d95ddcc0deb2836eb9'
+          expected_inventory = 'dc4d9fd3180e11832713851265813787ac2abec2628f904ad910ef49eb4bf52e'
+          for path, expected in ((core, expected_core), (archive, expected_archive), (inventory, expected_inventory)):
+              actual = hashlib.sha256(path.read_bytes()).hexdigest()
+              if actual != expected:
+                  raise SystemExit(f'digest mismatch: {path}: {actual}')
+          value = json.loads(inventory.read_text())
+          if value['tag'] != 'rust-source-risk-v0.2.0' or value['source']['commit'] != 'd47afd65254f310f3f34c2bb548773eb9f31b121':
+              raise SystemExit('source-risk release inventory identity mismatch')
+          print('verified immutable Core and source-risk release inputs')
+          PY
+          chmod +x "$core/harness-gate-linux-amd64"
+          mkdir -p "$RUNNER_TEMP/source-risk/unpack"
+          tar -xzf "$release/harness-gate-rust-source-risk-0.2.0-linux-amd64.tar.gz" \
+            -C "$RUNNER_TEMP/source-risk/unpack"
+      - name: Prepare fixed toolchain wrappers
+        run: |
+          set -euo pipefail
+          bin="$RUNNER_TEMP/source-risk/bin"
+          mkdir -p "$bin"
+          cat > "$bin/rustc" <<'SH'
+          #!/bin/sh
+          exec rustup run 1.99.1 rustc "$@"
+          SH
+          cat > "$bin/cargo" <<'SH'
+          #!/bin/sh
+          exec rustup run 1.99.1 cargo "$@"
+          SH
+          chmod +x "$bin/rustc" "$bin/cargo"
+      - name: Fresh capture on the runner
+        env:
+          CARGO_HOME: ${{ runner.temp }}/source-risk/cargo-home
+        run: |
+          set -euo pipefail
+          unset RUSTUP_TOOLCHAIN
+          export PATH="$RUNNER_TEMP/source-risk/bin:$RUNNER_TEMP/source-risk/tools/bin:$PATH"
+          capture="$RUNNER_TEMP/source-risk/capture"
+          test ! -e "$capture"
+          mkdir -p "$CARGO_HOME" "$RUNNER_TEMP/source-risk"
+          plugin="$RUNNER_TEMP/source-risk/unpack/harness-gate-rust-source-risk-0.2.0-linux-amd64"
+          python3 "$plugin/capture.py" \
+            --repository "$GITHUB_WORKSPACE/plugins/rust-source-risk/fixtures/core-acceptance" \
+            --output "$capture" \
+            --target-dir "$RUNNER_TEMP/source-risk/target" \
+            --manifest Cargo.toml \
+            --source-root apps/server/src \
+            --input Cargo.toml --input Cargo.lock \
+            --input apps/server/src --input tests \
+            --test integration
+      - name: Signed Core collect and evaluate acceptance
+        env:
+          CARGO_HOME: ${{ runner.temp }}/source-risk/cargo-home
+        run: |
+          set -euo pipefail
+          unset RUSTUP_TOOLCHAIN
+          export PATH="$RUNNER_TEMP/source-risk/bin:$RUNNER_TEMP/source-risk/tools/bin:$PATH"
+          python3 plugins/rust-source-risk/core_acceptance.py \
+            --bundle "$RUNNER_TEMP/source-risk/capture/bundle.json" \
+            --archive "$RUNNER_TEMP/source-risk/release/harness-gate-rust-source-risk-0.2.0-linux-amd64.tar.gz" \
+            --release-inventory "$RUNNER_TEMP/source-risk/release/release-inventory.json" \
+            --core "$RUNNER_TEMP/source-risk/core/harness-gate-linux-amd64" \
+            --presets-dir "$GITHUB_WORKSPACE/presets" \
+            --output "$RUNNER_TEMP/source-risk/acceptance/receipt.json"
+      - name: Retain source-risk acceptance receipt
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: source-risk-core-acceptance
+          path: ${{ runner.temp }}/source-risk/acceptance
+          if-no-files-found: warn
+          retention-days: 30
+
   presets:
     name: External preset compatibility
     needs: classify
@@ -889,11 +1015,23 @@ jobs:
   required_aggregate:
     name: Required Quality Aggregate
     if: ${{ always() }}
-    needs: [ classify, lightweight, runtime-wire, runtime-repro, runtime-import-joint, runtime-importer, runtime-import-v3, runtime-import-lifecycle, runtime-import-podman, plugins, presets, compatibility ]
+    needs: [ classify, lightweight, runtime-wire, runtime-repro, runtime-import-joint, runtime-importer, runtime-import-v3, runtime-import-lifecycle, runtime-import-podman, plugins, source-risk-core-acceptance, presets, compatibility ]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - name: Require source-risk current consumer acceptance
+        env:
+          SELECTED: ${{ needs.classify.outputs.run_plugins }}
+          RESULT: ${{ needs.source-risk-core-acceptance.result }}
+        run: |
+          python3 - <<'PYSOURCE'
+          import os
+          selected, result = os.environ['SELECTED'], os.environ['RESULT']
+          if selected not in ('true', 'false') or (selected == 'true' and result != 'success') or (selected == 'false' and result not in ('success', 'skipped')):
+              raise SystemExit('source-risk current consumer acceptance missing or failed')
+          PYSOURCE
+
       - name: Require selected compatibility acceptance
         env:
           SELECTED: ${{ needs.classify.outputs.run_plugins }}

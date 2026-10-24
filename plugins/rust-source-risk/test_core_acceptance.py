@@ -1,0 +1,242 @@
+import hashlib
+import io
+import json
+import os
+from pathlib import Path
+import tarfile
+import tempfile
+import unittest
+from unittest import mock
+
+import core_acceptance as acceptance
+
+
+def sha(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+def make_archive(path: Path, root: str, files: dict[str, bytes]) -> None:
+    with tarfile.open(path, "w:gz") as archive:
+        for name, data in sorted(files.items()):
+            info = tarfile.TarInfo(root + "/" + name)
+            info.size = len(data)
+            archive.addfile(info, io.BytesIO(data))
+
+
+class ArchiveTests(unittest.TestCase):
+    def test_exact_member_inventory_and_digest(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            files = {"plugin.py": b"print('ok')\n", "README.md": b"readme\n"}
+            archive = root / "release.tar.gz"
+            make_archive(archive, "package", files)
+            pins = {"release": {
+                "archive_sha256": sha(archive.read_bytes()),
+                "members": {name: sha(data) for name, data in files.items()},
+            }}
+            plugin = acceptance.verify_archive(archive, pins, root / "unpack")
+            self.assertEqual(plugin.name, "package")
+            self.assertEqual((plugin / "plugin.py").read_bytes(), b"print('ok')\n")
+
+    def test_changed_member_fails(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            archive = root / "release.tar.gz"
+            make_archive(archive, "package", {"plugin.py": b"original\n"})
+            pins = {"release": {
+                "archive_sha256": sha(archive.read_bytes()),
+                "members": {"plugin.py": sha(b"original\n")},
+            }}
+            make_archive(archive, "package", {"plugin.py": b"changed\n"})
+            with self.assertRaises(acceptance.AcceptanceError):
+                acceptance.verify_archive(archive, pins, root / "unpack")
+
+    def test_unsafe_member_fails(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            archive = root / "release.tar.gz"
+            with tarfile.open(archive, "w:gz") as stream:
+                info = tarfile.TarInfo("../escape")
+                info.size = 1
+                stream.addfile(info, io.BytesIO(b"x"))
+            pins = {"release": {
+                "archive_sha256": sha(archive.read_bytes()),
+                "members": {},
+            }}
+            with self.assertRaises(acceptance.AcceptanceError):
+                acceptance.verify_archive(archive, pins, root / "unpack")
+
+    def test_extra_member_fails(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            files = {"plugin.py": b"ok\n"}
+            archive = root / "release.tar.gz"
+            make_archive(archive, "package", files)
+            pins = {"release": {
+                "archive_sha256": sha(archive.read_bytes()),
+                "members": {name: sha(data) for name, data in files.items()},
+            }}
+            make_archive(archive, "package", {**files, "extra.py": b"extra\n"})
+            with self.assertRaises(acceptance.AcceptanceError):
+                acceptance.verify_archive(archive, pins, root / "unpack")
+
+
+class CoreTests(unittest.TestCase):
+    def test_core_version_and_digest(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            core = root / "harness-gate"
+            core.write_text("#!/bin/sh\necho 'harness-gate 0.14.1'\n")
+            core.chmod(0o700)
+            pins = {"core": {
+                "sha256": sha(core.read_bytes()),
+                "version": "harness-gate 0.14.1",
+            }}
+            self.assertEqual(acceptance.verify_core(core, pins)["version"],
+                             "harness-gate 0.14.1")
+
+    def test_wrong_core_version_fails(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            core = root / "harness-gate"
+            core.write_text("#!/bin/sh\necho 'harness-gate 0.14.0'\n")
+            core.chmod(0o700)
+            pins = {"core": {
+                "sha256": sha(core.read_bytes()),
+                "version": "harness-gate 0.14.1",
+            }}
+            with self.assertRaises(acceptance.AcceptanceError):
+                acceptance.verify_core(core, pins)
+
+    def test_wrong_core_digest_fails(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            core = root / "harness-gate"
+            core.write_text("#!/bin/sh\necho 'harness-gate 0.14.1'\n")
+            core.chmod(0o700)
+            pins = {"core": {
+                "sha256": "0" * 64,
+                "version": "harness-gate 0.14.1",
+            }}
+            with self.assertRaises(acceptance.AcceptanceError):
+                acceptance.verify_core(core, pins)
+
+
+class ReleaseInventoryTests(unittest.TestCase):
+    def test_source_and_archive_identity(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            inventory = {
+                "tag": "rust-source-risk-v0.2.0",
+                "source": {
+                    "repository": "https://github.com/musutrade/GateProbes",
+                    "commit": "a" * 40,
+                },
+                "assets": [{"name": "archive.tar.gz", "sha256": "b" * 64}],
+            }
+            path = root / "release-inventory.json"
+            path.write_text(json.dumps(inventory) + "\n")
+            pins = {"release": {
+                "tag": inventory["tag"],
+                "source_commit": "a" * 40,
+                "archive": "archive.tar.gz",
+                "archive_sha256": "b" * 64,
+                "inventory_sha256": sha(path.read_bytes()),
+            }}
+            acceptance.verify_release_inventory(path, pins)
+            inventory["source"]["commit"] = "c" * 40
+            path.write_text(json.dumps(inventory) + "\n")
+            pins["release"]["inventory_sha256"] = sha(path.read_bytes())
+            with self.assertRaises(acceptance.AcceptanceError):
+                acceptance.verify_release_inventory(path, pins)
+
+
+class EnvironmentTests(unittest.TestCase):
+    def test_cargo_home_must_be_outside_workspace(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary) / "workspace"
+            root.mkdir()
+            cargo = Path(temporary) / "cargo-home"
+            cargo.mkdir()
+            with mock.patch.dict(os.environ, {"CARGO_HOME": str(cargo)}, clear=False):
+                for name in ("RUSTFLAGS", "CARGO_BUILD_TARGET", "RUSTC_WRAPPER"):
+                    os.environ.pop(name, None)
+                acceptance.verify_cargo_environment(root)
+
+    def test_cargo_override_fails(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary) / "workspace"
+            root.mkdir()
+            cargo = Path(temporary) / "cargo-home"
+            cargo.mkdir()
+            with mock.patch.dict(os.environ, {"CARGO_HOME": str(cargo),
+                                              "RUSTFLAGS": "--cfg changed"},
+                                 clear=False):
+                with self.assertRaises(acceptance.AcceptanceError):
+                    acceptance.verify_cargo_environment(root)
+
+
+class MatrixTests(unittest.TestCase):
+    def test_ten_negative_cases_are_layered(self):
+        self.assertEqual(len(acceptance.NEGATIVE_LAYERS), 10)
+        self.assertEqual(acceptance.NEGATIVE_LAYERS["tampered-artifact"], "evaluate")
+        self.assertEqual(
+            [name for name, layer in acceptance.NEGATIVE_LAYERS.items()
+             if layer == "collect"],
+            ["stale-context", "expired", "tampered-signature", "replay"])
+        self.assertEqual(len(acceptance.EVALUATE_REASONS), 5)
+
+    def test_negative_requires_failure_and_expected_reason(self):
+        with self.assertRaises(acceptance.AcceptanceError):
+            acceptance.check_negative(
+                "stale-context", "collect", 0, "", "mismatch")
+        with self.assertRaises(acceptance.AcceptanceError):
+            acceptance.check_negative(
+                "stale-context", "collect", 1, "some other error", "mismatch")
+        record = acceptance.check_negative(
+            "stale-context", "collect", 1, "roots/selection mismatch",
+            "roots/selection mismatch")
+        self.assertTrue(record["passed"])
+        self.assertEqual(record["exit"], 1)
+
+    def test_negative_layer_mismatch_fails(self):
+        with self.assertRaises(acceptance.AcceptanceError):
+            acceptance.check_negative(
+                "tampered-artifact", "collect", 1, "mismatch", "mismatch")
+
+    def test_report_reasons_walks_nested_reports(self):
+        report = {
+            "gates": [{"reason": "source identity mismatch"}],
+            "policy_result": {"results": [{"reason": "policy limit violated"}]},
+        }
+        self.assertEqual(set(acceptance.report_reasons(report)),
+                         {"source identity mismatch", "policy limit violated"})
+
+    def test_policy_with_limit_does_not_mutate_input(self):
+        policy = {"rules": [{"metric": "risk.crap",
+                             "limit": {"type": "rational", "numerator": 10,
+                                       "denominator": 1}}]}
+        changed = acceptance.policy_with_limit(
+            policy, "risk.crap",
+            {"type": "rational", "numerator": 1, "denominator": 1})
+        self.assertEqual(policy["rules"][0]["limit"]["numerator"], 10)
+        self.assertEqual(changed["rules"][0]["limit"]["numerator"], 1)
+
+
+class PinTests(unittest.TestCase):
+    def test_published_pins_are_complete(self):
+        pins = json.loads(Path(acceptance.__file__).with_name(
+            "core_acceptance.json").read_text())
+        self.assertEqual(pins["schema"], "rust-source-risk-core-acceptance/v1")
+        self.assertEqual(pins["release"]["archive_sha256"],
+                         "737eddfffe625c402680d62034e29d02ce95c4ed7c5db7d95ddcc0deb2836eb9")
+        self.assertEqual(len(pins["release"]["members"]), 9)
+        self.assertEqual(pins["core"]["sha256"],
+                         "6b4f36d432266e43e22d82776729d76f04098c5cf63ae2295f508359a37e060c")
+        self.assertEqual(pins["core"]["version"], "harness-gate 0.14.1")
+        self.assertEqual(pins["fixture"]["target"], "x86_64-unknown-linux-gnu")
+        self.assertEqual(len(pins["fixture"]["inputs"]), 4)
+
+
+if __name__ == "__main__":
+    unittest.main()
