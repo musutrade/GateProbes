@@ -1,6 +1,6 @@
 {
   "name": "rust-source-risk",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "kind": "harness-gate-collector",
   "request_schema": "harness-collector-request/v1",
   "adapter_protocol": 2,
@@ -13,6 +13,6 @@
     "coverage.region",
     "risk.crap"
   ],
-  "status": "release-gated",
-  "acceptance": "Linux x86_64 source-region series; historical publication used pinned Core v0.7.1 static contract and extracted-package acceptance; current consumer regression is separate; not production host isolation"
+  "status": "release-candidate",
+  "acceptance": "Linux x86_64; candidate package must pass source/extracted native/preflight and signed published Core0.14.1 acceptance; published0.2 consumer regression is independent; no production trust provisioning"
 }

@@ -41,6 +41,8 @@ def releases(root: Path = ROOT) -> dict:
         if not isinstance(manifests, list) or "plugin.json" not in manifests:
             raise policy.PolicyError("plugin identity manifest is required")
         for manifest in manifests:
+            if name == "rust-source-risk" and manifest == "ast/Cargo.toml":
+                continue  # Exact product-owned nested manifest; no general path relaxation.
             inventory._safe_name(manifest)
     if len(prefixes) != len(set(prefixes)):
         raise policy.PolicyError("duplicate plugin tag prefix")

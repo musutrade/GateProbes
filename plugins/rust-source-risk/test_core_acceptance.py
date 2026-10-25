@@ -252,7 +252,7 @@ class CandidateSeparationTests(unittest.TestCase):
             path = root / 'pins.json'
             path.write_text(json.dumps(pins))
             argv = ['--pins',str(path),'--pins-sha256','0'*64 if wrong_digest else sha(path.read_bytes()),
-                    '--archive',str(root/'missing.tar.gz'),'--bundle',str(root/'bundle.json'),
+                    '--archive',str(root/'missing.tar.gz'),'--sbom',str(root/'missing.sbom.json'),'--bundle',str(root/'bundle.json'),
                     '--core',str(root/'core'),'--output',str(root/'receipt.json'),
                     '--presets-dir',str(root/'presets')]
             with self.assertRaisesRegex(acceptance.AcceptanceError, expected):
@@ -270,6 +270,30 @@ class CandidateSeparationTests(unittest.TestCase):
     def test_published_pins_are_rejected_in_candidate_route(self):
         self.candidate_rejection(lambda p: p.update(schema='rust-source-risk-core-acceptance/v1'),
                                  'unexpected acceptance pins schema')
+
+
+
+class CandidateSbomTests(unittest.TestCase):
+    def test_sbom_binds_version_source_lock_and_bytes(self):
+        import copy
+        with tempfile.TemporaryDirectory() as temporary:
+            path=Path(temporary)/'sbom.json'
+            value={'bomFormat':'CycloneDX','metadata':{
+                'component':{'name':'harness-gate-rust-source-inventory','version':'0.3.0'},
+                'properties':[{'name':'source.commit','value':'a'*40},{'name':'cargo.lock.sha256','value':'b'*64}]}}
+            def check(document, bad_digest=False):
+                path.write_text(json.dumps(document))
+                pins={'candidate':{'version':'0.3.0','source_commit':'a'*40,'members':{'ast/Cargo.lock':'b'*64},
+                                   'sbom_sha256':'0'*64 if bad_digest else sha(path.read_bytes())}}
+                acceptance.verify_candidate_sbom(path,pins)
+            check(value)
+            for key in ['version','source','lock','digest']:
+                with self.subTest(key=key):
+                    wrong=copy.deepcopy(value)
+                    if key=='version':wrong['metadata']['component']['version']='0.2.0'
+                    if key=='source':wrong['metadata']['properties'][0]['value']='c'*40
+                    if key=='lock':wrong['metadata']['properties'][1]['value']='d'*64
+                    with self.assertRaises(acceptance.AcceptanceError):check(wrong,bad_digest=key=='digest')
 
 
 if __name__ == "__main__":

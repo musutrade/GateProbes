@@ -317,13 +317,30 @@ def accept_node_archive(source: Path, archive: Path, core: Path, output: Path) -
         (output / (archive.name + ".sbom.cdx.json")).write_text(sbom)
 
 
-def rust_package(output: Path, core: Path) -> None:
+def require_source_risk_tests(output: str) -> int:
+    if "skipped=" in output or not re.search(r"Ran [1-9][0-9]* tests", output):
+        raise RuntimeError("source-risk acceptance skipped tests")
+    for test in ("test_mixed_direct_variant_derive_stops_before_cargo",
+                 "test_exact_authored_inventory_counters_and_complexity"):
+        if not re.search(r"^" + test + r" \(.*\) \.\.\. ok$", output, re.MULTILINE):
+            raise RuntimeError("source-risk required test missing: " + test)
+    return int(re.search(r"Ran ([1-9][0-9]*) tests", output).group(1))
+
+
+def rust_package(output: Path, core: Path, candidate_core: Path, evidence: Path) -> None:
     source = ROOT / "plugins/rust-source-risk"
     manifest = source / "ast/Cargo.toml"
     identity = json.loads((source / "plugin.json").read_text())
+    import source_risk_candidate
+    source_risk_candidate.identity(source, plugin_release.resolve("rust-source-risk")["version"])
+    source_risk_candidate.environment(source, candidate_core)
+    if evidence.resolve().is_relative_to(output.resolve()):
+        raise ValueError("source-risk evidence must be outside release dist")
+    head = subprocess.check_output(["git", "-C", str(source), "rev-parse", "HEAD"], text=True).strip()
     with tempfile.TemporaryDirectory(prefix="rust-source-package-") as tmp:
         stage = Path(tmp)
-        env = dict(os.environ, CARGO_TARGET_DIR=str(stage / "target"))
+        env = dict(os.environ, CARGO_TARGET_DIR=str(stage / "target"),
+                   RUST_SOURCE_TEST_EVIDENCE=str(evidence / "source-native"))
         run("cargo", "test", "--locked", "--manifest-path", str(manifest), env=env)
         run("cargo", "build", "--locked", "--release", "--manifest-path", str(manifest), env=env)
         inventory = stage / "target/release/harness-gate-rust-source-inventory"
@@ -334,8 +351,14 @@ def rust_package(output: Path, core: Path) -> None:
         shutil.copytree(source, test_source, ignore=shutil.ignore_patterns(
             "target", "inventory", "__pycache__", "*.tar.gz"))
         shutil.copy2(inventory, test_source / "inventory")
-        run("python3", "-m", "unittest", "discover", "-s", str(test_source),
-            "-p", "test_*.py", "-v", env=env)
+        source_output = run("python3", "-m", "unittest", "discover", "-s", str(test_source),
+                            "-p", "test_*.py", "-v", env=env, combine=True)
+        source_count = require_source_risk_tests(source_output)
+        evidence.mkdir(parents=True, exist_ok=True)
+        (evidence / "source-acceptance.json").write_text(json.dumps({
+            "scope":"source-risk-source-candidate", "source_commit":head,
+            "inventory_sha256":hashlib.sha256(inventory.read_bytes()).hexdigest(),
+            "tests":source_count, "zero_skips":True, "required_native_preflight":"passed"}, indent=2) + "\n")
         name = "harness-gate-rust-source-risk-" + identity["version"] + "-linux-amd64"
         package = stage / name
         package.mkdir()
@@ -376,13 +399,21 @@ def rust_package(output: Path, core: Path) -> None:
             raise RuntimeError("packaged inventory smoke test failed")
         with tarfile.open(output / (name + ".tar.gz"), "w:gz") as archive:
             archive.add(package, arcname=name)
-        accept_rust_archive(output / (name + ".tar.gz"), source, stage / "consumer", core)
+        installed_env = dict(env, RUST_SOURCE_TEST_EVIDENCE=str(evidence / "extracted-native"))
+        accept_rust_archive(output / (name + ".tar.gz"), source, stage / "consumer", core,
+                            test_env=installed_env)
+        shutil.copy2(stage / "consumer/acceptance.json", evidence / "extracted-acceptance.json")
+        toolchain = next(line.removeprefix("release: ") for line in
+                         run("rustc", "-vV", echo=False).splitlines() if line.startswith("release: "))
+        sbom = output / (name + ".tar.gz.sbom.cdx.json")
         run("python3", str(core / "tools/release/generate-sbom.py"), "--metadata", str(metadata),
-            "--lockfile", str(source / "ast/Cargo.lock"),
-            "--output", str(output / (name + ".tar.gz.sbom.cdx.json")))
+            "--lockfile", str(source / "ast/Cargo.lock"), "--output", str(sbom),
+            env=dict(env, GITHUB_SHA=head, RUSTUP_TOOLCHAIN=toolchain))
+        source_risk_candidate.accept(source, output / (name + ".tar.gz"), sbom,
+                                     candidate_core, evidence / "candidate", identity["version"])
 
 
-def accept_rust_archive(archive: Path, source: Path, consumer: Path, core: Path, *, flat=False) -> None:
+def accept_rust_archive(archive: Path, source: Path, consumer: Path, core: Path, *, flat=False, test_env=None) -> None:
     """Exercise the extracted archive; source-tree tests alone miss omitted files."""
     consumer.mkdir()
     installed = consumer / ("runtime" if flat else archive.name.removesuffix(".tar.gz"))
@@ -410,13 +441,9 @@ def accept_rust_archive(archive: Path, source: Path, consumer: Path, core: Path,
     shutil.copytree(source / "fixtures", installed / "fixtures")
     output = run("python3", "-m", "unittest", "discover", "-s", str(installed),
                  "-p", "test_*.py", "-v", cwd=consumer, combine=True, env=dict(
-                     os.environ, PYTHONPATH="", RUST_SOURCE_INVENTORY=str(installed / "inventory")))
-    if "skipped=" in output or not re.search(r"Ran [1-9][0-9]* tests", output):
-        raise RuntimeError("extracted Rust collector acceptance skipped tests")
-    for test in ("test_mixed_direct_variant_derive_stops_before_cargo",
-                 "test_exact_authored_inventory_counters_and_complexity"):
-        if not re.search(r"^" + test + r" \(.*\) \.\.\. ok$", output, re.MULTILINE):
-            raise RuntimeError("extracted Rust collector required test missing: " + test)
+                     os.environ if test_env is None else test_env,
+                     PYTHONPATH="", RUST_SOURCE_INVENTORY=str(installed / "inventory")))
+    test_count = require_source_risk_tests(output)
     run("python3", str(source / "contract.py"), "--plugin", str(installed),
         "--core-root", str(core / "tools/quality"), cwd=consumer)
     evidence = consumer / "acceptance.json"
@@ -425,7 +452,7 @@ def accept_rust_archive(archive: Path, source: Path, consumer: Path, core: Path,
                                    "runtime_members": runtime,
                                    "zero_skips": True, "required_native_preflight": "passed",
                                    "contract": "passed",
-                                   "tests": int(re.search(r"Ran ([1-9][0-9]*) tests", output).group(1))}, indent=2) + "\n")
+                                   "tests": test_count}, indent=2) + "\n")
 
 
 def main() -> None:
@@ -433,7 +460,11 @@ def main() -> None:
     parser.add_argument("--plugin", choices=tuple(plugin_release.releases()), required=True)
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--core-root", required=True, type=Path)
+    parser.add_argument("--source-risk-core", type=Path, help="fixed published Core0.14.1 for mandatory source-risk candidate gate")
+    parser.add_argument("--source-risk-evidence", type=Path, help="persistent candidate evidence outside release dist")
     args = parser.parse_args()
+    if args.plugin == "rust-source-risk" and (args.source_risk_core is None or args.source_risk_evidence is None):
+        parser.error("source-risk packaging requires --source-risk-core and --source-risk-evidence; static or published0.2 regression is insufficient")
     row = plugin_release.resolve(args.plugin)
     core = args.core_root.resolve()
     if args.plugin == "podman-lifecycle":
@@ -507,7 +538,7 @@ def main() -> None:
     elif args.plugin in ("typescript-risk", "http-json-contract"):
         node_package(args.plugin, output, core)
     elif args.plugin == "rust-source-risk":
-        rust_package(output, core)
+        rust_package(output, core, args.source_risk_core.resolve(), args.source_risk_evidence.resolve())
     elif args.plugin == "postgres-service":
         postgres_package(output, core, Path(os.environ["HARNESS_GATE_BINARY"]))
     else:

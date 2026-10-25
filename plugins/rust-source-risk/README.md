@@ -4,14 +4,15 @@ This is an independent Harness-Gate collector plugin. It does not modify Core,
 change a policy threshold, sign its own requests, or replace the MIR measurement
 series. The original MIR collector remains useful for generated-code diagnostics.
 
-## Local thiserror candidate (unpublished)
+## 0.3.0 release candidate (unpublished)
 
-The working source adds the restricted metadata subset below. Published 0.2.0
-bytes and `core_acceptance.json` are unchanged and still reject these helpers.
-The inherited development `plugin.json`/collector version remains 0.2.0; it is
-**not** the identity of a new published 0.2.0 artifact. Candidate receipts use
-`rust-source-risk-local-candidate-acceptance/v1`, scope
-`local-unpublished-candidate`, a pinned archive/member manifest and source commit.
+The working product identity is **0.3.0 release candidate**, consistently bound
+by `plugin.json`, `COLLECTOR`, `ast/Cargo.toml`, its root lock entry and the release
+catalog. No 0.3.0 tag/release/downloaded asset exists as part of local preparation.
+Published 0.2.0 bytes and `core_acceptance.json` remain unchanged and still reject
+these helpers. Candidate receipts use `rust-source-risk-local-candidate-acceptance/v1`,
+scope `local-unpublished-candidate`, exact 0.3.0 archive/member/SBOM hashes and
+source commit/tree. They are not published-0.3 download acceptance.
 
 Only the literal syntactic path `derive(thiserror::Error)` on a struct/enum
 establishes context. Each struct or direct enum variant requires one `error`
@@ -52,29 +53,60 @@ implicit `Error::source`, and handwritten branches/methods/closures. The native
 test adds an unexecuted function and checks its zero coverage and CC, then injects
 faults into actual LLVM export/inventory inputs to verify mapping rejection.
 
-Build the inventory, run `test_thiserror_native.py` with a capture-compatible
-isolated Cargo environment, then from a clean committed worktree run:
+The full local release command is now the candidate gate, rather than a parallel
+lightweight builder. From a clean committed worktree:
 
 ```sh
 python3 plugins/rust-source-risk/local_candidate.py --output /absolute/new-output \
+  --core-root /absolute/static-contract-core \
   --core /absolute/published/harness-gate-linux-amd64
 ```
 
-This builds and hashes an unpublished local archive, captures from its extracted
-runtime, and calls the separate `candidate_acceptance.py` entrypoint. That
-entrypoint requires `--pins` and `--pins-sha256`, rejects release claims and
-changes to the fixed published Core identity, and runs the existing signed
-collect/evaluate chain, ten protocol/evidence negatives and real fixture-policy
-failure. `core_acceptance.py` without the internal candidate entrypoint keeps the
-published-release schema/inventory checks and existing current-release CI pins.
-No CI workflow changes are included in this local candidate.
+It invokes the real packaging command:
 
-A future independently published version requires a reviewed version/tag/asset
-and immutable inventory/provenance, updated collector identity and contracts,
-new downloaded-artifact acceptance, and then a separate Core consumer review.
-Even before a version bump the changed inventory binary changes the existing
-series rule digest; fixture Cargo.lock and toolchain affect the tool digest.
-Do not relabel old reports/baselines or add a native MIR compatibility row.
+```sh
+python3 tools/release/package_plugin.py --plugin rust-source-risk \
+  --core-root /absolute/static-contract-core --output /absolute/new-dist \
+  --source-risk-core /absolute/published/harness-gate-linux-amd64 \
+  --source-risk-evidence /absolute/new-evidence
+```
+
+Both extra source-risk arguments are mandatory. The static contract Core remains
+fixed by `docs/ownership.json`; the separate signed candidate Core is exactly the
+published 0.14.1 binary in `core_acceptance.json`. One cannot replace the other.
+The environment needs Linux x86_64, Python 3.14, Rust 1.99.1 with
+`llvm-tools-preview` and `rust-docs`, cargo-llvm-cov 0.9.0, OpenSSL, and a
+capture-compatible `CARGO_HOME` outside the measured workspace without build
+wrappers/flags. Existing tool/session proxies must stay intact. A local offline
+rehearsal can use a dedicated Cargo home with the existing cached registry;
+missing locked crates, notices or tool prerequisites fail rather than skip.
+
+Packaging runs source AST/native/preflight tests, compiles the inventory, checks
+all dependency source/notices against locked .crate archives, adds Rust library
+notices, and creates the complete nine-member 0.3.0 archive plus CycloneDX SBOM.
+It clean-extracts that archive and runs the native/preflight tests again with
+zero skips and the static contract. The SBOM binds product version, source
+commit and Cargo.lock digest. The mandatory candidate stage then derives exact
+manifest hashes from those actual package/SBOM bytes, captures from the extracted
+0.3.0 runtime and requires signed published-Core collect/evaluate, all ten
+reason-specific negatives, and real fixture CRAP policy failure. `dist` contains
+only archive/SBOM; manifests, test evidence and receipts live outside it.
+
+CI requires `source-risk-candidate` independently of the unchanged published-0.2
+consumer job. The tag release workflow uses the same mandatory package gate and
+fixed prerequisites before staging assets. No successful old-0.2 job substitutes
+for a new-0.3 candidate result. Changing the inventory, COLLECTOR version and root
+lock entry changes the series under its existing identity mechanism. Old reports
+and baselines are never relabeled.
+
+Publication remains a separate review: protected-main/tag policy, integrity
+inventory/signing/provenance and exact upload set still apply. After a separately
+authorized real 0.3 release, download the actual published archive/SBOM/inventory,
+verify their published hashes/provenance and nine members, then run fresh 0.3
+measurement and signed Core acceptance bound to those downloaded bytes. That
+post-publication stage has not run and must not reuse old 0.2 pins or relabel a
+local-candidate receipt. Core consumer pin/series and project registration review
+come afterward; no native MIR matrix row or Core policy/baseline change is added.
 
 Checking the historical four #107 producer files is source-inventory evidence
 only: the candidate accepts audit/errors.rs and scope/errors.rs; secrets/mod.rs
@@ -215,22 +247,20 @@ limit to prove that transport `PASS` is not a final policy `PASS`.
 The CI job `source-risk-core-acceptance` is a **current consumer regression**
 against the already published 0.2.0 archive and the published Core 0.14.1
 binary. It does not claim that the historical 0.2.0 publication was gated by
-this acceptance. A future source-risk release must run the same acceptance
-against its candidate archive after the static `contract.py` check; that
-packaging integration is a separate release-design change, not a 0.2.0
-re-release.
+this acceptance. The independent 0.3.0 candidate gate described above runs against
+the newly built complete candidate after static and extracted-package checks;
+it does not rebuild, relabel or re-release 0.2.0.
 
 The native MIR `rust-collector-compatibility.json` matrix does not apply to this
-generic project collector, so no matrix row is added. The `thiserror`
-`error`/`from`/`source` macro attributes remain unsupported; this acceptance
-does not broaden them.
+generic project collector, so no matrix row is added. The pinned published0.2
+collector still rejects thiserror helpers; its consumer acceptance does not
+broaden that artifact. The 0.3 candidate subset is tested independently.
 
-Future release-gate design (not implemented for 0.2.0): after the existing
-static `contract.py` check in `tools/release/package_plugin.py`, extract the
-candidate archive and run the same signed collect/evaluate matrix against that
-candidate, deriving archive/member pins from the candidate release inventory.
-Do not substitute the immutable 0.2.0 archive for a candidate, and do not treat
-the current 0.2.0 consumer regression as candidate-artifact acceptance.
+The implemented 0.3 candidate gate uses the real archive/SBOM after extraction;
+`candidate_acceptance.py` requires an external manifest SHA plus SBOM SHA/version/
+source/lock checks. The inherited 0.2 default remains exclusively a published
+consumer regression. Neither stage claims the unexecuted post-publication 0.3
+download acceptance described above.
 
 The reviewed GH-288 Linux x86-64 matrix passed for Rust 1.97.1 / LLVM
 22.1.6 and Rust 1.99.0 / LLVM 23.1.1: each ran the existing 26 tests and
