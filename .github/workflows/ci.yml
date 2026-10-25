@@ -907,6 +907,7 @@ jobs:
             ${{ runner.temp }}/source-risk03-published/validator-manifest.json
             ${{ runner.temp }}/source-risk03-published/capture
             ${{ runner.temp }}/source-risk03-published/download
+            ${{ runner.temp }}/source-risk03-published/core
             ${{ runner.temp }}/source-risk03-published/acceptance
           if-no-files-found: error
           retention-days: 30
