@@ -62,6 +62,24 @@ struct B { #[serde(serialize_with = "other")] x: u32 }
         self.assertFalse((self.root / 'capture/bundle.json').exists())
         self.assertFalse((self.root / 'capture/cargo-coverage.json').exists())
 
+    def test_thiserror_failures_are_not_partial_measurements(self):
+        invalid = {
+            'callback.rs': '#[derive(thiserror::Error)] #[error("{}", callback())] struct E;',
+            'alias.rs': '#[derive(alias::Error)] #[error("bad")] struct E;',
+            'conflict.rs': '#[derive(thiserror::Error)] #[error("bad")] struct E { source: Inner, #[source] other: Inner }',
+            'backtrace.rs': '#[derive(thiserror::Error)] #[error("bad")] struct E { backtrace: Inner }',
+            'leaked.rs': '#[derive(thiserror::Error)] #[error("bad")] struct E; #[error("bad")] fn other() {}',
+        }
+        for name, source in invalid.items():
+            (self.repo / 'src' / name).write_text(source)
+        result = self.capture()
+        self.assertNotEqual(result.returncode, 0)
+        for name in invalid:
+            self.assertIn('src/' + name, result.stderr)
+        self.assertFalse(self.marker.exists())
+        self.assertFalse((self.root / 'capture/bundle.json').exists())
+        self.assertFalse((self.root / 'capture/cargo-coverage.json').exists())
+
     def test_supported_source_proceeds_to_cargo(self):
         (self.repo / 'src/lib.rs').write_text('pub fn value() -> u32 { 42 }')
         result = self.capture()

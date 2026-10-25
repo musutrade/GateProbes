@@ -238,5 +238,39 @@ class PinTests(unittest.TestCase):
         self.assertEqual(len(pins["fixture"]["inputs"]), 4)
 
 
+
+class CandidateSeparationTests(unittest.TestCase):
+    def candidate_rejection(self, mutate, expected, *, wrong_digest=False):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / 'presets').mkdir()
+            (root / 'presets/catalog.json').write_text('{}')
+            published = json.loads(Path(acceptance.__file__).with_name('core_acceptance.json').read_text())
+            pins = {'schema':'rust-source-risk-local-candidate/v1',
+                    'candidate':{}, 'core':published['core']}
+            mutate(pins)
+            path = root / 'pins.json'
+            path.write_text(json.dumps(pins))
+            argv = ['--pins',str(path),'--pins-sha256','0'*64 if wrong_digest else sha(path.read_bytes()),
+                    '--archive',str(root/'missing.tar.gz'),'--bundle',str(root/'bundle.json'),
+                    '--core',str(root/'core'),'--output',str(root/'receipt.json'),
+                    '--presets-dir',str(root/'presets')]
+            with self.assertRaisesRegex(acceptance.AcceptanceError, expected):
+                acceptance.main(argv, candidate=True)
+            self.assertFalse((root / 'receipt.json').exists())
+
+    def test_candidate_requires_externally_pinned_manifest(self):
+        self.candidate_rejection(lambda p: None, 'candidate manifest digest mismatch', wrong_digest=True)
+
+    def test_candidate_cannot_claim_release_or_change_published_core(self):
+        self.candidate_rejection(lambda p: p.update(release={}), 'must not claim a published release')
+        self.candidate_rejection(lambda p: p['candidate'].update(tag='rust-source-risk-v0.2.0'), 'must not claim a published release')
+        self.candidate_rejection(lambda p: p['core'].update(sha256='0'*64), 'must use fixed published Core')
+
+    def test_published_pins_are_rejected_in_candidate_route(self):
+        self.candidate_rejection(lambda p: p.update(schema='rust-source-risk-core-acceptance/v1'),
+                                 'unexpected acceptance pins schema')
+
+
 if __name__ == "__main__":
     unittest.main()
