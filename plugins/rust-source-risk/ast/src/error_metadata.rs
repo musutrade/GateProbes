@@ -126,10 +126,17 @@ impl Check {
         }
         true
     }
-    fn owner(&mut self, attrs: &[Attribute], fields: &Fields) {
-        if derives(attrs).is_ok_and(|p| !p.is_empty() && !p.iter().any(direct)) {
-            self.error("derive on variant is outside the subset", fields.span());
+    fn variant(&mut self, variant: &syn::Variant) {
+        // Placement is forbidden regardless of derive contents or parseability.
+        // A variant never establishes a new Error container context.
+        for attr in &variant.attrs {
+            if attr.path().is_ident("derive") {
+                self.error("derive on variant is outside the subset", attr.span());
+            }
         }
+        self.owner(&variant.attrs, &variant.fields);
+    }
+    fn owner(&mut self, attrs: &[Attribute], fields: &Fields) {
         let errors: Vec<_> = attrs
             .iter()
             .filter(|a| a.path().is_ident("error"))
@@ -236,7 +243,7 @@ impl<'ast> Visit<'ast> for Check {
         if self.context(&n.attrs) {
             // Enum-level helpers remain unapproved; each direct variant owns its fields.
             for variant in &n.variants {
-                self.owner(&variant.attrs, &variant.fields);
+                self.variant(variant);
             }
         }
         visit::visit_item_enum(self, n);
@@ -315,6 +322,38 @@ mod tests {
         }
         assert!(parsed(
             "#[derive(Debug,thiserror::Error)] enum E { #[error(\"bad\")] Bad, #[error(\"{value:?}\")] Named{value:u32}, #[error(\"{0}\")] Tuple(u32) }"
+        ));
+    }
+    #[test]
+    fn every_variant_derive_is_rejected_before_interpreting_its_contents() {
+        for attrs in [
+            "#[derive(thiserror::Error,custom::Macro)]",
+            "#[derive(thiserror::Error)]",
+            "#[derive()]",
+            "#[derive]",
+            "#[derive = \"invalid\"]",
+            "#[derive(,)]",
+            "#[derive(thiserror::Error,,)]",
+            "#[derive(thiserror::Error)] #[derive(custom::Macro)]",
+            "#[derive()] #[derive(thiserror::Error)]",
+            "#[derive(custom::Macro)] #[derive()]",
+        ] {
+            let source = format!(
+                "#[derive(thiserror::Error)] enum E {{ {attrs} #[error(\"bad\")] Bad }} fn f() {{}}"
+            );
+            let error = inventory(&source)
+                .err()
+                .expect("variant derive must fail closed");
+            assert!(
+                error.contains("derive on variant is outside the subset"),
+                "{attrs}: {error}"
+            );
+        }
+        assert!(parsed(
+            "#[derive(Debug)] #[derive(thiserror::Error)] #[error(\"bad\")] struct E; fn f() {}"
+        ));
+        assert!(parsed(
+            "enum Other { #[derive(custom::Macro)] A, #[derive()] B } fn f() {}"
         ));
     }
     #[test]

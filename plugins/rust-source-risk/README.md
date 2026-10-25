@@ -18,7 +18,9 @@ establishes context. Each struct or direct enum variant requires one `error`
 attribute. Context does not propagate into other items, methods or nested types.
 Other derives in that context are limited to unqualified built-in spellings
 `Debug`, `Clone`, `Copy`, `PartialEq`, `Eq`, `PartialOrd`, `Ord`, `Hash`, `Default`.
-Unknown custom derives/attributes fail closed; derive behavior outside this
+Unknown custom derives/attributes fail closed. Derive attributes are allowed
+only on the owning struct/enum; every derive attribute on a direct variant is
+rejected, including empty and malformed lists. Derive behavior outside this
 context is unchanged. These spellings do not prove macro dependency origin:
 there is no Rust name resolution, alias/re-export support, or proof against
 shadowing. Real acceptance binds the fixture Cargo.lock (thiserror 2.0.20),

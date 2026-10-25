@@ -80,6 +80,18 @@ struct B { #[serde(serialize_with = "other")] x: u32 }
         self.assertFalse((self.root / 'capture/bundle.json').exists())
         self.assertFalse((self.root / 'capture/cargo-coverage.json').exists())
 
+    def test_mixed_direct_variant_derive_stops_before_cargo(self):
+        (self.repo / 'src/lib.rs').write_text(
+            '#[derive(thiserror::Error)] enum E { '
+            '#[derive(thiserror::Error,custom::Macro)] #[error("bad")] Bad } fn f() {}')
+        result = self.capture()
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('derive on variant is outside the subset', result.stderr)
+        self.assertFalse(self.marker.exists(), 'invalid variant must not start cargo')
+        self.assertFalse((self.root / 'capture/capture.stdout').exists())
+        self.assertFalse((self.root / 'capture/bundle.json').exists())
+        self.assertFalse((self.root / 'capture/cargo-coverage.json').exists())
+
     def test_supported_source_proceeds_to_cargo(self):
         (self.repo / 'src/lib.rs').write_text('pub fn value() -> u32 { 42 }')
         result = self.capture()
