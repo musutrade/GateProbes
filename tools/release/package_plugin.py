@@ -6,6 +6,7 @@ Packaging migrated from Harness-Gate; measurement and policy semantics are uncha
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import importlib.util
 import os
@@ -381,17 +382,25 @@ def rust_package(output: Path, core: Path) -> None:
             "--output", str(output / (name + ".tar.gz.sbom.cdx.json")))
 
 
-def accept_rust_archive(archive: Path, source: Path, consumer: Path, core: Path) -> None:
+def accept_rust_archive(archive: Path, source: Path, consumer: Path, core: Path, *, flat=False) -> None:
     """Exercise the extracted archive; source-tree tests alone miss omitted files."""
     consumer.mkdir()
+    installed = consumer / ("runtime" if flat else archive.name.removesuffix(".tar.gz"))
     with tarfile.open(archive) as stream:
-        stream.extractall(consumer, filter="data")
-    installed = consumer / archive.name.removesuffix(".tar.gz")
+        if flat:
+            expected = {"plugin.py", "measure.py", "capture.py", "plugin.json", "inventory",
+                        "ast/Cargo.lock", "LICENSE", "README.md"}
+            members = stream.getmembers()
+            if {m.name for m in members} != expected or len(members) != len(expected) or any(not m.isfile() for m in members):
+                raise RuntimeError("unexpected source-risk CI package members")
+        stream.extractall(installed if flat else consumer, filter="data")
     required = ("plugin.py", "measure.py", "capture.py", "plugin.json", "inventory",
-                "ast/Cargo.lock", "LICENSE", "THIRD_PARTY_NOTICES.txt")
+                "ast/Cargo.lock", "LICENSE") + (() if flat else ("THIRD_PARTY_NOTICES.txt",))
     for name in required:
         if not (installed / name).is_file():
             raise RuntimeError("incomplete Rust collector archive: " + name)
+    runtime = {p.relative_to(installed).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
+               for p in installed.rglob("*") if p.is_file()}
     for test in source.glob("test_*.py"):
         shutil.copy2(test, installed / test.name)
     # The acceptance unit tests need their harness and pins, but the published
@@ -404,8 +413,19 @@ def accept_rust_archive(archive: Path, source: Path, consumer: Path, core: Path)
                      os.environ, PYTHONPATH="", RUST_SOURCE_INVENTORY=str(installed / "inventory")))
     if "skipped=" in output or not re.search(r"Ran [1-9][0-9]* tests", output):
         raise RuntimeError("extracted Rust collector acceptance skipped tests")
+    for test in ("test_mixed_direct_variant_derive_stops_before_cargo",
+                 "test_exact_authored_inventory_counters_and_complexity"):
+        if not re.search(r"^" + test + r" \(.*\) \.\.\. ok$", output, re.MULTILINE):
+            raise RuntimeError("extracted Rust collector required test missing: " + test)
     run("python3", str(source / "contract.py"), "--plugin", str(installed),
         "--core-root", str(core / "tools/quality"), cwd=consumer)
+    evidence = consumer / "acceptance.json"
+    evidence.write_text(json.dumps({"scope": "unpublished-source-package" if flat else "extracted-release-package",
+                                   "archive_sha256": hashlib.sha256(archive.read_bytes()).hexdigest(),
+                                   "runtime_members": runtime,
+                                   "zero_skips": True, "required_native_preflight": "passed",
+                                   "contract": "passed",
+                                   "tests": int(re.search(r"Ran ([1-9][0-9]*) tests", output).group(1))}, indent=2) + "\n")
 
 
 def main() -> None:

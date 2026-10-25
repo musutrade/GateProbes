@@ -1,8 +1,88 @@
-# Rust source-risk collector (0.2.0 release candidate)
+# Rust source-risk collector
 
 This is an independent Harness-Gate collector plugin. It does not modify Core,
 change a policy threshold, sign its own requests, or replace the MIR measurement
 series. The original MIR collector remains useful for generated-code diagnostics.
+
+## Local thiserror candidate (unpublished)
+
+The working source adds the restricted metadata subset below. Published 0.2.0
+bytes and `core_acceptance.json` are unchanged and still reject these helpers.
+The inherited development `plugin.json`/collector version remains 0.2.0; it is
+**not** the identity of a new published 0.2.0 artifact. Candidate receipts use
+`rust-source-risk-local-candidate-acceptance/v1`, scope
+`local-unpublished-candidate`, a pinned archive/member manifest and source commit.
+
+Only the literal syntactic path `derive(thiserror::Error)` on a struct/enum
+establishes context. Each struct or direct enum variant requires one `error`
+attribute. Context does not propagate into other items, methods or nested types.
+Other derives in that context are limited to unqualified built-in spellings
+`Debug`, `Clone`, `Copy`, `PartialEq`, `Eq`, `PartialOrd`, `Ord`, `Hash`, `Default`.
+Unknown custom derives/attributes fail closed. Derive attributes are allowed
+only on the owning struct/enum; every derive attribute on a direct variant is
+rejected, including empty and malformed lists. Derive behavior outside this
+context is unchanged. These spellings do not prove macro dependency origin:
+there is no Rust name resolution, alias/re-export support, or proof against
+shadowing. Real acceptance binds the fixture Cargo.lock (thiserror 2.0.20),
+compiler/LLVM identity, original source and exact implementation hashes.
+
+The template grammar is exactly one `LitStr`, containing ordinary text, `{{`,
+`}}`, or `{field}`/`{field:?}`. `field` must be an existing named field or a
+canonical decimal tuple index (`0`, `1`, ... with no leading zeros). Empty or
+nonexistent fields, mismatched braces, additional arguments/expressions,
+callbacks, and all other format specifications are rejected. `error(transparent)`
+is the only non-string form and requires exactly one field.
+
+`from` and `source` must be argument-free flags on direct fields. A single field
+named `source` is explicitly treated as an implicit source. A `from` field also
+selects the source, and requires a one-field owner. Repeated flags, multiple
+source fields, and combined explicit `from` plus `source` are rejected. Explicit
+`source` on the implicitly named source field has the same meaning, not a second
+source. Transparent wrappers may use `from`, but explicit/implicit `source` with
+transparent is outside this subset. Backtrace helpers, a field named `backtrace`,
+and direct `Backtrace` type spellings are rejected; aliases are not resolved.
+Unsupported conditional field/variant/member attributes remain rejected.
+
+All handwritten functions, methods and closures are still traversed at their
+original spans and exact anchors. No unknown/generated native record is filtered
+by this change. Native mapping still rejects unmatched/ambiguous owners,
+multifile expansion and missing authored counters. The integration fixture
+executes literal/tuple/named formatting, transparent conversion, explicit and
+implicit `Error::source`, and handwritten branches/methods/closures. The native
+test adds an unexecuted function and checks its zero coverage and CC, then injects
+faults into actual LLVM export/inventory inputs to verify mapping rejection.
+
+Build the inventory, run `test_thiserror_native.py` with a capture-compatible
+isolated Cargo environment, then from a clean committed worktree run:
+
+```sh
+python3 plugins/rust-source-risk/local_candidate.py --output /absolute/new-output \
+  --core /absolute/published/harness-gate-linux-amd64
+```
+
+This builds and hashes an unpublished local archive, captures from its extracted
+runtime, and calls the separate `candidate_acceptance.py` entrypoint. That
+entrypoint requires `--pins` and `--pins-sha256`, rejects release claims and
+changes to the fixed published Core identity, and runs the existing signed
+collect/evaluate chain, ten protocol/evidence negatives and real fixture-policy
+failure. `core_acceptance.py` without the internal candidate entrypoint keeps the
+published-release schema/inventory checks and existing current-release CI pins.
+No CI workflow changes are included in this local candidate.
+
+A future independently published version requires a reviewed version/tag/asset
+and immutable inventory/provenance, updated collector identity and contracts,
+new downloaded-artifact acceptance, and then a separate Core consumer review.
+Even before a version bump the changed inventory binary changes the existing
+series rule digest; fixture Cargo.lock and toolchain affect the tool digest.
+Do not relabel old reports/baselines or add a native MIR compatibility row.
+
+Checking the historical four #107 producer files is source-inventory evidence
+only: the candidate accepts audit/errors.rs and scope/errors.rs; secrets/mod.rs
+still rejects anyhow macros, and verify/mod.rs still rejects anyhow, print and
+env macros. This does not revive #107 or certify full production measurement.
+Risk registration/series, explain coverage/mutations and critical-path binding
+remain separate Core consumer responsibilities. Core gains no Rust parser,
+threshold, baseline, debt, ratchet or policy change here. Linux x86_64 only.
 
 ## Measurement contract
 

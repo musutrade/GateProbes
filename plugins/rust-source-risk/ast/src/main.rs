@@ -1,4 +1,5 @@
 mod configuration;
+mod error_metadata;
 mod select;
 
 use configuration::{Configuration, TargetConfiguration};
@@ -25,6 +26,7 @@ struct Inventory<'a> {
     functions: Vec<Callable>,
     stack: Vec<usize>,
     errors: Vec<String>,
+    error_helpers: error_metadata::Helpers,
 }
 impl Inventory<'_> {
     fn point(&self, p: proc_macro2::LineColumn) -> [usize; 2] {
@@ -203,6 +205,9 @@ impl<'ast> Visit<'ast> for Inventory<'_> {
     }
 
     fn visit_attribute(&mut self, n: &'ast syn::Attribute) {
+        if self.error_helpers.contains(n) {
+            return;
+        }
         let path = n
             .path()
             .segments
@@ -464,8 +469,10 @@ fn inventory_with_target(
     if !filter.errors.is_empty() {
         return Err(filter.errors.join("; "));
     }
+    let error_helpers = error_metadata::validate(&syntax)?;
     let mut visitor = Inventory {
         source,
+        error_helpers,
         functions: vec![],
         stack: vec![],
         errors: vec![],

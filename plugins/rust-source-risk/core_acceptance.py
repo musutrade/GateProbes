@@ -76,7 +76,7 @@ def verify_release_inventory(path: Path, pins: dict) -> dict:
 
 
 def verify_archive(path: Path, pins: dict, destination: Path) -> Path:
-    release = pins["release"]
+    release = pins.get("candidate", pins.get("release"))
     require(path.is_file(), f"release archive missing: {path}")
     require(file_digest(path) == release["archive_sha256"],
             "release archive digest mismatch")
@@ -186,7 +186,7 @@ def verify_bundle(bundle_path: Path, pins: dict) -> tuple[dict, dict, Path]:
     for name, expected in pins["fixture"]["pipeline_files"].items():
         require(receipt["pipeline"]["files"].get(name) == expected,
                 f"fixture pipeline digest mismatch: {name}")
-    release = pins["release"]
+    release = pins.get("candidate", pins.get("release"))
     require(request["collector"] == {"name": release["name"], "version": release["version"]},
             "collector identity mismatch")
     require(series["collector"] == request["collector"],
@@ -274,31 +274,49 @@ def report_reasons(value) -> list[str]:
     return reasons
 
 
-def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
+def main(argv=None, *, candidate=False) -> int:
+    parser = argparse.ArgumentParser(description=("Local unpublished candidate; externally pinned manifest, fixed published Core."
+                                                  if candidate else __doc__))
     parser.add_argument("--bundle", type=Path, required=True)
     parser.add_argument("--archive", type=Path, required=True)
-    parser.add_argument("--release-inventory", type=Path, required=True)
+    parser.add_argument("--release-inventory", type=Path, required=not candidate)
     parser.add_argument("--core", type=Path, required=True)
     parser.add_argument("--presets-dir", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--pins", type=Path,
-                        default=Path(__file__).with_name("core_acceptance.json"))
-    args = parser.parse_args()
+    parser.add_argument("--pins", type=Path, required=candidate,
+                        default=None if candidate else Path(__file__).with_name("core_acceptance.json"))
+    if candidate:
+        parser.add_argument("--pins-sha256", required=True)
+    args = parser.parse_args(argv)
 
     pins = read_json(args.pins)
-    require(pins.get("schema") == "rust-source-risk-core-acceptance/v1",
+    require(pins.get("schema") == ("rust-source-risk-local-candidate/v1" if candidate
+                                   else "rust-source-risk-core-acceptance/v1"),
             "unexpected acceptance pins schema")
     require(args.presets_dir.is_dir() and (args.presets_dir / "catalog.json").is_file(),
             f"presets catalog missing: {args.presets_dir}")
     require(shutil.which("openssl"), "openssl is unavailable")
 
-    verify_release_inventory(args.release_inventory, pins)
+    if candidate:
+        require(file_digest(args.pins) == args.pins_sha256, "candidate manifest digest mismatch")
+        require("release" not in pins and not pins["candidate"].get("tag"),
+                "candidate must not claim a published release")
+        published = read_json(Path(__file__).with_name("core_acceptance.json"))
+        require(pins["core"] == published["core"], "candidate must use fixed published Core")
+    else:
+        require("candidate" not in pins, "published regression cannot consume a candidate")
+        verify_release_inventory(args.release_inventory, pins)
     unpack = Path(tempfile.mkdtemp(prefix="source-risk-unpack-"))
     plugin = verify_archive(args.archive, pins, unpack)
     core_info = verify_core(args.core, pins)
     toolchain = verify_toolchain(pins)
     bundle, measurement, root = verify_bundle(args.bundle, pins)
+    if candidate:
+        receipt = measurement["parameters"]["receipt"]
+        for key in ("sources", "inputs"):
+            require(receipt[key] == pins["fixture"][key], "candidate fixture inventory mismatch: " + key)
+        require(receipt["pipeline"]["files"] == pins["fixture"]["pipeline_files"],
+                "candidate fixture pipeline inventory mismatch")
     cargo_environment = verify_cargo_environment(root)
 
     host = Path(tempfile.mkdtemp(prefix="host-", dir=root.parent))
@@ -683,7 +701,7 @@ formats = ["human", "json"]
             "archive_sha256": pins["release"]["archive_sha256"],
             "inventory_sha256": pins["release"]["inventory_sha256"],
             "members": pins["release"]["members"],
-        },
+        } if not candidate else None,
         "core": core_info,
         "toolchain": toolchain,
         "cargo_environment": cargo_environment,
@@ -738,6 +756,19 @@ formats = ["human", "json"]
             "current 0.2.0 consumer regression; not a new candidate artifact",
         ],
     }
+    if candidate:
+        receipt.pop("release")
+        receipt["schema"] = "rust-source-risk-local-candidate-acceptance/v1"
+        receipt["scope"] = "local-unpublished-candidate"
+        receipt["candidate"] = pins["candidate"]
+        receipt["candidate_manifest_sha256"] = file_digest(args.pins)
+        receipt["checks"]["release_inventory"] = "not applicable: unpublished candidate"
+        receipt["limitations"] = [
+            "local candidate, not published 0.2.0 artifact acceptance",
+            "Linux x86_64 only; syntactic paths do not prove Rust macro dependency identity",
+            "restricted thiserror subset; no alias/re-export/name resolution",
+            "acceptance harness, not production trust provisioning",
+        ]
     args.output.parent.mkdir(parents=True, exist_ok=True)
     write(args.output, receipt)
     copy_root = args.output.parent / "host"

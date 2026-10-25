@@ -705,6 +705,10 @@ jobs:
         working-directory: ${{ matrix.path }}
         run: ${{ matrix.entries.install }}
 
+      - name: Install source-risk capture tool
+        if: matrix.plugin == 'rust-source-risk'
+        run: cargo install --locked cargo-llvm-cov --version 0.9.0
+
       - name: Unit and protocol tests (python)
         if: matrix.language == 'python'
         working-directory: ${{ matrix.path }}
@@ -719,6 +723,28 @@ jobs:
         if: matrix.language == 'python'
         working-directory: ${{ matrix.path }}
         run: ${{ matrix.entries.package }}
+
+      - name: Accept extracted unpublished source-risk package
+        if: matrix.plugin == 'rust-source-risk'
+        env:
+          RUST_SOURCE_TEST_EVIDENCE: ${{ runner.temp }}/source-risk-extracted-native
+        run: |
+          set -euo pipefail
+          python3 tools/release/accept_source_risk_ci.py \
+            --archive "$GITHUB_WORKSPACE/plugins/rust-source-risk/harness-gate-rust-source-risk-0.2.0-linux-amd64.tar.gz" \
+            --source "$GITHUB_WORKSPACE/plugins/rust-source-risk" \
+            --consumer "$RUNNER_TEMP/source-risk-extracted" --core-root "$RUNNER_TEMP/core"
+
+      - name: Retain source-risk extracted-package evidence
+        if: always() && matrix.plugin == 'rust-source-risk'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: source-risk-extracted-package
+          path: |
+            ${{ runner.temp }}/source-risk-extracted/acceptance.json
+            ${{ runner.temp }}/source-risk-extracted-native
+          if-no-files-found: error
+          retention-days: 30
 
       - name: Install dependencies (typescript)
         if: matrix.language == 'typescript'
