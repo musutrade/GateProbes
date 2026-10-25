@@ -261,3 +261,16 @@ artifact or Core's installation gate. See the
 
 Both entries cover Linux x86_64 rootless Podman 5.7.0 normal lifecycle only; no
 daemon restart, additional platforms or fleet migration is certified.
+
+## Published Rust source-risk 0.3.0 (2026-10-25)
+
+`rust-source-risk-v0.3.0` is immutable and independently downloaded-byte verified;
+see the [public receipt](releases/rust-source-risk-0.3.0-acceptance.md). Its packaged
+candidate wording is immutable preparation history, not current unpublished status.
+The separate published03 consumer gate fixes public bytes and crypto identities,
+then runs fresh four-record signed Core0.14.1 acceptance, ten specific negatives
+and a real policy failure. The original published0.2 regression and new-build
+candidate gate remain independent. This does not upgrade Core's distinct
+rust-measure0.4 analyzer, provision a real project's trust/series, reopen #107 or
+certify full Core-project capture. Linux x86_64 only; documented config/build.rs
+and unsupported-macro boundaries remain.

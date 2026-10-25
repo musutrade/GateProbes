@@ -4,15 +4,39 @@ This is an independent Harness-Gate collector plugin. It does not modify Core,
 change a policy threshold, sign its own requests, or replace the MIR measurement
 series. The original MIR collector remains useful for generated-code diagnostics.
 
-## 0.3.0 release candidate (unpublished)
+## Published 0.3.0 and independent consumer regression
 
-The working product identity is **0.3.0 release candidate**, consistently bound
-by `plugin.json`, `COLLECTOR`, `ast/Cargo.toml`, its root lock entry and the release
-catalog. No 0.3.0 tag/release/downloaded asset exists as part of local preparation.
-Published 0.2.0 bytes and `core_acceptance.json` remain unchanged and still reject
-these helpers. Candidate receipts use `rust-source-risk-local-candidate-acceptance/v1`,
-scope `local-unpublished-candidate`, exact 0.3.0 archive/member/SBOM hashes and
-source commit/tree. They are not published-0.3 download acceptance.
+[rust-source-risk 0.3.0](https://github.com/musutrade/GateProbes/releases/tag/rust-source-risk-v0.3.0)
+is publicly released and immutable, from source
+`3f6cd00dab33d75ab8c4963629c63edea942a0bb`. See the
+[published receipt and consumption boundary](../../docs/releases/rust-source-risk-0.3.0-acceptance.md).
+The package's candidate wording records its preparation history; those immutable
+bytes, historical candidate manifests and inner receipt schemas are unchanged.
+A new outer `rust-source-risk-published-download-acceptance/v1` receipt records
+separately verified public identity and a new capture from downloaded bytes.
+
+`published_acceptance.json` fixes the tag/annotated object/source, all 12 assets,
+archive/SBOM/inventory and nine members, published Core 0.14.1, exact certificate
+identity/issuer, provenance source and cosign v2.6.5 binary digest. The runner
+checks that digest on cache hits too. Download or signature failure stops the
+run; there is no fallback. All verification precedes downloaded runtime execution.
+Fixture inputs, presets and validator files come from the fixed release source
+and have independent hash checks; current fixture edits cannot silently substitute.
+Runner head/digest and inner fresh bundle/receipt hashes are recorded outside the
+unchanged candidate schema. This harness is not a production trust provisioner.
+
+From a checkout containing the fixed release commit, with the toolchain described
+below and a clean separate `CARGO_HOME`:
+
+```sh
+python3 plugins/rust-source-risk/published_acceptance.py \
+  --output /absolute/fresh-published03-output --tool-cache /absolute/cosign-cache
+```
+
+CI requires this published03 download regression independently of the fixed
+published0.2 consumer regression and new-build candidate package gate. Published
+0.2 bytes and `core_acceptance.json` stay unchanged and still reject thiserror
+helpers. None of these paths changes Core policy or adds a native MIR matrix row.
 
 Only the literal syntactic path `derive(thiserror::Error)` on a struct/enum
 establishes context. Each struct or direct enum variant requires one `error`
@@ -99,17 +123,26 @@ for a new-0.3 candidate result. Changing the inventory, COLLECTOR version and ro
 lock entry changes the series under its existing identity mechanism. Old reports
 and baselines are never relabeled.
 
-Publication remains a separate review: protected-main/tag policy, integrity
-inventory/signing/provenance and exact upload set still apply. After a separately
-authorized real 0.3 release, download the actual published archive/SBOM/inventory,
-verify their published hashes/provenance and nine members, then run fresh 0.3
-measurement and signed Core acceptance bound to those downloaded bytes. That
-post-publication stage has not run and must not reuse old 0.2 pins or relabel a
-local-candidate receipt. Core consumer pin/series and project registration review
-come afterward; no native MIR matrix row or Core policy/baseline change is added.
+The normal release workflow's package candidate gate precedes upload. Actual
+0.3 publication then passed downloaded-byte hashes, exact-tag cosign/provenance,
+fresh four-record signed published-Core collect/evaluate, ten specific negatives
+and real fixture policy failure. The separate required published03 runner repeats
+that consumer check from fresh directories. Candidate receipts remain candidate
+receipts; they are not renamed to public release receipts.
+
+Core's own required source Risk path already consumes rust-measure 0.4.0; it is
+separate from this external signed project collector. No Core production
+source-risk pin exists to upgrade. A real project's host owns precise package,
+trust, request and series provisioning. Actual Core-project capture remains
+blocked by conservative repository-wide build.rs preflight (including an
+unrelated fixture), and capture rejects unsupported Cargo config/rustflags.
+Inventory acceptance alone is not native/full-project measurement. Current Core
+Risk registration includes secrets/mod.rs and verify/mod.rs, but not
+audit/errors.rs or scope/errors.rs. No registration/baseline migration or #107
+restart is implied.
 
 Checking the historical four #107 producer files is source-inventory evidence
-only: the candidate accepts audit/errors.rs and scope/errors.rs; secrets/mod.rs
+only: published0.3 inventory accepts audit/errors.rs and scope/errors.rs; secrets/mod.rs
 still rejects anyhow macros, and verify/mod.rs still rejects anyhow, print and
 env macros. This does not revive #107 or certify full production measurement.
 Risk registration/series, explain coverage/mutations and critical-path binding

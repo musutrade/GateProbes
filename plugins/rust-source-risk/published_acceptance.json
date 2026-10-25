@@ -1,0 +1,111 @@
+{
+  "schema": "rust-source-risk-published-regression/v1",
+  "repository": "musutrade/GateProbes",
+  "release_id": 423131213,
+  "tag": "rust-source-risk-v0.3.0",
+  "tag_object": "1d02f4bd2c7d54fbcc031db87b1b76046846bb0e",
+  "source_commit": "3f6cd00dab33d75ab8c4963629c63edea942a0bb",
+  "source_tree": "9db8e3398c2f30b64a56e6e49443fdbac588f74f",
+  "certificate_identity": "https://github.com/musutrade/GateProbes/.github/workflows/collector-release.yml@refs/tags/rust-source-risk-v0.3.0",
+  "oidc_issuer": "https://token.actions.githubusercontent.com",
+  "assets": {
+    "harness-gate-rust-source-risk-0.3.0-linux-amd64.tar.gz": "d576b98b6fa1b68cd79ec216c2a9978cfb81f8adec2cc8975c056a4854f5e515",
+    "harness-gate-rust-source-risk-0.3.0-linux-amd64.tar.gz.crt": "6aeb4c51df855c0457b7ba5a998eefa909962124b876f592b2a8fa544e3c47af",
+    "harness-gate-rust-source-risk-0.3.0-linux-amd64.tar.gz.sbom.cdx.json": "c0c8c544e125424d38459205f727c177d966fb8afbf4c2534f721b09c71577ae",
+    "harness-gate-rust-source-risk-0.3.0-linux-amd64.tar.gz.sbom.cdx.json.crt": "f96ad82e7776e45e2413375840a58a350e0fea819c6f9ec54876c28b1786cdd2",
+    "harness-gate-rust-source-risk-0.3.0-linux-amd64.tar.gz.sbom.cdx.json.sig": "91ac6c735391f05137b2877c71c93c4336d2d61bc2dcf7fc2d28a89a6a387276",
+    "harness-gate-rust-source-risk-0.3.0-linux-amd64.tar.gz.sig": "1989d23c87cf978dd427967c1420594d3447a87e65d29bdf48a63a3cb57978b9",
+    "release-inventory.json": "98abfeb0018530c4fcfadebb58eb254492541bf53dfaf1e08ec99ec0823b4bad",
+    "release-inventory.json.crt": "aa1972fafa95afdf2f90798a4d173b253893a9553f27497d44e49b0f409bc9b9",
+    "release-inventory.json.sig": "22074a7d8139fd5119ef4acf0a7f1676090b3f38d65f4963f852919c2f7bfd3b",
+    "SHA256SUMS": "da9a02e7f7d1e1e51eaae13f9373a5dc39ee68d077faf833f5b3193dc9568e41",
+    "SHA256SUMS.crt": "2322bc8d777c8ba5e79f3350d099b750b99ade6bb3b9e4b45ceb20e705cdd72f",
+    "SHA256SUMS.sig": "45f422e73761181a3844954d7ac4658733d01a9e0f76519941703763e0b68e0c"
+  },
+  "cosign": {
+    "repository": "sigstore/cosign",
+    "tag": "v2.6.5",
+    "asset": "cosign-linux-amd64",
+    "sha256": "c3b4f5410e608af03a5eb0aaac84a4313d8da131248e08ff1759ac70c79d1644"
+  },
+  "validator_manifest": {
+    "schema": "rust-source-risk-local-candidate/v1",
+    "candidate": {
+      "name": "rust-source-risk",
+      "version": "0.3.0",
+      "scope": "unpublished-release-candidate",
+      "source_commit": "3f6cd00dab33d75ab8c4963629c63edea942a0bb",
+      "source_tree": "9db8e3398c2f30b64a56e6e49443fdbac588f74f",
+      "archive": "harness-gate-rust-source-risk-0.3.0-linux-amd64.tar.gz",
+      "archive_sha256": "d576b98b6fa1b68cd79ec216c2a9978cfb81f8adec2cc8975c056a4854f5e515",
+      "members": {
+        "LICENSE": "5b9835780a3cd7518d7637c6730a26c1141d24a00a413364264c2a4091c0e6d9",
+        "README.md": "21f655803abdade7bb5688c2e70f5c4d0339ed2709b32bb71d236dcb43f748ec",
+        "THIRD_PARTY_NOTICES.txt": "c2c207f520df7786635c493bda3ba14241bd1593b6568e9234aeb7359636dc56",
+        "ast/Cargo.lock": "7f5a3529bceb3c4589eb02c9ae9e95517b75a1320685f798ec0e22b95b984965",
+        "capture.py": "e20e9d18171d615b20ac8c91a8a9286f3d38b3514db4335e1cd83cfd974da093",
+        "inventory": "adb912fe4ca4aa3186418d7563de8e6129ebc69cc19c3c48b6a397203b40b83f",
+        "measure.py": "e3a3a32ff46d4561234065ed3fad08c8cba5b4631648fe10ed955fd0c68bdb30",
+        "plugin.json": "313635c6165775eb52c73d496a07f899ef7f18e9bcf43f12bcc8fb415d3446e2",
+        "plugin.py": "86a6fcb5c489a1ca9d48e5c30cce7dfceb0a265bb817d8643ccbbab0eebb153e"
+      },
+      "sbom": "harness-gate-rust-source-risk-0.3.0-linux-amd64.tar.gz.sbom.cdx.json",
+      "sbom_sha256": "c0c8c544e125424d38459205f727c177d966fb8afbf4c2534f721b09c71577ae"
+    },
+    "core": {
+      "release": "v0.14.1",
+      "source_commit": "c22a12e25a5ea6f617d4afb9dd4e2410dc14f267",
+      "binary": "harness-gate-linux-amd64",
+      "sha256": "6b4f36d432266e43e22d82776729d76f04098c5cf63ae2295f508359a37e060c",
+      "version": "harness-gate 0.14.1"
+    },
+    "tools": {
+      "rustc": "1.99.1",
+      "cargo_llvm_cov": "0.9.0",
+      "python": "3.14"
+    },
+    "fixture": {
+      "target": "x86_64-unknown-linux-gnu",
+      "inputs": {
+        "Cargo.toml": "7ecee5b264d06f4e5b12fa63b65916927bb75b7d88e0f7ecd670982f77bbe82c",
+        "Cargo.lock": "1b28814aed54d3bf1963b65eb478d61c2822604a8cbeab8425f17e1cf0519226",
+        "tests/integration.rs": "7ecb28a03a9043c95dc606628058c22a625e74f168fefc8089776dcab834565e",
+        "apps/server/src/lib.rs": "e0944fe229c58dac35e18ebcee80021f4684346c92011ad7e523380a6c53b2ed"
+      },
+      "sources": {
+        "apps/server/src/lib.rs": "e0944fe229c58dac35e18ebcee80021f4684346c92011ad7e523380a6c53b2ed"
+      },
+      "pipeline_files": {
+        "Cargo.toml": "7ecee5b264d06f4e5b12fa63b65916927bb75b7d88e0f7ecd670982f77bbe82c",
+        "Cargo.lock": "1b28814aed54d3bf1963b65eb478d61c2822604a8cbeab8425f17e1cf0519226"
+      }
+    }
+  },
+  "validator_manifest_sha256": "1e5fe5d4040c53a1c68aef658b63bedc4f8933b8a189f9b4e35411a5412f13d7",
+  "fixed_source_files": {
+    "plugins/rust-source-risk/candidate_acceptance.py": "cc6b953d33132e406086b4f70ca45ed5ee9907368d4238ebc379ba377ab448c3",
+    "plugins/rust-source-risk/core_acceptance.json": "a88b01480bafedab68bba55cffd0341104a0af8513cae77fcb93ed5bd66217d9",
+    "plugins/rust-source-risk/core_acceptance.py": "bf9b6a7cdb6b2909a9af62ad1972e3a13a5297578f121906712263dbdc99802e",
+    "plugins/rust-source-risk/fixtures/thiserror-subset/Cargo.lock": "1b28814aed54d3bf1963b65eb478d61c2822604a8cbeab8425f17e1cf0519226",
+    "plugins/rust-source-risk/fixtures/thiserror-subset/Cargo.toml": "7ecee5b264d06f4e5b12fa63b65916927bb75b7d88e0f7ecd670982f77bbe82c",
+    "plugins/rust-source-risk/fixtures/thiserror-subset/apps/server/src/lib.rs": "e0944fe229c58dac35e18ebcee80021f4684346c92011ad7e523380a6c53b2ed",
+    "plugins/rust-source-risk/fixtures/thiserror-subset/tests/integration.rs": "7ecb28a03a9043c95dc606628058c22a625e74f168fefc8089776dcab834565e",
+    "presets/angular-only.flow.toml": "ca35338435b6b590aacd3873f72397b51890c6d058a7634ec4722d3c97a1ac07",
+    "presets/angular-only.packs.json": "5996bd3ea92fd6f7bdaba756c8d889e18e6e40433e2ca86f4a34625d3f0d02ee",
+    "presets/angular-rust-postgres.flow.toml": "0c1aec5f2e81ffeb25afd46deae9cb54d5e055ab0b6607c65fa6409242fa0b9a",
+    "presets/angular-rust-postgres.packs.json": "2a9e675df9031ece1d4c6a5e2123dec3db925ce60f0ff07d461f822cac76dbe0",
+    "presets/catalog.json": "f115dc9ac3b56acb4493e2b8047b1d1068a046a51fe2c0b1013944503078e640",
+    "presets/packs/api-contract.json": "ba9548003dbaabd9c58f31564be5dcad996b2f206c10deec08016cde6e50bdec",
+    "presets/packs/rust.json": "4c2f807ef4bc344bb7f19ceeca9356f1a0af863cb69913cb6885ecd9ee3b2bb5",
+    "presets/packs/typescript.json": "eedfc095557d0f06abde58b29ea5f034b4a347cf43e591fdb21983fffc12ae3d",
+    "presets/rust-api.flow.toml": "450683bc424d105454f5afa00e1cf8e05ccd1e51aac0b3096afdd70ca60d081c",
+    "presets/rust-api.packs.json": "e4dd59d162b0a02a45dbc6321ee44be6872139a8cee1645f7267c7837917bdaf",
+    "tools/release/release_inventory.py": "0993aee8cd44a2d1106394719d7c8bfacf7f034e669cf49b6a887b70a2c8d45d"
+  },
+  "core_certificate_identity": "https://github.com/musutrade/GateHouse/.github/workflows/release.yml@refs/tags/v0.14.1",
+  "core_assets": {
+    "harness-gate-linux-amd64": "6b4f36d432266e43e22d82776729d76f04098c5cf63ae2295f508359a37e060c",
+    "harness-gate-linux-amd64.crt": "dfaaa07bb3252817a44d37fa56e767973463007a27c6606a1d2b351a07cc00be",
+    "harness-gate-linux-amd64.sig": "d56f53b61e75847fc8458807949f78b378d95919b04c5d7df49fdde73f93590d"
+  }
+}
