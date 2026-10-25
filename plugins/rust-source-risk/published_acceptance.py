@@ -146,6 +146,10 @@ def main(argv=None):
     def api(label, path):
         return json.loads(run(label, ['gh', 'api', f"repos/{pins['repository']}/{path}"]))
 
+    head = run('runner-head-start', ['git', '-C', ROOT, 'rev-parse', 'HEAD']).strip()
+    runner_sha256 = file_digest(Path(__file__))
+    require(not run('runner-clean-start', ['git', '-C', ROOT, 'status', '--porcelain']).strip(),
+            'published regression requires a clean committed worktree')
     before = api('release-before', 'releases/tags/' + pins['tag'])
     ref = api('tag-ref', 'git/ref/tags/' + pins['tag'])
     tag = api('tag-object', 'git/tags/' + pins['tag_object'])
@@ -224,14 +228,17 @@ def main(argv=None):
     verify_fresh_result(pins, inner, bundle, host)
     run('request-signature', ['openssl', 'pkeyutl', '-verify', '-pubin', '-inkey', host / 'public.der',
         '-keyform', 'DER', '-rawin', '-in', host / 'valid-sign-input.json', '-sigfile', host / 'valid-signature.bin'])
-    head = run('runner-head', ['git', '-C', ROOT, 'rev-parse', 'HEAD']).strip()
+    require(run('runner-head-end', ['git', '-C', ROOT, 'rev-parse', 'HEAD']).strip() == head and
+            file_digest(Path(__file__)) == runner_sha256 and
+            not run('runner-clean-end', ['git', '-C', ROOT, 'status', '--porcelain']).strip(),
+            'runner source changed during acceptance')
     receipt = {'schema': 'rust-source-risk-published-download-acceptance/v1', 'status': 'pass',
         'scope': 'immutable published0.3 downloaded bytes; fresh fixture capture and signed Core chain',
         'release': {k: pins[k] for k in ['repository', 'release_id', 'tag', 'tag_object', 'source_commit', 'source_tree',
                                         'certificate_identity', 'oidc_issuer', 'assets']},
         'core_assets': pins['core_assets'], 'core_certificate_identity': core_identity,
         'cosign': tool_pin, 'pins_sha256': file_digest(PINS),
-        'runner': {'head': head, 'sha256': file_digest(Path(__file__)), 'fixed_source_files': pins['fixed_source_files']},
+        'runner': {'head': head, 'sha256': runner_sha256, 'fixed_source_files': pins['fixed_source_files']},
         'fresh_started_ns': started_ns, 'fresh_finished_ns': time.time_ns(), 'bundle_sha256': file_digest(bundle),
         'validator_manifest_sha256': file_digest(manifest), 'inner_receipt_sha256': file_digest(inner_path),
         'inner_schema': inner['schema'], 'inner_scope': inner['scope'],

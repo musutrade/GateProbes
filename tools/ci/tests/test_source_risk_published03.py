@@ -97,7 +97,7 @@ class Published03Tests(unittest.TestCase):
                 gate.verify_fresh_result(pins, receipt, bundle, root)
 
     def test_network_signature_and_corrupt_cache_stop_before_execution_no_fallback(self):
-        for failure in ['network', 'signature', 'cache']:
+        for failure in ['network', 'signature', 'cache', 'dirty']:
             with self.subTest(failure=failure), tempfile.TemporaryDirectory() as tmp:
                 root = Path(tmp); seed = root / 'seed'; seed.mkdir(); pins = synthetic_dist(seed)
                 cache = root / 'cache'; cache.mkdir()
@@ -123,10 +123,11 @@ class Published03Tests(unittest.TestCase):
                         for n in pins['fixed_source_files']:
                             p = fixed / n; p.parent.mkdir(parents=True, exist_ok=True); shutil.copy2(ROOT / n, p)
                     elif 'rev-parse' in argv: stdout = pins['source_tree']
+                    elif 'status' in argv and failure == 'dirty': stdout = ' M published_acceptance.py'
                     elif 'verify-blob' in argv: code, stderr = 1, 'signature-error'
                     return subprocess.CompletedProcess(argv, code, stdout, stderr)
                 with patch.object(gate, 'load_pins', return_value=pins), patch.object(gate.subprocess, 'run', side_effect=run):
-                    with self.assertRaisesRegex(gate.AcceptanceError, {'network': 'network-error', 'signature': 'signature-error', 'cache': 'digest mismatch'}[failure]):
+                    with self.assertRaisesRegex(gate.AcceptanceError, {'network': 'network-error', 'signature': 'signature-error', 'cache': 'digest mismatch', 'dirty': 'clean committed worktree'}[failure]):
                         gate.main(['--output', str(root / 'out'), '--tool-cache', str(cache)])
                 self.assertFalse((root / 'out/receipt.json').exists())
                 self.assertFalse(any('capture.py' in ' '.join(c) or 'candidate_acceptance.py' in ' '.join(c) for c in calls))
