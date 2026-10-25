@@ -730,8 +730,9 @@ jobs:
           RUST_SOURCE_TEST_EVIDENCE: ${{ runner.temp }}/source-risk-extracted-native
         run: |
           set -euo pipefail
+          version=$(python3 -c 'import json; print(json.load(open("plugins/rust-source-risk/plugin.json"))["version"])')
           python3 tools/release/accept_source_risk_ci.py \
-            --archive "$GITHUB_WORKSPACE/plugins/rust-source-risk/harness-gate-rust-source-risk-0.2.0-linux-amd64.tar.gz" \
+            --archive "$GITHUB_WORKSPACE/plugins/rust-source-risk/harness-gate-rust-source-risk-$version-linux-amd64.tar.gz" \
             --source "$GITHUB_WORKSPACE/plugins/rust-source-risk" \
             --consumer "$RUNNER_TEMP/source-risk-extracted" --core-root "$RUNNER_TEMP/core"
 
@@ -786,6 +787,65 @@ jobs:
             *"$version"*) ;;
             *) echo "unexpected installed version: $installed" >&2; exit 1 ;;
           esac
+
+  source-risk-candidate:
+    name: source-risk 0.3.0 complete candidate acceptance
+    needs: classify
+    if: needs.classify.outputs.run_plugins == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: '3.14'
+      - uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c
+        with:
+          toolchain: '1.99.1'
+          components: llvm-tools-preview, rust-docs
+      - name: Install fixed capture tool
+        run: cargo install --locked cargo-llvm-cov --version 0.9.0
+      - name: Fetch static contract Core and fixed published candidate Core
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python3 tools/release/pinned_core.py --output "$RUNNER_TEMP/source-risk-static-core"
+          mkdir -p "$RUNNER_TEMP/source-risk-candidate-core" "$RUNNER_TEMP/source-risk-candidate-cargo-home"
+          gh release download v0.14.1 --repo musutrade/GateHouse \
+            --dir "$RUNNER_TEMP/source-risk-candidate-core" --pattern harness-gate-linux-amd64
+          python3 - "$RUNNER_TEMP/source-risk-candidate-core/harness-gate-linux-amd64" <<'PYCORE'
+          import hashlib, json, pathlib, sys
+          pin = json.loads(pathlib.Path('plugins/rust-source-risk/core_acceptance.json').read_text())['core']
+          binary = pathlib.Path(sys.argv[1])
+          if hashlib.sha256(binary.read_bytes()).hexdigest() != pin['sha256']:
+              raise SystemExit('fixed candidate Core digest mismatch')
+          binary.chmod(0o700)
+          PYCORE
+      - name: Build complete candidate and require signed Core acceptance
+        env:
+          CARGO_HOME: ${{ runner.temp }}/source-risk-candidate-cargo-home
+        run: |
+          set -euo pipefail
+          unset RUSTUP_TOOLCHAIN
+          python3 plugins/rust-source-risk/local_candidate.py \
+            --output "$RUNNER_TEMP/source-risk03-candidate" \
+            --core-root "$RUNNER_TEMP/source-risk-static-core" \
+            --core "$RUNNER_TEMP/source-risk-candidate-core/harness-gate-linux-amd64"
+      - name: Retain candidate identity, SBOM and acceptance
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: source-risk03-candidate
+          path: |
+            ${{ runner.temp }}/source-risk03-candidate/dist
+            ${{ runner.temp }}/source-risk03-candidate/package.log
+            ${{ runner.temp }}/source-risk03-candidate/validation/candidate/candidate-manifest.json
+            ${{ runner.temp }}/source-risk03-candidate/validation/candidate/candidate-manifest.sha256
+            ${{ runner.temp }}/source-risk03-candidate/validation/candidate/acceptance
+            ${{ runner.temp }}/source-risk03-candidate/validation/extracted-acceptance.json
+          if-no-files-found: error
+          retention-days: 30
 
   source-risk-core-acceptance:
     name: source-risk 0.2.0 current consumer acceptance
@@ -1041,11 +1101,22 @@ jobs:
   required_aggregate:
     name: Required Quality Aggregate
     if: ${{ always() }}
-    needs: [ classify, lightweight, runtime-wire, runtime-repro, runtime-import-joint, runtime-importer, runtime-import-v3, runtime-import-lifecycle, runtime-import-podman, plugins, source-risk-core-acceptance, presets, compatibility ]
+    needs: [ classify, lightweight, runtime-wire, runtime-repro, runtime-import-joint, runtime-importer, runtime-import-v3, runtime-import-lifecycle, runtime-import-podman, plugins, source-risk-core-acceptance, source-risk-candidate, presets, compatibility ]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - name: Require real new source-risk candidate acceptance
+        env:
+          SELECTED: ${{ needs.classify.outputs.run_plugins }}
+          RESULT: ${{ needs.source-risk-candidate.result }}
+        run: |
+          python3 - <<'PY'
+          import os
+          if os.environ['SELECTED'] == 'true' and os.environ['RESULT'] != 'success':
+              raise SystemExit('new source-risk candidate acceptance missing or failed')
+          PY
+
       - name: Require source-risk current consumer acceptance
         env:
           SELECTED: ${{ needs.classify.outputs.run_plugins }}

@@ -118,6 +118,19 @@ def verify_core(path: Path, pins: dict) -> dict:
     return {"path": str(path), "sha256": file_digest(path), "version": actual}
 
 
+def verify_candidate_sbom(path: Path, pins: dict) -> None:
+    require(file_digest(path) == pins["candidate"]["sbom_sha256"], "candidate SBOM digest mismatch")
+    sbom = read_json(path)
+    require(sbom.get("bomFormat") == "CycloneDX", "candidate SBOM format mismatch")
+    component = sbom["metadata"]["component"]
+    require(component["name"] == "harness-gate-rust-source-inventory" and
+            component["version"] == pins["candidate"]["version"], "candidate SBOM product identity mismatch")
+    properties = {p["name"]:p["value"] for p in sbom["metadata"]["properties"]}
+    require(properties.get("source.commit") == pins["candidate"]["source_commit"], "candidate SBOM source mismatch")
+    require(properties.get("cargo.lock.sha256") == pins["candidate"]["members"]["ast/Cargo.lock"],
+            "candidate SBOM lock mismatch")
+
+
 def verify_toolchain(pins: dict) -> dict:
     tools = pins["tools"]
     rustc = subprocess.run(["rustc", "--version"], text=True,
@@ -279,6 +292,8 @@ def main(argv=None, *, candidate=False) -> int:
                                                   if candidate else __doc__))
     parser.add_argument("--bundle", type=Path, required=True)
     parser.add_argument("--archive", type=Path, required=True)
+    if candidate:
+        parser.add_argument("--sbom", type=Path, required=True)
     parser.add_argument("--release-inventory", type=Path, required=not candidate)
     parser.add_argument("--core", type=Path, required=True)
     parser.add_argument("--presets-dir", type=Path, required=True)
@@ -308,11 +323,14 @@ def main(argv=None, *, candidate=False) -> int:
         verify_release_inventory(args.release_inventory, pins)
     unpack = Path(tempfile.mkdtemp(prefix="source-risk-unpack-"))
     plugin = verify_archive(args.archive, pins, unpack)
+    if candidate:
+        verify_candidate_sbom(args.sbom, pins)
     core_info = verify_core(args.core, pins)
     toolchain = verify_toolchain(pins)
     bundle, measurement, root = verify_bundle(args.bundle, pins)
     if candidate:
         receipt = measurement["parameters"]["receipt"]
+        require(measurement["context"]["commit"] == pins["candidate"]["source_commit"], "candidate capture source mismatch")
         for key in ("sources", "inputs"):
             require(receipt[key] == pins["fixture"][key], "candidate fixture inventory mismatch: " + key)
         require(receipt["pipeline"]["files"] == pins["fixture"]["pipeline_files"],
@@ -762,6 +780,7 @@ formats = ["human", "json"]
         receipt["scope"] = "local-unpublished-candidate"
         receipt["candidate"] = pins["candidate"]
         receipt["candidate_manifest_sha256"] = file_digest(args.pins)
+        receipt["checks"]["candidate_sbom"] = "verified"
         receipt["checks"]["release_inventory"] = "not applicable: unpublished candidate"
         receipt["limitations"] = [
             "local candidate, not published 0.2.0 artifact acceptance",

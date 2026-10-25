@@ -75,7 +75,7 @@
       "platforms": [
         "linux"
       ],
-      "toolchain": "python 3.14 + rust stable",
+      "toolchain": "python 3.14 + rust 1.99.1",
       "entries": {
         "install": "cargo build --locked --release --manifest-path ast/Cargo.toml && cp ast/target/release/harness-gate-rust-source-inventory inventory",
         "test": "cargo test --locked --manifest-path ast/Cargo.toml && RUST_SOURCE_INVENTORY=\"$PWD/inventory\" python3 -m unittest discover -s . -p \"test_*.py\" -v",
@@ -83,8 +83,8 @@
         "package": "tar -czf \"harness-gate-rust-source-risk-$(python3 -c \"import json;print(json.load(open('plugin.json'))['version'])\")-linux-amd64.tar.gz\" plugin.py measure.py capture.py plugin.json LICENSE README.md inventory ast/Cargo.lock"
       },
       "protocols": [],
-      "rust_toolchain": "stable",
-      "rust_components": "rustfmt, clippy, llvm-tools-preview"
+      "rust_toolchain": "1.99.1",
+      "rust_components": "rustfmt, clippy, llvm-tools-preview, rust-docs"
     },
     "rust-native-plugin": {
       "path": "plugins/rust-native-plugin",

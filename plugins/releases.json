@@ -23,7 +23,8 @@
       "tag_prefix": "rust-source-risk-v",
       "archive": "harness-gate-rust-source-risk-{version}-linux-amd64.tar.gz",
       "manifests": [
-        "plugin.json"
+        "plugin.json",
+        "ast/Cargo.toml"
       ]
     },
     "rust-measure": {
