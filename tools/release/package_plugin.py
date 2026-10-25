@@ -124,8 +124,7 @@ def rust_measure_package(output: Path, core: Path) -> None:
     version = identity["version"]
     with tempfile.TemporaryDirectory(prefix="rust-measure-package-") as tmp:
         stage = Path(tmp)
-        env = dict(os.environ, CARGO_TARGET_DIR=str(stage / "target"),
-                   RUST_SOURCE_TEST_EVIDENCE=str(evidence / "source-native"))
+        env = dict(os.environ, CARGO_TARGET_DIR=str(stage / "target"))
         run("cargo", "test", "--locked", "--manifest-path", str(manifest), env=env)
         run("cargo", "build", "--locked", "--release", "--manifest-path", str(manifest), env=env)
         binary = stage / "target/release" / identity["executable"]
@@ -318,6 +317,16 @@ def accept_node_archive(source: Path, archive: Path, core: Path, output: Path) -
         (output / (archive.name + ".sbom.cdx.json")).write_text(sbom)
 
 
+def require_source_risk_tests(output: str) -> int:
+    if "skipped=" in output or not re.search(r"Ran [1-9][0-9]* tests", output):
+        raise RuntimeError("source-risk acceptance skipped tests")
+    for test in ("test_mixed_direct_variant_derive_stops_before_cargo",
+                 "test_exact_authored_inventory_counters_and_complexity"):
+        if not re.search(r"^" + test + r" \(.*\) \.\.\. ok$", output, re.MULTILINE):
+            raise RuntimeError("source-risk required test missing: " + test)
+    return int(re.search(r"Ran ([1-9][0-9]*) tests", output).group(1))
+
+
 def rust_package(output: Path, core: Path, candidate_core: Path, evidence: Path) -> None:
     source = ROOT / "plugins/rust-source-risk"
     manifest = source / "ast/Cargo.toml"
@@ -330,7 +339,8 @@ def rust_package(output: Path, core: Path, candidate_core: Path, evidence: Path)
     head = subprocess.check_output(["git", "-C", str(source), "rev-parse", "HEAD"], text=True).strip()
     with tempfile.TemporaryDirectory(prefix="rust-source-package-") as tmp:
         stage = Path(tmp)
-        env = dict(os.environ, CARGO_TARGET_DIR=str(stage / "target"))
+        env = dict(os.environ, CARGO_TARGET_DIR=str(stage / "target"),
+                   RUST_SOURCE_TEST_EVIDENCE=str(evidence / "source-native"))
         run("cargo", "test", "--locked", "--manifest-path", str(manifest), env=env)
         run("cargo", "build", "--locked", "--release", "--manifest-path", str(manifest), env=env)
         inventory = stage / "target/release/harness-gate-rust-source-inventory"
@@ -341,8 +351,14 @@ def rust_package(output: Path, core: Path, candidate_core: Path, evidence: Path)
         shutil.copytree(source, test_source, ignore=shutil.ignore_patterns(
             "target", "inventory", "__pycache__", "*.tar.gz"))
         shutil.copy2(inventory, test_source / "inventory")
-        run("python3", "-m", "unittest", "discover", "-s", str(test_source),
-            "-p", "test_*.py", "-v", env=env)
+        source_output = run("python3", "-m", "unittest", "discover", "-s", str(test_source),
+                            "-p", "test_*.py", "-v", env=env, combine=True)
+        source_count = require_source_risk_tests(source_output)
+        evidence.mkdir(parents=True, exist_ok=True)
+        (evidence / "source-acceptance.json").write_text(json.dumps({
+            "scope":"source-risk-source-candidate", "source_commit":head,
+            "inventory_sha256":hashlib.sha256(inventory.read_bytes()).hexdigest(),
+            "tests":source_count, "zero_skips":True, "required_native_preflight":"passed"}, indent=2) + "\n")
         name = "harness-gate-rust-source-risk-" + identity["version"] + "-linux-amd64"
         package = stage / name
         package.mkdir()
@@ -427,12 +443,7 @@ def accept_rust_archive(archive: Path, source: Path, consumer: Path, core: Path,
                  "-p", "test_*.py", "-v", cwd=consumer, combine=True, env=dict(
                      os.environ if test_env is None else test_env,
                      PYTHONPATH="", RUST_SOURCE_INVENTORY=str(installed / "inventory")))
-    if "skipped=" in output or not re.search(r"Ran [1-9][0-9]* tests", output):
-        raise RuntimeError("extracted Rust collector acceptance skipped tests")
-    for test in ("test_mixed_direct_variant_derive_stops_before_cargo",
-                 "test_exact_authored_inventory_counters_and_complexity"):
-        if not re.search(r"^" + test + r" \(.*\) \.\.\. ok$", output, re.MULTILINE):
-            raise RuntimeError("extracted Rust collector required test missing: " + test)
+    test_count = require_source_risk_tests(output)
     run("python3", str(source / "contract.py"), "--plugin", str(installed),
         "--core-root", str(core / "tools/quality"), cwd=consumer)
     evidence = consumer / "acceptance.json"
@@ -441,7 +452,7 @@ def accept_rust_archive(archive: Path, source: Path, consumer: Path, core: Path,
                                    "runtime_members": runtime,
                                    "zero_skips": True, "required_native_preflight": "passed",
                                    "contract": "passed",
-                                   "tests": int(re.search(r"Ran ([1-9][0-9]*) tests", output).group(1))}, indent=2) + "\n")
+                                   "tests": test_count}, indent=2) + "\n")
 
 
 def main() -> None:

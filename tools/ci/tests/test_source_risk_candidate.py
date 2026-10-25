@@ -11,6 +11,7 @@ ROOT=Path(__file__).resolve().parents[3]
 sys.path.insert(0,str(ROOT/'tools/release'))
 import source_risk_candidate
 import plugin_release
+import package_plugin
 
 
 class SourceRiskReleaseIdentityTests(unittest.TestCase):
@@ -44,6 +45,15 @@ class SourceRiskReleaseIdentityTests(unittest.TestCase):
             binary=Path(tmp)/'core';binary.write_bytes(b'wrong binary')
             with self.assertRaisesRegex(RuntimeError,'Core binary digest mismatch'):
                 source_risk_candidate.environment(ROOT/'plugins/rust-source-risk',binary)
+
+    def test_source_and_extracted_guard_require_actual_cases_and_no_skips(self):
+        output = ('test_mixed_direct_variant_derive_stops_before_cargo (test_preflight.T) ... ok\n'
+                  'test_exact_authored_inventory_counters_and_complexity (test_native.T) ... ok\n'
+                  'Ran 66 tests in 1.0s\nOK\n')
+        self.assertEqual(package_plugin.require_source_risk_tests(output),66)
+        for wrong in [output+'skipped=1',output.replace('Ran 66','Ran 0'),
+                      output.replace('test_mixed_direct_variant_derive_stops_before_cargo','absent')]:
+            with self.assertRaises(RuntimeError):package_plugin.require_source_risk_tests(wrong)
 
     def test_candidate_gate_and_release_workflow_keep_fixed_old_job_separate(self):
         ci=(ROOT/'.github/workflows/ci.yml').read_text()

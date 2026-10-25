@@ -844,6 +844,7 @@ jobs:
             ${{ runner.temp }}/source-risk03-candidate/validation/candidate/candidate-manifest.sha256
             ${{ runner.temp }}/source-risk03-candidate/validation/candidate/acceptance
             ${{ runner.temp }}/source-risk03-candidate/validation/extracted-acceptance.json
+            ${{ runner.temp }}/source-risk03-candidate/validation/source-acceptance.json
           if-no-files-found: error
           retention-days: 30
 
